@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login - CreativeFuel</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: url('https://www.heet.org.uk/wp-content/uploads/2016/06/gradient-background-26046-26731-hd-wallpapers.jpg.png');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: url('https://images.hdqwalls.com/download/blur-background-6z-1280x720.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            animation: fadein 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes fadein {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .wrapper {
+            width: 485px;
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, .2);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+            color: #fff;
+            border-radius: 10px;
+            padding: 37px 75px;
+
+        }
+
+        .wrapper h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .wrapper .input-box {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            margin: 30px 0;
+        }
+
+        .input-box input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            border: 2px solid rgba(255, 255, 255, .2);
+            border-radius: 40px;
+            font-size: 16px;
+            color: #fff;
+            padding: 20px 45px 20px 20px;
+        }
+
+        .input-box input::placeholder {
+            color: #fff;
+        }
+
+        .input-box i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+
+        }
+
+        .input-box select {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            border: 2px solid rgba(255, 255, 255, .2);
+            border-radius: 40px;
+            font-size: 16px;
+            color: #fff;
+            padding: 9px 11px 8px 14px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .input-box select option {
+            color: black;
+            /* Option text color */
+        }
+
+
+        .wrapper .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14.5px;
+            margin-top: 15px;
+        }
+
+        .remember-forgot label input {
+            accent-color: #fff;
+            margin-right: 3px;
+        }
+
+        .remember-forgot a {
+            color: #fff;
+            text-decoration: none;
+
+        }
+
+        .remember-forgot a:hover {
+            text-decoration: underline;
+        }
+
+        .wrapper .btn {
+            width: 100%;
+            height: 45px;
+            border-radius: 40px;
+            border: none;
+            outline: none;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            font-weight: 600;
+            margin-top: 45px;
+        }
+
+        .wrapper .register-link {
+            text-align: center;
+            font-size: 14.5px;
+            margin: 20px 0 15px;
+        }
+
+        .register-link p a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+
+        }
+
+        .register-link p a:hover {
+            text-decoration: underline;
+        }
+
+        /* Add your existing styles here */
+
+        /* OTP Input Styles */
+        .otp-inputs input {
+            margin-top: 20px;
+            width: 40px;
+            /* Width of boxes */
+            height: 50px;
+            /* Height of boxes */
+            margin: 0 5px;
+            /* Space between boxes */
+            text-align: center;
+            font-size: 18px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        .otp-inputs input:focus {
+            border-color: rgb(0, 149, 255);
+            /* Change as per your design */
+            outline: none;
+        }
+
+        /* Disabled button style */
+        .btn:disabled {
+            background-color: #CCCCCC;
+            /* Change this color for disabled state */
+            color: #888888;
+            /* Change this color for disabled state */
+            cursor: not-allowed;
+        }
+
+        /* Hover effect for enabled button */
+        .btn:not(:disabled):hover {
+            background-color: #0e3a66;
+            color: white;
+        }
+
+        /* Additional responsive or specific styles can be added here */
+    </style>
+</head>
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<body>
+
+    <div class="wrapper">
+
+        <form id="otpForm" action="/verify-otp" method="post">
+            <h1>Enter OTP</h1>
+            <div class="otp-inputs">
+                <!-- Add data-index attributes to help with JavaScript processing -->
+                <input type="text" id="otp1" data-index="1" maxlength="1" onkeyup="moveFocus(event, 1)" autofocus>
+                <input type="text" id="otp2" data-index="2" maxlength="1" onkeyup="moveFocus(event, 2)">
+                <input type="text" id="otp3" data-index="3" maxlength="1" onkeyup="moveFocus(event, 3)">
+                <input type="text" id="otp4" data-index="4" maxlength="1" onkeyup="moveFocus(event, 4)">
+                <input type="text" id="otp5" data-index="5" maxlength="1" onkeyup="moveFocus(event, 5)">
+                <input type="text" id="otp6" data-index="6" maxlength="1" onkeyup="moveFocus(event, 6)">
+            </div>
+            <input type="hidden" name="otp" id="fullOtp">
+            <input type="hidden" name="email" id="email">
+            <button type="submit" class="btn" id="validateBtn" disabled>Validate</button>
+        </form>
+        <div class="remember-forgot">
+            <a href="/dev-forgot">Back</a>
+        </div>
+
+    </div>
+
+    <script>
+
+        var emailValue = localStorage.getItem('email');
+
+        // Check if the value is present
+        if (emailValue) {
+            // Set the value of the input field
+            document.getElementById('email').value = emailValue;
+        } else {
+            console.error('Email value not found in localStorage');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var otpInputs = document.querySelectorAll('.otp-inputs input');
+
+            function checkInputs() {
+                var allFilled = Array.from(otpInputs).every(input => input.value.trim() !== '');
+                document.getElementById('validateBtn').disabled = !allFilled;
+            }
+
+            otpInputs.forEach(function (input) {
+                input.addEventListener('input', function () {
+                    checkInputs();
+                });
+            });
+
+            document.getElementById('otpForm').addEventListener('submit', function (e) {
+                // Prevent the default form submission
+                e.preventDefault();
+
+                // Concatenate the values of each input
+                var otpValue = Array.from(otpInputs).map(input => input.value).join('');
+
+                // Set the concatenated value to the hidden input
+                document.getElementById('fullOtp').value = otpValue;
+
+                // Now submit the form
+                this.submit();
+            });
+        });
+
+        function moveFocus(event, index) {
+            if (event.key === "Backspace" && event.target.value === '') {
+                // Focus previous input if exists
+                var previous = document.querySelector('input[data-index="' + (index - 1).toString() + '"]');
+                if (previous) {
+                    previous.focus();
+                }
+            } else if (event.target.value.length === 1) {
+                // Focus next input if exists
+                var next = document.querySelector('input[data-index="' + (index + 1).toString() + '"]');
+                if (next) {
+                    next.focus();
+                }
+            }
+        }
+
+        
+    </script>
+
+</html>

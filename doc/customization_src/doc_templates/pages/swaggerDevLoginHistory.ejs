@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>History</title>
+  <link rel="icon" type="image/png" href="https://creativefuel.io/assets/img/image20.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+  <style>
+           @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-image: url("https://img.freepik.com/free-vector/simple-blue-abstract-background-vector-business_53876-161575.jpg");
+      /* Replace with your image path */
+      background-size: cover;
+      /* Cover the entire sidebar */
+      background-position: center;
+      /* Center the background image */
+      color: white;
+      padding: 20px;
+      height: 740px;
+    }
+
+    .main {
+      flex-grow: 1;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+
+    .header {
+      background-color: #013660;
+      color: white;
+      padding: 10px 20px;
+      text-align: left;
+    }
+
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      font-family: 'Poppins', sans-serif;
+      /* margin-bottom: 20px; */
+    }
+
+    .form-container {
+      margin: auto;
+
+      background: rgba(255, 255, 255, 0.8);
+      /* Semi-transparent white */
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      width: 100%;
+      margin-bottom: 80px;
+    }
+
+    .form-field {
+      margin-bottom: 30px;
+    }
+
+    .form-field input[type="text"],
+    .form-field select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .form-field label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-submit {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .form-submit:hover {
+      background-color: #45a049;
+    }
+
+    .sidebar-logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .sidebar-logo img {
+      max-width: 100%;
+      /* Ensures the logo is responsive and fits the sidebar */
+      height: auto;
+    }
+
+    .checkDevelopers {
+      cursor: pointer;
+    }
+
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .user-table th,
+    .user-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .user-table th {
+      background-color: #f4f4f4;
+    }
+
+    .cardInner {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-container {
+      max-height: 500px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      /* Optional, for border */
+    }
+
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .user-table th,
+    .user-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    /* Additional styling for headers and rows for better visibility */
+    .user-table thead {
+      background-color: #f2f2f2;
+    }
+
+    .user-table tbody tr:nth-child(odd) {
+      background-color: #fff;
+    }
+
+    .user-table tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .checkDevelopers {
+    /* Base styling */
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    margin: 5px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #013660;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.checkDevelopers i {
+    margin-right: 10px; /* Adjust the spacing between icon and text */
+}
+
+.checkDevelopers:hover {
+    /* Hover styling */
+    background-color: rgb(81, 97, 181);
+    color: #fff;
+    border-color: rgb(81, 97, 181);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.checkDevelopers:active {
+    /* Active/Clicked styling */
+    background-color: #001e36;
+    color: #fff;
+    border-color: #013660;
+    transform: scale(0.95);
+}
+
+    #searchInput {
+      padding: 8px;
+      margin-bottom: 20px;
+      width: 200px;
+      /* or any width you prefer */
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    #scrollTopBtn {
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #013660;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #scrollTopBtn:hover {
+      background-color: rgb(81, 97, 181);
+    }
+
+    #resetFilterBtn, #logoutbtn, #adminprofilebtn,#clearHis {
+        padding: 8px 17px;
+        margin-top: 20px;
+        background-color: #013660;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      #resetFilterBtn:hover {
+        background-color: rgb(81, 97, 181);
+      }
+      #clearHis:hover {
+        background-color: rgb(81, 97, 181);
+      }
+      #logoutbtn:hover {
+        background-color: rgb(81, 97, 181);
+      }
+      #adminprofilebtn:hover {
+        background-color: rgb(81, 97, 181);
+      }
+
+    .action-buttons a,
+    .action-buttons button {
+      padding: 5px 10px;
+      margin-right: 5px;
+      border-radius: 4px;
+      border: none;
+      background-color: #002b4e;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .action-buttons a:hover,
+    .action-buttons button :hover {
+      background-color: rgb(81, 97, 181);
+    }
+
+    .sidebar-links {
+      margin-top: 200px;
+      margin-left: 15px;
+    }
+
+    /* Style the dropdown containers */
+    #roleFilter,
+    #departmentFilter,
+    #clearHisDropdown {
+      padding: 7px 9px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background-color: white;
+      font-size: 15px;
+      cursor: pointer;
+      outline: none;
+      /* Remove default focus outline */
+    }
+
+    /* Styling for the dropdown options */
+    #roleFilter option,
+    #departmentFilter option,
+    #clearHisDropdown option {
+      padding: 18px 30px;
+      /* Adjusted padding for options */
+    }
+
+    /* Additional styles for hover and focus states */
+    #roleFilter:hover,
+    #departmentFilter:hover,
+    #clearHisDropdown:hover,
+    #roleFilter:focus,
+    #departmentFilter:focus,
+    #clearHisDropdown:focus {
+      border-color: #888;
+    }
+
+    #addDevbtn {
+      padding: 2px 15px 7px 15px;
+      margin-right: 5px;
+      border-radius: 4px;
+      background-color: #013660;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      /* margin-left: 450px; */
+      font-size: 18px;
+    }
+
+    #addDevbtn:hover {
+      background-color: rgb(81, 97, 181);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <!-- Sidebar content -->
+    <div class="sidebar-logo"></div>
+    <div class="sidebar-links">
+      <a href="/api-docs" class="checkDevelopers"> Documentation &nbsp;</a>
+      <a href="/login-history" class="checkDevelopers">
+        Login &nbsp; &nbsp;&nbsp; &nbsp;  &nbsp; <i class="fas fa-history"></i>
+      </a>
+      <a href="/doc-user" class="checkDevelopers"> Developer &nbsp; <i class="fas fa-check-circle"></i></a>
+      <a href="/all-request" class="checkDevelopers"> Reequest &nbsp; &nbsp;<i class=" fas fa-bell"></i> </a>
+      <a href="/rejected-dev" class="checkDevelopers"> Developer  &nbsp;<i class="fas fa-times-circle"></i> </a>
+    </div>
+    <img
+      src="https://media.licdn.com/dms/image/C4D0BAQF6QHYd1myKyw/company-logo_200_200/0/1630521048751/creative_fuel_io_logo?e=2147483647&v=beta&t=E0hyxWgbSM42fPDcFCT-q7Y9LvSuysj-dLMWcVC1aSw"
+      alt="CreativeFuel Logo"
+      style="height: 200px;"
+    />
+    <hr />
+  </div>
+  <div class="main">
+    <div class="header" style="display: flex; justify-content: space-between;">
+      <h1>Developer Login History</h1>
+      <a href="/doc-logout" id="logoutbtn" style="margin-left: auto; font-size: 25px;"><i class="fas fa-sign-out-alt"></i></a>
+      <a href="/admin-profile" id="adminprofilebtn" style=" font-size: 25px;"><i class="fas fa-user"></i></a>
+    </div>
+    <div class="card">
+      <div >
+        <input type="text" id="searchInput" placeholder="Search Name..." />
+        <select id="roleFilter" required>
+          <option value="all">All Role</option>
+          <option value="Admin">Admin</option>
+          <option value="Developer">Developer</option>
+        </select>
+        <button id="resetFilterBtn">Reset Filters</button><hr style="margin-top: -10px;">
+       <div style="margin-bottom: 18px; margin-top: -16px;">
+        <select id="clearHisDropdown" required>
+          <option value="7">Last 7 Day's</optionß>
+            <option value="30">Last 30 Day's</option>
+          <option value="all"> All </option>
+        </select>
+        <button id="clearHis" onclick="clearHistory()">History Clear</button>
+       </div>
+
+      </div>
+
+      <div class="table-container">
+        <table class="user-table" id="userTable">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Login</th>
+              <th>Logout</th>
+              <th>Duration</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <button id="scrollTopBtn" onclick="scrollToTop()" style="display: none">
+          Back to Top
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    function formatTime(seconds) {
+      const days = Math.floor(seconds / 86400); // 1 day = 24 * 60 * 60 seconds
+      const hours = Math.floor((seconds % 86400) / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const remainingSeconds = seconds % 60;
+
+      const timeComponents = [];
+
+      if (days > 0) {
+        timeComponents.push(`${days}d`);
+      }
+
+      if (hours > 0) {
+        timeComponents.push(`${hours}h`);
+      }
+
+      if (minutes > 0) {
+        timeComponents.push(`${minutes}m`);
+      }
+
+      if (remainingSeconds > 0) {
+        timeComponents.push(`${remainingSeconds}s`);
+      }
+
+      const formattedTime = timeComponents.join(' ');
+
+      return formattedTime;
+    }
+
+    function formatDateFromSeconds(seconds) {
+
+      const milliseconds = seconds * 1000; // Convert seconds to milliseconds
+      const date = new Date(milliseconds);
+
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+      const year = date.getFullYear();
+
+      let hours = date.getHours();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = (hours % 12) || 12; // Convert to 12-hour format
+
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      const secondsFormatted = date.getSeconds().toString().padStart(2, '0');
+
+      const formattedDateTime = `${day}-${month}-${year} ${hours}:${minutes}:${secondsFormatted} ${ampm}`;
+
+      return formattedDateTime;
+    }
+    // Get the token from the URL
+    const urlParts = window.location.pathname.split("/");
+    const token = urlParts[urlParts.length - 1];
+
+    // Select the links by class
+    const links = document.querySelectorAll(".checkDevelopers");
+    const link4 = document.getElementById("adminprofilebtn");
+    const link3 = document.getElementById("logoutbtn");
+    const link5 = document.getElementById("clearHis");
+      link4.href += "/" + token;
+      link3.href += "/" + token;
+      link5.href += "/" + token;
+
+    // Append the token to each link
+    links.forEach((link) => {
+      link.href += "/" + token;
+    });
+
+    function clearHistory() {
+      const valueHistoryToBeDelete = document.getElementById("clearHisDropdown").value;
+
+        // Construct the URL with the token
+        const urlWithToken = '/clear-all-history/' + token + '/' + valueHistoryToBeDelete;
+
+        // Redirect to the URL with the token
+        window.location.href = urlWithToken;
+    }
+    function logout() {
+        // Call your logout API
+        fetch('/doc-logout/' + token) // Replace with your actual logout API call
+          .then(() => (window.location.href = `/doc-login`))
+          .catch((err) => console.error("Error:", err));
+      }
+    
+      /* Handle if not activity perform on page like no key press or mouse */
+      let inactivityTime = function () {
+        let time;
+        window.onload = resetTimer;
+        // Events that reset the timer
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer
+
+        function resetTimer() {
+          clearTimeout(time);
+          // Set timeout for 1 hour (3600000 ms)
+          time = setTimeout(logout, 360000);
+        }
+      };
+
+      inactivityTime(); // Initialize the inactivity timer function
+
+    function scrollToTop() {
+      document
+        .getElementById("userTable")
+        .scrollIntoView({ behavior: "smooth" });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      fetch(`/dev-login-history/${token}`) // Replace with your API endpoint
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data)
+          const tableBody = document
+            .getElementById("userTable")
+            .getElementsByTagName("tbody")[0];
+          data.data.forEach((user, index) => {
+            let row = tableBody.insertRow();
+            row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td>${user.name}</td>
+                            <td>${user.role === 1 ? "Admin" : "Developer"}</td>
+                            <td>${formatDateFromSeconds(user.login_date)}</td>
+                            <td>${user.logout_date ? formatDateFromSeconds(user.logout_date) : ""}</td>
+                            <td>${formatTime(user.duration)}</td>
+                            <td class="action-buttons">
+                              <a href='/dev-delete/${
+                                  user._id
+                                }/${token}/3' ><i class="fas fa-trash-alt"></i></a> 
+                 
+                            </td>
+                        `;
+          });
+          if (data.data.length > 10) {
+            document.getElementById("scrollTopBtn").style.display = "block";
+          }
+        })
+        .catch((error) => console.error("Error:", error));
+      // Add event listener for search input
+      function filterTable() {
+        const searchTerm = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const selectedRole = document
+          .getElementById("roleFilter")
+          .value.toLowerCase();
+
+        const rows = document
+          .getElementById("userTable")
+          .getElementsByTagName("tbody")[0].rows;
+
+        let visibleRowCount = 0;
+
+        for (let i = 0; i < rows.length; i++) {
+          let row = rows[i];
+          let name = row.cells[1].textContent.toLowerCase(); // Assuming name is in the 4th cell
+          let role = row.cells[2].textContent.toLowerCase(); // Assuming role is in the 6th cell
+
+          if (
+            (name.includes(searchTerm) || searchTerm === "") &&
+            (role === selectedRole || selectedRole === "all")
+          ) {
+            row.style.display = "";
+            visibleRowCount++;
+          } else {
+            row.style.display = "none";
+          }
+        }
+
+        document.getElementById("scrollTopBtn").style.display =
+          visibleRowCount > 10 ? "block" : "none";
+      }
+
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", filterTable);
+      document
+        .getElementById("roleFilter")
+        .addEventListener("change", filterTable);
+      document
+        .getElementById("resetFilterBtn")
+        .addEventListener("click", function () {
+          // Clear the search input
+          document.getElementById("searchInput").value = "";
+
+          // Reset the dropdown to its default state (assuming 'all' is the default)
+          document.getElementById("roleFilter").value = "all";
+          // Reapply the filter to show all rows
+          filterTable();
+        });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Create Dev</title>
+  <link rel="icon" type="image/png" href="https://creativefuel.io/assets/img/image20.png">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-image: url("https://img.freepik.com/free-vector/simple-blue-abstract-background-vector-business_53876-161575.jpg");
+      /* Replace with your image path */
+      background-size: cover;
+      /* Cover the entire sidebar */
+      background-position: center;
+      /* Center the background image */
+      color: white;
+      padding: 20px;
+      height: 740px;
+    }
+
+    .main {
+      flex-grow: 1;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+
+    .header {
+      background-color: #013660;
+      color: white;
+      padding: 10px 20px;
+      text-align: left;
+    }
+
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      /* margin-bottom: 20px; */
+    }
+
+    .form-container {
+      margin: auto;
+
+      background: rgba(255, 255, 255, 0.8);
+      /* Semi-transparent white */
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      width: 100%;
+      margin-bottom: 80px;
+    }
+
+    .form-field {
+      margin-bottom: 25px;
+    }
+
+    .form-field input[type="text"],
+    input[type="password"],
+    .form-field select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .form-field label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-submit {
+      padding: 10px 18px;
+      margin-right: 5px;
+      border-radius: 4px;
+      border: none;
+      background-color: #013660;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .form-submit:hover {
+      background-color: rgb(81, 97, 181);
+    }
+
+    .sidebar-logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .sidebar-logo img {
+      max-width: 100%;
+      /* Ensures the logo is responsive and fits the sidebar */
+      height: auto;
+    }
+
+    .checkDevelopers {
+      cursor: pointer;
+    }
+
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .user-table th,
+    .user-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .user-table th {
+      background-color: #f4f4f4;
+    }
+
+    .action-buttons button {
+      padding: 5px 10px;
+      margin-right: 5px;
+      border-radius: 4px;
+      border: none;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+
+    .action-buttons button:hover {
+      background-color: #45a049;
+    }
+
+    .cardInner {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      /* Enable horizontal scrolling */
+      margin-bottom: 20px;
+      /* Add some space below the table */
+    }
+
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .user-table th,
+    .user-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .user-table th {
+      background-color: #f4f4f4;
+    }
+
+    .checkDevelopers {
+    /* Base styling */
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    margin: 5px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #013660;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.checkDevelopers i {
+    margin-right: 10px; /* Adjust the spacing between icon and text */
+}
+
+.checkDevelopers:hover {
+    /* Hover styling */
+    background-color: rgb(81, 97, 181);
+    color: #fff;
+    border-color: rgb(81, 97, 181);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.checkDevelopers:active {
+    /* Active/Clicked styling */
+    background-color: #001e36;
+    color: #fff;
+    border-color: #013660;
+    transform: scale(0.95);
+}
+
+    .sidebar-links {
+      margin-top: 200px;
+      margin-left: 15px;
+    }
+
+    /* Style the dropdown container */
+    #status,
+    #dept {
+      background-color: #fff;
+      /* White background */
+      color: #333;
+      /* Dark text color for contrast */
+      padding: 10px 15px;
+      /* Padding for a larger, more clickable area */
+      border: 1px solid #007bff;
+      /* Blue border */
+      border-radius: 5px;
+      /* Rounded corners */
+      font-size: 16px;
+      /* Slightly larger font size for readability */
+      cursor: pointer;
+      /* Change cursor to indicate it's a dropdown */
+      outline: none;
+      /* Remove default focus outline */
+      -webkit-appearance: none;
+      /* Remove default style in WebKit browsers */
+      -moz-appearance: none;
+      /* Remove default style in Firefox */
+      appearance: none;
+      /* Standard syntax to remove default style */
+    }
+
+    /* Style for the arrow indicator using Unicode character */
+    #status,
+    #dept {
+      background: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right #fff;
+      background-position-x: calc(100% - 10px);
+      /* Position the arrow to the right */
+      background-position-y: center;
+      /* Center the arrow vertically */
+    }
+
+    /* Style for options */
+    .dropdownCheck {
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    /* Hover effects for options */
+    .dropdownCheck:hover {
+      background-color: #e9ecef;
+      /* Slightly darker background on hover */
+    }
+
+    #togglePassword {
+      position: relative;
+      left: 91%;
+      bottom: 27px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .fa-eye:before {
+      content: "\f06e";
+      background: #023660;
+      padding: 10px;
+      color: #fff;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      /* margin-bottom: 13px; */
+    }
+
+    .fa-eye-slash:before {
+      content: "\f06e";
+      background: #023660;
+      color: #fff;
+      padding: 10px;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      /* margin-bottom: 13px; */
+    }
+
+    .card {
+      max-width: 900px;
+      margin: 20px auto;
+      margin-top: 50px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card h1 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .profile-details {
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+    }
+
+    .profile-details p {
+      margin: 10px 0;
+      font-size: 16px;
+      color: #555;
+    }
+
+    .profile-details i {
+      margin-right: 10px;
+      color: #3498db;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #fff;
+      max-width: 400px;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    .update-password-btn {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .update-password-btn button {
+      background-color: #3498db;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .cancel-btn {
+      background-color: #ccc;
+      color: #333;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .modal-actions {
+      display: flex;
+      /* justify-content: space-evenly; */
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .modal-actions button  {
+      margin-top: 15px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .modal-actions p  {
+      margin-top: 31px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .modal-actions .cancel {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .modal-actions .apply {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .avatar {
+      width: 100px;
+      /* Adjust the width as needed */
+      height: 100px;
+      /* Adjust the height as needed */
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 20px;
+      /* Adjust the margin as needed */
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-details {
+      display: flex;
+      align-items: center;
+    }
+
+    .profile-details p {
+      margin: 10px 0;
+      font-size: 16px;
+      color: #555;
+    }
+
+    .profile-details {
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+      margin: 26px;
+      /* margin-left: 172px; */
+      padding: 35px;
+      gap: 73px;
+    }
+
+    .center-container {
+      display: flex;
+      align-items: center;
+      width: 146px;
+    }
+
+    #togglePassword {
+      position: relative;
+      left: 91%;
+      bottom: 28px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .fa-eye:before {
+      content: "\f06e";
+      background: #023660;
+      padding: 10px;
+      color: #fff;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      /* margin-bottom: 13px; */
+    }
+
+    .fa-eye-slash:before {
+      content: "\f06e";
+      background: #023660;
+      color: #fff;
+      padding: 10px;
+      padding-right: 8px;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      /* margin-bottom: 13px; */
+    }
+
+    #resetFilterBtn,
+    #logoutbtn,
+    #adminprofilebtn {
+      padding: 8px 17px;
+      margin-top: 20px;
+      background-color: #013660;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #resetFilterBtn:hover {
+      background-color: rgb(81, 97, 181);
+    }
+
+    #logoutbtn:hover {
+      background-color: rgb(81, 97, 181);
+    }
+
+    #adminprofilebtn:hover {
+      background-color: rgb(81, 97, 181);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <!-- Sidebar content -->
+    <div class="sidebar-logo"></div>
+    <div class="sidebar-links">
+      <a href="/api-docs" class="checkDevelopers"> Documentation &nbsp;</a>
+      <a href="/login-history" class="checkDevelopers">
+        Login &nbsp; &nbsp;&nbsp; &nbsp;  &nbsp; <i class="fas fa-history"></i>
+      </a>
+      <a href="/doc-user" class="checkDevelopers"> Developer &nbsp; <i class="fas fa-check-circle"></i></a>
+      <a href="/all-request" class="checkDevelopers"> Reequest &nbsp; &nbsp;<i class=" fas fa-bell"></i> </a>
+      <a href="/rejected-dev" class="checkDevelopers"> Developer  &nbsp;<i class="fas fa-times-circle"></i> </a>
+    </div>
+    <img
+      src="https://media.licdn.com/dms/image/C4D0BAQF6QHYd1myKyw/company-logo_200_200/0/1630521048751/creative_fuel_io_logo?e=2147483647&v=beta&t=E0hyxWgbSM42fPDcFCT-q7Y9LvSuysj-dLMWcVC1aSw"
+      alt="CreativeFuel Logo"
+      style="height: 200px;"
+    />
+    <hr />
+  </div>
+  <div class="main">
+    <div class="header" style="display: flex; justify-content: space-between;">
+      <h1>Profile Overview</h1>
+      <a href="/doc-logout" id="logoutbtn" style="margin-left: auto; font-size: 25px;"><i
+          class="fas fa-sign-out-alt"></i></a>
+      <a href="/admin-profile" id="adminprofilebtn" style=" font-size: 25px;"><i class="fas fa-user"></i></a>
+    </div>
+
+    <div class="card">
+      <!-- <h1>Admin Profile Overview</h1> -->
+      <div class="avatar">
+        <img
+          src="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-businessman-user-avatar-wearing-suit-with-red-tie-png-image_5809521.png"
+          alt="Avatar">
+      </div>
+
+      <div class="profile-details" id="profileDetailsContainer">
+        <div class="center-container">
+          <div class="icon"><i class="fas fa-user"></i></div>
+          <p class="text">John Doe</p>
+        </div>
+        <div class="center-container">
+          <div class="icon"><i class="fas fa-phone"></i></div>
+          <p class="text">1234567890</p>
+        </div>
+        <div class="center-container">
+          <div class="icon"><i class="fas fa-check-circle"></i></div>
+          <p class="text">Active</p>
+        </div>
+        <div class="center-container">
+          <div class="icon"><i class="fas fa-user-shield"></i></div>
+          <p class="text">JAdministrator</p>
+        </div>
+
+        <!-- Add more details as needed -->
+      </div>
+
+      <div class="update-password-btn">
+        <button onclick="toggleModal()">Update Password</button>
+      </div>
+    </div>
+
+    <!-- Modal for updating password -->
+    <div id="updatePasswordModal" class="modal" >
+      <div class="modal-content">
+        <div class="modal-header">
+          <img style="width: auto; height: 300px; " src="https://password.adlittle.com/icon_forgot_password.png"
+            alt="Confirmation">
+        </div>
+        <!-- Add your password update form here -->
+        <form action="/update-admin-password" method="post" id="updatePassForm">
+          <div class="form-field">
+            <label for="password">Password:</label>
+            <div class="password-container">
+              <input type="password" required id="password" name="password" placeholder="Enter password" />
+              <i id="togglePassword" class="fas fa-eye" onclick="togglePasswordVisibility()"></i>
+            </div>
+            <div id="passwordError" style="color: red; display: none; font-size: 12px">
+              Please enter a valid password.
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="apply" onclick="location.href='/update-admin-password';" class="return-button" type="submit" id="updateBtn">
+              Update
+            </button>
+            <p class="cancel" onclick="toggleModal()" class="return-button">
+              Cancel
+            </p>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</body>
+<script>
+
+
+
+  function toggleModal() {
+    const modal = document.getElementById('updatePasswordModal');
+    modal.style.display = (modal.style.display === 'none' || modal.style.display === '') ? 'flex' : 'none';
+  }
+
+  // Get the token from the URL
+  const urlParts = window.location.pathname.split("/");
+  const token = urlParts[urlParts.length - 1];
+
+  // Select the links by class
+  const links = document.querySelectorAll(".checkDevelopers");
+  const link3 = document.getElementById("logoutbtn");
+  const link4 = document.getElementById("adminprofilebtn");
+  link4.href += "/" + token;
+  link3.href += "/" + token;
+
+  // Append the token to each link
+  links.forEach((link) => {
+    link.href += "/" + token;
+  });
+  function togglePasswordVisibility() {
+        var passwordField = document.getElementById("password");
+        var toggleIcon = document.getElementById("togglePassword");
+
+        // Toggle password visibility
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            toggleIcon.classList.remove("fa-eye");
+            toggleIcon.classList.add("fa-eye-slash");
+        } else {
+            passwordField.type = "password";
+            toggleIcon.classList.remove("fa-eye-slash");
+            toggleIcon.classList.add("fa-eye");
+        }
+    }
+    function logout() {
+        // Call your logout API
+        fetch('/doc-logout/' + token) // Replace with your actual logout API call
+          .then(() => (window.location.href = `/doc-login`))
+          .catch((err) => console.error("Error:", err));
+      }
+
+      /* Handle if not activity perform on page like no key press or mouse */
+      let inactivityTime = function () {
+        let time;
+        window.onload = resetTimer;
+        // Events that reset the timer
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer
+
+        function resetTimer() {
+          clearTimeout(time);
+          // Set timeout for 1 hour (3600000 ms)
+          time = setTimeout(logout, 360000);
+        }
+      };
+
+      inactivityTime(); // Initialize the inactivity timer function
+
+  document.addEventListener("DOMContentLoaded", function () {
+
+    /* Create Api Call for admin data */
+    fetch(`/admin-profile-data/${token}`)
+      .then((response) => response.json())
+      .then((data) => {// Function to fetch and update profile details
+        let { data: originalRes } = data
+        // Function to create a profile detail container
+        function createProfileDetail(iconClass, textContent) {
+          const centerContainer = document.createElement('div');
+          centerContainer.className = 'center-container';
+
+          const icon = document.createElement('div');
+          icon.className = 'icon';
+          icon.innerHTML = `<i class="fas ${iconClass}"></i>`;
+
+          const text = document.createElement('p');
+          text.className = 'text';
+          text.textContent = textContent;
+
+          centerContainer.appendChild(icon);
+          centerContainer.appendChild(text);
+
+          return centerContainer;
+        }
+
+        // Get the profile details container
+        const profileDetailsContainer = document.getElementById('profileDetailsContainer');
+        profileDetailsContainer.innerHTML = ''; // Clear previous content
+        // Create and append profile detail containers
+        profileDetailsContainer.appendChild(createProfileDetail('fa-user', originalRes.name));
+        profileDetailsContainer.appendChild(createProfileDetail('fa-phone', originalRes.phone));
+        profileDetailsContainer.appendChild(createProfileDetail('fa-envelope', originalRes.email));
+        profileDetailsContainer.appendChild(createProfileDetail('fa-user-shield', originalRes.role === 1 ? 'Administrator' : 'Developer'));
+
+        const link4 = document.getElementById("updatePassForm");
+        link4.action += "/" + token + "/" +  originalRes._id;
+
+      })
+      .catch((error) => console.error("Error:", error));
+  })
+</script>
+
+</html>

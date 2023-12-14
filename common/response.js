@@ -1,0 +1,24 @@
+
+
+var returnTrue = function (statusCode,req, res, message, arr) {
+  return res.status(statusCode).json({
+    success: true,
+    message: message,
+    data: arr,
+  });
+};
+
+var returnFalse = function (statusCode, req, res, message, arr) {
+  return res.status(statusCode).json({
+    success: false,
+    message: message,
+    data: arr,
+  });
+};
+
+var response = {
+  returnTrue: returnTrue,
+  returnFalse: returnFalse,
+};
+
+module.exports = response;
