@@ -145,7 +145,7 @@ module.exports = {
         const latestUser = await userModel.findOne().sort({ user_id: -1 });
         const latestUserId = latestUser.user_id + 1;
 
-        const departmentData = await departmentModel.findOne({ dept_id: req.body.dept_id });
+        const departmentData = await departmentModel.findOne({ dept_id: latestUser.dept_id });
         const shortName = departmentData.short_name;
 
         const jobTypeSuffix = latestUser.job_type === "WFH" ? "H" : "O";

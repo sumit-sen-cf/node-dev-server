@@ -2262,27 +2262,35 @@ exports.getUserPresitting = async (req, res) => {
     }
 };
 
-
 exports.getAllUsersWithDoBAndDoj = async (req, res) => {
     try {
         const currentDate = new Date();
         const currentDayMonth = currentDate.toISOString().slice(5, 10);
 
-        const allUsers = await userModel.find().select({ joining_date: 1, DOB: 1, user_name: 1 });
+        const allUsers = await userModel.find().select({ joining_date: 1, DOB: 1, user_name: 1, image: 1 });
 
         const filteredUsers = allUsers.map(user => {
-            const userJoiningDate = user.joining_date?.toISOString().split('T')[0];
+            const userJoiningDate = user.joining_date?.toISOString().slice(5, 10);
             const userDOB = user.DOB?.toISOString().slice(5, 10);
 
-            if (userJoiningDate === currentDate.toISOString().split('T')[0]) {
+            if (userJoiningDate === currentDayMonth && userDOB === currentDayMonth) {
                 return {
                     user_name: user.user_name,
                     joining_date: user.joining_date,
+                    DOB: user.DOB,
+                    image: user.image
+                };
+            } else if (userJoiningDate === currentDayMonth) {
+                return {
+                    user_name: user.user_name,
+                    joining_date: user.joining_date,
+                    image: user.image
                 };
             } else if (userDOB === currentDayMonth) {
                 return {
                     user_name: user.user_name,
                     DOB: user.DOB,
+                    image: user.image
                 };
             }
 
@@ -2293,7 +2301,8 @@ exports.getAllUsersWithDoBAndDoj = async (req, res) => {
     } catch (error) {
         return res.status(500).send({ error: error.message });
     }
-}
+};
+
 
 exports.getLastMonthUsers = async (req, res) => {
     try {
@@ -2339,7 +2348,7 @@ exports.getAllFilledUsers = async (req, res) => {
 
 exports.getFilledPercentage = async (req, res) => {
     try {
-        const users = await userModel.find().select({
+        const users = await userModel.find({onboard_status : 2}).select({
             user_id:1,
             user_name : 1,
             PersonalEmail : 1,
@@ -2372,25 +2381,25 @@ exports.getFilledPercentage = async (req, res) => {
             return res.status(500).send({ success: false });
         }
 
-        const resultArray = [];
-        const percentageResults = users.map(user => {
-            const filledFields = Object.values(user._doc).filter(value => value !== null && value !== "" && value !== 0).length;
-
-            const filledPercentage = (filledFields / 24) * 100;
-            const result = { user_id: user.user_id, filledPercentage: filledPercentage.toFixed(2) };
-
-            resultArray.push(result);
-
-            return result;
-        });
-
-        const incompleteUsers = resultArray.filter(result => parseFloat(result.filledPercentage) < 100);
-        const incompleteUsersDetails = incompleteUsers.map(incompleteUser => {
-            const userDetail = users.find(user => user.user_id === incompleteUser.user_id);
-            return userDetail._doc;
-        });
-
-        res.status(200).send({ results: percentageResults, incompleteUsersDetails });
+            const resultArray = [];
+            const percentageResults = users.map(user => {
+                    const filledFields = Object.values(user._doc).filter(value => value !== null && value !== "" && value !== 0).length;
+    
+                const filledPercentage = (filledFields / 24) * 100;
+                const result = { user_id: user.user_id, filledPercentage: filledPercentage.toFixed(2) };
+    
+                resultArray.push(result);
+    
+                return result;
+            });
+    
+            const incompleteUsers = resultArray.filter(result => parseFloat(result.filledPercentage) < 100);
+            const incompleteUsersDetails = incompleteUsers.map(incompleteUser => {
+                const userDetail = users.find(user => user.user_id === incompleteUser.user_id);
+                return userDetail._doc;
+            });
+    
+            res.status(200).send({ results: percentageResults, incompleteUsersDetails });
     } catch (err) {
         console.error(err);
         res.status(500).send({ error: err.message, sms: 'Error calculating filled percentage' });

@@ -685,7 +685,7 @@ exports.dataForGraph = async (req, res) => {
 
 exports.getAllInstaPages = async (req, res) => {
     try {
-        const delv = instaPageModel.aggregate([
+        const delv = await instaPageModel.aggregate([
             {
                 $lookup: {
                     from: "usermodels",
