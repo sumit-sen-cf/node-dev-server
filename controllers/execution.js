@@ -315,61 +315,71 @@ exports.getLatestPIDCount = async (req, res) => {
 };
 exports.pageHealthDashboard = async (req, res) => {
     try {
-        const { intervalFlag } = req.body;
+        const { intervalFlag, startDate, endDate } = req.body;
         const currentDate = new Date();
         let dateFilter;
 
-        /**
+        if(startDate && endDate){
+            dateFilter = {
+                creation_date: {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate)
+                }
+            };
+        }else{
+         /**
          * Sets the date filter based on the given interval flag.
          * @param {number} intervalFlag - The interval flag to determine the date filter.
          * @param {Date} currentDate - The current date.
          * @returns {Object} The date filter object.
          */
-        switch (intervalFlag) {
-            case 1:
-                // For flag 1, include last month data
-                dateFilter = {
-                    creation_date: {
-                        $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate()),
-                        $lte: currentDate
-                    }
-                };
-                break;
-            case 3:
-                // For flag 3, include last 3 months data
-                dateFilter = {
-                    creation_date: {
-                        $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate()),
-                        $lte: currentDate
-                    }
-                };
-                break;
-            case 6:
-                // For flag 3, include last 6 months data
-                dateFilter = {
-                    creation_date: {
-                        $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 6, currentDate.getDate()),
-                        $lte: currentDate
-                    }
-                };
-                break;
-            case 10:
-                // For flag 4, include last 1 year data
-                dateFilter = {
-                    creation_date: {
-                        $gte: new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate()),
-                        $lte: currentDate
-                    }
-                };
-                break;
-            case 2:
-               // For flag 2, include all data
-                dateFilter = {};
-                break;
-            default:
-                dateFilter = {};
-                break;
+ switch (intervalFlag) {
+    case 1:
+        // For flag 1, include last month data
+        dateFilter = {
+            creation_date: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate()),
+                $lte: currentDate
+            }
+        };
+        break;
+    case 3:
+        // For flag 3, include last 3 months data
+        dateFilter = {
+            creation_date: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate()),
+                $lte: currentDate
+            }
+        };
+        break;
+    case 6:
+        // For flag 3, include last 6 months data
+        dateFilter = {
+            creation_date: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 6, currentDate.getDate()),
+                $lte: currentDate
+            }
+        };
+        break;
+    case 10:
+        // For flag 4, include last 1 year data
+        dateFilter = {
+            creation_date: {
+                $gte: new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate()),
+                $lte: currentDate
+            }
+        };
+        break;
+    case 2:
+       // For flag 2, include all data
+        dateFilter = {};
+        break;
+    default:
+        dateFilter = {};
+        break;
+}
         }
+       
 
        
         const getcreators = await exeCountHisModel.aggregate([
