@@ -7,11 +7,11 @@ const pageReplacementRecordSchema = new mongoose.Schema({
       type:'String',
       // required: [true,'plan_name is required'],
     },
-    campaign_id:{
+    campaignId:{
       type:'String',
       required: [true,'campaign_id is required'],
     },
-    campaign_name:{
+    campaignName:{
       type:'String',
       // required: [true,'campaign_name is required'],
     },

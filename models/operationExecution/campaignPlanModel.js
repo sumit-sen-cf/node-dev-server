@@ -84,12 +84,10 @@ const campaignPlanSchema = new mongoose.Schema({
         default:'N/A',
     },
     replacement_id:{
-        type:String,
-    },
-    updatedFrom: {
-        type: String,
-        default : ""
-      }
+         type:mongoose.SchemaTypes.ObjectId,
+        ref:'pageReplacementRecordModel',
+    
+    }
 
 });
 
@@ -100,6 +98,15 @@ campaignPlanSchema.plugin(AutoIncrement.plugin, {
   startAt: 1,
   incrementBy: 1,
 });
+
+campaignPlanSchema.pre(/^find/,async function (next) {
+    this.populate({
+        path: 'replacement_id',
+        
+    })
+
+    next()
+})
 module.exports = mongoose.model(
   "CampaignPlanModel",
   campaignPlanSchema
