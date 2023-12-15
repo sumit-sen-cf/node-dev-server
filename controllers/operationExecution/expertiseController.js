@@ -33,6 +33,7 @@ exports.getSingleExpert=catchAsync(async (req,res,next) => {
 })
 exports.updateExpert=catchAsync(async (req,res,next) => {
     const id=req.params.id
+    console.log(req.body)
     const {area_of_expertise,updated_by}=req.body
     const data={area_of_expertise,updated_by,updated_at:Date.now()}
     const result=await ExpertiseModel.findOneAndUpdate({user_id:id},data,{new:true})

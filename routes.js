@@ -72,6 +72,7 @@ const expertiseController = require('./controllers/operationExecution/expertiseC
 const assignmentController = require('./controllers/operationExecution/assignmentController.js')
 const assignmentCommitController=require('./controllers/operationExecution/assignmentCommitController.js')
 const operationDasboard =require('./controllers/operationExecution/dashboard.controller.js')
+const pageReplacementController=require('./controllers/operationExecution/pageReplacementController.js')
 //opertaion + execution imports ends here`
 
 const city = require("./controllers/cityController.js");
@@ -126,6 +127,9 @@ router.post('/assignment/commit',assignmentCommitController.createAssComm)
 router.get('/assignment/commit/:id',assignmentCommitController.getAllAssComm)
 router.post('/operation_phase_dashboard',operationDasboard.phaseDashboard)
 
+
+router.post('/replacement/plan',pageReplacementController.createReplacementPlan)
+router.get('/replacement/:id',pageReplacementController.getSingleRecord)
 
 
 /*operation+execution api ends*/

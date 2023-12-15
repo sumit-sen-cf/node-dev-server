@@ -88,14 +88,18 @@ const phasePageSchema = new mongoose.Schema({
     type: String,
     default: 'N/A',
   },
-  replacement_id: {
-    type: String,
-  },
-  updatedFrom: {
-    type: String,
-    default : ""
-  }
+  replacement_id:{
+    type:mongoose.SchemaTypes.ObjectId,
+   ref:'pageReplacementRecordModel',
+
+}
 });
+
+phasePageSchema.pre(/^find/,async function(next){
+  this.populate({
+    path:'replacement_id'
+  })
+})
 
 
 module.exports = mongoose.model(
