@@ -24,6 +24,8 @@ const helper = require('../helper/helper.js');
 const OrderRequest = require("../models/orderReqModel.js");
 const Sitting = require("../models/sittingModel.js");
 const { generateEmpId } = require("../helper/helper.js");
+const departmentModel = require("../models/departmentModel.js");
+const designationModel = require("../models/designationModel.js");
 
 const upload = multer({ dest: "uploads/" }).fields([
     { name: "image", maxCount: 1 },
@@ -51,7 +53,7 @@ exports.addUser = [upload, async (req, res) => {
             encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
         }
 
-        let empId =  await generateEmpId();
+        let empId = await generateEmpId();
 
         const simc = new userModel({
             user_name: req.body.user_name,
@@ -170,7 +172,7 @@ exports.addUser = [upload, async (req, res) => {
             latitude: req.body.latitude,
             longitude: req.body.longitude,
             beneficiary: req.body.beneficiary,
-            emp_id : empId
+            emp_id: empId
         })
         const simv = await simc.save();
 
@@ -688,7 +690,7 @@ exports.getAllUsers = async (req, res) => {
                     latitude: "$latitude",
                     longitude: "$longitude",
                     beneficiary: "$beneficiary",
-                    emp_id : "$emp_id"
+                    emp_id: "$emp_id"
                 }
             }
         ]).exec();
@@ -964,7 +966,7 @@ exports.getSingleUser = async (req, res) => {
                     latitude: "$latitude",
                     longitude: "$longitude",
                     beneficiary: "$beneficiary",
-                    emp_id : "$emp_id"
+                    emp_id: "$emp_id"
                 }
             }
         ]).exec();
@@ -1090,6 +1092,8 @@ exports.loginUser = async (req, res) => {
             );
 
             var currentDate = new Date();
+            currentDate.setHours(currentDate.getHours() + 5)
+            currentDate.setMinutes(currentDate.getMinutes() + 30)
             var formattedDateTime = currentDate.toLocaleString();
 
             if (simc[0].onboard_status == 2) {
@@ -2262,32 +2266,53 @@ exports.getUserPresitting = async (req, res) => {
     }
 };
 
-exports.getAllUsersWithDoBAndDoj = async (req, res) => {
+exports.getAllUsersWithDoj = async (req, res) => {
     try {
         const currentDate = new Date();
         const currentDayMonth = currentDate.toISOString().slice(5, 10);
 
-        const allUsers = await userModel.find().select({ joining_date: 1, DOB: 1, user_name: 1, image: 1 });
+        const allUsers = await userModel.find().select({ user_id: 1, joining_date: 1, user_name: 1, image: 1, DOB: 1 });
 
         const filteredUsers = allUsers.map(user => {
             const userJoiningDate = user.joining_date?.toISOString().slice(5, 10);
-            const userDOB = user.DOB?.toISOString().slice(5, 10);
 
-            if (userJoiningDate === currentDayMonth && userDOB === currentDayMonth) {
-                return {
+            if (userJoiningDate === currentDayMonth) {
+                const joiningYear = user.joining_date.getFullYear();
+                const currentYear = currentDate.getFullYear();
+                const totalYears = currentYear - joiningYear;
+                if(totalYears >= 1)
+                {
+                    return {
+                    user_id: user.user_id,
                     user_name: user.user_name,
                     joining_date: user.joining_date,
                     DOB: user.DOB,
-                    image: user.image
+                    image: user.image,
+                    total_years: totalYears
                 };
-            } else if (userJoiningDate === currentDayMonth) {
+            }
+            }
+            return null;
+        }).filter(Boolean);
+
+        res.json({ users: filteredUsers });
+    } catch (error) {
+        return res.status(500).send({ error: error.message });
+    }
+};
+
+exports.getAllUsersWithDoB = async (req, res) => {
+    try {
+        const currentDate = new Date();
+        const currentDayMonth = currentDate.toISOString().slice(5, 10);
+
+        const allUsers = await userModel.find().select({ user_id: 1, DOB: 1, user_name: 1, image: 1 });
+
+        const filteredUsers = allUsers.map(user => {
+            const userDOB = user.DOB?.toISOString().slice(5, 10);
+            if (userDOB === currentDayMonth) {
                 return {
-                    user_name: user.user_name,
-                    joining_date: user.joining_date,
-                    image: user.image
-                };
-            } else if (userDOB === currentDayMonth) {
-                return {
+                    user_id: user.user_id,
                     user_name: user.user_name,
                     DOB: user.DOB,
                     image: user.image
@@ -2303,24 +2328,23 @@ exports.getAllUsersWithDoBAndDoj = async (req, res) => {
     }
 };
 
-
 exports.getLastMonthUsers = async (req, res) => {
     try {
         const currentDate = new Date();
 
         const lastMonthStartDate = new Date(currentDate);
         lastMonthStartDate.setMonth(currentDate.getMonth() - 1);
-       
+
         const usersFromLastMonth = await userModel.find({
             created_At: {
                 $gte: lastMonthStartDate,
                 $lt: currentDate,
             }
-        }).select({ user_id: 1, user_name: 1, created_At: 1 });
+        }).select({ user_id: 1, user_name: 1, created_At: 1 ,joining_date : 1, image: 1});
 
         res.json(usersFromLastMonth);
     } catch (err) {
-        console.error(err); 
+        console.error(err);
         res.status(500).json({ error: err.message, sms: 'Error getting users from last month' });
     }
 }
@@ -2328,7 +2352,7 @@ exports.getLastMonthUsers = async (req, res) => {
 exports.getAllFilledUsers = async (req, res) => {
     try {
         const userFields = Object.keys(userModel.schema.paths);
-        
+
         const andConditions = userFields.map(field => ({ [field]: { $exists: true, $ne: null } }));
 
         const usersWithAllFieldsFilled = await userModel.find({
@@ -2346,62 +2370,136 @@ exports.getAllFilledUsers = async (req, res) => {
     }
 }
 
+// exports.getFilledPercentage = async (req, res) => {
+//     try {
+//         const users = await userModel.find({ onboard_status: 2 }).select({
+//             user_id: 1,
+//             user_name: 1,
+//             PersonalEmail: 1,
+//             PersonalNumber: 1,
+//             fatherName: 1,
+//             Gender: 1,
+//             motherName: 1,
+//             Hobbies: 1,
+//             BloodGroup: 1,
+//             SpokenLanguage: 1,
+//             DO: 1,
+//             Nationality: 1,
+//             guardian_name: 1,
+//             guardian_contact: 1,
+//             emergency_contact: 1,
+//             guardian_address: 1,
+//             relation_with_guardian: 1,
+//             current_address: 1,
+//             current_city: 1,
+//             current_state: 1,
+//             current_pin_code: 1,
+//             permanent_address: 1,
+//             permanent_city: 1,
+//             permanent_state: 1,
+//             permanent_pin_code: 1,
+//             onboard_status: 1,
+//             dept_name: 1,
+//             desi_name: 1,
+//         });
+
+//         if (!users) {
+//             return res.status(500).send({ success: false });
+//         }
+
+//         const resultArray = [];
+//         const percentageResults = users.map(user => {
+//             const filledFields = Object.values(user._doc).filter(value => value !== null && value !== "" && value !== 0).length;
+
+//             const filledPercentage = (filledFields / 24) * 100;
+//             const result = { user_id: user.user_id, filledPercentage: filledPercentage.toFixed(2) };
+
+//             resultArray.push(result);
+
+//             return result;
+//         });
+
+//         const incompleteUsers = resultArray.filter(result => parseFloat(result.filledPercentage) < 100);
+//         const incompleteUsersDetails = incompleteUsers.map(incompleteUser => {
+//             const userDetail = users.find(user => user.user_id === incompleteUser.user_id);
+//             return { ...userDetail._doc, filledPercentage: incompleteUser.filledPercentage };
+//         });
+
+//         res.status(200).send({ incompleteUsersDetails });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send({ error: err.message, sms: 'Error calculating filled percentage' });
+//     }
+// }  
+
 exports.getFilledPercentage = async (req, res) => {
     try {
-        const users = await userModel.find({onboard_status : 2}).select({
-            user_id:1,
-            user_name : 1,
-            PersonalEmail : 1,
-            PersonalNumber : 1,
-            fatherName : 1,
-            Gender : 1,
-            motherName : 1,
+      const users = await userModel.find({ onboard_status: 2 }).select({
+        user_id: 1,
+            user_name: 1,
+            PersonalEmail: 1,
+            PersonalNumber: 1,
+            fatherName: 1,
+            Gender: 1,
+            motherName: 1,
             Hobbies: 1,
-            BloodGroup : 1,
-            SpokenLanguage : 1,
-            DO : 1,
-            Nationality : 1,
-            guardian_name : 1,
-            guardian_contact :1,
+            BloodGroup: 1,
+            SpokenLanguage: 1,
+            DO: 1,
+            Nationality: 1,
+            guardian_name: 1,
+            guardian_contact: 1,
             emergency_contact: 1,
-            guardian_address : 1,
-            relation_with_guardian : 1,
-            current_address : 1,
-            current_city : 1,
-            current_state : 1,
-            current_pin_code : 1,
-            permanent_address : 1,
-            permanent_city : 1,
-            permanent_state : 1,
-            permanent_pin_code : 1,
-            onboard_status : 1
+            guardian_address: 1,
+            relation_with_guardian: 1,
+            current_address: 1,
+            current_city: 1,
+            current_state: 1,
+            current_pin_code: 1,
+            permanent_address: 1,
+            permanent_city: 1,
+            permanent_state: 1,
+            permanent_pin_code: 1,
+            onboard_status: 1,
+            dept_id: 1,
+            user_designation: 1,
+      });
+  
+      if (!users) {
+        return res.status(500).send({ success: false });
+      }
+  
+      const resultArray = [];
+      const percentageResults = users.map(user => {
+        const filledFields = Object.values(user._doc).filter(value => value !== null && value !== "" && value !== 0).length;
+  
+        const filledPercentage = (filledFields / 24) * 100;
+        const result = { user_id: user.user_id, filledPercentage: filledPercentage.toFixed(2) };
+  
+        resultArray.push(result);
+  
+        return result;
+      });
+  
+      const incompleteUsers = resultArray.filter(result => parseFloat(result.filledPercentage) < 100);
+      const incompleteUsersDetails = await Promise.all(incompleteUsers.map(async incompleteUser => {
+        const userDetail = await userModel.findOne({ user_id: incompleteUser.user_id }).select({});
+  
+        const deptDetail = await departmentModel.findOne({ dept_id: userDetail.dept_id }).select({
+          dept_name: 1,
         });
-
-        if (!users) {
-            return res.status(500).send({ success: false });
-        }
-
-            const resultArray = [];
-            const percentageResults = users.map(user => {
-                    const filledFields = Object.values(user._doc).filter(value => value !== null && value !== "" && value !== 0).length;
-    
-                const filledPercentage = (filledFields / 24) * 100;
-                const result = { user_id: user.user_id, filledPercentage: filledPercentage.toFixed(2) };
-    
-                resultArray.push(result);
-    
-                return result;
-            });
-    
-            const incompleteUsers = resultArray.filter(result => parseFloat(result.filledPercentage) < 100);
-            const incompleteUsersDetails = incompleteUsers.map(incompleteUser => {
-                const userDetail = users.find(user => user.user_id === incompleteUser.user_id);
-                return userDetail._doc;
-            });
-    
-            res.status(200).send({ results: percentageResults, incompleteUsersDetails });
+  
+        const desiDetail = await designationModel.findOne({ user_designation: userDetail.user_designation }).select({
+          desi_name: 1,
+        });
+  
+        return { ...userDetail._doc, filledPercentage: incompleteUser.filledPercentage, dept_name: deptDetail.dept_name, desi_name: desiDetail.desi_name };
+      }));
+  
+      res.status(200).send({ incompleteUsersDetails });
     } catch (err) {
-        console.error(err);
-        res.status(500).send({ error: err.message, sms: 'Error calculating filled percentage' });
+      console.error(err);
+      res.status(500).send({ error: err.message, sms: 'Error calculating filled percentage' });
     }
-}
+  }
+  
