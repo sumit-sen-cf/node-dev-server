@@ -719,7 +719,8 @@ router.post(
 router.get("/get_all_wfh_users", user.getAllWfhUsers);
 router.get("/get_all_login_history", user.getLoginHistory);
 router.post("/get_user_pre_sitting",user.getUserPresitting);
-router.get("/get_all_users_with_dob_doj",user.getAllUsersWithDoBAndDoj);
+router.get("/get_all_users_with_doj",user.getAllUsersWithDoj);
+router.get("/get_all_users_with_dob",user.getAllUsersWithDoB);
 router.get("/get_last_month_users",user.getLastMonthUsers);
 router.get("/get_all_filled_users",user.getAllFilledUsers);
 router.get("/get_all_percentage",user.getFilledPercentage);
