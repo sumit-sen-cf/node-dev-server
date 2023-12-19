@@ -55,7 +55,7 @@ const logoBrandModel = new mongoose.Schema({
     },
     created_by: {
         type: Number,
-        required: false,
+        required: true,
         default: 0
     }
 });
