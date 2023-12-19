@@ -73,7 +73,7 @@ const phasePageSchema = new mongoose.Schema({
   replacement_status: {
     type: String,
     default: 'inactive',
-    enum: ['active', 'inactive', 'replaced', 'replacement', 'pending']
+    enum: ['active', 'inactive', 'replaced', 'replacement', 'pending','rejected']
   },
   delete_status: {
     type: String,
