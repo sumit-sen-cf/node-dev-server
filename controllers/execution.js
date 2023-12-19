@@ -444,6 +444,7 @@ exports.pageHealthDashboard = async (req, res) => {
                                 _id: "$p_id",
                                 latestDocument: { $first: "$$ROOT" },
                                 p_id_count: { $sum: 1 },
+                                p_id:{ $first:  "$p_id"},
                                 maxReach: { $max: "$reach" },
                                 maxImpression: { $max: "$impression" },
                                 maxEngagement: { $max: "$engagement" },
@@ -528,6 +529,7 @@ exports.pageHealthDashboard = async (req, res) => {
                                     year: { $year: "$creation_date" },
                                 },
                                 p_id_count: { $sum: 1 },
+                                p_id:{ $first:  "$p_id"},
                                 maxReach: { $max: "$reach" },
                                 maxImpression: { $max: "$impression" },
                                 maxEngagement: { $max: "$engagement" },
@@ -560,6 +562,7 @@ exports.pageHealthDashboard = async (req, res) => {
                                 newRoot: {
                                     $mergeObjects: [
                                         { p_id_count: "$p_id_count" },
+                                        { p_id: "$p_id" },
                                         { maxReach: "$maxReach" },
                                         { maxImpression: "$maxImpression" },
                                         { maxEngagement: "$maxEngagement" },
