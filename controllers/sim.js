@@ -43,7 +43,7 @@ exports.addSim = async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .send({ error: err.message, sms: "This sim cannot be created" });
+      .send({ error: err.message, sms: "This asset cannot be created" });
   }
 };
 
@@ -614,7 +614,7 @@ exports.editAllocation = async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .send({ error: err.message, sms: "Error updating sim allocation" });
+      .send({ error: err.message, sms: "Error updating asset allocation" });
   }
 };
 
@@ -625,11 +625,11 @@ exports.deleteAllocation = async (req, res) => {
       if (item) {
         return res
           .status(200)
-          .json({ success: true, message: "sim allocation deleted" });
+          .json({ success: true, message: "asset allocation deleted" });
       } else {
         return res
           .status(404)
-          .json({ success: false, message: "sim allocation not found" });
+          .json({ success: false, message: "asset allocation not found" });
       }
     })
     .catch((err) => {
@@ -705,7 +705,7 @@ exports.getSimAllocationDataById = async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .send({ error: err, sms: "Error getting all sim allocatinos" });
+      .send({ error: err, sms: "Error getting all asset allocatinos" });
   }
 };
 
@@ -797,7 +797,7 @@ exports.alldataofsimallocment = async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .send({ error: err.message, message: "Error getting all sim datas" });
+      .send({ error: err.message, message: "Error getting all asset datas" });
   }
 };
 
@@ -833,12 +833,44 @@ exports.getAssetDepartmentCount = async (req, res) => {
         },
       },
       {
+        $lookup: {
+            from: "assetscategorymodels",
+            localField: "category_id",
+            foreignField: "category_id",
+            as: "category",
+        },
+    },
+      {
+        $unwind: {
+          path: "$category",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+            from: "assetssubcategorymodels",
+            localField: "sub_category_id",
+            foreignField: "sub_category_id",
+            as: "subcategory",
+        },
+    },
+      {
+        $unwind: {
+          path: "$subcategory",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $project: {
           _id: "$_id",
           user_id: "$user.user_id",
           user_name: "$user.user_name",
           dept_id: "$user.dept_id",
           dept_name: "$department.dept_name", 
+          category_id:"$category.category_id",
+          category_name: "$category.category_name",
+          sub_category_id :"$subcategory.sub_category_id",
+          sub_category_name : "subcategory.sub_category_name"
         }
       },
       {
@@ -847,7 +879,12 @@ exports.getAssetDepartmentCount = async (req, res) => {
           dept_name: { $first: "$dept_name" },
           count: { $sum: 1 },
           user_name: { $first: "$user_name" },
-          dept_id : { $first: "$dept_id" }
+          dept_id : { $first: "$dept_id" },
+          category_id : { $first: "$category_id" },
+          category_name : { $first: "$category_name" },
+          sub_category_id : { $first: "$sub_category_id" },
+          sub_category_name : { $first: "$sub_category_name" },
+
           // user_id : { $first: "$user_id" }
         },
       }
@@ -865,20 +902,107 @@ exports.getAssetDepartmentCount = async (req, res) => {
   }
 };
 
-exports.getAssetUsersDepartment = async (req, res) => {
-    try {
-      const { dept_id } = req.params;
-      const simAlloUsers = await simAlloModel.find({}, 'user_id');
-      const userIDsInSimAllo = simAlloUsers.map((user) => user.user_id);
+// exports.getAssetUsersDepartment = async (req, res) => {
+//     try {
+//       const { dept_id } = req.params;
+//       const simAlloUsers = await simAlloModel.find({}, 'user_id category_id sub_category_id');
+//       // console.log("ddddddddddddddddddddddd",simAlloUsers);
+//       const userIDsInSimAllo = simAlloUsers.map((user) => user.user_id);
+//       const categoryIDsInSimAllo = simAlloUsers.map((cate) => cate.category_id);
+//       const subcategoryIDsInSimAllo = simAlloUsers.map((sub) => sub.sub_category_id);
       
-      const userDetails = await userModel.find(
-        { dept_id, user_id: { $in: userIDsInSimAllo } },
-        'user_name user_id'
-      );
+//       const userDetails = await userModel.find(
+//         { dept_id, user_id: { $in: userIDsInSimAllo }, category_id: { $in: categoryIDsInSimAllo },sub_category_id: { $in: subcategoryIDsInSimAllo } },
+//         'user_name user_id category_name sub_category_name'
+//       );
 
-      res.status(200).send({data: userDetails});
-    } catch (error) {
-      // console.error(error);
-      res.status(500).json({ error:error.message, sms:'Internal Server Error' });
-    }
-}
+//       console.log("vvvvvvvvvvvvvvvvvvvvv",userDetails);
+//       res.status(200).send({data: userDetails});
+//     } catch (error) {
+//       // console.error(error);
+//       res.status(500).json({ error:error.message, sms:'Internal Server Error' });
+//     }
+// }
+
+exports.getAssetUsersDepartment = async (req, res) => {
+  try {
+      const dept_id = parseInt(req.params.dept_id);
+      console.log("DDDDDDDDDD",req.params);
+
+      const userDetails = await userModel.aggregate([
+          {
+              $match: { 
+                dept_id : dept_id
+               },
+          },
+          {
+              $lookup: {
+                  from: 'simAlloModel',
+                  localField: 'user_id',
+                  foreignField: 'user_id',
+                  as: 'simAlloDetails',
+              },
+          },
+          {
+              $unwind: {
+                  path: '$simAlloDetails',
+                  preserveNullAndEmptyArrays: true,
+              },
+          },
+          {
+              $lookup: {
+                  from: 'assetscategorymodels',
+                  localField: 'category_id',
+                  foreignField: 'simAlloDetails.category_id',
+                  as: 'categoryDetails',
+              },
+          },
+          {
+              $unwind: {
+                  path: '$categoryDetails',
+                  // preserveNullAndEmptyArrays: true,
+              },
+          },
+          {
+              $lookup: {
+                  from: 'assetssubcategorymodels',
+                  localField: 'sub_category_id',
+                  foreignField: 'simAlloDetails.sub_category_id',
+                  as: 'subcategoryDetails',
+              },
+          },
+          {
+              $unwind: {
+                  path: '$subcategoryDetails',
+                  // preserveNullAndEmptyArrays: true,
+              },
+          },
+          {
+              $project: {
+                  user_id: 1,
+                  user_name: 1,
+                  category_id: '$categoryDetails.category_id',
+                  sub_category_id: '$subcategoryDetails.sub_category_id',
+                  category_name: '$categoryDetails.category_name',
+                  sub_category_name: '$subcategoryDetails.sub_category_name',
+              },
+          },
+          {
+            $group: {
+                _id: '$user_id', 
+                user_id: { $first: '$user_id' },
+                user_name: { $first: '$user_name' },
+                category_id: { $first: '$category_id' },
+                sub_category_id: { $first: '$sub_category_id' },
+                category_name: { $first: '$category_name' },
+                sub_category_name: { $first: '$sub_category_name' },
+            },
+        },
+      ]);
+
+      res.status(200).send({ data: userDetails });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message, sms: 'Internal Server Error' });
+  }
+};

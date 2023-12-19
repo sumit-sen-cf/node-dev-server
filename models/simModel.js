@@ -139,6 +139,9 @@ const simModel = new mongoose.Schema({
   next_self_audit_date:{
     type: Date,
     default: ""
+  },
+  asset_financial_type:{
+    
   }
 });
 

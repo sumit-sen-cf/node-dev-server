@@ -2190,10 +2190,36 @@ exports.forgotPass = async (req, res) => {
 
 exports.getLoginHistory = async (req, res) => {
     try {
-        const dataa = await userLoginHisModel.find({});
-        res.status(200).send({ data: dataa })
+        // const loginHistory = await userLoginHisModel.find({});
+        const loginHistory = await userLoginHisModel.aggregate([
+            {
+                $lookup: {
+                    from: 'usermodels',
+                    localField: 'user_id',
+                    foreignField: 'user_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    user_id: 1,
+                    user_name : "$user.user_name",
+                    user_email_id: 1,
+                    login_date: 1,
+                    duration: 1,
+                    log_out_date: 1
+                }
+            }
+        ]).exec();
+        res.status(200).send({ data: loginHistory });
     } catch (error) {
-        res.status(500).send({ error: error.message, sms: "error getting user login history" })
+        res.status(500).send({ error: error.message, sms: "Error getting user login history" });
     }
 }
 
