@@ -1,6 +1,8 @@
 const logoCategoryModel = require('../models/logoCategoryModel.js');
-const logoBrandModel = require('../models/logoCategoryModel.js');
-
+const logoBrandModel = require('../models/logoBrandModel.js');
+const path = require("path");
+const constant = require('../common/constant.js');
+const helper = require('../helper/helper.js');
 exports.addLogoBrandCat = async (req, res) =>{
     try{
         const simc = new logoCategoryModel({
@@ -33,10 +35,263 @@ exports.addLogoBrand = async(req, res) => {
         const simv = await simc.save()
         res.send({simv, status:200})
     } catch (error) {
-        res.status(500).send({error:error, sms:'error while adding logo brand data'})
+        res.status(500).send({error:error.message, sms:'error while adding logo brand data'})
+    }
+}
+exports.getlogoImage = async(req, res) => {
+    try {
+        const filename = req.params.filename;
+        const imagePath = path.join(__dirname, "../uploads/logo", filename);
+       
+        res.sendFile(imagePath);
+    } catch (error) {
+        res.status(500).send({error:error.message, sms:'error while adding logo brand data'})
+    }
+}
+exports.getLogoData = async(req, res) => {
+    try {
+        const productData = await logoBrandModel.aggregate([
+            {
+                $lookup: {
+                    from: 'logocategorymodels', 
+                    localField: 'id',
+                    foreignField: 'logo_cat',
+                    as: 'logoCategory'
+                }
+            },
+            {
+                $lookup: {
+                    from: "usermodels", 
+                    localField: 'created_by',
+                    foreignField: 'user_id',
+                    as: 'createdByUser'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    logo_id: 1,
+                    brand_name: '$brand_name',
+                    image_type: '$image_type',
+                    size: '$size',
+                    remarks: '$remarks',
+                    created_by: '$created_by',
+                    user_name: { $arrayElemAt: ['$createdByUser.user_name', 0] },
+                    created_at: '$created_at',
+                    last_updated_at: '$last_updated_at',
+                    last_updated_by: '$last_updated_by',
+                    cat_id: { $arrayElemAt: ['$logoCategory._id', 0] },
+                    cat_name: { $arrayElemAt: ['$logoCategory.cat_name', 0] },
+                    logo_image: {
+                        $cond: {
+                            if: { $ne: ['$upload_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}/uploads/logo_images/`,
+                                    '$upload_logo'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    logo_image_download: {
+                        $cond: {
+                            if: { $ne: ['$upload_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}/uploads/logo_images/`,
+                                    '$upload_logo'
+                                ]
+                            },
+                            else: null
+                        }
+                    }
+                }
+            }
+        ]);
+        if (productData?.length == 0){
+            return res.status(200).json({message : "No Record Found"});
+            }
+      return  res.status(200).json(productData);
+    } catch (error) {
+        res.status(500).send({error:error.message, sms:'error while adding logo brand data'})
+    }
+}
+exports.getSingleLogoData = async(req, res) => {
+    try {
+        const productData = await logoBrandModel.aggregate([
+            {
+                $match : {
+                    logo_id : req.params.logo_id && parseInt(req.params.logo_id)
+                }
+            },
+            {
+                $lookup: {
+                    from: 'logocategorymodels', 
+                    localField: 'id',
+                    foreignField: 'logo_cat',
+                    as: 'logoCategory'
+                }
+            },
+            {
+                $lookup: {
+                    from: "usermodels", 
+                    localField: 'created_by',
+                    foreignField: 'user_id',
+                    as: 'createdByUser'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    logo_id: 1,
+                    brand_name: '$brand_name',
+                    image_type: '$image_type',
+                    size: '$size',
+                    remarks: '$remarks',
+                    created_by: '$created_by',
+                    user_name: { $arrayElemAt: ['$createdByUser.user_name', 0] },
+                    created_at: '$created_at',
+                    last_updated_at: '$last_updated_at',
+                    last_updated_by: '$last_updated_by',
+                    cat_id: { $arrayElemAt: ['$logoCategory._id', 0] },
+                    cat_name: { $arrayElemAt: ['$logoCategory.cat_name', 0] },
+                    logo_image: {
+                        $cond: {
+                            if: { $ne: ['$upload_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}/uploads/logo_images/`,
+                                    '$upload_logo'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    logo_image_download: {
+                        $cond: {
+                            if: { $ne: ['$upload_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}/uploads/logo_images/`,
+                                    '$upload_logo'
+                                ]
+                            },
+                            else: null
+                        }
+                    }
+                }
+            }
+        ]);
+if (productData?.length == 0){
+return res.status(200).json({message : "No Record Found"});
+}
+        res.status(200).json(productData[0]);
+    } catch (error) {
+        res.status(500).send({error:error.message, sms:'error while adding logo brand data'})
     }
 }
 
+exports.getLogoDataBasedBrand = async(req, res) => {
+    try {
+        const productData = await logoBrandModel.aggregate([
+            {
+                $match : {
+                    brand_name : req.params.brand_name
+                }
+            },
+            {
+                $lookup: {
+                    from: 'logocategorymodels', 
+                    localField: 'id',
+                    foreignField: 'logo_cat',
+                    as: 'logoCategory'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    logo_id: 1,
+                    brand_name: '$brand_name',
+                    image_type: '$image_type',
+                    size: '$size',
+                    remarks: '$remarks',
+                    created_at: '$created_at',
+                    last_updated_at: '$last_updated_at',
+                    last_updated_by: '$last_updated_by',
+                    cat_id: { $arrayElemAt: ['$logoCategory._id', 0] },
+                    cat_name: { $arrayElemAt: ['$logoCategory.cat_name', 0] },
+                    logo_image: {
+                        $cond: {
+                            if: { $ne: ['$upload_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}/uploads/logo_images/`,
+                                    '$upload_logo'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    logo_image_download: {
+                        $cond: {
+                            if: { $ne: ['$upload_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}/uploads/logo_images/`,
+                                    '$upload_logo'
+                                ]
+                            },
+                            else: null
+                        }
+                    }
+                }
+            }
+        ]);
+if (productData?.length == 0){
+return res.status(200).json({message : "No Record Found"});
+}
+        res.status(200).json(productData[0]);
+    } catch (error) {
+        res.status(500).send({error:error.message, sms:'error while adding logo brand data'})
+    }
+}
+exports.deleteLogoBrand = async (req, res) =>{
+    logoBrandModel.findOneAndDelete({logo_id:req.params.logo_id}).then(item =>{
+        if(item.deletedCount !== 0){
+            // const result = helper.fileRemove(
+            //     item?.upload_logo,
+            //     "../uploads/logo"
+            //   );
+            //   if (result?.status == false) {
+            //     return res.status(200).json({success:false, message: result.msg})
+            //   }
+            return res.status(200).json({success:true, message:'logo brand deleted'})
+        }else{
+            return res.status(404).json({success:false, message:'logo brand not found'})
+        }
+    }).catch(err=>{
+        return res.status(400).json({success:false, message:err.message})
+    })
+};
+exports.deleteLogoBrandBasedBrand = async (req, res) =>{
+    logoBrandModel.deleteMany({brand_name:req.params.brand_name}).then(item =>{
+        if(item){
+            const result = helper.fileRemove(
+                item?.upload_logo,
+                "../uploads/logo"
+              );
+              if (result?.status == false) {
+                return res.status(200).json({success:false, message: result.msg})
+              }
+            return res.status(200).json({success:true, message:'logo brand deleted'})
+        }else{
+            return res.status(404).json({success:false, message:'logo brand not found'})
+        }
+    }).catch(err=>{
+        return res.status(400).json({success:false, message:err.message})
+    })
+};
 exports.getLogoBrandsCat = async (req, res) => {
     try{
         const simc = await logoCategoryModel.find();
