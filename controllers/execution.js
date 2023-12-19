@@ -315,74 +315,117 @@ exports.getLatestPIDCount = async (req, res) => {
 };
 exports.pageHealthDashboard = async (req, res) => {
     try {
-        const { intervalFlag, startDate, endDate } = req.body;
+        const { p_id, intervalFlag, startDate, endDate } = req.body;
         const currentDate = new Date();
-        let dateFilter;
 
-        if(startDate && endDate){
+        let dateFilter = {};
+
+        if (p_id) {
+            // Use specific p_id logic
             dateFilter = {
-                creation_date: {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate)
-                }
+                $and: [
+                    { p_id: p_id },
+                    startDate && endDate ? {
+                        creation_date: {
+                            $gte: new Date(startDate),
+                            $lte: new Date(endDate)
+                        }
+                    } : {},
+                ]
             };
-        }else{
-         /**
-         * Sets the date filter based on the given interval flag.
-         * @param {number} intervalFlag - The interval flag to determine the date filter.
-         * @param {Date} currentDate - The current date.
-         * @returns {Object} The date filter object.
-         */
- switch (intervalFlag) {
-    case 1:
-        // For flag 1, include last month data
-        dateFilter = {
-            creation_date: {
-                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate()),
-                $lte: currentDate
+            switch (intervalFlag) {
+                case 1:
+                    // For flag 1, include last month data
+                    dateFilter.creation_date = {
+                        $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate()),
+                        $lte: currentDate
+                    };
+                    break;
+                case 3:
+                    // For flag 3, include last 3 months data
+                    dateFilter.creation_date = {
+                        $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate()),
+                        $lte: currentDate
+                    };
+                    break;
+                case 6:
+                    // For flag 3, include last 6 months data
+                    dateFilter.creation_date = {
+                        $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 6, currentDate.getDate()),
+                        $lte: currentDate
+                    };
+                    break;
+                case 10:
+                    // For flag 4, include last 1 year data
+                    dateFilter.creation_date = {
+                        $gte: new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate()),
+                        $lte: currentDate
+                    };
+                    break;
+                case 2:
+                    // For flag 2, include all data
+                    dateFilter = { p_id: p_id };
+                    break;
+                default:
+                    break;
             }
-        };
-        break;
-    case 3:
-        // For flag 3, include last 3 months data
-        dateFilter = {
-            creation_date: {
-                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate()),
-                $lte: currentDate
+        } else {
+            // Use intervalFlag logic
+            switch (intervalFlag) {
+                case 1:
+                    // For flag 1, include last month data
+                    dateFilter.creation_date = {
+                        $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate()),
+                        $lte: currentDate
+                    };
+                    break;
+                case 3:
+                    // For flag 3, include last 3 months data
+                    dateFilter.creation_date = {
+                        $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate()),
+                        $lte: currentDate
+                    };
+                    break;
+                case 6:
+                    // For flag 3, include last 6 months data
+                    dateFilter.creation_date = {
+                        $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 6, currentDate.getDate()),
+                        $lte: currentDate
+                    };
+                    break;
+                case 10:
+                    // For flag 4, include last 1 year data
+                    dateFilter.creation_date = {
+                        $gte: new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate()),
+                        $lte: currentDate
+                    };
+                    break;
+                case 2:
+                    // For flag 2, include all data
+                    dateFilter = {};
+                    break;
+                default:
+                    break;
             }
-        };
-        break;
-    case 6:
-        // For flag 3, include last 6 months data
-        dateFilter = {
-            creation_date: {
-                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 6, currentDate.getDate()),
-                $lte: currentDate
-            }
-        };
-        break;
-    case 10:
-        // For flag 4, include last 1 year data
-        dateFilter = {
-            creation_date: {
-                $gte: new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate()),
-                $lte: currentDate
-            }
-        };
-        break;
-    case 2:
-       // For flag 2, include all data
-        dateFilter = {};
-        break;
-    default:
-        dateFilter = {};
-        break;
-}
         }
-       
-
-       
-        const getcreators = await exeCountHisModel.aggregate([
+        
+        // Apply start and end date filters if provided and remove creation_date filter
+        if (startDate && endDate) {
+            dateFilter = {
+                $and: [
+                    dateFilter,
+                    {
+                        creation_date: {
+                            $gte: new Date(startDate),
+                            $lte: new Date(endDate)
+                        }
+                    }
+                ]
+            };
+            delete dateFilter.creation_date;
+        }
+        
+        const result = await exeCountHisModel.aggregate([
             {
                 $sort: {
                     p_id: 1,
@@ -393,101 +436,163 @@ exports.pageHealthDashboard = async (req, res) => {
               $match: dateFilter
             },
             {
-                $group: {
-                    _id: "$p_id",
-                    latestDocument: { $first: "$$ROOT" },
-                    p_id_count: { $sum: 1 },  // For finding how many document exists in a group set
-
-                    //Highest values
-                    maxReach: { $max: "$reach" },
-                    maxImpression: { $max: "$impression" },
-                    maxEngagement: { $max: "$engagement" },
-                    maxStoryView: { $max: "$story_view" },
-                    maxStoryViewDate: { $max: "$story_view_date" },
-
-                    //Lowest values
-                    minReach: { $min: "$reach" },
-                    minImpression: { $min: "$impression" },
-                    minEngagement: { $min: "$engagement" },
-                    minStoryView: { $min: "$story_view" },
-                    minStoryViewDate: { $min: "$story_view_date" },
-
-                    //Average Values
-                    avgReach: { $avg: "$reach" },
-                    avgImpression: { $avg: "$impression" },
-                    avgEngagement: { $avg: "$engagement" },
-                    avgStoryView: { $avg: "$story_view" },
-                    avgStoryViewDate: { $avg: "$story_view_date" },
-
-                    // Gender specification
-                    avgMalePercent: { $avg: "$male_percent" },
-                    avgFemalePercent: { $avg: "$female_percent" },
-
-                    // Age Group specification 
-                    avgAge_13_17_percent: { $avg: "$Age_13_17_percent" },
-                    avgAge_18_24_percent: { $avg: "$Age_18_24_percent" },
-                    avgAge_25_34_percent: { $avg: "$Age_25_34_percent" },
-                    avgAge_35_44_percent: { $avg: "$Age_35_44_percent" },
-                    avgAge_45_54_percent: { $avg: "$Age_45_54_percent" },
-                    avgAge_55_64_percent: { $avg: "$Age_55_64_percent" },
-                    avgAge_65_plus_percent: { $avg: "$Age_65_plus_percent" },
+                $facet: {
+                    // Case 1: p_id not found
+                    "case1": [
+                        {
+                            $group: {
+                                _id: "$p_id",
+                                latestDocument: { $first: "$$ROOT" },
+                                p_id_count: { $sum: 1 },
+                                maxReach: { $max: "$reach" },
+                                maxImpression: { $max: "$impression" },
+                                maxEngagement: { $max: "$engagement" },
+                                maxStoryView: { $max: "$story_view" },
+                                maxStoryViewDate: { $max: "$story_view_date" },
+                                minReach: { $min: "$reach" },
+                                minImpression: { $min: "$impression" },
+                                minEngagement: { $min: "$engagement" },
+                                minStoryView: { $min: "$story_view" },
+                                minStoryViewDate: { $min: "$story_view_date" },
+                                avgReach: { $avg: "$reach" },
+                                avgImpression: { $avg: "$impression" },
+                                avgEngagement: { $avg: "$engagement" },
+                                avgStoryView: { $avg: "$story_view" },
+                                avgStoryViewDate: { $avg: "$story_view_date" },
+                                avgMalePercent: { $avg: "$male_percent" },
+                                avgFemalePercent: { $avg: "$female_percent" },
+                                avgAge_13_17_percent: { $avg: "$Age_13_17_percent" },
+                                avgAge_18_24_percent: { $avg: "$Age_18_24_percent" },
+                                avgAge_25_34_percent: { $avg: "$Age_25_34_percent" },
+                                avgAge_35_44_percent: { $avg: "$Age_35_44_percent" },
+                                avgAge_45_54_percent: { $avg: "$Age_45_54_percent" },
+                                avgAge_55_64_percent: { $avg: "$Age_55_64_percent" },
+                                avgAge_65_plus_percent: { $avg: "$Age_65_plus_percent" },
+                                creation_date: { $first : "$creation_date" },
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "exepurchasemodels",
+                                localField: "_id",
+                                foreignField: "p_id",
+                                as: "exePurchaseModelData"
+                            }
+                        },
+                        {
+                            $unwind: "$exePurchaseModelData"
+                        },
+                        {
+                            $replaceRoot: {
+                                newRoot: {
+                                    $mergeObjects: [
+                                        "$latestDocument",
+                                        "$exePurchaseModelData",
+                                        { p_id_count: "$p_id_count" },
+                                        { maxReach: "$maxReach" },
+                                        { maxImpression: "$maxImpression" },
+                                        { maxEngagement: "$maxEngagement" },
+                                        { maxStoryView: "$maxStoryView" },
+                                        { maxStoryViewDate: "$maxStoryViewDate" },
+                                        { minReach: "$minReach" },
+                                        { minImpression: "$minImpression" },
+                                        { minEngagement: "$minEngagement" },
+                                        { minStoryView: "$minStoryView" },
+                                        { minStoryViewDate: "$minStoryViewDate" },
+                                        { avgReach: "$avgReach" },
+                                        { avgImpression: "$avgImpression" },
+                                        { avgEngagement: "$avgEngagement" },
+                                        { avgStoryView: "$avgStoryView" },
+                                        { avgStoryViewDate: "$avgStoryViewDate" },
+                                        { avgMalePercent: "$avgMalePercent" },
+                                        { avgFemalePercent: "$avgFemalePercent" },
+                                        { avgAge_13_17_percent: "$avgAge_13_17_percent" },
+                                        { avgAge_18_24_percent: "$avgAge_18_24_percent" },
+                                        { avgAge_35_44_percent: "$avgAge_35_44_percent" },
+                                        { avgAge_45_54_percent: "$avgAge_45_54_percent" },
+                                        { avgAge_55_64_percent: "$avgAge_55_64_percent" },
+                                        { avgAge_65_plus_percent: "$avgAge_55_64_percent" },
+                                        { creation_date: "$creation_date" },
+                                    ]
+                                }
+                            }
+                        },
+                    ],
+        
+                    // Case 2: p_id found
+                    "case2": [
+                        {
+                            $group: {
+                                _id: {
+                                    month: { $month: "$creation_date" },
+                                    year: { $year: "$creation_date" },
+                                },
+                                p_id_count: { $sum: 1 },
+                                maxReach: { $max: "$reach" },
+                                maxImpression: { $max: "$impression" },
+                                maxEngagement: { $max: "$engagement" },
+                                maxStoryView: { $max: "$story_view" },
+                                maxStoryViewDate: { $max: "$story_view_date" },
+                                minReach: { $min: "$reach" },
+                                minImpression: { $min: "$impression" },
+                                minEngagement: { $min: "$engagement" },
+                                minStoryView: { $min: "$story_view" },
+                                minStoryViewDate: { $min: "$story_view_date" },
+                                avgReach: { $avg: "$reach" },
+                                avgImpression: { $avg: "$impression" },
+                                avgEngagement: { $avg: "$engagement" },
+                                avgStoryView: { $avg: "$story_view" },
+                                avgStoryViewDate: { $avg: "$story_view_date" },
+                                avgMalePercent: { $avg: "$male_percent" },
+                                avgFemalePercent: { $avg: "$female_percent" },
+                                avgAge_13_17_percent: { $avg: "$Age_13_17_percent" },
+                                avgAge_18_24_percent: { $avg: "$Age_18_24_percent" },
+                                avgAge_25_34_percent: { $avg: "$Age_25_34_percent" },
+                                avgAge_35_44_percent: { $avg: "$Age_35_44_percent" },
+                                avgAge_45_54_percent: { $avg: "$Age_45_54_percent" },
+                                avgAge_55_64_percent: { $avg: "$Age_55_64_percent" },
+                                avgAge_65_plus_percent: { $avg: "$Age_65_plus_percent" },
+                                creation_date: { $first : "$creation_date" },
+                            }
+                        },
+                        {
+                            $replaceRoot: {
+                                newRoot: {
+                                    $mergeObjects: [
+                                        { p_id_count: "$p_id_count" },
+                                        { maxReach: "$maxReach" },
+                                        { maxImpression: "$maxImpression" },
+                                        { maxEngagement: "$maxEngagement" },
+                                        { maxStoryView: "$maxStoryView" },
+                                        { maxStoryViewDate: "$maxStoryViewDate" },
+                                        { minReach: "$minReach" },
+                                        { minImpression: "$minImpression" },
+                                        { minEngagement: "$minEngagement" },
+                                        { minStoryView: "$minStoryView" },
+                                        { minStoryViewDate: "$minStoryViewDate" },
+                                        { avgReach: "$avgReach" },
+                                        { avgImpression: "$avgImpression" },
+                                        { avgEngagement: "$avgEngagement" },
+                                        { avgStoryView: "$avgStoryView" },
+                                        { avgStoryViewDate: "$avgStoryViewDate" },
+                                        { avgMalePercent: "$avgMalePercent" },
+                                        { avgFemalePercent: "$avgFemalePercent" },
+                                        { avgAge_13_17_percent: "$avgAge_13_17_percent" },
+                                        { avgAge_18_24_percent: "$avgAge_18_24_percent" },
+                                        { avgAge_35_44_percent: "$avgAge_35_44_percent" },
+                                        { avgAge_45_54_percent: "$avgAge_45_54_percent" },
+                                        { avgAge_55_64_percent: "$avgAge_55_64_percent" },
+                                        { avgAge_65_plus_percent: "$avgAge_55_64_percent" },
+                                        { creation_date: "$creation_date" },
+                                    ]
+                                }
+                            },
+                        },
+                    ],
                 }
-            },
-            {
-                $lookup: {
-                    from: "exepurchasemodels",
-                    localField: "_id",
-                    foreignField: "p_id",
-                    as: "exePurchaseModelData"
-                }
-            },
-            {
-                $unwind: "$exePurchaseModelData"
-            },
-            {
-                $replaceRoot: {
-                    newRoot: {
-                        $mergeObjects: [
-                            "$latestDocument",
-                            "$exePurchaseModelData",
-                            { p_id_count: "$p_id_count" },
-                            //Highest values which can return in response
-                            { maxReach: "$maxReach" },
-                            { maxImpression: "$maxImpression" },
-                            { maxEngagement: "$maxEngagement" },
-                            { maxStoryView: "$maxStoryView" },
-                            { maxStoryViewDate: "$maxStoryViewDate" },
-
-                            //Average values which can return in response
-                            { avgReach: "$avgReach" },
-                            { avgImpression: "$avgImpression" },
-                            { avgEngagement: "$avgEngagement" },
-                            { avgStoryView: "$avgStoryView" },
-                            { avgStoryViewDate: "$avgStoryViewDate" },
-
-                            //Lowest values which can return in response
-                            { minReach: "$minReach" },
-                            { minImpression: "$minImpression" },
-                            { minEngagement: "$minEngagement" },
-                            { minStoryView: "$minStoryView" },
-                            { minStoryViewDate: "$minStoryViewDate" },
-
-                            // Gender specification
-                            { avgMalePercent: "$avgMalePercent" },
-                            { avgFemalePercent: "$avgFemalePercent" },
-
-                            //Age Classification 
-                            { avgAge_13_17_percent: "$avgAge_13_17_percent" },
-                            { avgAge_18_24_percent: "$avgAge_18_24_percent" },
-                            { avgAge_35_44_percent: "$avgAge_35_44_percent" },
-                            { avgAge_45_54_percent: "$avgAge_45_54_percent" },
-                            { avgAge_55_64_percent: "$avgAge_55_64_percent" },
-                            { avgAge_65_plus_percent: "$avgAge_55_64_percent" },
-                        ]
-                    }
-                }
-            },
-        ]);
+            }
+        ])
+        const getcreators = p_id ? result[0].case2 : result[0].case1;
 
         if (getcreators && getcreators.length === 0) {
             return response.returnFalse(200, req, res, 'No Record Found', {})
@@ -530,6 +635,223 @@ exports.pageHealthDashboard = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {})
     }
 };
+// exports.pageHealthDashboard = async (req, res) => {
+//     try {
+//         const { intervalFlag, startDate, endDate } = req.body;
+//         const currentDate = new Date();
+//         let dateFilter;
+
+//         if(startDate && endDate){
+//             dateFilter = {
+//                 creation_date: {
+//                     $gte: new Date(startDate),
+//                     $lte: new Date(endDate)
+//                 }
+//             };
+//         }else{
+//          /**
+//          * Sets the date filter based on the given interval flag.
+//          * @param {number} intervalFlag - The interval flag to determine the date filter.
+//          * @param {Date} currentDate - The current date.
+//          * @returns {Object} The date filter object.
+//          */
+//  switch (intervalFlag) {
+//     case 1:
+//         // For flag 1, include last month data
+//         dateFilter = {
+//             creation_date: {
+//                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate()),
+//                 $lte: currentDate
+//             }
+//         };
+//         break;
+//     case 3:
+//         // For flag 3, include last 3 months data
+//         dateFilter = {
+//             creation_date: {
+//                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate()),
+//                 $lte: currentDate
+//             }
+//         };
+//         break;
+//     case 6:
+//         // For flag 3, include last 6 months data
+//         dateFilter = {
+//             creation_date: {
+//                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth() - 6, currentDate.getDate()),
+//                 $lte: currentDate
+//             }
+//         };
+//         break;
+//     case 10:
+//         // For flag 4, include last 1 year data
+//         dateFilter = {
+//             creation_date: {
+//                 $gte: new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate()),
+//                 $lte: currentDate
+//             }
+//         };
+//         break;
+//     case 2:
+//        // For flag 2, include all data
+//         dateFilter = {};
+//         break;
+//     default:
+//         dateFilter = {};
+//         break;
+// }
+//         }
+       
+
+       
+//         const getcreators = await exeCountHisModel.aggregate([
+//             {
+//                 $sort: {
+//                     p_id: 1,
+//                     creation_date: -1
+//                 }
+//             },
+//             {
+//               $match: dateFilter
+//             },
+//             {
+//                 $group: {
+//                     _id: "$p_id",
+//                     latestDocument: { $first: "$$ROOT" },
+//                     p_id_count: { $sum: 1 },  // For finding how many document exists in a group set
+
+//                     //Highest values
+//                     maxReach: { $max: "$reach" },
+//                     maxImpression: { $max: "$impression" },
+//                     maxEngagement: { $max: "$engagement" },
+//                     maxStoryView: { $max: "$story_view" },
+//                     maxStoryViewDate: { $max: "$story_view_date" },
+
+//                     //Lowest values
+//                     minReach: { $min: "$reach" },
+//                     minImpression: { $min: "$impression" },
+//                     minEngagement: { $min: "$engagement" },
+//                     minStoryView: { $min: "$story_view" },
+//                     minStoryViewDate: { $min: "$story_view_date" },
+
+//                     //Average Values
+//                     avgReach: { $avg: "$reach" },
+//                     avgImpression: { $avg: "$impression" },
+//                     avgEngagement: { $avg: "$engagement" },
+//                     avgStoryView: { $avg: "$story_view" },
+//                     avgStoryViewDate: { $avg: "$story_view_date" },
+
+//                     // Gender specification
+//                     avgMalePercent: { $avg: "$male_percent" },
+//                     avgFemalePercent: { $avg: "$female_percent" },
+
+//                     // Age Group specification 
+//                     avgAge_13_17_percent: { $avg: "$Age_13_17_percent" },
+//                     avgAge_18_24_percent: { $avg: "$Age_18_24_percent" },
+//                     avgAge_25_34_percent: { $avg: "$Age_25_34_percent" },
+//                     avgAge_35_44_percent: { $avg: "$Age_35_44_percent" },
+//                     avgAge_45_54_percent: { $avg: "$Age_45_54_percent" },
+//                     avgAge_55_64_percent: { $avg: "$Age_55_64_percent" },
+//                     avgAge_65_plus_percent: { $avg: "$Age_65_plus_percent" },
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "exepurchasemodels",
+//                     localField: "_id",
+//                     foreignField: "p_id",
+//                     as: "exePurchaseModelData"
+//                 }
+//             },
+//             {
+//                 $unwind: "$exePurchaseModelData"
+//             },
+//             {
+//                 $replaceRoot: {
+//                     newRoot: {
+//                         $mergeObjects: [
+//                             "$latestDocument",
+//                             "$exePurchaseModelData",
+//                             { p_id_count: "$p_id_count" },
+//                             //Highest values which can return in response
+//                             { maxReach: "$maxReach" },
+//                             { maxImpression: "$maxImpression" },
+//                             { maxEngagement: "$maxEngagement" },
+//                             { maxStoryView: "$maxStoryView" },
+//                             { maxStoryViewDate: "$maxStoryViewDate" },
+
+//                             //Average values which can return in response
+//                             { avgReach: "$avgReach" },
+//                             { avgImpression: "$avgImpression" },
+//                             { avgEngagement: "$avgEngagement" },
+//                             { avgStoryView: "$avgStoryView" },
+//                             { avgStoryViewDate: "$avgStoryViewDate" },
+
+//                             //Lowest values which can return in response
+//                             { minReach: "$minReach" },
+//                             { minImpression: "$minImpression" },
+//                             { minEngagement: "$minEngagement" },
+//                             { minStoryView: "$minStoryView" },
+//                             { minStoryViewDate: "$minStoryViewDate" },
+
+//                             // Gender specification
+//                             { avgMalePercent: "$avgMalePercent" },
+//                             { avgFemalePercent: "$avgFemalePercent" },
+
+//                             //Age Classification 
+//                             { avgAge_13_17_percent: "$avgAge_13_17_percent" },
+//                             { avgAge_18_24_percent: "$avgAge_18_24_percent" },
+//                             { avgAge_35_44_percent: "$avgAge_35_44_percent" },
+//                             { avgAge_45_54_percent: "$avgAge_45_54_percent" },
+//                             { avgAge_55_64_percent: "$avgAge_55_64_percent" },
+//                             { avgAge_65_plus_percent: "$avgAge_55_64_percent" },
+//                         ]
+//                     }
+//                 }
+//             },
+//         ]);
+
+//         if (getcreators && getcreators.length === 0) {
+//             return response.returnFalse(200, req, res, 'No Record Found', {})
+//         }
+//         /**
+//          * Calculates the percentage of each age group based on the average age percentages
+//          * in the given data object. Sorts the age groups in descending order based on their
+//          * percentage and keeps only the top 5 age groups. Updates the data object with the
+//          * top 5 age group percentages and removes the individual average age percentages and
+//          * the total count of individuals.
+//          * @param {Array} getcreators - An array of data objects representing creators.
+//          * @returns None
+//          */
+//         for (const data of getcreators) {
+//             let ageGroup = [
+//                 { ageGroup: "13-17", percentage: data?.avgAge_13_17_percent / data?.p_id_count },
+//                 { ageGroup: "18-24", percentage: data?.avgAge_18_24_percent / data?.p_id_count },
+//                 { ageGroup: "35-44", percentage: data?.avgAge_35_44_percent / data?.p_id_count },
+//                 { ageGroup: "45-54", percentage: data?.avgAge_45_54_percent / data?.p_id_count },
+//                 { ageGroup: "55-64", percentage: data?.avgAge_55_64_percent / data?.p_id_count },
+//                 { ageGroup: "65+", percentage: data?.avgAge_65_plus_percent / data?.p_id_count },
+//             ];
+
+//             ageGroup.sort((a, b) => b.percentage - a.percentage);
+//             // Get the top 5 values
+//             const top5Values = ageGroup.slice(0, 5);
+//             data.top5AgeGroupPercentage = [...top5Values]
+//             // Delete specific properties
+//             delete data.avgAge_13_17_percent;
+//             delete data.avgAge_18_24_percent;
+//             delete data.avgAge_35_44_percent;
+//             delete data.avgAge_45_54_percent;
+//             delete data.avgAge_55_64_percent;
+//             delete data.avgAge_65_plus_percent;
+//             delete data.p_id_count;
+//         }
+
+//         return response.returnTrue(200, req, res, "Finding Operation Success", getcreators)
+//     } catch (err) {
+//         return response.returnFalse(500, req, res, err.message, {})
+//     }
+// };
 
 const upload = multer({ dest: "uploads/" }).fields([
     { name: "media", maxCount: 1 },
