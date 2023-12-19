@@ -225,15 +225,16 @@ router.get("/get_asset_department_count", sim.getAssetDepartmentCount);
 router.get("/get_asset_users_of_dept/:dept_id", sim.getAssetUsersDepartment)
 
 /* logo brand */
-router.post("/add_logo_brand", logoBrand.addLogoBrand);
-router.get("/get_all_logo_brands", logoBrand.getLogoBrands);
+router.post("/add_logo_category", logoBrand.addLogoBrandCat);
+router.get("/get_all_logo_categories", logoBrand.getLogoBrandsCat);
 router.get(
-  "/get_single_logobrand/:id",
+  "/get_single_category/:id",
 
-  logoBrand.getSingleLogoBrand
+  logoBrand.getSingleLogoBrandCat
 );
-router.put("/update_logo_brand", logoBrand.editLogoBrand);
-router.delete("/delete_logo_brand/:id", logoBrand.deleteLogoBrand);
+router.put("/update_logo_category", logoBrand.editLogoBrandCat);
+router.delete("/delete_logo_category/:id", logoBrand.deleteLogoBrandCat);
+router.post("/add_logo_brand", upload.single('upload_logo'), logoBrand.addLogoBrand)
 
 /* department */
 router.post("/add_department", department.addDepartment); //Done

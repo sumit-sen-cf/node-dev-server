@@ -1,8 +1,9 @@
-const logoBrandModel = require('../models/logoBrandModel.js');
+const logoCategoryModel = require('../models/logoCategoryModel.js');
+const logoBrandModel = require('../models/logoCategoryModel.js');
 
-exports.addLogoBrand = async (req, res) =>{
+exports.addLogoBrandCat = async (req, res) =>{
     try{
-        const simc = new logoBrandModel({
+        const simc = new logoCategoryModel({
             cat_name: req.body.cat_name,
             remark: req.body.remark,
             created_at: req.body.created_at,
@@ -15,9 +16,30 @@ exports.addLogoBrand = async (req, res) =>{
     }
 };
 
-exports.getLogoBrands = async (req, res) => {
+exports.addLogoBrand = async(req, res) => {
+    try {
+        const simc = new logoBrandModel({
+            brand_name: req.body.brand_name,
+            image_type: req.body.image_type,
+            size: req.body.size,
+            size_in_mb: req.body.size_in_mb,
+            created_by: req.body.created_by,
+            created_at: req.body.created_at, 
+            last_updated_by: req.body.last_updated_by,
+            remarks: req.body.remarks,
+            logo_cat: req.body.logo_cat,
+            upload_logo: req.file.filename 
+        })
+        const simv = await simc.save()
+        res.send({simv, status:200})
+    } catch (error) {
+        res.status(500).send({error:error, sms:'error while adding logo brand data'})
+    }
+}
+
+exports.getLogoBrandsCat = async (req, res) => {
     try{
-        const simc = await logoBrandModel.find();
+        const simc = await logoCategoryModel.find();
         if(!simc){
             res.status(500).send({success:false})
         }
@@ -27,9 +49,9 @@ exports.getLogoBrands = async (req, res) => {
     }
 };
 
-exports.getSingleLogoBrand = async (req, res) => {
+exports.getSingleLogoBrandCat = async (req, res) => {
     try{
-        const singlesim = await logoBrandModel.findById(req.params._id);
+        const singlesim = await logoCategoryModel.findById(req.params._id);
         if(!singlesim){
             return res.status(500).send({success:false})
         }
@@ -39,9 +61,9 @@ exports.getSingleLogoBrand = async (req, res) => {
     }
 };
 
-exports.editLogoBrand = async (req, res) => {
+exports.editLogoBrandCat = async (req, res) => {
     try{
-        const editsim = await logoBrandModel.findByIdAndUpdate(req.body._id,{
+        const editsim = await logoCategoryModel.findByIdAndUpdate(req.body._id,{
             cat_name: req.body.cat_name,
             remark: req.body.remark,
             created_at: req.body.created_at,
@@ -56,8 +78,8 @@ exports.editLogoBrand = async (req, res) => {
     }
 };
 
-exports.deleteLogoBrand = async (req, res) =>{
-    logoBrandModel.findByIdAndRemove(req.params._id).then(item =>{
+exports.deleteLogoBrandCat = async (req, res) =>{
+    logoCategoryModel.deleteOne({id:req.params.id}).then(item =>{
         if(item){
             return res.status(200).json({success:true, message:'logo brand deleted'})
         }else{
@@ -67,3 +89,4 @@ exports.deleteLogoBrand = async (req, res) =>{
         return res.status(400).json({success:false, message:err})
     })
 };
+
