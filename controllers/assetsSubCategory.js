@@ -69,7 +69,7 @@ exports.getSingleAssetSubCategory = async (req, res) => {
         const singlesim = await assetsSubCategoryModel
             .aggregate([
                 {
-                    $match: { sub_category_id: parseInt(req.params.sub_category_id) },
+                    $match: { category_id: parseInt(req.params.category_id) },
                 },
                 {
                     $lookup: {

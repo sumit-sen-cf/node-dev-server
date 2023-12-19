@@ -83,6 +83,8 @@ const phpIncentive = require("./controllers/phpIncentive.js")
 const phpPaymentBal = require("./controllers/phpPaymentBalList.js");
 const phpPendingInvoice = require("./controllers/phpPendingInvoice.js");
 const phpSaleBookingTds = require("./controllers/saleBookingTds.js");
+const assetBrand = require("./controllers/assetsBrand.js");
+const assetModal = require("./controllers/assetsModal.js");
 
 
 router.get("/", (req, res) => {
@@ -998,7 +1000,7 @@ router.get(
   assetSubCategory.getAssetSubCategorys
 );
 router.get(
-  "/get_single_asset_sub_category/:sub_category_id",
+  "/get_single_asset_sub_category/:category_id",
   assetSubCategory.getSingleAssetSubCategory
 );
 router.put("/update_asset_sub_category", assetSubCategory.editAssetSubCategory);
@@ -1119,5 +1121,20 @@ router.get("/get_all_php_sale_booking_tds_data", phpSaleBookingTds.getAllphpSale
 router.post("/add_php_sale_booking_tds_verification_data_in_node", phpSaleBookingTds.savePhpSaleBookingTdsVerificationDataInNode);
 router.get("/get_all_php_sale_booking_tds_verification_data", phpSaleBookingTds.getAllphpSaleBookingTdsVerificationData);
 router.get("/get_all_php_payment_acc_data_customers/:cust_id",phpPayment.getAccListDataFromCustId)
+
+// Asset Brand Routes 
+router.post("/add_asset_brand", assetBrand.addAssetBrand);
+router.put("/update_asset_brand", assetBrand.editAssetBrand);
+router.get("/get_all_asset_brands", assetBrand.getAssetBrands);
+router.get("/get_single_asset_brand/:id", assetBrand.getAssetBrandById);
+router.delete("/delete_asset_brand/:id", assetBrand.deleteAssetBrand);
+
+// Asset Modal Routes 
+router.post("/add_asset_modal", assetModal.addAssetModal);
+router.put("/update_asset_modal", assetModal.editAssetModal);
+router.get("/get_all_asset_modals", assetModal.getAssetModals);
+router.get("/get_single_asset_modal/:id", assetModal.getAssetModalById);
+router.delete("/delete_asset_modal/:id", assetModal.deleteAssetModal);
+
 
 module.exports = router;

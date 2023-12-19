@@ -49,6 +49,24 @@ const vendorModel = new mongoose.Schema({
     type: Date,
     default:0
   },
+  vendor_type: {
+    type: String,
+    required: false
+  },
+  vendor_category: {
+    type: [String],
+    required: false
+  },
+  secondary_contact_no : {
+    type: String,
+    required: false,
+    default: "",
+  },
+  secondary_person_name : {
+    type: String,
+    required: false,
+    default: "",
+  }
 });
 
 AutoIncrement.initialize(mongoose.connection);
