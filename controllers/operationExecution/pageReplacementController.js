@@ -4,48 +4,44 @@ const pageReplacementRecordModel = require('../../models/operationExecution/page
 const CampaignPlanModel = require('../../models/operationExecution/campaignPlanModel')
 const CampaignPhaseModel = require('../../models/operationExecution/campaignPhaseModel')
 const PhasePageModel = require('../../models/operationExecution/phasePageModel')
-const AssignmentModel=require('../../models/operationExecution/assignmentModel')
+const AssignmentModel = require('../../models/operationExecution/assignmentModel')
+const axios = require('axios')
 
 exports.createReplacementPlan = catchAsync(async (req, res, next) => {
     //????validation check if request is already made
 
-    
-    //1.changes at plan level
+
+    //extracting data from the body
     const { planName,
         campaignId,
-        
+
         replacement_request_by,
-        page,
+        pages,
         oldPage_id,
         newPage_id,
         campaignName,
-        replacement_stage
-        
+        replacement_stage,
+        phase_id,
+        phaseName
+
     } = req.body
-    
-    const validation=await pageReplacementRecordModel.findOne({campaignId,
-        
+
+    //checking if request is already made fot the old page
+    const validation = await pageReplacementRecordModel.findOne({
+        campaignId,
+
         replacement_request_by,
-        page,
+
         oldPage_id,
         newPage_id,
-        campaignName})
+        campaignName
+    })
 
-        if(validation){
-            return next(new appError(404,"replacement request already made"))
-        }
-    
-    const newPageData = {
-        planName,
-        campaignId,
-        replacement_status:'active',
-        campaignName,
-        postRemaining: page.postPerPage,
-        ...page
-
+    if (validation) {
+        return next(new appError(404, "replacement request already made"))
     }
 
-    const newPage=await CampaignPlanModel.create(newPageData)
+    //createing a data const for the replacement creation
     const dataReplacement =
     {
         replacement_stage,
@@ -59,55 +55,202 @@ exports.createReplacementPlan = catchAsync(async (req, res, next) => {
 
     const replacementRecord = await pageReplacementRecordModel.create(dataReplacement)
 
-    const oldPageUpdate=await CampaignPlanModel.findOneAndUpdate({"p_id":oldPage_id,"campaignId":campaignId},{
-        replacement_status:'pending',
-        replacement_stage,
-        replacement_id:replacementRecord._id,
-    },{new:true})
 
-  
-   
+    //creating the new pages respective of the stages.
+    let newPages = []
+    pages.forEach(async page => {
+
+        const newPageData = {
+            planName,
+            campaignId,
+            replacement_status: 'active',
+            campaignName,
+            postRemaining: page.postPerPage,
+            replacement_stage,
+            replacement_id: replacementRecord._id,
+            ...page
+
+        }
+
+        //if the request is made at the plan level , this is true for all the stages
+        //doesnt mattter at which stage the request is made creating new page at plan levvel is always true
+
+        const newPage = await CampaignPlanModel.create(newPageData)
+
+        newPages.push(newPage)
+
+
+        //if request is made at the phase level 
+        if (replacement_stage == 'phase') {
+            const phasePage = await PhasePageModel.create({ ...newPageData, phase_id, phaseName })
+        }
+
+
+    });
+
+
+    //updating the old page and changing its status to pending , again the if the request is made at plan level and 
+    //phase level are observed and updating the page at respective level
+
+    const oldPageUpdate = await CampaignPlanModel.findOneAndUpdate({ "p_id": oldPage_id, "campaignId": campaignId }, {
+        replacement_status: 'pending',
+        replacement_stage,
+        replacement_id: replacementRecord._id,
+    }, { new: true })
+
+
+
+
 
     const allPhases = await CampaignPhaseModel.find({ campaignId: campaignId })
-    
+
     for (let i = 0; i < allPhases.length; i++) {
-          //2. effect at phase level
+        //2. effect at phase level
 
         const pageExist = await PhasePageModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: oldPage_id },
-            {replacement_status:"pending",
-            replacement_stage,
-            replacement_id:replacementRecord._id},{new:true})
+            {
+                replacement_status: "pending",
+                replacement_stage,
+                replacement_id: replacementRecord._id
+            }, { new: true })
 
-            //3. at assignment level
+        //3. at assignment level
 
-        const assignmentExist = await AssignmentModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: oldPage_id },
-            {replacement_status:"pending",
-            replacement_stage,
-            replacement_id:replacementRecord._id},{new:true})
+        // const assignmentExist = await AssignmentModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: oldPage_id },
+        //     {
+        //         replacement_status: "pending",
+        //         replacement_stage,
+        //         replacement_id: replacementRecord._id
+        //     }, { new: true })
 
-        // }
-        console.log(assignmentExist)
+        // // }
+        // console.log(assignmentExist)
     }
 
     res.status(200).json({
         data: {
-            
-            newPage,replacementRecord,oldPageUpdate
+
+            newPages, replacementRecord, oldPageUpdate
         }
     })
 
+
+
+
+})
+
+exports.replacementStatus = catchAsync(async (req, res, next) => {
+    //getting the data from frontend
+    const { status, replacementRecord, approved_by } = req.body
+
+    const recordStatus = await pageReplacementRecordModel.findByIdAndUpdate(replacementRecord._id,
+        {
+            "replacement_status": status, "approved_by":approved_by, replacement_result_at: Date.now()
+
+
+        },{new:true})
+
+
+        //updating old page status
+
+        const oldPageUpdate = await CampaignPlanModel.findOneAndUpdate({ "p_id": replacementRecord.oldPage_id, "campaignId": replacementRecord.campaignId }, {
+            replacement_status: status=='approved' ? 'replaced' : 'inactive',
+
+        }, { new: true })
+
+        const allPhases = await CampaignPhaseModel.find({ campaignId: replacementRecord.campaignId })
+        for (let i = 0; i < allPhases.length; i++) {
+           
+           
+            //2. effect at phase level
+
+            const pageExist = await PhasePageModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: replacementRecord.oldPage_id },
+                {
+                    replacement_status:  status=='approved' ? 'replaced' : 'inactive',
+                    replacement_stage:replacementRecord.replacement_stage,
+                    replacement_id: replacementRecord._id
+                }, { new: true })
+
+            //3. at assignment level
+
+            // const assignmentExist = await AssignmentModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: oldPage_id },
+            //     {
+            //         replacement_status: "pending",
+            //         replacement_stage,
+            //         replacement_id: replacementRecord._id
+            //     }, { new: true })
+
+            // // }
+            // console.log(assignmentExist)
+        }
+
+        //updating newPage status
+        //new pages will be obtained from the replacement records new pages
+        
+        replacementRecord.newPages.forEach(async page=>{
+            
+            //updating new page at plan level 
+            const newPage =await CampaignPlanModel.findOneAndUpdate({campaignId:replacementRecord.campaignId,'p_id':page.p_id},
+            {
+                replacement_status:status=='approved'?'replacement':'rejected'
+            })
+            if(replacementRecord.replacement_stage=='phase'){
+                for (let i = 0; i < allPhases.length; i++) {
+           
+           
+                    //2. effect at phase level
+        
+                    const pageExist = await PhasePageModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id:page.p_id  },
+                        {
+                            replacement_status:  status=='approved' ? 'replacement' : 'rejected',
+                         
+                        }, { new: true })
+        
+                  
+                }
+            }
+        })
+
+        res.status(200).json({data:recordStatus,oldPageUpdate})
     
-   
-
 })
 
-exports.getSingleRecord=catchAsync(async (req,res,next) => {
-    const id=req.params.id
-    const result=await pageReplacementRecordModel.findById(id)
+exports.getSingleRecord = catchAsync(async (req, res, next) => {
+    const id = req.params.id
+    const result = await pageReplacementRecordModel.findById(id)
+
+    const newPages = await Promise.all(
+        result.newPage_id.map(async page => {
+
+            const x = await axios.post("https://purchase.creativefuel.io/webservices/RestController.php?view=inventoryDataListpid", { "p_id": page },
+                {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                })
+            return { ...x.data.body[0] }
+        })
+    )
+
     res.status(200).json({
-        data:result
+        data: { ...result.toObject(), newPages }
     })
+    // res.status(200).json({
+    //     data:result
+    // })
 })
-exports.createReplacementPhase=catchAsync(async (req,res,next) =>{
+
+
+exports.getAllRecord = catchAsync(async (req, res, next) => {
+    const result = await pageReplacementRecordModel.find({})
+    res.status(200).json({
+        data: result
+    })
+
+
+
+
+})
+exports.createReplacementPhase = catchAsync(async (req, res, next) => {
 
 })

@@ -129,8 +129,9 @@ router.post('/operation_phase_dashboard',operationDasboard.phaseDashboard)
 
 
 router.post('/replacement/plan',pageReplacementController.createReplacementPlan)
+router.get('/replacement/plan',pageReplacementController.getAllRecord)
 router.get('/replacement/:id',pageReplacementController.getSingleRecord)
-
+router.post('/replacement/status',pageReplacementController.replacementStatus)
 
 /*operation+execution api ends*/
 /*insta api*/

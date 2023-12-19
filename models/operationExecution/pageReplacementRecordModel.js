@@ -19,17 +19,17 @@ const pageReplacementRecordSchema = new mongoose.Schema({
       type:'String',
     },
     newPage_id:{
-      type:'String',
+      type:Array,
       required: [true,'newpage_id is required'],
     },
     oldPage_id:{
       type:'String',
-      required: [true,'newpage_id is required'],
+      required: [true,'oldPage_id is required'],
     },
     replacement_status:{
       type:'String',
       default:'pending',
-      enum:['pending', 'approved', 'disapproved']
+      enum:['pending', 'approved', 'rejected']
     },
     replacement_stage:{
       type:'String',

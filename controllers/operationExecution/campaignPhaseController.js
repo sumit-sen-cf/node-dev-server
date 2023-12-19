@@ -79,7 +79,7 @@ exports.getSinglePhase=catchAsync(async (req,res,next)=>{
     const getPages = await PhasePageModel.find({ phase_id: id });
     const getComm = await PhaseCommitmentModel.find({ phase_id: id });
     
-    res.send({data:{...phase.toObject(),pages:getPages,commitment:getComm},status:200})
+    res.send({data:{...phase,pages:getPages,commitment:getComm},status:200})
 })
 
 exports.updateBulk=catchAsync(async (req,res,next) => {
