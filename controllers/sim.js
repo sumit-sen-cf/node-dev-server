@@ -36,7 +36,9 @@ exports.addSim = async (req, res) => {
       last_hr_audit_date : req.body.last_hr_audit_date,
       last_self_audit_date: req.body.last_self_audit_date,
       next_hr_audit_date: updatedDateString,
-      next_self_audit_date: updatedDateString2
+      next_self_audit_date: updatedDateString2,
+      asset_financial_type : req.body.asset_financial_type,
+      depreciation_percentage : req.body.depreciation_percentage
     });
     const simv = await simc.save();
     res.send({ simv, status: 200 });
@@ -263,6 +265,8 @@ exports.getSims = async (req, res) => {
             Last_updated_date: "$Last_updated_date",
             invoiceCopy_url: { $concat: [assetsImagesUrl, "$invoiceCopy"] },
             submitted_at: "$simallocation.submitted_at",
+            asset_financial_type : "$asset_finacial_type",
+            depreciation_percentage : "$depreciation_percentage",
             date_difference: {
               $cond: [
                 {
@@ -351,6 +355,8 @@ exports.editSim = async (req, res) => {
         invoiceCopy: req.file?.filename,
         assetsValue: req.body.assetsValue,
         assetsCurrentValue: req.body.assetsCurrentValue,
+        asset_financial_type : req.body.asset_financial_type,
+        depreciation_percentage : req.body.depreciation_percentage
       },
       { new: true }
     );
@@ -902,33 +908,9 @@ exports.getAssetDepartmentCount = async (req, res) => {
   }
 };
 
-// exports.getAssetUsersDepartment = async (req, res) => {
-//     try {
-//       const { dept_id } = req.params;
-//       const simAlloUsers = await simAlloModel.find({}, 'user_id category_id sub_category_id');
-//       // console.log("ddddddddddddddddddddddd",simAlloUsers);
-//       const userIDsInSimAllo = simAlloUsers.map((user) => user.user_id);
-//       const categoryIDsInSimAllo = simAlloUsers.map((cate) => cate.category_id);
-//       const subcategoryIDsInSimAllo = simAlloUsers.map((sub) => sub.sub_category_id);
-      
-//       const userDetails = await userModel.find(
-//         { dept_id, user_id: { $in: userIDsInSimAllo }, category_id: { $in: categoryIDsInSimAllo },sub_category_id: { $in: subcategoryIDsInSimAllo } },
-//         'user_name user_id category_name sub_category_name'
-//       );
-
-//       console.log("vvvvvvvvvvvvvvvvvvvvv",userDetails);
-//       res.status(200).send({data: userDetails});
-//     } catch (error) {
-//       // console.error(error);
-//       res.status(500).json({ error:error.message, sms:'Internal Server Error' });
-//     }
-// }
-
 exports.getAssetUsersDepartment = async (req, res) => {
   try {
       const dept_id = parseInt(req.params.dept_id);
-      console.log("DDDDDDDDDD",req.params);
-
       const userDetails = await userModel.aggregate([
           {
               $match: { 
@@ -959,8 +941,7 @@ exports.getAssetUsersDepartment = async (req, res) => {
           },
           {
               $unwind: {
-                  path: '$categoryDetails',
-                  // preserveNullAndEmptyArrays: true,
+                  path: '$categoryDetails'
               },
           },
           {
@@ -973,12 +954,12 @@ exports.getAssetUsersDepartment = async (req, res) => {
           },
           {
               $unwind: {
-                  path: '$subcategoryDetails',
-                  // preserveNullAndEmptyArrays: true,
+                  path: '$subcategoryDetails'
               },
           },
           {
               $project: {
+                  dept_id: 1,
                   user_id: 1,
                   user_name: 1,
                   category_id: '$categoryDetails.category_id',
@@ -989,7 +970,7 @@ exports.getAssetUsersDepartment = async (req, res) => {
           },
           {
             $group: {
-                _id: '$user_id', 
+                _id: '$dept_id', 
                 user_id: { $first: '$user_id' },
                 user_name: { $first: '$user_name' },
                 category_id: { $first: '$category_id' },
@@ -1004,5 +985,132 @@ exports.getAssetUsersDepartment = async (req, res) => {
   } catch (error) {
       console.error(error);
       res.status(500).json({ error: error.message, sms: 'Internal Server Error' });
+  }
+};
+
+exports.getTotalAssetInCategory = async (req, res) => {
+  try {
+    const assets = await simModel
+    .aggregate([
+      {
+        $match: {
+          category_id : parseInt(req.params.category_id),
+          status: "Available", 
+        }
+      },
+      {
+        $lookup: {
+          from: "assetscategorymodels",
+          localField: "category_id",
+          foreignField: "category_id",
+          as: "category",
+        },
+      },
+      {
+        $unwind: {
+          path: "$category",
+        },
+      },
+      {
+        $lookup: {
+          from: "assetssubcategorymodels",
+          localField: "sub_category_id",
+          foreignField: "sub_category_id",
+          as: "subcategory",
+        },
+      },
+      {
+        $unwind: {
+          path: "$subcategory",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: "$_id",
+          sim_id: "$sim_id",
+          asset_id: "$sim_no",
+          status: "$status",
+          asset_type: "$s_type",
+          assetsName: "$assetsName",
+          category_id: "$category_id",
+          sub_category_id: "$sub_category_id",
+          category_name: "$category.category_name",
+          sub_category_name: "$subcategory.sub_category_name"
+        },
+      },
+    ])
+    .exec();
+
+    if (!assets || assets.length === 0) {
+      return res.status(404).send({ success: false, message: 'No assets found for the given category_id' });
+    }
+
+    res.status(200).send({ success: true, data: assets });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ success: false, error: err, message: 'Error getting asset details' });
+  }
+};
+
+exports.getTotalAssetInCategoryAllocated = async (req, res) => {
+  try {
+    const assets = await simModel.aggregate([
+      {
+        $match: {
+          category_id: parseInt(req.params.category_id),
+          status: "Allocated",
+        },
+      },
+      {
+        $lookup: {
+          from: "assetscategorymodels",
+          localField: "category_id",
+          foreignField: "category_id",
+          as: "category",
+        },
+      },
+      {
+        $unwind: {
+          path: "$category",
+        },
+      },
+      {
+        $lookup: {
+          from: "assetssubcategorymodels",
+          localField: "sub_category_id",
+          foreignField: "sub_category_id",
+          as: "subcategory",
+        },
+      },
+      {
+        $unwind: {
+          path: "$subcategory",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: "$_id",
+          sim_id: "$sim_id",
+          asset_id: "$sim_no",
+          status: "$status",
+          asset_type: "$s_type",
+          assetsName: "$assetsName",
+          category_id: "$category_id",
+          sub_category_id: "$sub_category_id",
+          category_name: "$category.category_name",
+          sub_category_name: "$subcategory.sub_category_name",
+        },
+      },
+    ]).exec();
+    if (!assets || assets.length === 0) {
+      return res.status(404).send({ success: false, message: 'No assets found for the given category_id' });
+    }
+
+    res.status(200).send({ success: true, data: assets });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ success: false, error: err, message: 'Error getting asset details' });
   }
 };

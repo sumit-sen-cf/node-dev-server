@@ -172,7 +172,9 @@ exports.addUser = [upload, async (req, res) => {
             latitude: req.body.latitude,
             longitude: req.body.longitude,
             beneficiary: req.body.beneficiary,
-            emp_id: empId
+            emp_id: empId,
+            alternate_contact : req.body.alternate_contact,
+            cast_type : req.body.cast_type
         })
         const simv = await simc.save();
 
@@ -415,7 +417,9 @@ exports.updateUser = [upload1, async (req, res) => {
             latitude: req.body.latitude,
             longitude: req.body.longitude,
             coc_flag: req.body.coc_flag,
-            beneficiary: req.body.beneficiary
+            beneficiary: req.body.beneficiary,
+            alternate_contact : req.body.alternate_contact,
+            cast_type : req.body.cast_type
 
         }, { new: true });
         if (!editsim) {
@@ -690,13 +694,26 @@ exports.getAllUsers = async (req, res) => {
                     latitude: "$latitude",
                     longitude: "$longitude",
                     beneficiary: "$beneficiary",
-                    emp_id: "$emp_id"
+                    emp_id: "$emp_id",
+                    alternate_contact : "$alternate_contact",
+                    cast_type:"$cast_type"
                 }
             }
         ]).exec();
         const userImagesBaseUrl = "http://34.93.221.166:3000/uploads/";
-        const dataWithImageUrl = singlesim.map((user) => ({
-            ...user,
+        const fieldsToCheck = [
+            'user_name', 'PersonalEmail', 'PersonalNumber', 'fatherName', 'Gender', 'motherName',
+            'Hobbies', 'BloodGroup', 'SpokenLanguage', 'DO', 'Nationality', 'guardian_name',
+            'guardian_contact', 'emergency_contact', 'guardian_address', 'relation_with_guardian',
+            'current_address', 'current_city', 'current_state', 'current_pin_code',
+            'permanent_address', 'permanent_city', 'permanent_state', 'permanent_pin_code',
+        ];
+        const dataWithImageUrl = singlesim.map((user) => {
+            const filledFields = fieldsToCheck.filter(field => user[field] !== null && user[field] !== undefined && user[field] !== '').length;
+            const percentageFilled = (filledFields / fieldsToCheck.length) * 100;
+
+            return {
+                 ...user,
             image_url: user.image ? userImagesBaseUrl + user.image : null,
             uid_url: user.UID ? userImagesBaseUrl + user.UID : null,
             pan_url: user.pan ? userImagesBaseUrl + user.pan : null,
@@ -716,8 +733,10 @@ exports.getAllUsers = async (req, res) => {
             bankPassBook_Cheque_url: user.bankPassBook_Cheque ? userImagesBaseUrl + user.bankPassBook_Cheque : null,
             joining_extend_document_url: user.joining_extend_document ? userImagesBaseUrl + user.joining_extend_document : null,
             digital_signature_image_url: user.digital_signature_image ? userImagesBaseUrl + user.digital_signature_image : null,
-            annexure_pdf_url: user.annexure_pdf ? userImagesBaseUrl + user.annexure_pdf : null
-        }));
+            annexure_pdf_url: user.annexure_pdf ? userImagesBaseUrl + user.annexure_pdf : null,
+            percentage_filled: percentageFilled.toFixed(2) + '%',
+            };
+        });
         if (dataWithImageUrl?.length === 0) {
             res
                 .status(200)
@@ -966,7 +985,9 @@ exports.getSingleUser = async (req, res) => {
                     latitude: "$latitude",
                     longitude: "$longitude",
                     beneficiary: "$beneficiary",
-                    emp_id: "$emp_id"
+                    emp_id: "$emp_id",
+                    alternate_contact : "$alternate_contact",
+                    cast_type:"$cast_type"
                 }
             }
         ]).exec();

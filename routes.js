@@ -225,7 +225,9 @@ router.put("/update_allocationsim", sim.editAllocation);
 router.delete("/delete_allocation/:id", sim.deleteAllocation);
 router.get("/alldataofsimallocment", sim.alldataofsimallocment);
 router.get("/get_asset_department_count", sim.getAssetDepartmentCount);
-router.get("/get_asset_users_of_dept/:dept_id", sim.getAssetUsersDepartment)
+router.get("/get_asset_users_of_dept/:dept_id", sim.getAssetUsersDepartment);
+router.get("/get_total_asset_in_category/:category_id",sim.getTotalAssetInCategory);
+router.get("/get_total_asset_in_category_allocated/:category_id",sim.getTotalAssetInCategoryAllocated);
 
 /* logo brand */
 router.post("/add_logo_category", logoBrand.addLogoBrandCat);

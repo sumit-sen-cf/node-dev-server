@@ -71,7 +71,7 @@ const simModel = new mongoose.Schema({
     default: 90,
   },
   selfAuditUnit: {
-    type: Number,
+    type: String,
     required: false,
     default: 0,
   },
@@ -81,7 +81,7 @@ const simModel = new mongoose.Schema({
     default: 90,
   },
   hrAuditUnit: {
-    type: Number,
+    type: String,
     required: false,
     default: 0,
   },
@@ -141,7 +141,14 @@ const simModel = new mongoose.Schema({
     default: ""
   },
   asset_financial_type:{
-    
+    type: String,
+    required: false,
+    default: "",
+  },
+  depreciation_percentage : {
+    type: Number,
+    required: false,
+    default: 0,
   }
 });
 
