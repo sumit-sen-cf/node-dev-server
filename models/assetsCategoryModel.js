@@ -34,6 +34,26 @@ const assetsCategoryModel = new mongoose.Schema({
     type: Date,
     default:0
   },
+  selfAuditPeriod: {
+    type: Number,
+    required: false,
+    default: 90,
+  },
+  selfAuditUnit: {
+    type: String,
+    required: false,
+    default: "",
+  },
+  hrAuditPeriod: {
+    type: Number,
+    required: false,
+    default: 90,
+  },
+  hrAuditUnit: {
+    type: String,
+    required: false,
+    default: "",
+  },
 });
 
 AutoIncrement.initialize(mongoose.connection);

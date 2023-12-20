@@ -504,7 +504,6 @@ const userModel = new mongoose.Schema({
         type: String,
         required: false,
         default:""
-
     },
     bank_name:{
         type: String,
@@ -631,6 +630,16 @@ const userModel = new mongoose.Schema({
         default: ""
     },
     emp_id: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    alternate_contact:{
+        type: Number,
+        required: false,
+        default: null
+    },
+    cast_type : {
         type: String,
         required: false,
         default: ""

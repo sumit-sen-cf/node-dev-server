@@ -7,7 +7,11 @@ exports.addAssetCategory = async (req, res) => {
       category_name: req.body.category_name,
       description: req.body.description,
       created_by: req.body.created_by,
-      last_updated_by: req.body.last_updated_by
+      last_updated_by: req.body.last_updated_by,
+      selfAuditPeriod: req.body.selfAuditPeriod ,
+      hrAuditPeriod: req.body.hrAuditPeriod ,
+      selfAuditUnit: req.body.selfAuditUnit ,
+      hrAuditUnit: req.body.hrAuditUnit
     });
     const simv = await assetsc.save();
     return response.returnTrue(
@@ -31,7 +35,39 @@ exports.addAssetCategory = async (req, res) => {
 
 exports.getAssetCategorys = async (req, res) => {
   try {
-    const assetsc = await assetsCategoryModel.find();
+    const assetsc = await assetsCategoryModel.aggregate([
+      {
+        $lookup: {
+          from: "assetssubcategorymodels",
+          localField: "category_id",
+          foreignField: "category_id",
+          as: "subcategory",
+        },
+      },
+      {
+        $unwind: {
+          path: "$subcategory",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: "$_id",
+          category_id: "$category_id",
+          sub_category_id: "$subcategory.sub_category_id",
+          category_name: "$category_name", 
+          sub_category_name: "$subcategory.sub_category_name",
+          created_by: "$created_by",
+          last_updated_by: "$last_updated_by",
+          last_updated_date: "$last_updated_date",
+          creation_date: "$creation_date",
+          selfAuditPeriod: "$selfAuditPeriod" ,
+          hrAuditPeriod: "$hrAuditPeriod" ,
+          selfAuditUnit: "$selfAuditUnit" ,
+          hrAuditUnit: "$hrAuditUnit" 
+        },
+      },
+    ]).exec();
     if (!assetsc) {
       return response.returnFalse(200, req, res, "No Reord Found...", []);
     }
@@ -70,7 +106,11 @@ exports.editAssetCategory = async (req, res) => {
         description: req.body.description,
         created_by: req.body.created_by,
         last_updated_by: req.body.last_updated_by,
-        last_updated_date: req.body.last_updated_date
+        last_updated_date: req.body.last_updated_date,
+        selfAuditPeriod: req.body.selfAuditPeriod ,
+        hrAuditPeriod: req.body.hrAuditPeriod ,
+        selfAuditUnit: req.body.selfAuditUnit ,
+        hrAuditUnit: req.body.hrAuditUnit ,
       },
       { new: true }
     );
