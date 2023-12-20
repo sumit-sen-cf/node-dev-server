@@ -2529,3 +2529,217 @@ exports.getFilledPercentage = async (req, res) => {
     }
   }
   
+exports.getUserGraphData = async (req, res) => {
+    try {
+        let result;
+        
+        if(req.body.caseType == 'gender'){
+            result = await userModel.aggregate([
+            {
+                $group: {
+                _id: {
+                    dept_id: "$dept_id",
+                    gender: "$Gender",
+                },
+                count: { $sum: 1 },
+                },
+            },
+            {
+                $group: {
+                _id: "$_id.dept_id",
+                maleCount: {
+                    $sum: {
+                    $cond: [{ $eq: ["$_id.gender", "Male"] }, "$count", 0],
+                    },
+                },
+                femaleCount: {
+                    $sum: {
+                    $cond: [{ $eq: ["$_id.gender", "Female"] }, "$count", 0],
+                    },
+                },
+                },
+            },
+            {
+                $lookup: {
+                  from: "departmentmodels", 
+                  localField: "_id",
+                  foreignField: "dept_id",
+                  as: "department",
+                },
+              },
+              {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                },
+              },
+            {
+                $project: {
+                _id: 0,
+                dept_id: "$_id",
+                maleCount: 1,
+                dept_name: "$department.dept_name",
+                femaleCount: 1,
+                },
+            },
+            ]);
+        }else if(req.body.caseType == 'job'){
+            result = await userModel.aggregate([
+                {
+                    $group: {
+                    _id: {
+                        dept_id: "$dept_id",
+                        job: "$job_type",
+                    },
+                    count: { $sum: 1 },
+                    },
+                },
+                {
+                    $group: {
+                    _id: "$_id.dept_id",
+                    wfhCount: {
+                        $sum: {
+                        $cond: [{ $eq: ["$_id.job", "WFH"] }, "$count", 0],
+                        },
+                    },
+                    wfoCount: {
+                        $sum: {
+                        $cond: [{ $eq: ["$_id.job", "WFO"] }, "$count", 0],
+                        },
+                    },
+                    },
+                },
+                {
+                    $lookup: {
+                      from: "departmentmodels", 
+                      localField: "_id",
+                      foreignField: "dept_id",
+                      as: "department",
+                    },
+                  },
+                  {
+                    $unwind: {
+                        path: "$department",
+                        preserveNullAndEmptyArrays: true
+                    },
+                  },
+                {
+                    $project: {
+                    _id: 0,
+                    dept_id: "$_id",
+                    wfhCount: 1,
+                    dept_name: "$department.dept_name",
+                    wfoCount: 1,
+                    },
+                },
+                ]);
+        }else if(req.body.caseType == 'year'){
+            result = await userModel.aggregate([
+                {
+                    $addFields: {
+                        convertedDate: { $toDate: "$joining_date" },
+                    },
+                },
+                {
+                    $group: {
+                        _id: {
+                            year: { $year: "$convertedDate" },
+                        },
+                        userjoined: { $sum: 1 },
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        year: "$_id.year",
+                        userjoined: 1,
+                    },
+                },
+            ]);
+        }else if (req.body.caseType == 'experience') {
+            result = await userModel.aggregate([
+                {
+                    $addFields: {
+                        convertedDate: { $toDate: "$joining_date" },
+                        experience: {
+                            $divide: [
+                                { $subtract: [new Date(), { $toDate: "$joining_date" }] },
+                                31536000000, 
+                            ],
+                        },
+                    },
+                },
+                {
+                    $group: {
+                        _id: {
+                            years: {
+                                $subtract: [
+                                    { $floor: "$experience" },
+                                    { $mod: [{ $floor: "$experience" }, 2] }, 
+                                ],
+                            },
+                        },
+                        userCounts: { $sum: 1 },
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        years: "$_id.years",
+                        userCounts: 1,
+                    },
+                }
+            ]);
+        }else if (req.body.caseType == 'age') {
+            result = await userModel.aggregate([
+                {
+                    $addFields: {
+                        birthYear: { $year: { $toDate: "$DOB" } },
+                        age: {
+                            $subtract: [
+                                { $year: new Date() },
+                                { $year: { $toDate: "$DOB" } }
+                            ]
+                        }
+                    },
+                },
+                {
+                    $group: {
+                        _id: {
+                            ageGroup: {
+                                $switch: {
+                                    branches: [
+                                        { case: { $and: [{ $gte: ["$age", 10] }, { $lte: ["$age", 17] }] }, then: "10-17" } ,
+                                        { case: { $and: [{ $gte: ["$age", 18] }, { $lte: ["$age", 24] }] }, then: "18-24" } ,
+                                        { case: { $and: [{ $gte: ["$age", 25] }, { $lte: ["$age", 30] }] }, then: "25-30" } ,
+                                        { case: { $and: [{ $gte: ["$age", 31] }, { $lte: ["$age", 35] }] }, then: "31-35" } ,
+                                        { case: { $and: [{ $gte: ["$age", 36] }, { $lte: ["$age", 40] }] }, then: "36-40" } ,
+                                        { case: { $gte: ["$age", 41] }, then: "41+" }
+                                    ],
+                                    default: "Unknown"
+                                }
+                            }
+                        },
+                        userCount: { $sum: 1 },
+                    },
+                },
+                {
+                    $match: {
+                        "_id.ageGroup": { $ne: "Unknown" }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        age: "$_id.ageGroup",
+                        userCount: 1,
+                    },
+                }
+            ]);
+        }
+
+        res.status(200).send(result);
+    } catch (err) {
+        res.status(500).send({ error: err.message, sms: "Error creating user graph" });
+    }
+};

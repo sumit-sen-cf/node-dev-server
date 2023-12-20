@@ -736,6 +736,7 @@ router.get("/get_all_filled_users",user.getAllFilledUsers);
 router.get("/get_all_percentage",user.getFilledPercentage);
 // router.post("/get_users_by_departments",user.getUsersByDepartment);
 // router.get("/get_first_time_login_users", user.getAllFirstLoginUsers)
+router.post("/get_user_graph_data", user.getUserGraphData)
 
 /* attendance */
 router.post("/add_attendance", attendance.addAttendance);

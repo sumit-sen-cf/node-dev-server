@@ -19,6 +19,16 @@ const documentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  isRequired:{
+    type: Boolean,
+    required: false,
+    default: 0
+  },
+  doc_number:{
+    type: String,
+    default: "",
+    required: false
+  }
 });
 // Post-save hook on the Document model
 documentSchema.post('save', async function(doc) {

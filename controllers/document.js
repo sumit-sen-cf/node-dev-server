@@ -11,6 +11,8 @@ exports.addDocument = async (req, res) => {
       description,
       priority,
       period,
+      isRequired,
+      doc_number
     });
 
     const savedDoc = await doc.save();
@@ -71,12 +73,12 @@ exports.getDoc = async (req, res) => {
 
 exports.editDoc = async (req, res) => {
   try {
-    const { doc_type, description, priority, period } = req.body;
+    const { doc_type, description, priority, period, isRequired, doc_number } = req.body;
 
     const editDocObj = await documentModel.findByIdAndUpdate(
       req.body._id,
       {
-        $set: { doc_type, description, priority, period },
+        $set: { doc_type, description, priority, period, isRequired, doc_number },
       },
       { new: true }
     );
