@@ -85,7 +85,7 @@ const phpPendingInvoice = require("./controllers/phpPendingInvoice.js");
 const phpSaleBookingTds = require("./controllers/saleBookingTds.js");
 const assetBrand = require("./controllers/assetsBrand.js");
 const assetModal = require("./controllers/assetsModal.js");
-
+const emailContent = require("./controllers/emailTempContent.js")
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -120,12 +120,9 @@ router.put('/expertise/:id',expertiseController.updateExpert)
 router.delete('/expertise/:id',expertiseController.deleteExpert)
 
 router.post('/assignment',assignmentController.createAssignment)
-router.post('/assignment/bulk',assignmentController.createAssignmentBulk)
 router.get('/assignment/:id',assignmentController.getSingleAssignment)
 
 router.get('/assignment/all/:id',assignmentController.getAllAssignmentToExpertee)
-router.get('/assignment/phase/:id',assignmentController.getAllAssignmentInPhase)
-
 
 
 router.post('/assignment/commit',assignmentCommitController.createAssComm)
@@ -137,7 +134,6 @@ router.post('/replacement/plan',pageReplacementController.createReplacementPlan)
 router.get('/replacement/plan',pageReplacementController.getAllRecord)
 router.get('/replacement/:id',pageReplacementController.getSingleRecord)
 router.post('/replacement/status',pageReplacementController.replacementStatus)
-// router.get('/replacement/all',pageReplacementController.getAllRecord)
 
 /*operation+execution api ends*/
 /*insta api*/
@@ -1143,5 +1139,11 @@ router.get("/get_all_asset_modals", assetModal.getAssetModals);
 router.get("/get_single_asset_modal/:id", assetModal.getAssetModalById);
 router.delete("/delete_asset_modal/:id", assetModal.deleteAssetModal);
 
+/* email content routes */
+router.post("/add_email_content", emailContent.addEmailContent);
+router.put("/update_email_content", emailContent.editEmailContent);
+router.get("/get_all_email_contents", emailContent.getAllEmailContents);
+router.get("/get_single_email_content/:id", emailContent.getSingleEmailContent);
+router.delete("/delete_email_content/:id", emailContent.deleteEmailContent);
 
 module.exports = router;

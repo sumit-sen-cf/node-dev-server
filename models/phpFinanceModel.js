@@ -358,6 +358,10 @@ const phpFinanceModel = new mongoose.Schema({
     sno: {
         type: Number,
         required: false
+    },
+    user_name: {
+        type: String,
+        required: false
     }
 });
 

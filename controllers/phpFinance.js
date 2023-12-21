@@ -118,7 +118,8 @@ exports.savePhpFinanceDataInNode = async (req, res) => {
                     gst_bank: data.gst_bank,
                     status: data.status,
                     created_at: data.created_at,
-                    sno: data.sno
+                    sno: data.sno,
+                    user_name: data.user_name
                 })
                 const instav = await creators.save();
 
@@ -216,7 +217,8 @@ exports.savePhpFinanceDataInNode = async (req, res) => {
                                 gst_bank: data.gst_bank,
                                 status: data.status,
                                 created_at: data.created_at,
-                                sno: data.sno
+                                sno: data.sno,
+                                user_name: data.user_name
                             }
                         }
                     )
