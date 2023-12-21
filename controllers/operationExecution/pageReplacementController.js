@@ -242,7 +242,7 @@ exports.getSingleRecord = catchAsync(async (req, res, next) => {
 
 
 exports.getAllRecord = catchAsync(async (req, res, next) => {
-    const result = await pageReplacementRecordModel.find({})
+    const result = await pageReplacementRecordModel.find({replacement_status:"pending"})
     res.status(200).json({
         data: result
     })

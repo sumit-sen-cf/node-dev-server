@@ -120,9 +120,12 @@ router.put('/expertise/:id',expertiseController.updateExpert)
 router.delete('/expertise/:id',expertiseController.deleteExpert)
 
 router.post('/assignment',assignmentController.createAssignment)
+router.post('/assignment/bulk',assignmentController.createAssignmentBulk)
 router.get('/assignment/:id',assignmentController.getSingleAssignment)
 
 router.get('/assignment/all/:id',assignmentController.getAllAssignmentToExpertee)
+router.get('/assignment/phase/:id',assignmentController.getAllAssignmentInPhase)
+
 
 
 router.post('/assignment/commit',assignmentCommitController.createAssComm)
@@ -134,6 +137,7 @@ router.post('/replacement/plan',pageReplacementController.createReplacementPlan)
 router.get('/replacement/plan',pageReplacementController.getAllRecord)
 router.get('/replacement/:id',pageReplacementController.getSingleRecord)
 router.post('/replacement/status',pageReplacementController.replacementStatus)
+// router.get('/replacement/all',pageReplacementController.getAllRecord)
 
 /*operation+execution api ends*/
 /*insta api*/
