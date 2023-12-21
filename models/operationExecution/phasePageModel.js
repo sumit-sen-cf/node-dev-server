@@ -8,19 +8,19 @@ const phasePageSchema = new mongoose.Schema({
   },
   phaseName: {
     type: String,
-    required: [true, "phase name is required"]
+    // required: [true, "phase name is required"]
   },
   plan_id: {
     type: String,
-    required: [true, "plan id is required"]
+    // required: [true, "plan id is required"]
   },
   planName: {
     type: String,
-    required: [true, "plan name is required."]
+    // required: [true, "plan name is required."]
   },
   vendor_id: {
     type: String,
-    required: [true, "vendor is required"]
+    // required: [true, "vendor is required"]
   },
   p_id: {
     type: String,
