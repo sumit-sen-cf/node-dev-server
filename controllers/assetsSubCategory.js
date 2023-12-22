@@ -8,7 +8,8 @@ exports.addAssetSubCategory = async (req, res) => {
             category_id: req.body.category_id,
             description: req.body.description,
             created_by: req.body.created_by,
-            last_updated_by: req.body.last_updated_by
+            last_updated_by: req.body.last_updated_by,
+            inWarranty : req.body.inWarranty
         });
         const simv = await assetssubc.save();
         return response.returnTrue(
@@ -50,7 +51,8 @@ exports.getAssetSubCategorys = async (req, res) => {
                         last_updated_by: "$last_updated_by",
                         last_updated_at: "$last_updated_at",
                         category_id: "$category_id",
-                        description: "$description"
+                        description: "$description",
+                        inWarranty : "$inWarranty"
                     },
                 },
             ])
@@ -92,7 +94,8 @@ exports.getSingleAssetSubCategory = async (req, res) => {
                         id: "$id",
                         created_by: "$created_by",
                         last_updated_by: "$last_updated_by",
-                        description: "$description"
+                        description: "$description",
+                        inWarranty : "$inWarranty"
                     },
                 },
             ])
@@ -104,6 +107,18 @@ exports.getSingleAssetSubCategory = async (req, res) => {
     }
 };
 
+exports.getSingleAssetCat = async (req,res) => {
+    try {
+        const singleAsset = await assetsSubCategoryModel.find({ sub_category_id : parseInt(req.params.sub_category_id)});
+        if(!singleAsset){
+            return res.status(500).send({ success : false });
+        }
+        res.status(200).send({ data : singleAsset });
+    } catch (error) {
+        res.status(500).send({ error : error.message , sms: "Error getting asset details" });
+    }
+}
+  
 exports.editAssetSubCategory = async (req, res) => {
     try {
         const editsim = await assetsSubCategoryModel.findOneAndUpdate(
@@ -114,7 +129,8 @@ exports.editAssetSubCategory = async (req, res) => {
                 description: req.body.description,
                 created_by: req.body.created_by,
                 last_updated_by: req.body.last_updated_by,
-                last_updated_date: req.body.last_updated_date
+                last_updated_date: req.body.last_updated_date,
+                inWarranty : req.body.inWarranty
             },
             { new: true }
         );

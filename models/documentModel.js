@@ -22,7 +22,7 @@ const documentSchema = new mongoose.Schema({
   isRequired:{
     type: Boolean,
     required: false,
-    default: 0
+    default: false
   },
   doc_number:{
     type: String,

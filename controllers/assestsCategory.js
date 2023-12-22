@@ -1,5 +1,6 @@
 const response = require("../common/response.js");
 const assetsCategoryModel = require("../models/assetsCategoryModel.js");
+const assetsSubCategoryModel = require("../models/assetsSubCategoryModel.js");
 
 exports.addAssetCategory = async (req, res) => {
   try {
@@ -36,27 +37,27 @@ exports.addAssetCategory = async (req, res) => {
 exports.getAssetCategorys = async (req, res) => {
   try {
     const assetsc = await assetsCategoryModel.aggregate([
-      {
-        $lookup: {
-          from: "assetssubcategorymodels",
-          localField: "category_id",
-          foreignField: "category_id",
-          as: "subcategory",
-        },
-      },
-      {
-        $unwind: {
-          path: "$subcategory",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "assetssubcategorymodels",
+      //     localField: "category_id",
+      //     foreignField: "category_id",
+      //     as: "subcategory",
+      //   },
+      // },
+      // {
+      //   $unwind: {
+      //     path: "$subcategory",
+      //     preserveNullAndEmptyArrays: true,
+      //   },
+      // },
       {
         $project: {
           _id: "$_id",
           category_id: "$category_id",
-          sub_category_id: "$subcategory.sub_category_id",
+          // sub_category_id: "$subcategory.sub_category_id",
           category_name: "$category_name", 
-          sub_category_name: "$subcategory.sub_category_name",
+          // sub_category_name: "$subcategory.sub_category_name",
           created_by: "$created_by",
           last_updated_by: "$last_updated_by",
           last_updated_date: "$last_updated_date",
@@ -146,3 +147,37 @@ exports.deleteAssetCategory = async (req, res) =>{
       return res.status(400).json({success:false, message:err})
   })
 };
+
+exports.getAssetSubCategoryCount = async (req, res) => {
+  try {
+    const category = await assetsCategoryModel.findOne({
+      category_id: parseInt(req.params.category_id),
+    });
+
+    if (!category) {
+      return response.returnFalse(200, req, res, "No Record Found...", {});
+    }
+
+    const subCategories = await assetsSubCategoryModel.find({
+      category_id: parseInt(req.params.category_id),
+    });
+
+    const subCategoryCount = subCategories.length;
+
+    const result = {
+      sub_categories: subCategories,
+      sub_category_count: subCategoryCount,
+    };
+
+    return response.returnTrue(
+      200,
+      req,
+      res,
+      "Asset Category Data Fetch Successfully",
+      result
+    );
+  } catch (err) {
+    return response.returnFalse(500, req, res, err.message, {});
+  }
+};
+
