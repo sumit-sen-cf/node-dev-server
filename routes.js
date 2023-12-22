@@ -88,6 +88,7 @@ const assetModal = require("./controllers/assetsModal.js");
 const emailContent = require("./controllers/emailTempContent.js")
 const hobby = require("./controllers/hobby.js");
 const family = require("./controllers/family.js");
+const education = require('./controllers/education.js');
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1169,5 +1170,12 @@ router.put("/update_family", family.editFamily);
 router.get("/get_all_families", family.getFamilys);
 router.get("/get_single_family/:id", family.getSingleFamily);
 router.delete("/delete_family/:id", family.deleteFamily);
+
+// Education Routes 
+router.post("/add_education", education.addEducation);
+router.put("/update_education", education.editEducation);
+router.get("/get_all_educations", education.getEducations);
+router.get("/get_single_education/:id", education.getSingleEducation);
+router.delete("/delete_education/:id", education.deleteEducation);
 
 module.exports = router;

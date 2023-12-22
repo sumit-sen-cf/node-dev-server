@@ -540,10 +540,15 @@ const userModel = new mongoose.Schema({
         required: false,
         default: null
     },
-    emergency_contact:{
+    emergency_contact1:{
         type: Number,
         required: false,
-        default: null
+        default: 0
+    },
+    emergency_contact2:{
+        type: Number,
+        required: false,
+        default: 0
     },
     ctc:{
         type: Number,
@@ -640,6 +645,26 @@ const userModel = new mongoose.Schema({
         default: null
     },
     cast_type : {
+        type: String,
+        required: false,
+        default: ""
+    },
+    emergency_contact_person_name1 : {
+        type: String,
+        required: false,
+        default: ""
+    },
+    emergency_contact_relation1 : {
+        type: String,
+        required: false,
+        default: ""
+    },
+    emergency_contact_person_name2 : {
+        type: String,
+        required: false,
+        default: ""
+    },
+    emergency_contact_relation2 : {
         type: String,
         required: false,
         default: ""

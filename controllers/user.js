@@ -161,7 +161,8 @@ exports.addUser = [upload, async (req, res) => {
             guardian_address: req.body.guardian_address,
             relation_with_guardian: req.body.relation_with_guardian,
             gaurdian_number: req.body.gaurdian_number,
-            emergency_contact: req.body.emergency_contact,
+            emergency_contact1: req.body.emergency_contact1,
+            emergency_contact2: req.body.emergency_contact2,
             ctc: req.body.ctc,
             offer_letter_send: req.body.offer_letter_send,
             annexure_pdf: req.files.annexure_pdf ? req.files.annexure_pdf[0].filename : '',
@@ -174,7 +175,11 @@ exports.addUser = [upload, async (req, res) => {
             beneficiary: req.body.beneficiary,
             emp_id: empId,
             alternate_contact : req.body.alternate_contact,
-            cast_type : req.body.cast_type
+            cast_type : req.body.cast_type,
+            emergency_contact_person_name1 : req.body.emergency_contact_person_name1,
+            emergency_contact_person_name2 : req.body.emergency_contact_person_name2,
+            emergency_contact_relation1 : req.body.emergency_contact_relation1,
+            emergency_contact_relation2 : req.body.emergency_contact_relation2
         })
         const simv = await simc.save();
 
@@ -404,7 +409,8 @@ exports.updateUser = [upload1, async (req, res) => {
             guardian_address: req.body.guardian_address,
             relation_with_guardian: req.body.relation_with_guardian,
             gaurdian_number: req.body.gaurdian_number,
-            emergency_contact: req.body.emergency_contact,
+            emergency_contact1: req.body.emergency_contact1,
+            emergency_contact2: req.body.emergency_contact2,
             ctc: req.body.ctc,
             offer_letter_send: req.body.offer_letter_send,
             annexure_pdf: req.files && req.files['annexure_pdf'] && req.files['annexure_pdf'][0] ? req.files['annexure_pdf'][0].filename : (existingUser && existingUser.annexure_pdf) || '',
@@ -419,7 +425,11 @@ exports.updateUser = [upload1, async (req, res) => {
             coc_flag: req.body.coc_flag,
             beneficiary: req.body.beneficiary,
             alternate_contact : req.body.alternate_contact,
-            cast_type : req.body.cast_type
+            cast_type : req.body.cast_type,
+            emergency_contact_person_name1 : req.body.emergency_contact_person_name1,
+            emergency_contact_person_name2 : req.body.emergency_contact_person_name2,
+            emergency_contact_relation1 : req.body.emergency_contact_relation1,
+            emergency_contact_relation2 : req.body.emergency_contact_relation2
 
         }, { new: true });
         if (!editsim) {
@@ -683,7 +693,8 @@ exports.getAllUsers = async (req, res) => {
                     guardian_address: "$guardian_address",
                     relation_with_guardian: "$relation_with_guardian",
                     gaurdian_number: "$gaurdian_number",
-                    emergency_contact: "$emergency_contact",
+                    emergency_contact1: "$emergency_contact1",
+                    emergency_contact2: "$emergency_contact2",
                     ctc: "$ctc",
                     offer_letter_send: "$offer_letter_send",
                     annexure_pdf: "$annexure_pdf",
@@ -696,7 +707,11 @@ exports.getAllUsers = async (req, res) => {
                     beneficiary: "$beneficiary",
                     emp_id: "$emp_id",
                     alternate_contact : "$alternate_contact",
-                    cast_type:"$cast_type"
+                    cast_type:"$cast_type",
+                    emergency_contact_person_name1:"$emergency_contact_person_name1",
+                    emergency_contact_person_name2:"$emergency_contact_person_name2",
+                    emergency_contact_relation1 : "$emergency_contact_relation1",
+                    emergency_contact_relation2 : "$emergency_contact_relation2"
                 }
             }
         ]).exec();
@@ -975,7 +990,8 @@ exports.getSingleUser = async (req, res) => {
                     guardian_address: "$guardian_address",
                     relation_with_guardian: "$relation_with_guardian",
                     gaurdian_number: "$gaurdian_number",
-                    emergency_contact: "$emergency_contact",
+                    emergency_contact1: "$emergency_contact1",
+                    emergency_contact2: "$emergency_contact2",
                     ctc: "$ctc",
                     offer_letter_send: "$offer_letter_send",
                     profileflag: "$profileflag",
@@ -987,7 +1003,11 @@ exports.getSingleUser = async (req, res) => {
                     beneficiary: "$beneficiary",
                     emp_id: "$emp_id",
                     alternate_contact : "$alternate_contact",
-                    cast_type:"$cast_type"
+                    cast_type:"$cast_type",
+                    emergency_contact_person_name1:"$emergency_contact_person_name1",
+                    emergency_contact_person_name2:"$emergency_contact_person_name2",
+                    emergency_contact_relation1 : "$emergency_contact_relation1",
+                    emergency_contact_relation2 : "$emergency_contact_relation2"
                 }
             }
         ]).exec();

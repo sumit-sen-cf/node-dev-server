@@ -8,9 +8,9 @@ exports.addAssetBrand = async (req, res) => {
     });
     const savedassetbranddata = await assetBrandData.save();
     res.status(200).send({
-        data: savedassetbranddata,
-        message: "assetBrandData created success",
-      });
+      data: savedassetbranddata,
+      message: "assetBrandData created success",
+    });
   } catch (err) {
     res.status(500).send({
       error: err.message,
@@ -58,19 +58,19 @@ exports.getAssetBrandById = async (req, res) => {
 
 exports.editAssetBrand = async (req, res) => {
   try {
-      const editAssetData = await assetBrandModel.findOneAndUpdate({ asset_brand_id: req.body.asset_brand_id }, {
-        asset_brand_name : req.body.asset_brand_name,
-        updated_at : req.body.updated_at
-      }, { new: true })
-      if (!editagency) {
-          res.status(500).send({ success: false })
-      }
-      res.status(200).send({ success: true, data: editAssetData })
+    const editAssetData = await assetBrandModel.findOneAndUpdate({ asset_brand_id: req.body.asset_brand_id }, {
+      asset_brand_name: req.body.asset_brand_name,
+      updated_at: req.body.updated_at
+    }, { new: true })
+    if (!editAssetData) {
+      res.status(500).send({ success: false })
+    }
+    res.status(200).send({ success: true, data: editAssetData })
   } catch (err) {
-      res.status(500).send({
-          error: err.message,
-          message: "Error updating the assetbranddata in the database",
-      });
+    res.status(500).send({
+      error: err.message,
+      message: "Error updating the assetbranddata in the database",
+    });
   }
 };
 

@@ -1,10 +1,13 @@
 const response = require("../common/response.js");
 const familyModel = require("../models/familyModel.js");
+const userModel = require("../models/userModel.js");
 
 exports.addFamily = async (req, res) => {
   try {
+    const latestUser = await userModel.findOne({}, { user_id: 1 }).sort({ user_id: -1 });
+    const incrementedUser = latestUser.user_id + 1;
     const family = new familyModel({
-      user_id : req.body.user_id,  
+      user_id : incrementedUser,  
       name: req.body.name,
       DOB : req.body.DOB,
       relation : req.body.relation,
