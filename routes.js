@@ -85,13 +85,9 @@ const phpPendingInvoice = require("./controllers/phpPendingInvoice.js");
 const phpSaleBookingTds = require("./controllers/saleBookingTds.js");
 const assetBrand = require("./controllers/assetsBrand.js");
 const assetModal = require("./controllers/assetsModal.js");
-<<<<<<< Updated upstream
 const emailContent = require("./controllers/emailTempContent.js")
-=======
 const hobby = require("./controllers/hobby.js");
 const family = require("./controllers/family.js");
-
->>>>>>> Stashed changes
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1154,14 +1150,12 @@ router.get("/get_all_asset_modals", assetModal.getAssetModals);
 router.get("/get_single_asset_modal/:id", assetModal.getAssetModalById);
 router.delete("/delete_asset_modal/:id", assetModal.deleteAssetModal);
 
-<<<<<<< Updated upstream
 /* email content routes */
 router.post("/add_email_content", emailContent.addEmailContent);
 router.put("/update_email_content", emailContent.editEmailContent);
 router.get("/get_all_email_contents", emailContent.getAllEmailContents);
 router.get("/get_single_email_content/:id", emailContent.getSingleEmailContent);
 router.delete("/delete_email_content/:id", emailContent.deleteEmailContent);
-=======
 // Hobbies  Routes 
 router.post("/add_hobby", hobby.addHobby);
 router.put("/update_hobby", hobby.editHobby);
@@ -1175,7 +1169,5 @@ router.put("/update_family", family.editFamily);
 router.get("/get_all_families", family.getFamilys);
 router.get("/get_single_family/:id", family.getSingleFamily);
 router.delete("/delete_family/:id", family.deleteFamily);
-
->>>>>>> Stashed changes
 
 module.exports = router;
