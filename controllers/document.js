@@ -4,7 +4,7 @@ const response = require("../common/response.js");
 
 exports.addDocument = async (req, res) => {
   try {
-    const { doc_type, description, priority, period } = req.body;
+    const { doc_type, description, priority, period,isRequired,doc_number } = req.body;
 
     const doc = new documentModel({
       doc_type,

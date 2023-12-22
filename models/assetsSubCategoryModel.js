@@ -38,6 +38,11 @@ const assetsSubCategoryModel = new mongoose.Schema({
     type: Date,
     default:0
   },
+  inWarranty: {
+    type: String,
+    required: false,
+    default: "",
+  },
 });
 
 AutoIncrement.initialize(mongoose.connection);
