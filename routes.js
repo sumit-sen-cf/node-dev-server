@@ -70,9 +70,9 @@ const campaignPlanController = require("./controllers/operationExecution/campaig
 const campaignPhaseController = require("./controllers/operationExecution/campaignPhaseController.js");
 const expertiseController = require('./controllers/operationExecution/expertiseController.js')
 const assignmentController = require('./controllers/operationExecution/assignmentController.js')
-const assignmentCommitController=require('./controllers/operationExecution/assignmentCommitController.js')
-const operationDasboard =require('./controllers/operationExecution/dashboard.controller.js')
-const pageReplacementController=require('./controllers/operationExecution/pageReplacementController.js')
+const assignmentCommitController = require('./controllers/operationExecution/assignmentCommitController.js')
+const operationDasboard = require('./controllers/operationExecution/dashboard.controller.js')
+const pageReplacementController = require('./controllers/operationExecution/pageReplacementController.js')
 //opertaion + execution imports ends here`
 
 const city = require("./controllers/cityController.js");
@@ -95,10 +95,10 @@ router.get("/", (req, res) => {
 });
 
 /* demo api */
-router.post("/add_demo",upload1.single("t13"), demoApi.addDemo);
+router.post("/add_demo", upload1.single("t13"), demoApi.addDemo);
 router.get("/get_all_demo", demoApi.getAllDemo);
 router.get("/get_single_demo/:_id", demoApi.getSingleDemo);
-router.put("/update_demo",upload1.single("t13"), demoApi.editDemo);
+router.put("/update_demo", upload1.single("t13"), demoApi.editDemo);
 router.delete("/delete_demo/:_id", demoApi.deleteDemo);
 
 /*operation+execution api starts*/
@@ -116,21 +116,19 @@ router.post('/campaignphase', campaignPhaseController.createPhase)
 router.get('/campaignphase/:id', campaignPhaseController.getAllPhase)
 router.get('/campaignphase/singlephase/:id', campaignPhaseController.getSinglePhase)
 
-router.post('/expertise',expertiseController.createExpert)
-router.get('/expertise',expertiseController.getAllExpert)
-router.get('/expertise/:id',expertiseController.getSingleExpert)
-router.put('/expertise/:id',expertiseController.updateExpert)
-router.delete('/expertise/:id',expertiseController.deleteExpert)
+router.post('/expertise', expertiseController.createExpert)
+router.get('/expertise', expertiseController.getAllExpert)
+router.get('/expertise/:id', expertiseController.getSingleExpert)
+router.put('/expertise/:id', expertiseController.updateExpert)
+router.delete('/expertise/:id', expertiseController.deleteExpert)
 
-router.post('/assignment',assignmentController.createAssignment)
-router.get('/assignment/:id',assignmentController.getSingleAssignment)
+router.post('/assignment', assignmentController.createAssignment)
+router.get('/assignment/:id', assignmentController.getSingleAssignment)
 
 router.get('/assignment/all/:id',assignmentController.getAllAssignmentToExpertee)
 router.get('/assignment/phase/:id',assignmentController.getAllAssignmentInPhase)
 
 router.post('/assignment/status',assignmentController.updateAssignmentStatus)
-
-
 
 router.post('/assignment/commit',assignmentCommitController.createAssComm)
 router.get('/assignment/commit/:id',assignmentCommitController.getAllAssComm)
@@ -138,22 +136,21 @@ router.get('/assignment/commit/single/:id',assignmentCommitController.getAssComm
 router.put('/assignment/commit/single/:id',assignmentCommitController.updateSingleCommitment)
 router.post('/operation_phase_dashboard',operationDasboard.phaseDashboard)
 
-
-router.post('/replacement/plan',pageReplacementController.createReplacementPlan)
-router.get('/replacement/plan',pageReplacementController.getAllRecord)
-router.get('/replacement/:id',pageReplacementController.getSingleRecord)
-router.post('/replacement/status',pageReplacementController.replacementStatus)
+router.post('/replacement/plan', pageReplacementController.createReplacementPlan)
+router.get('/replacement/plan', pageReplacementController.getAllRecord)
+router.get('/replacement/:id', pageReplacementController.getSingleRecord)
+router.post('/replacement/status', pageReplacementController.replacementStatus)
 
 /*operation+execution api ends*/
 /*insta api*/
-router.get("/shorcode_info",insta.getCountBasedOnTrackedPost)
-router.post("/add_image",upload1.fields([{ name: "brandImageToServer", maxCount: 10 },{name: "campaignImageToServer", maxCount: 10},{name:"creatorImageToServer", maxCount: 10}]), imageUpload.addImage)
-router.post("/get_all_images",imageUpload.getImages)
-router.get("/get_single_image/:id",imageUpload.getImage)
-router.put("/update_image",upload1.fields([{ name: "brandImageToServer", maxCount: 10 },{name: "campaignImageToServer", maxCount: 10},{name: "campaignImageToServer", maxCount: 10},{name:"creatorImageToServer", maxCount: 10}]), imageUpload.editImages)
+router.get("/shorcode_info", insta.getCountBasedOnTrackedPost)
+router.post("/add_image", upload1.fields([{ name: "brandImageToServer", maxCount: 10 }, { name: "campaignImageToServer", maxCount: 10 }, { name: "creatorImageToServer", maxCount: 10 }]), imageUpload.addImage)
+router.post("/get_all_images", imageUpload.getImages)
+router.get("/get_single_image/:id", imageUpload.getImage)
+router.put("/update_image", upload1.fields([{ name: "brandImageToServer", maxCount: 10 }, { name: "campaignImageToServer", maxCount: 10 }, { name: "campaignImageToServer", maxCount: 10 }, { name: "creatorImageToServer", maxCount: 10 }]), imageUpload.editImages)
 router.delete("/delete_image/:id", imageUpload.deleteImage)
 // router.post("/upload_img_on_server",upload1.single("imageToServer"), insta.uploadImageToServer)
-router.post("/add_tracked_post",insta.insertDataIntoPostAnalytics)
+router.post("/add_tracked_post", insta.insertDataIntoPostAnalytics)
 // router.get("/analytics_based_on_rating",insta.instaPostAnalyticsBasedOnRating)
 router.post("/upload_img_on_server", upload1.single("imageToServer"), insta.uploadImageToServer)
 router.post("/add_tracked_post", insta.insertDataIntoPostAnalytics)
@@ -210,7 +207,7 @@ router.get("/get_single_exe_pid_count/:p_id", exe.getLatestPIDCount);
 // router.post("/add_exe_pid_history",exe.addIPCountHistory);
 router.post("/add_exe_pid_history", exe.addIPCountHistory);
 router.post("/exe_purchase_post", exe.exeForPurchase);
-router.get("/get_all_purchase_data",exe.getAllExePurchase);
+router.get("/get_all_purchase_data", exe.getAllExePurchase);
 router.get("/get_exe_ip_count_history/:p_id", exe.getExeIpCountHistory);
 router.delete("/delete_exe_ip_count_history/:_id", exe.deleteExeIpCountHistory);
 router.put("/edit_exe_ip_count_history", exe.updateIPCountHistory);
@@ -235,8 +232,8 @@ router.delete("/delete_allocation/:id", sim.deleteAllocation);
 router.get("/alldataofsimallocment", sim.alldataofsimallocment);
 router.get("/get_asset_department_count", sim.getAssetDepartmentCount);
 router.get("/get_asset_users_of_dept/:dept_id", sim.getAssetUsersDepartment);
-router.get("/get_total_asset_in_category/:category_id",sim.getTotalAssetInCategory);
-router.get("/get_total_asset_in_category_allocated/:category_id",sim.getTotalAssetInCategoryAllocated);
+router.get("/get_total_asset_in_category/:category_id", sim.getTotalAssetInCategory);
+router.get("/get_total_asset_in_category_allocated/:category_id", sim.getTotalAssetInCategoryAllocated);
 
 /* logo brand */
 router.post("/add_logo_category", logoBrand.addLogoBrandCat);
@@ -739,12 +736,12 @@ router.post(
 );
 router.get("/get_all_wfh_users", user.getAllWfhUsers);
 router.get("/get_all_login_history", user.getLoginHistory);
-router.post("/get_user_pre_sitting",user.getUserPresitting);
-router.get("/get_all_users_with_doj",user.getAllUsersWithDoj);
-router.get("/get_all_users_with_dob",user.getAllUsersWithDoB);
-router.get("/get_last_month_users",user.getLastMonthUsers);
-router.get("/get_all_filled_users",user.getAllFilledUsers);
-router.get("/get_all_percentage",user.getFilledPercentage);
+router.post("/get_user_pre_sitting", user.getUserPresitting);
+router.get("/get_all_users_with_doj", user.getAllUsersWithDoj);
+router.get("/get_all_users_with_dob", user.getAllUsersWithDoB);
+router.get("/get_last_month_users", user.getLastMonthUsers);
+router.get("/get_all_filled_users", user.getAllFilledUsers);
+router.get("/get_all_percentage", user.getFilledPercentage);
 // router.post("/get_users_by_departments",user.getUsersByDepartment);
 // router.get("/get_first_time_login_users", user.getAllFirstLoginUsers)
 router.post("/get_user_graph_data", user.getUserGraphData)
@@ -756,7 +753,7 @@ router.post(
 
   attendance.getSalaryByDeptIdMonthYear
 );
-router.post("/get_salary_by_month_year",attendance.getSalaryByMonthYear);
+router.post("/get_salary_by_month_year", attendance.getSalaryByMonthYear);
 router.post("/get_salary_by_filter", attendance.getSalaryByFilter);
 router.post(
   "/get_attendance_by_userid",
@@ -1004,7 +1001,7 @@ router.delete(
   "/delete_asset_category/:category_id",
   assetCategory.deleteAssetCategory
 );
-router.get("/get_count_sub_category/:category_id",assetCategory.getAssetSubCategoryCount);
+router.get("/get_count_sub_category/:category_id", assetCategory.getAssetSubCategoryCount);
 
 /* Asset Sub Category Routes */
 router.post("/add_asset_sub_category", assetSubCategory.addAssetSubCategory);
@@ -1121,27 +1118,27 @@ router.delete("/delete_city/:_id", city.deleteCity);
 /* php finance api */
 router.post("/add_php_finance_data_in_node", phpFinance.savePhpFinanceDataInNode);
 router.get("/get_all_php_finance_data", phpFinance.getAllphpFinanceData);
-router.get("/get_all_php_finance_data_pending",phpFinance.getAllphpFinanceDataPending);
+router.get("/get_all_php_finance_data_pending", phpFinance.getAllphpFinanceDataPending);
 router.post("/add_php_payment_acc_data_in_node", phpPayment.savePhpPaymentAccDataInNode);
 router.get("/get_all_php_payment_acc_data", phpPayment.getAllphpPaymentAccData);
-router.get("/get_all_php_payment_acc_data_pending",phpPayment.getAllphpPaymentAccDataForStatus);
-router.put("/pending_approval_update",phpPayment.pendingApprovalUpdate);
+router.get("/get_all_php_payment_acc_data_pending", phpPayment.getAllphpPaymentAccDataForStatus);
+router.put("/pending_approval_update", phpPayment.pendingApprovalUpdate);
 router.post("/add_php_payment_refund_data_in_node", phpRefund.savePhpPaymentRefundInNode);
 router.get("/get_all_php_payment_refund_data", phpRefund.getAllphpPaymentRefundData);
-router.get("/get_all_php_payment_refund_data_pending",phpRefund.getAllphpPaymentRefundDataStatus);
-router.put("/pending_approval_refund_update",upload.single("payment_screenshot"),phpRefund.pendingApprovalRefundUpdate);
+router.get("/get_all_php_payment_refund_data_pending", phpRefund.getAllphpPaymentRefundDataStatus);
+router.put("/pending_approval_refund_update", upload.single("payment_screenshot"), phpRefund.pendingApprovalRefundUpdate);
 router.post("/add_php_payment_incentive_data_in_node", phpIncentive.savePhpIncentiveInNode);
 router.get("/get_all_php_payment_incentive_data", phpIncentive.getAllphpIncentiveData);
 router.post("/add_php_payment_bal_data_in_node", phpPaymentBal.savePhpPaymentBalDataInNode);
 router.get("/get_all_php_payment_bal_data", phpPaymentBal.getAllphpPaymentBalData);
-router.put("/balance_payment_list_update",phpPaymentBal.balancePaymentListUpdate);
+router.put("/balance_payment_list_update", phpPaymentBal.balancePaymentListUpdate);
 router.post("/add_php_pending_invoice_data_in_node", phpPendingInvoice.savePhpPaymentPendingInvoiceDataInNode);
 router.get("/get_all_php_pending_invoice_data", phpPendingInvoice.getAllphpPaymentPendingInvoiceData);
 router.post("/add_php_sale_booking_tds_data_in_node", phpSaleBookingTds.savePhpSaleBookingTdsDataInNode);
 router.get("/get_all_php_sale_booking_tds_data", phpSaleBookingTds.getAllphpSaleBookingTdsData);
 router.post("/add_php_sale_booking_tds_verification_data_in_node", phpSaleBookingTds.savePhpSaleBookingTdsVerificationDataInNode);
 router.get("/get_all_php_sale_booking_tds_verification_data", phpSaleBookingTds.getAllphpSaleBookingTdsVerificationData);
-router.get("/get_all_php_payment_acc_data_customers/:cust_id",phpPayment.getAccListDataFromCustId)
+router.get("/get_all_php_payment_acc_data_customers/:cust_id", phpPayment.getAccListDataFromCustId)
 
 // Asset Brand Routes 
 router.post("/add_asset_brand", assetBrand.addAssetBrand);
@@ -1161,8 +1158,8 @@ router.delete("/delete_asset_modal/:id", assetModal.deleteAssetModal);
 router.post("/add_email_content", emailContent.addEmailContent);
 router.put("/update_email_content", emailContent.editEmailContent);
 router.get("/get_all_email_contents", emailContent.getAllEmailContents);
-router.get("/get_single_email_content/:id", emailContent.getSingleEmailContent);
-router.delete("/delete_email_content/:id", emailContent.deleteEmailContent);
+router.get("/get_single_email_content/:_id", emailContent.getSingleEmailContent);
+router.delete("/delete_email_content/:_id", emailContent.deleteEmailContent);
 // Hobbies  Routes 
 router.post("/add_hobby", hobby.addHobby);
 router.put("/update_hobby", hobby.editHobby);
@@ -1174,14 +1171,14 @@ router.delete("/delete_hobby/:id", hobby.deleteHobby);
 router.post("/add_family", family.addFamily);
 router.put("/update_family", family.editFamily);
 router.get("/get_all_families", family.getFamilys);
-router.get("/get_single_family/:id", family.getSingleFamily);
+router.get("/get_single_family/:user_id", family.getSingleFamily);
 router.delete("/delete_family/:id", family.deleteFamily);
 
 // Education Routes 
 router.post("/add_education", education.addEducation);
 router.put("/update_education", education.editEducation);
 router.get("/get_all_educations", education.getEducations);
-router.get("/get_single_education/:id", education.getSingleEducation);
+router.get("/get_single_education/:user_id", education.getSingleEducation);
 router.delete("/delete_education/:id", education.deleteEducation);
 
 module.exports = router;
