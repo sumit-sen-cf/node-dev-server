@@ -27,18 +27,20 @@ exports.addSim = async (req, res) => {
       warrantyDate: req.body.warrantyDate || "",
       dateOfPurchase: req.body.dateOfPurchase || "",
       selfAuditPeriod: req.body.selfAuditPeriod || 0,
-      hrAuditPeriod : req.body.hrAuditPeriod || 0,
+      hrAuditPeriod: req.body.hrAuditPeriod || 0,
       selfAuditUnit: req.body.selfAuditUnit || 0,
       hrAuditUnit: req.body.hrAuditUnit || 0,
       invoiceCopy: req.file?.filename,
       assetsValue: req.body.assetsValue,
       assetsCurrentValue: req.body.assetsCurrentValue,
-      last_hr_audit_date : req.body.last_hr_audit_date,
+      last_hr_audit_date: req.body.last_hr_audit_date,
       last_self_audit_date: req.body.last_self_audit_date,
       next_hr_audit_date: updatedDateString,
       next_self_audit_date: updatedDateString2,
-      asset_financial_type : req.body.asset_financial_type,
-      depreciation_percentage : req.body.depreciation_percentage
+      asset_financial_type: req.body.asset_financial_type,
+      depreciation_percentage: req.body.depreciation_percentage,
+      asset_brand_id: req.body.asset_brand_id,
+      asset_modal_id: req.body.asset_modal_id,
     });
     const simv = await simc.save();
     res.send({ simv, status: 200 });
@@ -232,6 +234,34 @@ exports.getSims = async (req, res) => {
           },
         },
         {
+          $lookup: {
+            from: "assetbrandmodels",
+            localField: "asset_brand_id",
+            foreignField: "asset_brand_id",
+            as: "assetBrand",
+          },
+        },
+        {
+          $unwind: {
+            path: "$assetBrand",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "assetmodalmodels",
+            localField: "asset_modal_id",
+            foreignField: "asset_brand_id",
+            as: "assetModal",
+          },
+        },
+        {
+          $unwind: {
+            path: "$assetModal",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           $project: {
             _id: "$_id",
             sim_id: "$sim_id",
@@ -255,7 +285,7 @@ exports.getSims = async (req, res) => {
             assetsValue: "$assetsValue",
             created_by: "$created_by",
             assetsCurrentValue: "$assetsCurrentValue",
-            Remarks:"$Remarks",
+            Remarks: "$Remarks",
             user_name: "$userdata.user_name",
             category_name: "$category.category_name",
             sub_category_name: "$subcategory.sub_category_name",
@@ -265,8 +295,12 @@ exports.getSims = async (req, res) => {
             Last_updated_date: "$Last_updated_date",
             invoiceCopy_url: { $concat: [assetsImagesUrl, "$invoiceCopy"] },
             submitted_at: "$simallocation.submitted_at",
-            asset_financial_type : "$asset_finacial_type",
-            depreciation_percentage : "$depreciation_percentage",
+            asset_financial_type: "$asset_finacial_type",
+            depreciation_percentage: "$depreciation_percentage",
+            asset_brand_id: "$asset_brand_id",
+            asset_modal_id: "$asset_modal_id",
+            asset_brand_name: "$assetBrand.asset_brand_name",
+            asset_modal_name: "$assetModal.asset_modal_name",
             date_difference: {
               $cond: [
                 {
@@ -355,8 +389,10 @@ exports.editSim = async (req, res) => {
         invoiceCopy: req.file?.filename,
         assetsValue: req.body.assetsValue,
         assetsCurrentValue: req.body.assetsCurrentValue,
-        asset_financial_type : req.body.asset_financial_type,
-        depreciation_percentage : req.body.depreciation_percentage
+        asset_financial_type: req.body.asset_financial_type,
+        depreciation_percentage: req.body.depreciation_percentage,
+        asset_brand_id: req.body.asset_brand_id,
+        asset_modal_id: req.body.asset_modal_id,
       },
       { new: true }
     );
@@ -840,12 +876,12 @@ exports.getAssetDepartmentCount = async (req, res) => {
       },
       {
         $lookup: {
-            from: "assetscategorymodels",
-            localField: "category_id",
-            foreignField: "category_id",
-            as: "category",
+          from: "assetscategorymodels",
+          localField: "category_id",
+          foreignField: "category_id",
+          as: "category",
         },
-    },
+      },
       {
         $unwind: {
           path: "$category",
@@ -854,12 +890,12 @@ exports.getAssetDepartmentCount = async (req, res) => {
       },
       {
         $lookup: {
-            from: "assetssubcategorymodels",
-            localField: "sub_category_id",
-            foreignField: "sub_category_id",
-            as: "subcategory",
+          from: "assetssubcategorymodels",
+          localField: "sub_category_id",
+          foreignField: "sub_category_id",
+          as: "subcategory",
         },
-    },
+      },
       {
         $unwind: {
           path: "$subcategory",
@@ -872,11 +908,11 @@ exports.getAssetDepartmentCount = async (req, res) => {
           user_id: "$user.user_id",
           user_name: "$user.user_name",
           dept_id: "$user.dept_id",
-          dept_name: "$department.dept_name", 
-          category_id:"$category.category_id",
+          dept_name: "$department.dept_name",
+          category_id: "$category.category_id",
           category_name: "$category.category_name",
-          sub_category_id :"$subcategory.sub_category_id",
-          sub_category_name : "subcategory.sub_category_name"
+          sub_category_id: "$subcategory.sub_category_id",
+          sub_category_name: "subcategory.sub_category_name"
         }
       },
       {
@@ -885,11 +921,11 @@ exports.getAssetDepartmentCount = async (req, res) => {
           dept_name: { $first: "$dept_name" },
           count: { $sum: 1 },
           user_name: { $first: "$user_name" },
-          dept_id : { $first: "$dept_id" },
-          category_id : { $first: "$category_id" },
-          category_name : { $first: "$category_name" },
-          sub_category_id : { $first: "$sub_category_id" },
-          sub_category_name : { $first: "$sub_category_name" },
+          dept_id: { $first: "$dept_id" },
+          category_id: { $first: "$category_id" },
+          category_name: { $first: "$category_name" },
+          sub_category_id: { $first: "$sub_category_id" },
+          sub_category_name: { $first: "$sub_category_name" },
 
           // user_id : { $first: "$user_id" }
         },
@@ -910,137 +946,137 @@ exports.getAssetDepartmentCount = async (req, res) => {
 
 exports.getAssetUsersDepartment = async (req, res) => {
   try {
-      const dept_id = parseInt(req.params.dept_id);
-      const userDetails = await userModel.aggregate([
-          {
-              $match: { 
-                dept_id : dept_id
-               },
-          },
-          {
-              $lookup: {
-                  from: 'simAlloModel',
-                  localField: 'user_id',
-                  foreignField: 'user_id',
-                  as: 'simAlloDetails',
-              },
-          },
-          {
-              $unwind: {
-                  path: '$simAlloDetails',
-                  preserveNullAndEmptyArrays: true,
-              },
-          },
-          {
-              $lookup: {
-                  from: 'assetscategorymodels',
-                  localField: 'category_id',
-                  foreignField: 'simAlloDetails.category_id',
-                  as: 'categoryDetails',
-              },
-          },
-          {
-              $unwind: {
-                  path: '$categoryDetails'
-              },
-          },
-          {
-              $lookup: {
-                  from: 'assetssubcategorymodels',
-                  localField: 'sub_category_id',
-                  foreignField: 'simAlloDetails.sub_category_id',
-                  as: 'subcategoryDetails',
-              },
-          },
-          {
-              $unwind: {
-                  path: '$subcategoryDetails'
-              },
-          },
-          {
-              $project: {
-                  dept_id: 1,
-                  user_id: 1,
-                  user_name: 1,
-                  category_id: '$categoryDetails.category_id',
-                  sub_category_id: '$subcategoryDetails.sub_category_id',
-                  category_name: '$categoryDetails.category_name',
-                  sub_category_name: '$subcategoryDetails.sub_category_name',
-              },
-          },
-          {
-            $group: {
-                _id: '$dept_id', 
-                user_id: { $first: '$user_id' },
-                user_name: { $first: '$user_name' },
-                category_id: { $first: '$category_id' },
-                sub_category_id: { $first: '$sub_category_id' },
-                category_name: { $first: '$category_name' },
-                sub_category_name: { $first: '$sub_category_name' },
-            },
+    const dept_id = parseInt(req.params.dept_id);
+    const userDetails = await userModel.aggregate([
+      {
+        $match: {
+          dept_id: dept_id
         },
-      ]);
+      },
+      {
+        $lookup: {
+          from: 'simAlloModel',
+          localField: 'user_id',
+          foreignField: 'user_id',
+          as: 'simAlloDetails',
+        },
+      },
+      {
+        $unwind: {
+          path: '$simAlloDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'assetscategorymodels',
+          localField: 'category_id',
+          foreignField: 'simAlloDetails.category_id',
+          as: 'categoryDetails',
+        },
+      },
+      {
+        $unwind: {
+          path: '$categoryDetails'
+        },
+      },
+      {
+        $lookup: {
+          from: 'assetssubcategorymodels',
+          localField: 'sub_category_id',
+          foreignField: 'simAlloDetails.sub_category_id',
+          as: 'subcategoryDetails',
+        },
+      },
+      {
+        $unwind: {
+          path: '$subcategoryDetails'
+        },
+      },
+      {
+        $project: {
+          dept_id: 1,
+          user_id: 1,
+          user_name: 1,
+          category_id: '$categoryDetails.category_id',
+          sub_category_id: '$subcategoryDetails.sub_category_id',
+          category_name: '$categoryDetails.category_name',
+          sub_category_name: '$subcategoryDetails.sub_category_name',
+        },
+      },
+      {
+        $group: {
+          _id: '$dept_id',
+          user_id: { $first: '$user_id' },
+          user_name: { $first: '$user_name' },
+          category_id: { $first: '$category_id' },
+          sub_category_id: { $first: '$sub_category_id' },
+          category_name: { $first: '$category_name' },
+          sub_category_name: { $first: '$sub_category_name' },
+        },
+      },
+    ]);
 
-      res.status(200).send({ data: userDetails });
+    res.status(200).send({ data: userDetails });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: error.message, sms: 'Internal Server Error' });
+    console.error(error);
+    res.status(500).json({ error: error.message, sms: 'Internal Server Error' });
   }
 };
 
 exports.getTotalAssetInCategory = async (req, res) => {
   try {
     const assets = await simModel
-    .aggregate([
-      {
-        $match: {
-          category_id : parseInt(req.params.category_id),
-          status: "Available", 
-        }
-      },
-      {
-        $lookup: {
-          from: "assetscategorymodels",
-          localField: "category_id",
-          foreignField: "category_id",
-          as: "category",
+      .aggregate([
+        {
+          $match: {
+            category_id: parseInt(req.params.category_id),
+            status: "Available",
+          }
         },
-      },
-      {
-        $unwind: {
-          path: "$category",
+        {
+          $lookup: {
+            from: "assetscategorymodels",
+            localField: "category_id",
+            foreignField: "category_id",
+            as: "category",
+          },
         },
-      },
-      {
-        $lookup: {
-          from: "assetssubcategorymodels",
-          localField: "sub_category_id",
-          foreignField: "sub_category_id",
-          as: "subcategory",
+        {
+          $unwind: {
+            path: "$category",
+          },
         },
-      },
-      {
-        $unwind: {
-          path: "$subcategory",
-          preserveNullAndEmptyArrays: true,
+        {
+          $lookup: {
+            from: "assetssubcategorymodels",
+            localField: "sub_category_id",
+            foreignField: "sub_category_id",
+            as: "subcategory",
+          },
         },
-      },
-      {
-        $project: {
-          _id: "$_id",
-          sim_id: "$sim_id",
-          asset_id: "$sim_no",
-          status: "$status",
-          asset_type: "$s_type",
-          assetsName: "$assetsName",
-          category_id: "$category_id",
-          sub_category_id: "$sub_category_id",
-          category_name: "$category.category_name",
-          sub_category_name: "$subcategory.sub_category_name"
+        {
+          $unwind: {
+            path: "$subcategory",
+            preserveNullAndEmptyArrays: true,
+          },
         },
-      },
-    ])
-    .exec();
+        {
+          $project: {
+            _id: "$_id",
+            sim_id: "$sim_id",
+            asset_id: "$sim_no",
+            status: "$status",
+            asset_type: "$s_type",
+            assetsName: "$assetsName",
+            category_id: "$category_id",
+            sub_category_id: "$sub_category_id",
+            category_name: "$category.category_name",
+            sub_category_name: "$subcategory.sub_category_name"
+          },
+        },
+      ])
+      .exec();
 
     if (!assets || assets.length === 0) {
       return res.status(404).send({ success: false, message: 'No assets found for the given category_id' });

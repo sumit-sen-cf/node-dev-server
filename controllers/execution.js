@@ -408,7 +408,7 @@ exports.pageHealthDashboard = async (req, res) => {
                     break;
             }
         }
-        
+
         // Apply start and end date filters if provided and remove creation_date filter
         if (startDate && endDate) {
             dateFilter = {
@@ -424,7 +424,7 @@ exports.pageHealthDashboard = async (req, res) => {
             };
             delete dateFilter.creation_date;
         }
-        
+
         const result = await exeCountHisModel.aggregate([
             {
                 $sort: {
@@ -433,7 +433,7 @@ exports.pageHealthDashboard = async (req, res) => {
                 }
             },
             {
-              $match: dateFilter
+                $match: dateFilter
             },
             {
                 $facet: {
@@ -444,7 +444,7 @@ exports.pageHealthDashboard = async (req, res) => {
                                 _id: "$p_id",
                                 latestDocument: { $first: "$$ROOT" },
                                 p_id_count: { $sum: 1 },
-                                p_id:{ $first:  "$p_id"},
+                                p_id: { $first: "$p_id" },
                                 maxReach: { $max: "$reach" },
                                 maxImpression: { $max: "$impression" },
                                 maxEngagement: { $max: "$engagement" },
@@ -469,7 +469,7 @@ exports.pageHealthDashboard = async (req, res) => {
                                 avgAge_45_54_percent: { $avg: "$Age_45_54_percent" },
                                 avgAge_55_64_percent: { $avg: "$Age_55_64_percent" },
                                 avgAge_65_plus_percent: { $avg: "$Age_65_plus_percent" },
-                                creation_date: { $first : "$creation_date" },
+                                creation_date: { $first: "$creation_date" },
                             }
                         },
                         {
@@ -519,7 +519,7 @@ exports.pageHealthDashboard = async (req, res) => {
                             }
                         },
                     ],
-        
+
                     // Case 2: p_id found
                     "case2": [
                         {
@@ -529,7 +529,7 @@ exports.pageHealthDashboard = async (req, res) => {
                                     year: { $year: "$creation_date" },
                                 },
                                 p_id_count: { $sum: 1 },
-                                p_id:{ $first:  "$p_id"},
+                                p_id: { $first: "$p_id" },
                                 maxReach: { $max: "$reach" },
                                 maxImpression: { $max: "$impression" },
                                 maxEngagement: { $max: "$engagement" },
@@ -554,7 +554,7 @@ exports.pageHealthDashboard = async (req, res) => {
                                 avgAge_45_54_percent: { $avg: "$Age_45_54_percent" },
                                 avgAge_55_64_percent: { $avg: "$Age_55_64_percent" },
                                 avgAge_65_plus_percent: { $avg: "$Age_65_plus_percent" },
-                                creation_date: { $first : "$creation_date" },
+                                creation_date: { $first: "$creation_date" },
                             }
                         },
                         {
@@ -704,9 +704,9 @@ exports.pageHealthDashboard = async (req, res) => {
 //         break;
 // }
 //         }
-       
 
-       
+
+
 //         const getcreators = await exeCountHisModel.aggregate([
 //             {
 //                 $sort: {
@@ -1393,60 +1393,98 @@ exports.getDistinctExeCountHistory = async (req, res) => {
 //     }
 // };
 
+// exports.getAllExePurchase = async (req, res) => {
+//     try {
+//         const allEntries = await exePurchaseModel.find({});
+//         const result = [];
+
+//         const relevantFields = [
+//             'reach', 'impression', 'engagement', 'story_view', 'stats_for',
+//             'start_date', 'end_date', 'reach_upload_image', 'impression_upload_image',
+//             'engagement_upload_image', 'story_view_upload_image', 'story_view_upload_video',
+//             'city1_name', 'city2_name', 'city3_name', 'city4_name', 'city5_name',
+//             'percentage_city1_name', 'percentage_city2_name', 'percentage_city3_name',
+//             'percentage_city4_name', 'percentage_city5_name', 'city_image_upload',
+//             'male_percent', 'female_percent', 'Age_13_17_percent', 'Age_upload',
+//             'Age_18_24_percent', 'Age_25_34_percent', 'Age_35_44_percent',
+//             'Age_45_54_percent', 'Age_55_64_percent', 'Age_65_plus_percent',
+//             'quater', 'profile_visit', 'country1_name', 'country2_name',
+//             'country3_name', 'country4_name', 'country5_name',
+//             'percentage_country1_name', 'percentage_country2_name',
+//             'percentage_country3_name', 'percentage_country4_name',
+//             'percentage_country5_name', 'country_image_upload'
+//         ];
+
+//         for (let i = 0; i < allEntries.length; i++) {
+//             const entry = allEntries[i];
+
+//             const latestEntry = await exeCountHisModel.findOne({ p_id: entry.p_id })
+//                 .exec();
+
+//             const totalPercentage = latestEntry ? relevantFields.reduce((total, field) => {
+//                 if (
+//                     latestEntry[field] !== null &&
+//                     latestEntry[field] !== '' &&
+//                     latestEntry[field] !== 0
+//                 ) {
+//                     return total + 1;
+//                 }
+//                 return total;
+//             }, 0) / relevantFields.length * 100 : 0;
+
+//             result.push({
+//                 p_id: entry.p_id,
+//                 page_name: entry.page_name,
+//                 cat_name: entry.cat_name,
+//                 follower_count: entry.follower_count,
+//                 page_link: entry.page_link,
+//                 platform: entry.platform,
+//                 latestEntry,
+//                 totalPercentage
+//             });
+//         }
+//         res.status(200).send({ result });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message, message: 'Internal Server Error' });
+//     }
+// };
+
 exports.getAllExePurchase = async (req, res) => {
     try {
-        const allEntries = await exePurchaseModel.find({});
+        const allEntries = await exePurchaseModel.find({}, 'p_id page_name cat_name follower_count page_link platform').exec();
         const result = [];
 
-        const relevantFields = [
-            'reach', 'impression', 'engagement', 'story_view', 'stats_for',
-            'start_date', 'end_date', 'reach_upload_image', 'impression_upload_image',
-            'engagement_upload_image', 'story_view_upload_image', 'story_view_upload_video',
-            'city1_name', 'city2_name', 'city3_name', 'city4_name', 'city5_name',
-            'percentage_city1_name', 'percentage_city2_name', 'percentage_city3_name',
-            'percentage_city4_name', 'percentage_city5_name', 'city_image_upload',
-            'male_percent', 'female_percent', 'Age_13_17_percent', 'Age_upload',
-            'Age_18_24_percent', 'Age_25_34_percent', 'Age_35_44_percent',
-            'Age_45_54_percent', 'Age_55_64_percent', 'Age_65_plus_percent',
-            'quater', 'profile_visit', 'country1_name', 'country2_name',
-            'country3_name', 'country4_name', 'country5_name',
-            'percentage_country1_name', 'percentage_country2_name',
-            'percentage_country3_name', 'percentage_country4_name',
-            'percentage_country5_name', 'country_image_upload'
-        ];
+        const latestEntriesPromises = allEntries.map(async (entry) => {
+            const latestEntry = await exeCountHisModel.findOne({ p_id: entry.p_id }).exec();
+            return latestEntry;
+        });
+
+        const latestEntries = await Promise.all(latestEntriesPromises);
 
         for (let i = 0; i < allEntries.length; i++) {
             const entry = allEntries[i];
+            const latestEntry = latestEntries[i];
 
-            const latestEntry = await exeCountHisModel.findOne({ p_id: entry.p_id })
-                .exec();
-
-            const totalPercentage = latestEntry ? relevantFields.reduce((total, field) => {
-                if (
-                    latestEntry[field] !== null &&
-                    latestEntry[field] !== '' &&
-                    latestEntry[field] !== 0
-                ) {
-                    return total + 1;
-                }
-                return total;
-            }, 0) / relevantFields.length * 100 : 0;
+            const totalPercentage = latestEntry
+                ? Object.values(latestEntry.toJSON())
+                    .filter((value) => value !== null && value !== '' && value !== 0)
+                    .length / Object.keys(latestEntry.toJSON()).length * 100
+                : 0;
 
             result.push({
-                p_id : entry.p_id,
+                p_id: entry.p_id,
                 page_name: entry.page_name,
                 cat_name: entry.cat_name,
                 follower_count: entry.follower_count,
                 page_link: entry.page_link,
                 platform: entry.platform,
                 latestEntry,
-                totalPercentage
+                totalPercentage,
             });
         }
+
         res.status(200).send({ result });
     } catch (error) {
         res.status(500).json({ error: error.message, message: 'Internal Server Error' });
     }
 };
-
-

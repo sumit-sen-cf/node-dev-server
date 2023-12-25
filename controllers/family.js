@@ -7,13 +7,13 @@ exports.addFamily = async (req, res) => {
     const latestUser = await userModel.findOne({}, { user_id: 1 }).sort({ user_id: -1 });
     const incrementedUser = latestUser.user_id + 1;
     const family = new familyModel({
-      user_id : incrementedUser,  
+      user_id: incrementedUser,
       name: req.body.name,
-      DOB : req.body.DOB,
-      relation : req.body.relation,
+      DOB: req.body.DOB,
+      relation: req.body.relation,
       contact: req.body.contact,
-      occupation : req.body.occupation,
-      annual_income : req.body.annual_income
+      occupation: req.body.occupation,
+      annual_income: req.body.annual_income
     });
     const simv = await family.save();
     return response.returnTrue(
@@ -43,7 +43,7 @@ exports.getFamilys = async (req, res) => {
 exports.getSingleFamily = async (req, res) => {
   try {
     const singlefamily = await familyModel.findOne({
-      family_id: parseInt(req.params.family_id),
+      user_id: parseInt(req.params.user_id),
     });
     if (!singlefamily) {
       return response.returnFalse(200, req, res, "No Reord Found...", {});
@@ -65,13 +65,13 @@ exports.editFamily = async (req, res) => {
     const editFamily = await familyModel.findOneAndUpdate(
       { family_id: parseInt(req.body.family_id) },
       {
-        user_id : req.body.user_id,  
+        user_id: req.body.user_id,
         name: req.body.name,
-        DOB : req.body.DOB,
-        relation : req.body.relation,
+        DOB: req.body.DOB,
+        relation: req.body.relation,
         contact: req.body.contact,
-        occupation : req.body.occupation,
-        annual_income : req.body.annual_income
+        occupation: req.body.occupation,
+        annual_income: req.body.annual_income
       },
       { new: true }
     );
