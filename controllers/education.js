@@ -7,14 +7,14 @@ exports.addEducation = async (req, res) => {
     const latestUser = await userModel.findOne({}, { user_id: 1 }).sort({ user_id: -1 });
     const incrementedUser = latestUser.user_id + 1;
     const education = new educationModel({
-      user_id : incrementedUser,  
+      user_id: incrementedUser,
       institute_name: req.body.institute_name,
-      from_year : req.body.from_year,
-      to_year : req.body.to_year, 
-      percentage : req.body.percentage,
-      stream : req.body.stream,
-      specialization : req.body.specialization,
-      title : req.body.title
+      from_year: req.body.from_year,
+      to_year: req.body.to_year,
+      percentage: req.body.percentage,
+      stream: req.body.stream,
+      specialization: req.body.specialization,
+      title: req.body.title
     });
 
     const simv = await education.save();
@@ -45,7 +45,7 @@ exports.getEducations = async (req, res) => {
 exports.getSingleEducation = async (req, res) => {
   try {
     const singleeducation = await educationModel.findOne({
-      education_id: parseInt(req.params.id),
+      user_id: parseInt(req.params.user_id),
     });
     if (!singleeducation) {
       return response.returnFalse(200, req, res, "No Reord Found...", {});
@@ -67,14 +67,14 @@ exports.editEducation = async (req, res) => {
     const editeducation = await educationModel.findOneAndUpdate(
       { education_id: parseInt(req.body.education_id) },
       {
-        user_id : req.body.user_id,  
+        user_id: req.body.user_id,
         institute_name: req.body.institute_name,
-        from_year : req.body.from_year,
-        to_year : req.body.to_year, 
-        percentage : req.body.percentage,
-        stream : req.body.stream,
-        specialization : req.body.specialization,
-        title : req.body.title
+        from_year: req.body.from_year,
+        to_year: req.body.to_year,
+        percentage: req.body.percentage,
+        stream: req.body.stream,
+        specialization: req.body.specialization,
+        title: req.body.title
       },
       { new: true }
     );

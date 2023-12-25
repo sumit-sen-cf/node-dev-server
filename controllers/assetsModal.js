@@ -26,7 +26,7 @@ exports.getAssetModals = async (req, res) => {
       .aggregate([
         {
           $lookup: {
-            from: "assetsbrandmodels",
+            from: "assetbrandmodels",
             localField: "asset_brand_id",
             foreignField: "asset_brand_id",
             as: "assetBrand",
@@ -104,6 +104,7 @@ exports.getAssetModalById = async (req, res) => {
 exports.editAssetModal = async (req, res) => {
   try {
     const editAssetModalData = await assetModalModel.findOneAndUpdate({ asset_modal_id: req.body.asset_modal_id }, {
+      asset_brand_id: req.body.asset_brand_id,
       asset_modal_name: req.body.asset_modal_name,
       updated_at: req.body.updated_at
     }, { new: true })
