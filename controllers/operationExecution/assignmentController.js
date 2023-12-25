@@ -167,6 +167,12 @@ exports.updateAssignment = catchAsync(async (req, res, next) => {
 
     return response.returnTrue(200, req, res, "Updation Operation Successfully.")
 })
+
+exports.updateAssignmentStatus=catchAsync(async (req,res,next) => {
+    const {ass_status,campaignId,ass_id} = req.body
+    const response=await AssignmentModel.findOneAndUpdate({ass_id,campaignId},{ass_status:ass_status},{new:true})
+    res.status(200).json({data:response})
+})
 exports.deleteAssignment = catchAsync(async (req, res, next) => {
 
 })

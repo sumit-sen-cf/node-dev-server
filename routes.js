@@ -126,10 +126,16 @@ router.post('/assignment',assignmentController.createAssignment)
 router.get('/assignment/:id',assignmentController.getSingleAssignment)
 
 router.get('/assignment/all/:id',assignmentController.getAllAssignmentToExpertee)
+router.get('/assignment/phase/:id',assignmentController.getAllAssignmentInPhase)
+
+router.post('/assignment/status',assignmentController.updateAssignmentStatus)
+
 
 
 router.post('/assignment/commit',assignmentCommitController.createAssComm)
 router.get('/assignment/commit/:id',assignmentCommitController.getAllAssComm)
+router.get('/assignment/commit/single/:id',assignmentCommitController.getAssCommitAssId)
+router.put('/assignment/commit/single/:id',assignmentCommitController.updateSingleCommitment)
 router.post('/operation_phase_dashboard',operationDasboard.phaseDashboard)
 
 
