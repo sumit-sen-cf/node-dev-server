@@ -145,80 +145,87 @@ exports.replacementStatus = catchAsync(async (req, res, next) => {
 
     const recordStatus = await pageReplacementRecordModel.findByIdAndUpdate(replacementRecord._id,
         {
-            "replacement_status": status, "approved_by":approved_by, replacement_result_at: Date.now()
+            "replacement_status": status, "approved_by": approved_by, replacement_result_at: Date.now()
 
-
-        },{new:true})
-
-
-        //updating old page status
-
-        const oldPageUpdate = await CampaignPlanModel.findOneAndUpdate({ "p_id": replacementRecord.oldPage_id, "campaignId": replacementRecord.campaignId }, {
-            replacement_status: status=='approved' ? 'replaced' : 'inactive',
 
         }, { new: true })
 
-        const allPhases = await CampaignPhaseModel.find({ campaignId: replacementRecord.campaignId })
-        for (let i = 0; i < allPhases.length; i++) {
-           
-           
-            //2. effect at phase level
 
-            const pageExist = await PhasePageModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: replacementRecord.oldPage_id },
-                {
-                    replacement_status:  status=='approved' ? 'replaced' : 'inactive',
-                    replacement_stage:replacementRecord.replacement_stage,
-                    replacement_id: replacementRecord._id
-                }, { new: true })
+    //updating old page status
 
-            //3. at assignment level
+    const oldPageUpdate = await CampaignPlanModel.findOneAndUpdate({ "p_id": replacementRecord.oldPage_id, "campaignId": replacementRecord.campaignId }, {
+        replacement_status: status == 'approved' ? 'replaced' : 'inactive',
 
-            // const assignmentExist = await AssignmentModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: oldPage_id },
-            //     {
-            //         replacement_status: "pending",
-            //         replacement_stage,
-            //         replacement_id: replacementRecord._id
-            //     }, { new: true })
+    }, { new: true })
 
-            // // }
-            // console.log(assignmentExist)
-        }
+    const allPhases = await CampaignPhaseModel.find({ campaignId: replacementRecord.campaignId })
+    for (let i = 0; i < allPhases.length; i++) {
 
-        //updating newPage status
-        //new pages will be obtained from the replacement records new pages
-        
-        replacementRecord.newPages.forEach(async page=>{
-            
-            //updating new page at plan level 
-            const newPage =await CampaignPlanModel.findOneAndUpdate({campaignId:replacementRecord.campaignId,'p_id':page.p_id},
+
+        //2. effect at phase level
+
+        const pageExist = await PhasePageModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: replacementRecord.oldPage_id },
             {
-                replacement_status:status=='approved'?'replacement':'rejected'
-            })
-            if(replacementRecord.replacement_stage=='phase'){
-                for (let i = 0; i < allPhases.length; i++) {
-           
-           
-                    //2. effect at phase level
-        
-                    const pageExist = await PhasePageModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id:page.p_id  },
-                        {
-                            replacement_status:  status=='approved' ? 'replacement' : 'rejected',
-                         
-                        }, { new: true })
-        
-                  
-                }
-            }
-        })
+                replacement_status: status == 'approved' ? 'replaced' : 'inactive',
+                replacement_stage: replacementRecord.replacement_stage,
+                replacement_id: replacementRecord._id
+            }, { new: true })
 
-        res.status(200).json({data:recordStatus,oldPageUpdate})
-    
+        //3. at assignment level
+
+        // const assignmentExist = await AssignmentModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: oldPage_id },
+        //     {
+        //         replacement_status: "pending",
+        //         replacement_stage,
+        //         replacement_id: replacementRecord._id
+        //     }, { new: true })
+
+        // // }
+        // console.log(assignmentExist)
+    }
+
+    //updating newPage status
+    //new pages will be obtained from the replacement records new pages
+
+    replacementRecord.newPages.forEach(async page => {
+
+        //updating new page at plan level 
+        const newPage = await CampaignPlanModel.findOneAndUpdate({ campaignId: replacementRecord.campaignId, 'p_id': page.p_id },
+            {
+                replacement_status: status == 'approved' ? 'replacement' : 'rejected'
+            })
+        if (replacementRecord.replacement_stage == 'phase') {
+            for (let i = 0; i < allPhases.length; i++) {
+
+
+                //2. effect at phase level
+
+                const pageExist = await PhasePageModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: page.p_id },
+                    {
+                        replacement_status: status == 'approved' ? 'replacement' : 'rejected',
+
+                    }, { new: true })
+
+
+            }
+        }
+    })
+
+    res.status(200).json({ data: recordStatus, oldPageUpdate })
+
 })
 
 exports.getSingleRecord = catchAsync(async (req, res, next) => {
     const id = req.params.id
     const result = await pageReplacementRecordModel.findById(id)
+    const oldpage = await axios.post("https://purchase.creativefuel.io/webservices/RestController.php?view=inventoryDataListpid", { "p_id": result.oldPage_id },
+        {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
 
+        console.log(oldpage)
     const newPages = await Promise.all(
         result.newPage_id.map(async page => {
 
@@ -233,7 +240,7 @@ exports.getSingleRecord = catchAsync(async (req, res, next) => {
     )
 
     res.status(200).json({
-        data: { ...result.toObject(), newPages }
+        data: { ...result.toObject(), newPages,old:oldpage.data.body[0] }
     })
     // res.status(200).json({
     //     data:result
@@ -242,9 +249,19 @@ exports.getSingleRecord = catchAsync(async (req, res, next) => {
 
 
 exports.getAllRecord = catchAsync(async (req, res, next) => {
-    const result = await pageReplacementRecordModel.find({replacement_status:"pending"})
+    const result = await pageReplacementRecordModel.find()
+    const newResult = await Promise.all(result.map(async record => {
+        const x = await axios.post("https://purchase.creativefuel.io/webservices/RestController.php?view=inventoryDataListpid", { "p_id": record.oldPage_id },
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+        return { ...record.toObject(), ...x.data.body[0] }
+    }))
+    console.log(newResult)
     res.status(200).json({
-        data: result
+        data: newResult
     })
 
 

@@ -17,6 +17,18 @@ exports.createAssComm=catchAsync(async (req,res,next)=>{
         data: {result,result2}
     })
 })
+
+exports.getAssCommitAssId=catchAsync(async (req,res,next) => {
+    const assid=req.params.id
+    const result=await AssignmentCommitModel.find({ass_id:assid})
+    res.status(200).json(
+        {
+            data: result
+        }
+    )
+})
+
+
 exports.getAllAssComm=catchAsync(async (req,res,next) => {
     const phase_id=req.params.id
     const result=await AssignmentCommitModel.findOne({phase_id})
@@ -25,10 +37,10 @@ exports.getAllAssComm=catchAsync(async (req,res,next) => {
     })
 })
 
-exports.update=catchAsync(async (req,res,next) => {
-    const phase_id=req.params.id
+exports.updateSingleCommitment=catchAsync(async (req,res,next) => {
+    const comm_id=req.params.id
     //validation is remaining here
-    const result=await AssignmentCommitModel.findOneAndUpdate({phase_id},req.body,{new:true})
+    const result=await AssignmentCommitModel.findOneAndUpdate({comm_id},req.body,{new:true})
     res.status(200).json({
         data:result
     })
