@@ -6,6 +6,7 @@ const fs = require('fs');
 const ejs = require('ejs');
 const path = require("path");
 const axios = require('axios');
+const emailTempModel = require("../models/emailTempModel")
 
 var transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -91,38 +92,52 @@ async function sendReminderEmail(daysBefore) {
   const users = await userModel.find({ joining_date: formattedDate });
 
   users.forEach(async (user) => {
-  // users.forEach((user) => {
-  // const templatePath = `controllers/emailtemp${daysBefore}.ejs`;
-    // const templateContent = fs.readFileSync(templatePath, 'utf-8');
-    // const compiledTemplate = ejs.compile(templateContent);
+ 
+    // const templatePath = path.join(__dirname, `emailtemp${daysBefore}.ejs`);
+    // const template = await fs.promises.readFile(templatePath, "utf-8");
+    // const name = user.user_name;
+    // const html = ejs.render(template, {name} );
 
-    // const mailOptions = {
-    //   from: 'vijayanttrivedi1500@gmail.com',
-    //   to: user.user_email_id,
-    //   subject: 'Reminder: Your Joining Date is Approaching',
-    //   html : compiledTemplate({ formattedDate })
-    // };
-
-    const templatePath = path.join(__dirname, `emailtemp${daysBefore}.ejs`);
-    const template = await fs.promises.readFile(templatePath, "utf-8");
-    const name = user.user_name;
-    const html = ejs.render(template, {name} );
+    /* dynamic email temp code start */
+    let contentList = await emailTempModel.find({ email_for_id: daysBefore })
+    let content = contentList[0];
+  
+    const filledEmailContent = content.email_content.replace("{{user_name}}", user.user_name);
+  
+    const html = filledEmailContent;
 
     let mailOptions = {
-        from: "onboarding@creativefuel.io",
-        to: user.user_email_id,
-        subject: 
-          daysBefore === 0
-          ? "Welcome to CreativeFuel! It's almost time."
-          : daysBefore === 1
-          ? "See you tomorrow! With love, CF"
-          : daysBefore === 2
-          ? "Have you geared up yet? #2daystogo!"
-          : daysBefore === 3
-          ? "the countdown begins! #3daystogo!"
-          : "Your Joining Date is Approaching",
-        html: html
-    };
+      from: "onboarding@creativefuel.io",
+      to: user.user_email_id,
+      subject: 
+        daysBefore === 0
+        ? content.email_sub
+        : daysBefore === 1
+        ? content.email_sub
+        : daysBefore === 2
+        ? content.email_sub
+        : daysBefore === 3
+        ? content.email_sub
+        : "Your Joining Date is Approaching",
+      html: html
+  };
+    /* dynamic email temp code end */
+
+    // let mailOptions = {
+    //     from: "onboarding@creativefuel.io",
+    //     to: user.user_email_id,
+    //     subject: 
+    //       daysBefore === 0
+    //       ? "Welcome to CreativeFuel! It's almost time."
+    //       : daysBefore === 1
+    //       ? "See you tomorrow! With love, CF"
+    //       : daysBefore === 2
+    //       ? "Have you geared up yet? #2daystogo!"
+    //       : daysBefore === 3
+    //       ? "the countdown begins! #3daystogo!"
+    //       : "Your Joining Date is Approaching",
+    //     html: html
+    // };
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
@@ -147,16 +162,27 @@ async function sendEmail(daysBefore) {
   const users = await userModel.find({ joining_date: formattedDate });
 
   users.forEach(async (user) => {
-    const templatePath = path.join(__dirname, "templatebeforejoining.ejs");
-    const template = await fs.promises.readFile(templatePath, "utf-8");
-    const name = user.user_name;
-    const joining_date = user.joining_date;
-    const html = ejs.render(template, {name,joining_date} );
+    // const templatePath = path.join(__dirname, "templatebeforejoining.ejs");
+    // const template = await fs.promises.readFile(templatePath, "utf-8");
+    // const name = user.user_name;
+    // const joining_date = user.joining_date;
+    // const html = ejs.render(template, {name,joining_date} );
+    /* dynamic email temp code start */
+    let contentList = await emailTempModel.find({ email_for_id: 0 })
+    let content = contentList[0];
+  
+    const filledEmailContent = content.email_content
+    .replace("{{user_name}}", user.user_name)
+    .replace("{{user_joining_date}}", user.joining_date);
+  
+    const html = filledEmailContent;
+    /* dynamic email temp code end */
 
     let mailOptions = {
         from: "onboarding@creativefuel.io",
         to: user.user_email_id,
-        subject: "Welcome Onboard- Your First Day at Creativefuel!",
+        // subject: "Welcome Onboard- Your First Day at Creativefuel!",
+        subject: content.email_sub,
         html: html
     };
 

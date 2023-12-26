@@ -6,9 +6,17 @@ const emailTempModel = new mongoose.Schema({
     type: String,
     required: false
   },
+  email_for_id:{
+    type: Number,
+    required: false
+  },
   email_content: {
     type: String,
     required: true
+  },
+  email_sub:{
+    type: String,
+    required: false
   },
   remarks: {
     type: String,

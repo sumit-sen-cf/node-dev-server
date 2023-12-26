@@ -4,7 +4,9 @@ exports.addEmailContent = async (req, res) =>{
     try{
         const simc = new emailTempModel({
             email_for: req.body.email_for,
+            email_for_id: req.body.email_for_id,
             email_content: req.body.email_content,
+            email_sub: req.body.email_sub,
             remarks: req.body.remarks,
             created_by: req.body.created_by
         })
@@ -42,6 +44,7 @@ exports.editEmailContent = async (req, res) => {
         const editsim = await emailTempModel.findByIdAndUpdate(req.body._id,{
             email_for: req.body.email_for,
             email_content: req.body.email_content,
+            email_sub: req.body.email_sub,
             remarks: req.body.remarks,
             updated_by: req.body.updated_by
         }, { new: true })

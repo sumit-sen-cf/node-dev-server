@@ -4,6 +4,7 @@ const nodemailer = require("nodemailer");
 const simModel = require("../models/simModel");
 const simAlloModel = require("../models/simAlloModel");
 const userModel = require("../models/userModel");
+const emailTempModel = require("../models/emailTempModel")
 
 var transporter = nodemailer.createTransport({
   service: "gmail",
@@ -78,15 +79,25 @@ const hrAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
 });
 
 async function sendReminderAssetEmail(simModel) {
-  const templatePath = path.join(__dirname, `assetemailtemp.ejs`);
-  const template = await fs.promises.readFile(templatePath, "utf-8");
-  const name = simModel.assetsName;    //
-  const html = ejs.render(template, { name });
+  // const templatePath = path.join(__dirname, `assetemailtemp.ejs`);
+  // const template = await fs.promises.readFile(templatePath, "utf-8");
+  // const name = simModel.assetsName;    
+  // const html = ejs.render(template, { name });
+  
+  /* dynamic email temp code start */
+  let contentList = await emailTempModel.find({ email_for_id: 4 })
+  let content = contentList[0];
 
+  const filledEmailContent = content.email_content.replace("{{asset_name}}", simModel.assetsName);
+
+  const html = filledEmailContent;
+  /* dynamic email temp code end */
+  
   let mailOptions = {
     from: "onboarding@creativefuel.io",
     to: "aditi@creativefuel.io",
-    subject: "It's time to verify our asset",
+    // subject: "It's time to verify our asset",
+    subject: content.email_sub,
     html: html,
   };
 
@@ -183,15 +194,25 @@ const selfAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
 });
 
 async function sendReminderAssetEmail1(simModel) {
-  const templatePath = path.join(__dirname, `assetemailtemp.ejs`);
-  const template = await fs.promises.readFile(templatePath, "utf-8");
-  const name = simModel.assetsName;
-  const html = ejs.render(template, { name });
+  // const templatePath = path.join(__dirname, `assetemailtemp.ejs`);
+  // const template = await fs.promises.readFile(templatePath, "utf-8");
+  // const name = simModel.assetsName;
+  // const html = ejs.render(template, { name });
+
+  /* dynamic email temp code start */
+  let contentList = await emailTempModel.find({ email_for_id: 4 })
+  let content = contentList[0];
+  
+  const filledEmailContent = content.email_content.replace("{{asset_name}}", simModel.assetsName);
+
+  const html = filledEmailContent;
+  /* dynamic email temp code end */
 
   let mailOptions = {
     from: "onboarding@creativefuel.io",
     to: simModel.user_email_id,
-    subject: "It's time to verify our asset",
+    // subject: "It's time to verify our asset",
+    subject: content.email_sub,
     html: html,
   };
 
