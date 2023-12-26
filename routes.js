@@ -123,14 +123,18 @@ router.put('/expertise/:id', expertiseController.updateExpert)
 router.delete('/expertise/:id', expertiseController.deleteExpert)
 
 router.post('/assignment', assignmentController.createAssignment)
+router.get('/assignment', assignmentController.getAllGodamnAssignments)
 router.get('/assignment/:id', assignmentController.getSingleAssignment)
 
 router.get('/assignment/all/:id',assignmentController.getAllAssignmentToExpertee)
 router.get('/assignment/phase/:id',assignmentController.getAllAssignmentInPhase)
+router.get('/assignment/campaign/:id',assignmentController.getAllAssignmentInCampaign)
 
 router.post('/assignment/status',assignmentController.updateAssignmentStatus)
 
+
 router.post('/assignment/commit',assignmentCommitController.createAssComm)
+router.post('/assignment/bulk',assignmentController.createAssignmentBulk)
 router.get('/assignment/commit/:id',assignmentCommitController.getAllAssComm)
 router.get('/assignment/commit/single/:id',assignmentCommitController.getAssCommitAssId)
 router.put('/assignment/commit/single/:id',assignmentCommitController.updateSingleCommitment)

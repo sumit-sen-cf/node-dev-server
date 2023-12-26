@@ -58,6 +58,10 @@ exports.createReplacementPlan = catchAsync(async (req, res, next) => {
 
     //creating the new pages respective of the stages.
     let newPages = []
+    const phasePages=await PhasePageModel.find({p_id:oldPage_id, campaignId})
+  
+    const allPhases = await CampaignPhaseModel.find({ campaignId: campaignId })
+ 
     pages.forEach(async page => {
 
         const newPageData = {
@@ -76,14 +80,11 @@ exports.createReplacementPlan = catchAsync(async (req, res, next) => {
         //doesnt mattter at which stage the request is made creating new page at plan levvel is always true
 
         const newPage = await CampaignPlanModel.create(newPageData)
+        
+        phasePages.forEach(async page=>{
+            const phasenewpage = await PhasePageModel.create({...newPageData,phase_id:page.phase_id,phaseName:page.phaseName})
+        })
 
-        newPages.push(newPage)
-
-
-        //if request is made at the phase level 
-        if (replacement_stage == 'phase') {
-            const phasePage = await PhasePageModel.create({ ...newPageData, phase_id, phaseName })
-        }
 
 
     });
@@ -99,10 +100,6 @@ exports.createReplacementPlan = catchAsync(async (req, res, next) => {
     }, { new: true })
 
 
-
-
-
-    const allPhases = await CampaignPhaseModel.find({ campaignId: campaignId })
 
     for (let i = 0; i < allPhases.length; i++) {
         //2. effect at phase level
@@ -194,7 +191,7 @@ exports.replacementStatus = catchAsync(async (req, res, next) => {
             {
                 replacement_status: status == 'approved' ? 'replacement' : 'rejected'
             })
-        if (replacementRecord.replacement_stage == 'phase') {
+       
             for (let i = 0; i < allPhases.length; i++) {
 
 
@@ -208,7 +205,7 @@ exports.replacementStatus = catchAsync(async (req, res, next) => {
 
 
             }
-        }
+        
     })
 
     res.status(200).json({ data: recordStatus, oldPageUpdate })

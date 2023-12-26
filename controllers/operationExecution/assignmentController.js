@@ -115,6 +115,12 @@ exports.getSingleAssignment = catchAsync(async (req, res, next) => {
     })
 })
 
+exports.getAllGodamnAssignments=catchAsync(async (req,res,next)=>{
+    const result=await AssignmentModel.find()
+    res.status(200).json({
+        data:result
+    })
+})
 exports.getAllAssignmentInPhase = catchAsync(async (req, res, next) => {
     const phase_id = req.params.id
     const result = await AssignmentModel.find({ phase_id: phase_id })
@@ -127,6 +133,15 @@ exports.getAllAssignmentInPhase = catchAsync(async (req, res, next) => {
         data: result
     })
 })
+
+exports.getAllAssignmentInCampaign=catchAsync(async(req,res,next)=>{
+    const id=req.params.id
+    const result=await AssignmentModel.find({campaignId:id})
+    res.status(200).json({
+        data:result
+    })
+})
+
 exports.updateAssignment = catchAsync(async (req, res, next) => {
     const { campaignId, p_id, phase_id } = req.body
     const filter1 = { campaignId, p_id, phase_id };
