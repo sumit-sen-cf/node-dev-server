@@ -28,7 +28,7 @@ const assignmentSchema = new mongoose.Schema({
   },
   plan_id: {
     type: String,
-    required: [true, "plan id is required"]
+    // required: [true, "plan id is required"]
   },
   planName: {
     type: String,
