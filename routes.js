@@ -119,6 +119,7 @@ router.get('/campaignphase/singlephase/:id', campaignPhaseController.getSinglePh
 router.post('/expertise', expertiseController.createExpert)
 router.get('/expertise', expertiseController.getAllExpert)
 router.get('/expertise/:id', expertiseController.getSingleExpert)
+router.get('/expertise/user/:id', expertiseController.getExpertBasedOnUser)
 router.put('/expertise/:id', expertiseController.updateExpert)
 router.delete('/expertise/:id', expertiseController.deleteExpert)
 
