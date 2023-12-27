@@ -174,12 +174,12 @@ exports.addUser = [upload, async (req, res) => {
             longitude: req.body.longitude,
             beneficiary: req.body.beneficiary,
             emp_id: empId,
-            alternate_contact : req.body.alternate_contact,
-            cast_type : req.body.cast_type,
-            emergency_contact_person_name1 : req.body.emergency_contact_person_name1,
-            emergency_contact_person_name2 : req.body.emergency_contact_person_name2,
-            emergency_contact_relation1 : req.body.emergency_contact_relation1,
-            emergency_contact_relation2 : req.body.emergency_contact_relation2
+            alternate_contact: req.body.alternate_contact,
+            cast_type: req.body.cast_type,
+            emergency_contact_person_name1: req.body.emergency_contact_person_name1,
+            emergency_contact_person_name2: req.body.emergency_contact_person_name2,
+            emergency_contact_relation1: req.body.emergency_contact_relation1,
+            emergency_contact_relation2: req.body.emergency_contact_relation2
         })
         const simv = await simc.save();
 
@@ -424,12 +424,12 @@ exports.updateUser = [upload1, async (req, res) => {
             longitude: req.body.longitude,
             coc_flag: req.body.coc_flag,
             beneficiary: req.body.beneficiary,
-            alternate_contact : req.body.alternate_contact,
-            cast_type : req.body.cast_type,
-            emergency_contact_person_name1 : req.body.emergency_contact_person_name1,
-            emergency_contact_person_name2 : req.body.emergency_contact_person_name2,
-            emergency_contact_relation1 : req.body.emergency_contact_relation1,
-            emergency_contact_relation2 : req.body.emergency_contact_relation2
+            alternate_contact: req.body.alternate_contact,
+            cast_type: req.body.cast_type,
+            emergency_contact_person_name1: req.body.emergency_contact_person_name1,
+            emergency_contact_person_name2: req.body.emergency_contact_person_name2,
+            emergency_contact_relation1: req.body.emergency_contact_relation1,
+            emergency_contact_relation2: req.body.emergency_contact_relation2
 
         }, { new: true });
         if (!editsim) {
@@ -572,6 +572,39 @@ exports.getAllUsers = async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: 'userdocmanagementmodels',
+                    localField: 'user_id',
+                    foreignField: 'user_id',
+                    as: 'userdocuments'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userdocuments",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'documentmodels',
+                    localField: 'userdocuments.doc_id',
+                    foreignField: 'doc_id',
+                    as: 'documents'
+                }
+            },
+            {
+                $addFields: {
+                    requiredDocuments: {
+                        $filter: {
+                            input: "$documents",
+                            as: "doc",
+                            cond: "$$doc.isRequired"
+                        }
+                    }
+                }
+            },
+            {
                 $project: {
                     user_id: "$user_id",
                     user_name: "$user_name",
@@ -706,12 +739,23 @@ exports.getAllUsers = async (req, res) => {
                     longitude: "$longitude",
                     beneficiary: "$beneficiary",
                     emp_id: "$emp_id",
-                    alternate_contact : "$alternate_contact",
-                    cast_type:"$cast_type",
-                    emergency_contact_person_name1:"$emergency_contact_person_name1",
-                    emergency_contact_person_name2:"$emergency_contact_person_name2",
-                    emergency_contact_relation1 : "$emergency_contact_relation1",
-                    emergency_contact_relation2 : "$emergency_contact_relation2"
+                    alternate_contact: "$alternate_contact",
+                    cast_type: "$cast_type",
+                    emergency_contact_person_name1: "$emergency_contact_person_name1",
+                    emergency_contact_person_name2: "$emergency_contact_person_name2",
+                    emergency_contact_relation1: "$emergency_contact_relation1",
+                    emergency_contact_relation2: "$emergency_contact_relation2",
+                    documentPercentage: {
+                        $multiply: [
+                            {
+                                $divide: [
+                                    { $size: "$requiredDocuments" },
+                                    { $size: "$documents" }
+                                ]
+                            },
+                            100
+                        ]
+                    }
                 }
             }
         ]).exec();
@@ -728,28 +772,28 @@ exports.getAllUsers = async (req, res) => {
             const percentageFilled = (filledFields / fieldsToCheck.length) * 100;
 
             return {
-                 ...user,
-            image_url: user.image ? userImagesBaseUrl + user.image : null,
-            uid_url: user.UID ? userImagesBaseUrl + user.UID : null,
-            pan_url: user.pan ? userImagesBaseUrl + user.pan : null,
-            highest_upload_url: user.highest_upload
-                ? userImagesBaseUrl + user.highest_upload
-                : null,
-            other_upload_url: user.other_upload
-                ? userImagesBaseUrl + user.other_upload
-                : null,
-            tenth_marksheet_url: user.tenth_marksheet ? userImagesBaseUrl + user.tenth_marksheet : null,
-            twelveth_marksheet_url: user.twelveth_marksheet ? userImagesBaseUrl + user.twelveth_marksheet : null,
-            UG_Marksheet_url: user.UG_Marksheet ? userImagesBaseUrl + user.UG_Marksheet : null,
-            pasport_url: user.passport ? userImagesBaseUrl + user.passport : null,
-            pre_off_letter_url: user.pre_off_letter ? userImagesBaseUrl + user.pre_off_letter : null,
-            pre_expe_letter_url: user.pre_expe_letter ? userImagesBaseUrl + user.pre_expe_letter : null,
-            Pre_relieving_letter_url: user.pre_relieving_letter ? userImagesBaseUrl + user.pre_relieving_letter : null,
-            bankPassBook_Cheque_url: user.bankPassBook_Cheque ? userImagesBaseUrl + user.bankPassBook_Cheque : null,
-            joining_extend_document_url: user.joining_extend_document ? userImagesBaseUrl + user.joining_extend_document : null,
-            digital_signature_image_url: user.digital_signature_image ? userImagesBaseUrl + user.digital_signature_image : null,
-            annexure_pdf_url: user.annexure_pdf ? userImagesBaseUrl + user.annexure_pdf : null,
-            percentage_filled: percentageFilled.toFixed(2) + '%',
+                ...user,
+                image_url: user.image ? userImagesBaseUrl + user.image : null,
+                uid_url: user.UID ? userImagesBaseUrl + user.UID : null,
+                pan_url: user.pan ? userImagesBaseUrl + user.pan : null,
+                highest_upload_url: user.highest_upload
+                    ? userImagesBaseUrl + user.highest_upload
+                    : null,
+                other_upload_url: user.other_upload
+                    ? userImagesBaseUrl + user.other_upload
+                    : null,
+                tenth_marksheet_url: user.tenth_marksheet ? userImagesBaseUrl + user.tenth_marksheet : null,
+                twelveth_marksheet_url: user.twelveth_marksheet ? userImagesBaseUrl + user.twelveth_marksheet : null,
+                UG_Marksheet_url: user.UG_Marksheet ? userImagesBaseUrl + user.UG_Marksheet : null,
+                pasport_url: user.passport ? userImagesBaseUrl + user.passport : null,
+                pre_off_letter_url: user.pre_off_letter ? userImagesBaseUrl + user.pre_off_letter : null,
+                pre_expe_letter_url: user.pre_expe_letter ? userImagesBaseUrl + user.pre_expe_letter : null,
+                Pre_relieving_letter_url: user.pre_relieving_letter ? userImagesBaseUrl + user.pre_relieving_letter : null,
+                bankPassBook_Cheque_url: user.bankPassBook_Cheque ? userImagesBaseUrl + user.bankPassBook_Cheque : null,
+                joining_extend_document_url: user.joining_extend_document ? userImagesBaseUrl + user.joining_extend_document : null,
+                digital_signature_image_url: user.digital_signature_image ? userImagesBaseUrl + user.digital_signature_image : null,
+                annexure_pdf_url: user.annexure_pdf ? userImagesBaseUrl + user.annexure_pdf : null,
+                percentage_filled: percentageFilled.toFixed(2) + '%',
             };
         });
         if (dataWithImageUrl?.length === 0) {
@@ -1002,12 +1046,12 @@ exports.getSingleUser = async (req, res) => {
                     longitude: "$longitude",
                     beneficiary: "$beneficiary",
                     emp_id: "$emp_id",
-                    alternate_contact : "$alternate_contact",
-                    cast_type:"$cast_type",
-                    emergency_contact_person_name1:"$emergency_contact_person_name1",
-                    emergency_contact_person_name2:"$emergency_contact_person_name2",
-                    emergency_contact_relation1 : "$emergency_contact_relation1",
-                    emergency_contact_relation2 : "$emergency_contact_relation2"
+                    alternate_contact: "$alternate_contact",
+                    cast_type: "$cast_type",
+                    emergency_contact_person_name1: "$emergency_contact_person_name1",
+                    emergency_contact_person_name2: "$emergency_contact_person_name2",
+                    emergency_contact_relation1: "$emergency_contact_relation1",
+                    emergency_contact_relation2: "$emergency_contact_relation2"
                 }
             }
         ]).exec();
@@ -1062,12 +1106,12 @@ exports.deleteUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
     try {
-        // const simc = await userModel.find();
+
         const simc = await userModel.aggregate([
             {
                 $match: {
                     user_login_id: req.body.user_login_id.toLowerCase().trim(),
-                    // user_login_password:req.body.user_login_password
+
                 }
             },
             {
@@ -1089,31 +1133,27 @@ exports.loginUser = async (req, res) => {
                     sitting_id: '$sitting.sitting_id',
                     sitting_ref_no: '$sitting.sitting_ref_no',
                     first_login_flag: '$first_login_flag',
-                    // id: "$id",
                     name: '$user_name',
                     email: '$user_email_id',
                     dept_id: '$dept_id',
                     role_id: '$role_id',
                     id: "$user_id",
-                    // name: "$user_name",
-                    // email: "$user_email_id",
-                    // sitting_id: '$sitting_id',
                     room_id: '$room_id',
                     user_status: '$user_status',
                     user_login_password: '$user_login_password',
                     onboard_status: '$onboard_status',
-                    id: '$user_id',
                     user_login_id: '$user_login_id'
                 }
             }
         ]).exec();
 
         if (simc.length === 0) {
-            return res.status(500).send({ success: false })
+            return res.status(500).send({ error: "Invalid Login Id" });
         }
-        let role = req.body?.role_id
-        if (bcrypt.compareSync(req.body.user_login_password, simc[0]?.user_login_password) || role === constant.ADMIN_ROLE) {
-            // if (bcrypt.compareSync(req.body.user_login_password, simc[0].user_login_password)) {
+
+        const isPasswordValid = bcrypt.compareSync(req.body.user_login_password, simc[0]?.user_login_password || role === constant.ADMIN_ROLE);
+
+        if (isPasswordValid) {
             const token = jwt.sign(
                 {
                     id: simc[0]?.id,
@@ -1123,7 +1163,6 @@ exports.loginUser = async (req, res) => {
                     role_id: simc[0]?.role_id,
                     dept_id: simc[0]?.dept_id,
                     room_id: simc[0]?.room_id,
-                    // Sitting_id: simc[0]?.Sitting_id,
                     sitting_ref_no: simc[0]?.sitting_ref_no,
                     onboard_status: simc[0]?.onboard_status,
                     user_status: simc[0]?.user_status,
@@ -1158,13 +1197,13 @@ exports.loginUser = async (req, res) => {
                 }
             }
 
-            return res.status(200).send({ token, user: simc[0] })
+            return res.status(200).send({ token, user: simc[0] });
         } else {
-            return res.status(200).send({ sms: 'Invalid Password' })
+            return res.status(500).send({ error: 'Invalid Password' });
         }
 
     } catch (err) {
-        return res.status(500).send({ error: err.message, sms: 'Error getting user details' })
+        return res.status(500).send({ error: err.message, sms: 'Error getting user details' });
     }
 }
 
@@ -2250,7 +2289,7 @@ exports.getLoginHistory = async (req, res) => {
                 $project: {
                     _id: 1,
                     user_id: 1,
-                    user_name : "$user.user_name",
+                    user_name: "$user.user_name",
                     user_email_id: 1,
                     login_date: 1,
                     duration: 1,
@@ -2347,17 +2386,16 @@ exports.getAllUsersWithDoj = async (req, res) => {
                 const joiningYear = user.joining_date.getFullYear();
                 const currentYear = currentDate.getFullYear();
                 const totalYears = currentYear - joiningYear;
-                if(totalYears >= 1)
-                {
+                if (totalYears >= 1) {
                     return {
-                    user_id: user.user_id,
-                    user_name: user.user_name,
-                    joining_date: user.joining_date,
-                    DOB: user.DOB,
-                    image: user.image,
-                    total_years: totalYears
-                };
-            }
+                        user_id: user.user_id,
+                        user_name: user.user_name,
+                        joining_date: user.joining_date,
+                        DOB: user.DOB,
+                        image: user.image,
+                        total_years: totalYears
+                    };
+                }
             }
             return null;
         }).filter(Boolean);
@@ -2407,7 +2445,7 @@ exports.getLastMonthUsers = async (req, res) => {
                 $gte: lastMonthStartDate,
                 $lt: currentDate,
             }
-        }).select({ user_id: 1, user_name: 1, created_At: 1 ,joining_date : 1, image: 1});
+        }).select({ user_id: 1, user_name: 1, created_At: 1, joining_date: 1, image: 1 });
 
         res.json(usersFromLastMonth);
     } catch (err) {
@@ -2501,8 +2539,8 @@ exports.getAllFilledUsers = async (req, res) => {
 
 exports.getFilledPercentage = async (req, res) => {
     try {
-      const users = await userModel.find({ onboard_status: 2 }).select({
-        user_id: 1,
+        const users = await userModel.find({ onboard_status: 2 }).select({
+            user_id: 1,
             user_name: 1,
             PersonalEmail: 1,
             PersonalNumber: 1,
@@ -2530,151 +2568,151 @@ exports.getFilledPercentage = async (req, res) => {
             onboard_status: 1,
             dept_id: 1,
             user_designation: 1,
-      });
-  
-      if (!users) {
-        return res.status(500).send({ success: false });
-      }
-  
-      const resultArray = [];
-      const percentageResults = users.map(user => {
-        const filledFields = Object.values(user._doc).filter(value => value !== null && value !== "" && value !== 0).length;
-  
-        const filledPercentage = (filledFields / 24) * 100;
-        const result = { user_id: user.user_id, filledPercentage: filledPercentage.toFixed(2) };
-  
-        resultArray.push(result);
-  
-        return result;
-      });
-  
-      const incompleteUsers = resultArray.filter(result => parseFloat(result.filledPercentage) < 100);
-      const incompleteUsersDetails = await Promise.all(incompleteUsers.map(async incompleteUser => {
-        const userDetail = await userModel.findOne({ user_id: incompleteUser.user_id }).select({});
-  
-        const deptDetail = await departmentModel.findOne({ dept_id: userDetail.dept_id }).select({
-          dept_name: 1,
         });
-  
-        const desiDetail = await designationModel.findOne({ user_designation: userDetail.user_designation }).select({
-          desi_name: 1,
+
+        if (!users) {
+            return res.status(500).send({ success: false });
+        }
+
+        const resultArray = [];
+        const percentageResults = users.map(user => {
+            const filledFields = Object.values(user._doc).filter(value => value !== null && value !== "" && value !== 0).length;
+
+            const filledPercentage = (filledFields / 24) * 100;
+            const result = { user_id: user.user_id, filledPercentage: filledPercentage.toFixed(2) };
+
+            resultArray.push(result);
+
+            return result;
         });
-  
-        return { ...userDetail._doc, filledPercentage: incompleteUser.filledPercentage, dept_name: deptDetail.dept_name, desi_name: desiDetail.desi_name };
-      }));
-  
-      res.status(200).send({ incompleteUsersDetails });
+
+        const incompleteUsers = resultArray.filter(result => parseFloat(result.filledPercentage) < 100);
+        const incompleteUsersDetails = await Promise.all(incompleteUsers.map(async incompleteUser => {
+            const userDetail = await userModel.findOne({ user_id: incompleteUser.user_id }).select({});
+
+            const deptDetail = await departmentModel.findOne({ dept_id: userDetail.dept_id }).select({
+                dept_name: 1,
+            });
+
+            const desiDetail = await designationModel.findOne({ user_designation: userDetail.user_designation }).select({
+                desi_name: 1,
+            });
+
+            return { ...userDetail._doc, filledPercentage: incompleteUser.filledPercentage, dept_name: deptDetail.dept_name, desi_name: desiDetail.desi_name };
+        }));
+
+        res.status(200).send({ incompleteUsersDetails });
     } catch (err) {
-      console.error(err);
-      res.status(500).send({ error: err.message, sms: 'Error calculating filled percentage' });
+        console.error(err);
+        res.status(500).send({ error: err.message, sms: 'Error calculating filled percentage' });
     }
-  }
-  
+}
+
 exports.getUserGraphData = async (req, res) => {
     try {
         let result;
-        
-        if(req.body.caseType == 'gender'){
-            result = await userModel.aggregate([
-            {
-                $group: {
-                _id: {
-                    dept_id: "$dept_id",
-                    gender: "$Gender",
-                },
-                count: { $sum: 1 },
-                },
-            },
-            {
-                $group: {
-                _id: "$_id.dept_id",
-                maleCount: {
-                    $sum: {
-                    $cond: [{ $eq: ["$_id.gender", "Male"] }, "$count", 0],
-                    },
-                },
-                femaleCount: {
-                    $sum: {
-                    $cond: [{ $eq: ["$_id.gender", "Female"] }, "$count", 0],
-                    },
-                },
-                },
-            },
-            {
-                $lookup: {
-                  from: "departmentmodels", 
-                  localField: "_id",
-                  foreignField: "dept_id",
-                  as: "department",
-                },
-              },
-              {
-                $unwind: {
-                    path: "$department",
-                    preserveNullAndEmptyArrays: true
-                },
-              },
-            {
-                $project: {
-                _id: 0,
-                dept_id: "$_id",
-                maleCount: 1,
-                dept_name: "$department.dept_name",
-                femaleCount: 1,
-                },
-            },
-            ]);
-        }else if(req.body.caseType == 'job'){
+
+        if (req.body.caseType == 'gender') {
             result = await userModel.aggregate([
                 {
                     $group: {
-                    _id: {
-                        dept_id: "$dept_id",
-                        job: "$job_type",
-                    },
-                    count: { $sum: 1 },
+                        _id: {
+                            dept_id: "$dept_id",
+                            gender: "$Gender",
+                        },
+                        count: { $sum: 1 },
                     },
                 },
                 {
                     $group: {
-                    _id: "$_id.dept_id",
-                    wfhCount: {
-                        $sum: {
-                        $cond: [{ $eq: ["$_id.job", "WFH"] }, "$count", 0],
+                        _id: "$_id.dept_id",
+                        maleCount: {
+                            $sum: {
+                                $cond: [{ $eq: ["$_id.gender", "Male"] }, "$count", 0],
+                            },
                         },
-                    },
-                    wfoCount: {
-                        $sum: {
-                        $cond: [{ $eq: ["$_id.job", "WFO"] }, "$count", 0],
+                        femaleCount: {
+                            $sum: {
+                                $cond: [{ $eq: ["$_id.gender", "Female"] }, "$count", 0],
+                            },
                         },
-                    },
                     },
                 },
                 {
                     $lookup: {
-                      from: "departmentmodels", 
-                      localField: "_id",
-                      foreignField: "dept_id",
-                      as: "department",
+                        from: "departmentmodels",
+                        localField: "_id",
+                        foreignField: "dept_id",
+                        as: "department",
                     },
-                  },
-                  {
+                },
+                {
                     $unwind: {
                         path: "$department",
                         preserveNullAndEmptyArrays: true
                     },
-                  },
+                },
                 {
                     $project: {
-                    _id: 0,
-                    dept_id: "$_id",
-                    wfhCount: 1,
-                    dept_name: "$department.dept_name",
-                    wfoCount: 1,
+                        _id: 0,
+                        dept_id: "$_id",
+                        maleCount: 1,
+                        dept_name: "$department.dept_name",
+                        femaleCount: 1,
                     },
                 },
-                ]);
-        }else if(req.body.caseType == 'year'){
+            ]);
+        } else if (req.body.caseType == 'job') {
+            result = await userModel.aggregate([
+                {
+                    $group: {
+                        _id: {
+                            dept_id: "$dept_id",
+                            job: "$job_type",
+                        },
+                        count: { $sum: 1 },
+                    },
+                },
+                {
+                    $group: {
+                        _id: "$_id.dept_id",
+                        wfhCount: {
+                            $sum: {
+                                $cond: [{ $eq: ["$_id.job", "WFH"] }, "$count", 0],
+                            },
+                        },
+                        wfoCount: {
+                            $sum: {
+                                $cond: [{ $eq: ["$_id.job", "WFO"] }, "$count", 0],
+                            },
+                        },
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "departmentmodels",
+                        localField: "_id",
+                        foreignField: "dept_id",
+                        as: "department",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$department",
+                        preserveNullAndEmptyArrays: true
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        dept_id: "$_id",
+                        wfhCount: 1,
+                        dept_name: "$department.dept_name",
+                        wfoCount: 1,
+                    },
+                },
+            ]);
+        } else if (req.body.caseType == 'year') {
             result = await userModel.aggregate([
                 {
                     $addFields: {
@@ -2697,7 +2735,7 @@ exports.getUserGraphData = async (req, res) => {
                     },
                 },
             ]);
-        }else if (req.body.caseType == 'experience') {
+        } else if (req.body.caseType == 'experience') {
             result = await userModel.aggregate([
                 {
                     $addFields: {
@@ -2705,7 +2743,7 @@ exports.getUserGraphData = async (req, res) => {
                         experience: {
                             $divide: [
                                 { $subtract: [new Date(), { $toDate: "$joining_date" }] },
-                                31536000000, 
+                                31536000000,
                             ],
                         },
                     },
@@ -2716,7 +2754,7 @@ exports.getUserGraphData = async (req, res) => {
                             years: {
                                 $subtract: [
                                     { $floor: "$experience" },
-                                    { $mod: [{ $floor: "$experience" }, 2] }, 
+                                    { $mod: [{ $floor: "$experience" }, 2] },
                                 ],
                             },
                         },
@@ -2731,7 +2769,7 @@ exports.getUserGraphData = async (req, res) => {
                     },
                 }
             ]);
-        }else if (req.body.caseType == 'age') {
+        } else if (req.body.caseType == 'age') {
             result = await userModel.aggregate([
                 {
                     $addFields: {
@@ -2750,11 +2788,11 @@ exports.getUserGraphData = async (req, res) => {
                             ageGroup: {
                                 $switch: {
                                     branches: [
-                                        { case: { $and: [{ $gte: ["$age", 10] }, { $lte: ["$age", 17] }] }, then: "10-17" } ,
-                                        { case: { $and: [{ $gte: ["$age", 18] }, { $lte: ["$age", 24] }] }, then: "18-24" } ,
-                                        { case: { $and: [{ $gte: ["$age", 25] }, { $lte: ["$age", 30] }] }, then: "25-30" } ,
-                                        { case: { $and: [{ $gte: ["$age", 31] }, { $lte: ["$age", 35] }] }, then: "31-35" } ,
-                                        { case: { $and: [{ $gte: ["$age", 36] }, { $lte: ["$age", 40] }] }, then: "36-40" } ,
+                                        { case: { $and: [{ $gte: ["$age", 10] }, { $lte: ["$age", 17] }] }, then: "10-17" },
+                                        { case: { $and: [{ $gte: ["$age", 18] }, { $lte: ["$age", 24] }] }, then: "18-24" },
+                                        { case: { $and: [{ $gte: ["$age", 25] }, { $lte: ["$age", 30] }] }, then: "25-30" },
+                                        { case: { $and: [{ $gte: ["$age", 31] }, { $lte: ["$age", 35] }] }, then: "31-35" },
+                                        { case: { $and: [{ $gte: ["$age", 36] }, { $lte: ["$age", 40] }] }, then: "36-40" },
                                         { case: { $gte: ["$age", 41] }, then: "41+" }
                                     ],
                                     default: "Unknown"

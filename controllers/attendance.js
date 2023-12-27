@@ -1022,7 +1022,7 @@ exports.getMonthYearData = async (req, res) => {
     ];
 
     const dbResult = await attendanceModel.aggregate(aggregationPipeline);
-    
+
     const dbSet = new Set(
       dbResult.map((item) => `${item._id.month}-${item._id.year}`)
     );
@@ -1324,6 +1324,8 @@ exports.allAttendenceMastData = async (req, res) => {
           salary_deduction: 1,
           salary: 1,
           dept_name: "$dept_data.dept_name",
+          Report_L1Name: "$user_data.Report_L1N",
+          Report_L2Name: "$user_data.Report_L2N"
         },
       },
     ]);
@@ -1522,8 +1524,8 @@ exports.deptIdWithWfh = async (req, res) => {
   }
 };
 
-async function checkIfAttendanceExist(user_id,month,year){
-  const query = {user_id:user_id,month:month,year:year};
+async function checkIfAttendanceExist(user_id, month, year) {
+  const query = { user_id: user_id, month: month, year: year };
   const result = await attendanceModel.findOne(query)
   return result !== null;
 }
@@ -1535,10 +1537,10 @@ exports.addAttendanceAllDepartments = async (req, res) => {
 
     const getAllWfhUser = await userModel.find({
       job_type: 'WFH'
-    }).select({dept_id:1,user_id:1,salary:1})
+    }).select({ dept_id: 1, user_id: 1, salary: 1 })
     // console.log(getAllWfhUser)
-    
-    getAllWfhUser.map(async (item)=>{
+
+    getAllWfhUser.map(async (item) => {
       const work_days = 30;
       const presentDays = work_days - 0;
       const perdaysal = item.salary / 30;
@@ -1548,9 +1550,9 @@ exports.addAttendanceAllDepartments = async (req, res) => {
       const tdsDeduction = netSalary > 0 ? (netSalary * item.tds_per) / 100 : 0;
       const ToPay = netSalary - tdsDeduction;
 
-      const existingData = await checkIfAttendanceExist(item.dept_id,item.user_id,item.salary)
+      const existingData = await checkIfAttendanceExist(item.dept_id, item.user_id, item.salary)
 
-      if(!existingData){
+      if (!existingData) {
         const saveData = new attendanceModel({
           dept: item.dept_id,
           user_id: item.user_id,
@@ -1573,7 +1575,7 @@ exports.addAttendanceAllDepartments = async (req, res) => {
         await saveData.save()
       }
     })
-    res.send({status:200,sms:"attendance added for all depts"})
+    res.send({ status: 200, sms: "attendance added for all depts" })
     // res.send({ status: 200 });
   } catch (error) {
     console.log(error);

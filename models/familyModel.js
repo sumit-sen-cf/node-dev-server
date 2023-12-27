@@ -8,33 +8,33 @@ const familyModel = new mongoose.Schema({
   },
   user_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   name: {
     type: String,
     required: true,
     unique: true,
   },
-  DOB : {
+  DOB: {
     type: Date,
     default: ""
   },
-  contact : {
+  contact: {
     type: Number,
     required: false,
     default: 0
   },
-  occupation : {
+  occupation: {
     type: String,
     required: false,
     default: ""
   },
-  annual_income : {
+  annual_income: {
     type: Number,
     required: false,
     default: 0
   },
-  relation : {
+  relation: {
     type: String,
     required: false,
     default: ""

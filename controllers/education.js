@@ -5,7 +5,7 @@ const userModel = require("../models/userModel.js");
 exports.addEducation = async (req, res) => {
   try {
     const latestUser = await userModel.findOne({}, { user_id: 1 }).sort({ user_id: -1 });
-    const incrementedUser = latestUser.user_id + 1;
+    const incrementedUser = latestUser.user_id;
     const education = new educationModel({
       user_id: incrementedUser,
       institute_name: req.body.institute_name,
@@ -44,7 +44,7 @@ exports.getEducations = async (req, res) => {
 
 exports.getSingleEducation = async (req, res) => {
   try {
-    const singleeducation = await educationModel.findOne({
+    const singleeducation = await educationModel.find({
       user_id: parseInt(req.params.user_id),
     });
     if (!singleeducation) {
@@ -62,11 +62,42 @@ exports.getSingleEducation = async (req, res) => {
   }
 };
 
+// exports.editEducation = async (req, res) => {
+//   try {
+//     const editeducation = await educationModel.findOneAndUpdate(
+//       { education_id: parseInt(req.body.education_id) },
+//       {
+//         user_id: req.body.user_id,
+//         institute_name: req.body.institute_name,
+//         from_year: req.body.from_year,
+//         to_year: req.body.to_year,
+//         percentage: req.body.percentage,
+//         stream: req.body.stream,
+//         specialization: req.body.specialization,
+//         title: req.body.title
+//       },
+//       { new: true }
+//     );
+//     if (!editeducation) {
+//       return response.returnFalse(
+//         200,
+//         req,
+//         res,
+//         "No Reord Found With This education Id",
+//         {}
+//       );
+//     }
+//     return response.returnTrue(200, req, res, "Updation Successfully", editeducation);
+//   } catch (err) {
+//     return response.returnFalse(500, req, res, err.message, {});
+//   }
+// };
+
 exports.editEducation = async (req, res) => {
   try {
-    const editeducation = await educationModel.findOneAndUpdate(
-      { education_id: parseInt(req.body.education_id) },
-      {
+
+    if (!req.body.education_id) {
+      const newEducation = new educationModel({
         user_id: req.body.user_id,
         institute_name: req.body.institute_name,
         from_year: req.body.from_year,
@@ -75,19 +106,37 @@ exports.editEducation = async (req, res) => {
         stream: req.body.stream,
         specialization: req.body.specialization,
         title: req.body.title
-      },
+      });
+
+      const savedEducation = await newEducation.save();
+      return response.returnTrue(200, req, res, "Education Added Successfully", savedEducation);
+    }
+
+    const updateFields = {};
+    const allowedFields = ['user_id', 'institute_name', 'from_year', 'to_year', 'percentage', 'stream', 'specialization', 'title'];
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updateFields[field] = req.body[field];
+      }
+    });
+    const editEducation = await educationModel.findOneAndUpdate(
+      { education_id: parseInt(req.body.education_id) },
+      updateFields,
       { new: true }
     );
-    if (!editeducation) {
+
+    if (!editEducation) {
       return response.returnFalse(
         200,
         req,
         res,
-        "No Reord Found With This education Id",
+        "No Record Found With This Family Id",
         {}
       );
     }
-    return response.returnTrue(200, req, res, "Updation Successfully", editeducation);
+
+    return response.returnTrue(200, req, res, "Updation Successfully", editEducation);
   } catch (err) {
     return response.returnFalse(500, req, res, err.message, {});
   }
