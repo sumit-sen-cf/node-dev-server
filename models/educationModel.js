@@ -8,37 +8,37 @@ const educationModel = new mongoose.Schema({
   },
   user_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   institute_name: {
     type: String,
     required: true,
     unique: true,
   },
-  from_year : {
+  from_year: {
     type: Date,
     default: ""
   },
-  to_year : {
+  to_year: {
     type: Date,
     default: ""
   },
-  percentage : {
+  percentage: {
     type: Number,
     required: false,
     default: 0
   },
-  stream : {
+  stream: {
     type: String,
     required: false,
     default: ""
   },
-  specialization : {
+  specialization: {
     type: String,
     required: false,
     default: ""
   },
-  title : {
+  title: {
     type: String,
     required: false,
     default: ""

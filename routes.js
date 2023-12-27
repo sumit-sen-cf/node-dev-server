@@ -89,6 +89,9 @@ const emailContent = require("./controllers/emailTempContent.js")
 const hobby = require("./controllers/hobby.js");
 const family = require("./controllers/family.js");
 const education = require('./controllers/education.js');
+const assetReson = require("./controllers/assetReason.js");
+const guardian = require("./controllers/guardian.js");
+const repairRequest = require("./controllers/repairRequest.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -127,19 +130,19 @@ router.post('/assignment', assignmentController.createAssignment)
 router.get('/assignment', assignmentController.getAllGodamnAssignments)
 router.get('/assignment/:id', assignmentController.getSingleAssignment)
 
-router.get('/assignment/all/:id',assignmentController.getAllAssignmentToExpertee)
-router.get('/assignment/phase/:id',assignmentController.getAllAssignmentInPhase)
-router.get('/assignment/campaign/:id',assignmentController.getAllAssignmentInCampaign)
+router.get('/assignment/all/:id', assignmentController.getAllAssignmentToExpertee)
+router.get('/assignment/phase/:id', assignmentController.getAllAssignmentInPhase)
+router.get('/assignment/campaign/:id', assignmentController.getAllAssignmentInCampaign)
 
-router.post('/assignment/status',assignmentController.updateAssignmentStatus)
+router.post('/assignment/status', assignmentController.updateAssignmentStatus)
 
 
-router.post('/assignment/commit',assignmentCommitController.createAssComm)
-router.post('/assignment/bulk',assignmentController.createAssignmentBulk)
-router.get('/assignment/commit/:id',assignmentCommitController.getAllAssComm)
-router.get('/assignment/commit/single/:id',assignmentCommitController.getAssCommitAssId)
-router.put('/assignment/commit/single/:id',assignmentCommitController.updateSingleCommitment)
-router.post('/operation_phase_dashboard',operationDasboard.phaseDashboard)
+router.post('/assignment/commit', assignmentCommitController.createAssComm)
+router.post('/assignment/bulk', assignmentController.createAssignmentBulk)
+router.get('/assignment/commit/:id', assignmentCommitController.getAllAssComm)
+router.get('/assignment/commit/single/:id', assignmentCommitController.getAssCommitAssId)
+router.put('/assignment/commit/single/:id', assignmentCommitController.updateSingleCommitment)
+router.post('/operation_phase_dashboard', operationDasboard.phaseDashboard)
 
 router.post('/replacement/plan', pageReplacementController.createReplacementPlan)
 router.get('/replacement/plan', pageReplacementController.getAllRecord)
@@ -1185,5 +1188,26 @@ router.put("/update_education", education.editEducation);
 router.get("/get_all_educations", education.getEducations);
 router.get("/get_single_education/:user_id", education.getSingleEducation);
 router.delete("/delete_education/:id", education.deleteEducation);
+
+// Gaurdian Routes
+router.post("/add_guardian", guardian.addGuardian);
+router.put("/update_guardian", guardian.editGuardian);
+router.get("/get_all_guardians", guardian.getGuardians);
+router.get("/get_single_guardian/:user_id", guardian.getSingleGuardian);
+router.delete("/delete_guardian/:id", guardian.deleteGuardian);
+
+// Asset Reason Routes
+router.post("/add_asset_reason", assetReson.addAssetReason);
+router.put("/update_asset_reason", assetReson.editAssetReason);
+router.get("/get_all_assetResons", assetReson.getAssetReasons);
+router.get("/get_single_assetReson/:id", assetReson.getAssetReasonById);
+router.delete("/delete_assetReson/:id", assetReson.deleteAssetReason);
+
+// Asset Repair Request Routes
+router.post("/add_repair_request", repairRequest.addRepairRequest);
+router.put("/update_repair_request", repairRequest.editRepairRequest);
+router.get("/get_all_repair_request", repairRequest.getAllRepairRequests);
+router.get("/get_single_repair_request/:id", repairRequest.getSingleRepairRequests);
+router.delete("/delete_repair_request/:id", repairRequest.deleteRepairRequest);
 
 module.exports = router;
