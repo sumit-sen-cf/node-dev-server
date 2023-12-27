@@ -21,6 +21,18 @@ exports.getAllExpert=catchAsync(async (req,res,next) => {
         data: result
     })
 })
+
+exports.getExpertBasedOnUser=catchAsync(async (req,res,next) => {
+    const id=req.params.id
+    const result=await ExpertiseModel.findOne({user_id:id})
+    if(!result){
+        return next(new appError(404,"expertise not found") )
+    }
+    res.status(200).json({
+        data:result
+    })
+})
+
 exports.getSingleExpert=catchAsync(async (req,res,next) => {
     const id=req.params.id
     const result=await ExpertiseModel.findOne({exp_id:id})
