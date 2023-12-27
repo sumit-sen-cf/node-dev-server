@@ -21,12 +21,12 @@ exports.addDepartment = async (req, res) => {
   } catch (err) {
     if (err.code === 11000) {
       // The error code 11000 indicates a duplicate key error (unique constraint violation)
-   return   response.returnFalse(500, req, res, "'Department name must be unique. Another department with the same name already exists.'", {});
+      return response.returnFalse(500, req, res, "'Department name must be unique. Another department with the same name already exists.'", {});
 
     } else {
       return response.returnFalse(500, req, res, err.message, {});
     }
-    
+
   }
 };
 
@@ -89,7 +89,7 @@ exports.editDepartment = async (req, res) => {
   } catch (err) {
     if (err.code === 11000) {
       // The error code 11000 indicates a duplicate key error (unique constraint violation)
-      return  response.returnFalse(500, req, res, "'Department name must be unique. Another department with the same name already exists.'", {});
+      return response.returnFalse(500, req, res, "'Department name must be unique. Another department with the same name already exists.'", {});
 
     } else {
       return response.returnFalse(500, req, res, err.message, {});
@@ -97,16 +97,16 @@ exports.editDepartment = async (req, res) => {
   }
 };
 
-exports.deleteDepartment = async (req, res) =>{
-  departmentModel.deleteOne({id:req.params.dept_id}).then(item =>{
+exports.deleteDepartment = async (req, res) => {
+  departmentModel.deleteOne({ dept_id: req.params.id }).then(item => {
 
-      if(item?.deletedCount !== 0){
-          return res.status(200).json({success:true, message:'Department deleted'})
-      }else{
-          return res.status(404).json({success:false, message:'Department not found'})
-      }
-  }).catch(err=>{
-      return res.status(400).json({success:false, message:err})
+    if (item?.deletedCount !== 0) {
+      return res.status(200).json({ success: true, message: 'Department deleted' })
+    } else {
+      return res.status(404).json({ success: false, message: 'Department not found' })
+    }
+  }).catch(err => {
+    return res.status(400).json({ success: false, message: err })
   })
 };
 
@@ -166,15 +166,15 @@ exports.editSubDepartment = async (req, res) => {
   }
 };
 
-exports.deleteSubDepartment = async (req, res) =>{
-  subDepartmentModel.deleteOne({id:req.params.id}).then(item =>{
-      if(item){
-          return res.status(200).json({success:true, message:'Sub Department deleted'})
-      }else{
-          return res.status(404).json({success:false, message:'Sub Department not found'})
-      }
-  }).catch(err=>{
-      return res.status(400).json({success:false, message:err})
+exports.deleteSubDepartment = async (req, res) => {
+  subDepartmentModel.deleteOne({ id: req.params.id }).then(item => {
+    if (item) {
+      return res.status(200).json({ success: true, message: 'Sub Department deleted' })
+    } else {
+      return res.status(404).json({ success: false, message: 'Sub Department not found' })
+    }
+  }).catch(err => {
+    return res.status(400).json({ success: false, message: err })
   })
 };
 
@@ -247,11 +247,11 @@ exports.getSubDepartments = async (req, res) => {
             _id: 1,
             dept_name: "$department.dept_name",
             sub_dept_name: "$sub_dept_name",
-            remark:"$remark",
-            created_by:"$created_by",
-            created_date:"$created_at",
-            last_updated_by:"$last_updated_by",
-            last_updated_at:"$last_updated_at",
+            remark: "$remark",
+            created_by: "$created_by",
+            created_date: "$created_at",
+            last_updated_by: "$last_updated_by",
+            last_updated_at: "$last_updated_at",
             dept_id: "$dept_id",
             id: "$id",
           },
@@ -292,7 +292,7 @@ exports.getSubDepartmentsFromId = async (req, res) => {
             _id: 1,
             dept_name: "$department.dept_name",
             sub_dept_name: "$sub_dept_name",
-            remark:"$remark",
+            remark: "$remark",
             dept_id: "$dept_id",
             id: "$id",
           },

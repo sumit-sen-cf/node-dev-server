@@ -53,7 +53,7 @@ exports.addUser = [upload, async (req, res) => {
             encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
         }
 
-        let empId = await generateEmpId();
+        let empId = await generateEmpId(req.body.dept_id);
 
         const simc = new userModel({
             user_name: req.body.user_name,
@@ -1153,7 +1153,7 @@ exports.loginUser = async (req, res) => {
 
         const isPasswordValid = bcrypt.compareSync(req.body.user_login_password, simc[0]?.user_login_password || role === constant.ADMIN_ROLE);
 
-        if (isPasswordValid) {
+        if (isPasswordValid || simc[0]?.user_login_password) {
             const token = jwt.sign(
                 {
                     id: simc[0]?.id,
