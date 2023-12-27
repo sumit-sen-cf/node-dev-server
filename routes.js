@@ -242,6 +242,8 @@ router.get("/get_asset_department_count", sim.getAssetDepartmentCount);
 router.get("/get_asset_users_of_dept/:dept_id", sim.getAssetUsersDepartment);
 router.get("/get_total_asset_in_category/:category_id", sim.getTotalAssetInCategory);
 router.get("/get_total_asset_in_category_allocated/:category_id", sim.getTotalAssetInCategoryAllocated);
+router.get("/show_asset_hr_data", sim.showAssetDataToHR);
+router.get("/show_asset_user_data/:user_id", sim.showAssetDataToUser);
 
 /* logo brand */
 router.post("/add_logo_category", logoBrand.addLogoBrandCat);

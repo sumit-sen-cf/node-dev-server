@@ -12,7 +12,7 @@ const cocModel = new mongoose.Schema({
   },
   heading_desc: {
     type: String,
-    required: true
+    required: false
   },
   sub_heading: {
     type: String,
@@ -21,7 +21,7 @@ const cocModel = new mongoose.Schema({
   },
   sub_heading_desc: {
     type: String,
-    required: true
+    required: false
   },
   sub_heading_sequence: {
     type: Number,
@@ -30,7 +30,7 @@ const cocModel = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: false,
+    required: true,
     default: "",
   },
   remarks: {

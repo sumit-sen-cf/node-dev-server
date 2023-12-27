@@ -140,20 +140,18 @@ module.exports = {
     return `${days} days, ${hrs} hours, ${mnts} minutes, and ${seconds} seconds`;
   },
 
-  generateEmpId : async () => {
-        // const latestUser = await userModel.find();
-        const latestUser = await userModel.findOne().sort({ user_id: -1 });
-        const latestUserId = latestUser.user_id + 1;
+  generateEmpId: async (dept_id) => {
+    const latestUser = await userModel.findOne().sort({ user_id: -1 });
+    const latestUserId = latestUser.user_id + 1;
 
-        const departmentData = await departmentModel.findOne({ dept_id: latestUser.dept_id });
-        const shortName = departmentData.short_name;
+    const departmentData = await departmentModel.findOne({ dept_id: dept_id });
+    const shortName = departmentData.short_name;
+    const jobTypeSuffix = latestUser.job_type === "WFH" ? "H" : "O";
 
-        const jobTypeSuffix = latestUser.job_type === "WFH" ? "H" : "O";
-
-        return `CF/${shortName}/${jobTypeSuffix}/${latestUserId}`
+    return `CF/${shortName}/${jobTypeSuffix}/${latestUserId}`
   },
 
-  
+
   /**
    * Removes a file from the specified folder.
    * @param {string} filename - The name of the file to be removed.
