@@ -15,12 +15,17 @@ const guardianModel = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    contact: {
+    guardian_contact: {
         type: Number,
         required: false,
         default: 0
     },
-    address: {
+    guardian_address: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    relation_with_guardian: {
         type: String,
         required: false,
         default: ""

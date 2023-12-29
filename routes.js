@@ -810,7 +810,8 @@ router.post("/get_distinct_depts", attendance.getDistinctDepts);
 router.post("/check_salary_status", attendance.checkSalaryStatus);
 router.get("/all_departments_of_wfh", attendance.allDeptsOfWfh);
 router.get("/dept_with_wfh", attendance.deptWithWFH);
-router.post("/save_all_depts_attendance", attendance.addAttendanceAllDepartments)
+router.post("/save_all_depts_attendance", attendance.addAttendanceAllDepartments);
+router.get("/get_all_attendance_data", attendance.getAllAttendanceData);
 
 /* commitement */
 router.post("/add_commitment", cmtController.addCmt);
@@ -1156,6 +1157,8 @@ router.put("/update_asset_brand", assetBrand.editAssetBrand);
 router.get("/get_all_asset_brands", assetBrand.getAssetBrands);
 router.get("/get_single_asset_brand/:id", assetBrand.getAssetBrandById);
 router.delete("/delete_asset_brand/:id", assetBrand.deleteAssetBrand);
+router.get("/get_asset_available_count_in_brand/:asset_brand_id", assetBrand.getTotalAvailableAssetInBrand);
+router.get("/get_asset_allocated_count_in_brand/:asset_brand_id", assetBrand.getTotalAllocatedAssetInBrand);
 
 // Asset Modal Routes 
 router.post("/add_asset_modal", assetModal.addAssetModal);

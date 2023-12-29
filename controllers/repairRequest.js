@@ -19,6 +19,8 @@ exports.addRepairRequest = [
                 problem_detailing: req.body.problem_detailing,
                 multi_tag: req.body.multi_tag,
                 status: req.body.status,
+                req_by: req.body.req_by,
+                req_date: req.body.req_date,
                 img1: req.files.img1 ? req.files.img1[0].filename : "",
                 img2: req.files.img2 ? req.files.img2[0].filename : "",
                 img3: req.files.img3 ? req.files.img3[0].filename : "",
@@ -69,7 +71,9 @@ exports.getAllRepairRequests = async (req, res) => {
                         img4: "$img4",
                         created_at: "$created_at",
                         updated_at: "$updated_at",
-                        repair_request_date_time: "$repair_request_date_time"
+                        repair_request_date_time: "$repair_request_date_time",
+                        req_by: "$req_by",
+                        req_date: "$req_date"
                     },
                 },
             ])
@@ -132,7 +136,9 @@ exports.getSingleRepairRequests = async (req, res) => {
                         img4: "$img4",
                         created_at: "$created_at",
                         updated_at: "$updated_at",
-                        repair_request_date_time: "$repair_request_date_time"
+                        repair_request_date_time: "$repair_request_date_time",
+                        req_by: "$req_by",
+                        req_date: "$req_date"
                     },
                 },
             ])
@@ -181,6 +187,8 @@ exports.editRepairRequest = [
                 problem_detailing: req.body.problem_detailing,
                 multi_tag: req.body.multi_tag,
                 status: req.body.status,
+                req_by: req.body.req_by,
+                req_date: req.body.req_date,
                 updated_at: req.body.updated_at
             };
 

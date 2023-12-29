@@ -2,19 +2,18 @@ const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-auto-increment');
 
 const designationModel = new mongoose.Schema({
-    desi_id:{
-        type: Number,
-        required: true,
-        unique:true
-    },
-    dept_id:{
+    desi_id: {
         type: Number,
         required: true
     },
-    desi_name: { 
+    dept_id: {
+        type: Number,
+        required: true
+    },
+    desi_name: {
         type: String,
         required: false,
-        unique:true,
+        unique: true,
         default: ""
     },
     remark: {
@@ -44,7 +43,7 @@ const designationModel = new mongoose.Schema({
 
 AutoIncrement.initialize(mongoose.connection);
 designationModel.plugin(
-    AutoIncrement.plugin, 
+    AutoIncrement.plugin,
     { model: 'designationModels', field: 'desi_id', startAt: 1, incrementBy: 1 }
 );
 

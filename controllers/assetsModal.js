@@ -26,6 +26,20 @@ exports.getAssetModals = async (req, res) => {
       .aggregate([
         {
           $lookup: {
+            from: "simmodels",
+            localField: "asset_modal_id",
+            foreignField: "asset_modal_id",
+            as: "sim",
+          },
+        },
+        {
+          $unwind: {
+            path: "$sim",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
             from: "assetbrandmodels",
             localField: "asset_brand_id",
             foreignField: "asset_brand_id",
@@ -45,6 +59,9 @@ exports.getAssetModals = async (req, res) => {
             asset_brand_name: "$assetBrand.asset_brand_name",
             asset_brand_id: "$asset_brand_id",
             asset_modal_name: "$asset_modal_name",
+            sim_id: "$sim.sim_id",
+            asset_name: "$sim.assetsName",
+            status: "$sim.status",
             creation_date: "$creation_date",
             updated_at: "$updated_at"
           },
