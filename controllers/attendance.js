@@ -2081,7 +2081,7 @@ exports.getSalarycalculationData = async (req, res) => {
   }
 };
 
-exports.getCountUsersByDept = async (req, res) => {
+exports.getUsersCountByDept = async (req, res) => {
   try {
     const groupedAttendanceData = await attendanceModel.aggregate([
       {

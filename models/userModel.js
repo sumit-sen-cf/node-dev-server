@@ -2,153 +2,153 @@ const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-auto-increment');
 
 const userModel = new mongoose.Schema({
-    user_id:{
+    user_id: {
         type: Number,
         required: true
     },
-    user_designation:{
+    user_designation: {
         type: Number,
         required: false
     },
-    user_email_id:{
+    user_email_id: {
         type: String,
         required: false,
         unique: true,
         default: ""
     },
-    user_login_id:{
+    user_login_id: {
         type: String,
-        required: false,
+        required: [true, "User Login Id is Required"],
         unique: true,
         default: ""
     },
-    user_login_password:{
+    user_login_password: {
         type: String,
         required: false,
         default: ""
     },
-    user_name:{
+    user_name: {
         type: String,
-        required: true,
-        unique:true,
-        default: ""
-    },
-    user_report_to_id:{
-        type: Number,
-        required: false,
-        default: 0
-    },
-    user_contact_no:{
-        type: Number,
-        required: false,
+        required: [true, "Name is Required"],
         unique: true,
-        default: 0
-    },
-    dept_id:{
-        type: Number,
-        required: false,
-        default: 0
-    },
-    location_id:{
-        type: Number,
-        required: false,
-        default: 0
-    },
-    created_by:{
-        type: Number,
-        required: false,
-        default: 0
-    },
-    role_id:{
-        type: Number,
-        required: false,
-        default: 0
-    },
-    sitting_id:{
-        type: Number,
-        required: false,
-        default: 0
-    },
-    job_type:{
-        type: String,
-        required: false,
         default: ""
     },
-    PersonalNumber:{
+    user_report_to_id: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    user_contact_no: {
         type: Number,
         required: false,
         unique: true,
         default: 0
     },
-    Report_L1:{
+    dept_id: {
+        type: Number,
+        required: [true, "Departent Id Should be Unique"],
+        default: 0
+    },
+    location_id: {
         type: Number,
         required: false,
         default: 0
     },
-    Report_L2:{
+    created_by: {
         type: Number,
         required: false,
         default: 0
     },
-    Report_L3:{
+    role_id: {
+        type: Number,
+        required: [true, "Role is Required"],
+        default: 0
+    },
+    sitting_id: {
         type: Number,
         required: false,
         default: 0
     },
-    PersonalEmail:{
+    job_type: {
         type: String,
-        required: false,
-        unique: true,
+        required: [true, "Job Type is Required"],
         default: ""
     },
-    joining_date:{
+    PersonalNumber: {
+        type: Number,
+        required: [true, "PersonalNumber Is Required"],
+        unique: false,
+        default: 0
+    },
+    Report_L1: {
+        type: Number,
+        required: [true, "Report L1 is Required"],
+        default: 0
+    },
+    Report_L2: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    Report_L3: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    PersonalEmail: {
+        type: String,
+        required: [true, "PersonalEmail Is Required"],
+        unique: false,
+        default: ""
+    },
+    joining_date: {
         type: Date,
-        required:true
+        required: [true, "Joining Date is Required"]
     },
-    releaving_date:{
-        type: Date,
-        default: Date.now
-    },
-    level:{
-        type: String,
-        required: false,
-        default: ""
-    },
-    room_id:{
-        type: Number,
-        required: false,
-        default: 0
-    },
-    salary:{
-        type: Number,
-        required: false,
-        default: 0
-    },
-    SpokenLanguages:{
-        type: String,
-        required: false,
-        default: ""
-    },
-    Gender:{
-        type: String,
-        required: false,
-        default: ""
-    },
-    Nationality:{
-        type: String,
-        required: false,
-        default: ""
-    },
-    DOB:{
+    releaving_date: {
         type: Date,
         default: Date.now
     },
-    Age:{
+    level: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    room_id: {
+        type: Number,
+        required: [true, "Room Id Is Required"],
+        default: 0
+    },
+    salary: {
         type: Number,
         required: false,
         default: 0
     },
-    fatherName:{
+    SpokenLanguages: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    Gender: {
+        type: String,
+        required: [true, "Gender is Required"],
+        default: ""
+    },
+    Nationality: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    DOB: {
+        type: Date,
+        default: Date.now
+    },
+    Age: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    fatherName: {
         type: String,
         required: false,
         default: ""
@@ -246,7 +246,7 @@ const userModel = new mongoose.Schema({
         type: String,
         required: false,
         default: "Active"
-    },      
+    },
     lastupdated: {
         type: Date,
         default: Date.now
@@ -498,121 +498,121 @@ const userModel = new mongoose.Schema({
     userSalaryStatus: {
         type: Number,
         required: false,
-        default:0
+        default: 0
     },
-    digital_signature_image:{
+    digital_signature_image: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
-    bank_name:{
+    bank_name: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
-    ifsc_code:{
+    ifsc_code: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
-    account_no:{
+    account_no: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
-    guardian_name :{
+    guardian_name: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
-    guardian_address :{
+    guardian_address: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
-    relation_with_guardian :{
+    relation_with_guardian: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
-    gaurdian_number :{
+    gaurdian_number: {
         type: Number,
         required: false,
         default: null
     },
-    emergency_contact1:{
+    emergency_contact1: {
         type: Number,
         required: false,
         default: 0
     },
-    emergency_contact2:{
+    emergency_contact2: {
         type: Number,
         required: false,
         default: 0
     },
-    ctc:{
+    ctc: {
         type: Number,
         required: false,
-        default:0
+        default: 0
     },
-    offer_letter_send:{
+    offer_letter_send: {
         type: Boolean,
         required: false,
-        default:false
+        default: false
     },
-    annexure_pdf:{
+    annexure_pdf: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
-    profileflag:{
+    profileflag: {
         type: Number,
         required: false,
-        default:0
+        default: 0
     },
-    nick_name:{
+    nick_name: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
-    offer_later_date:{
+    offer_later_date: {
         type: Date,
         required: false,
-        default:""
+        default: ""
     },
-    offer_later_acceptance_date:{
+    offer_later_acceptance_date: {
         type: Date,
         required: false,
-        default:""
+        default: ""
     },
-    offer_later_status:{
+    offer_later_status: {
         type: Boolean,
         required: false,
-        default:false
+        default: false
     },
-    offer_later_reject_reason:{
+    offer_later_reject_reason: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
-    offer_later_pdf_url:{
+    offer_later_pdf_url: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
     first_login_flag: {
         type: Number,
         required: false,
         default: false
     },
-    sms_time:{
+    sms_time: {
         type: Date,
         required: false,
         default: ""
     },
-    showOnboardingModal:{
+    showOnboardingModal: {
         type: Boolean,
-        default:true
+        default: true
     },
     latitude: {
         type: Number,
@@ -624,7 +624,7 @@ const userModel = new mongoose.Schema({
         required: false,
         default: 0
     },
-    coc_flag:{
+    coc_flag: {
         type: Boolean,
         default: false,
         required: false
@@ -639,32 +639,32 @@ const userModel = new mongoose.Schema({
         required: false,
         default: ""
     },
-    alternate_contact:{
+    alternate_contact: {
         type: Number,
         required: false,
         default: null
     },
-    cast_type : {
+    cast_type: {
         type: String,
         required: false,
         default: ""
     },
-    emergency_contact_person_name1 : {
+    emergency_contact_person_name1: {
         type: String,
         required: false,
         default: ""
     },
-    emergency_contact_relation1 : {
+    emergency_contact_relation1: {
         type: String,
         required: false,
         default: ""
     },
-    emergency_contact_person_name2 : {
+    emergency_contact_person_name2: {
         type: String,
         required: false,
         default: ""
     },
-    emergency_contact_relation2 : {
+    emergency_contact_relation2: {
         type: String,
         required: false,
         default: ""
@@ -673,7 +673,7 @@ const userModel = new mongoose.Schema({
 
 AutoIncrement.initialize(mongoose.connection);
 userModel.plugin(
-    AutoIncrement.plugin, 
+    AutoIncrement.plugin,
     { model: 'userModels', field: 'user_id', startAt: 1, incrementBy: 1 }
 );
 
