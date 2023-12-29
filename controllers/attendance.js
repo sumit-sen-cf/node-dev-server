@@ -2094,14 +2094,8 @@ exports.getUsersCountByDept = async (req, res) => {
       {
         $lookup: {
           from: "usermodels",
-          let: { dept_id: "$dept" },
-          pipeline: [
-            {
-              $match: {
-                $expr: { $eq: ["$dept_id", "$$dept_id"] },
-              },
-            },
-          ],
+          localField: "user_id",
+          foreignField: "user_id",
           as: "user",
         },
       },
