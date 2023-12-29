@@ -812,6 +812,8 @@ router.get("/all_departments_of_wfh", attendance.allDeptsOfWfh);
 router.get("/dept_with_wfh", attendance.deptWithWFH);
 router.post("/save_all_depts_attendance", attendance.addAttendanceAllDepartments);
 router.get("/get_all_attendance_data", attendance.getAllAttendanceData);
+router.get("/get_salary_calculation_data", attendance.getSalarycalculationData);
+router.post("/get_users_count_by_dept", attendance.getUsersCountByDept);
 
 /* commitement */
 router.post("/add_commitment", cmtController.addCmt);
