@@ -1,5 +1,6 @@
 const response = require("../common/response.js");
 const assetsSubCategoryModel = require("../models/assetsSubCategoryModel.js");
+const assetsCategoryModel = require("../models/assetsSubCategoryModel.js");
 const simModel = require("../models/simModel.js");
 
 exports.addAssetSubCategory = async (req, res) => {
@@ -83,136 +84,48 @@ exports.addAssetSubCategory = async (req, res) => {
 
 exports.getAssetSubCategorys = async (req, res) => {
     try {
-        const assetssubc = await assetsSubCategoryModel
-            .aggregate([
-                {
-                    $lookup: {
-                        from: "assetscategorymodels",
-                        localField: "category_id",
-                        foreignField: "category_id",
-                        as: "category",
-                    },
-                },
-                {
-                    $unwind: "$category",
-                },
-                {
-                    $group: {
-                        _id: "$category.category_id",
-                        category_name: { $first: "$category.category_name" },
-                        asset_available_count: {
-                            $sum: { $cond: [{ $eq: ["$status", "Available"] }, 1, 0] },
-                        },
-                        asset_allocated_count: {
-                            $sum: { $cond: [{ $eq: ["$status", "Allocated"] }, 1, 0] },
-                        },
-                        subcategories: {
-                            $push: {
-                                sub_category_id: "$sub_category_id",
-                                sub_category_name: "$sub_category_name",
-                                remark: "$remark",
-                                created_by: "$created_by",
-                                creation_date: "$creation_date",
-                                last_updated_by: "$last_updated_by",
-                                last_updated_at: "$last_updated_at",
-                                category_id: "$category_id",
-                                description: "$description",
-                                inWarranty: "$inWarranty",
-                            },
-                        },
-                    },
-                },
-                {
-                    $project: {
-                        _id: 0, // Exclude the _id field if you want
-                        category_id: "$_id",
-                        category_name: 1,
-                        asset_available_count: 1,
-                        asset_allocated_count: 1,
-                        subcategories: 1,
-                    },
-                },
-            ])
-            .exec();
+        const assetSubCategories = await assetsSubCategoryModel.find().exec();
 
-        if (!assetssubc) {
+        if (!assetSubCategories || assetSubCategories.length === 0) {
             return response.returnFalse(200, req, res, "No Record Found...", []);
         }
 
-        res.status(200).send(assetssubc);
-    } catch (err) {
-        return response.returnFalse(500, req, res, err.message, {});
-    }
-};
+        const result = [];
 
+        for (const subcategory of assetSubCategories) {
+            const subCategories = await assetsCategoryModel.find({
+                category_id: subcategory.category_id,
+            });
 
+            const subCategoryCount = subCategories.length;
 
-exports.getAssetSubCategorys = async (req, res) => {
-    try {
-        const simAvailableData = await simModel.find({ status: "Available" });
-        const assetAvailableCount = simAvailableData.length;
+            const totalAllocatedAssets = await simModel.countDocuments({
+                category_id: subcategory.category_id,
+                status: 'Allocated',
+            });
 
-        const simAllocatedData = await simModel.find({ status: "Allocated" });
-        const assetAllocatedCount = simAllocatedData.length;
-
-        const assetssubc = await assetsSubCategoryModel
-            .aggregate([
-                {
-                    $lookup: {
-                        from: "assetscategorymodels",
-                        localField: "category_id",
-                        foreignField: "category_id",
-                        as: "category",
-                    },
-                },
-                {
-                    $unwind: "$category",
-                },
-                {
-                    $addFields: {
-                        asset_available_count: assetAvailableCount,
-                        asset_allocated_count: assetAllocatedCount,
-                    },
-                },
-                {
-                    $group: {
-                        _id: "$category_id",
-                        category_name: { $first: "$category.category_name" },
-                        asset_available_count: { $sum: "$asset_available_count" },
-                        asset_allocated_count: { $sum: "$asset_allocated_count" },
-                        subcategories: {
-                            $push: {
-                                sub_category_id: "$sub_category_id",
-                                sub_category_name: "$sub_category_name",
-                                remark: "$remark",
-                                created_by: "$created_by",
-                                creation_date: "$creation_date",
-                                last_updated_by: "$last_updated_by",
-                                last_updated_at: "$last_updated_at",
-                                description: "$description",
-                                inWarranty: "$inWarranty",
-                            },
-                        },
-                    },
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        category_id: "$_id",
-                        category_name: 1,
-                        asset_available_count: 1,
-                        asset_allocated_count: 1,
-                        subcategories: 1,
-                    },
-                },
-            ])
-            .exec();
-
-        if (!assetssubc) {
-            return response.returnFalse(200, req, res, "No Record Found...", []);
+            const totalAvailableAssets = await simModel.countDocuments({
+                category_id: subcategory.category_id,
+                status: 'Available',
+            });
+            result.push({
+                sub_category_id: subcategory.sub_category_id,
+                sub_category_name: subcategory.sub_category_name,
+                category_id: subcategory.category_id,
+                // category_name: ,
+                sub_category_count: subCategoryCount,
+                allocated_assets_count: totalAllocatedAssets,
+                available_assets_count: totalAvailableAssets
+            });
         }
 
-        res.status(200).send(assetssubc);
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Asset Sub-Categories Data Fetch Successfully",
+            result
+        );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }

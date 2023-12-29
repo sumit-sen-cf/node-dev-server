@@ -2,122 +2,127 @@ const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-auto-increment');
 
 const attendanceModel = new mongoose.Schema({
-    attendence_id:{
+    attendence_id: {
         type: Number,
         required: true
     },
-    dept:{
+    dept: {
         type: Number,
         required: true
     },
-    user_id:{
+    user_id: {
         type: Number,
         required: false,
         default: 0
     },
-    noOfabsent:{
+    noOfabsent: {
         type: Number,
         required: false
     },
-    year:{
+    year: {
         type: Number,
         required: true,
         default: ""
     },
-    remark:{
+    remark: {
         type: String,
         required: false,
         default: ""
     },
-    Creation_date:{
+    Creation_date: {
         type: Date,
         required: false,
         default: Date.now
     },
-    Created_by:{
+    Created_by: {
         type: Number,
         required: false,
-        default:0
+        default: 0
     },
-    Last_updated_by:{
+    Last_updated_by: {
         type: Number,
         required: false,
-        default:""
+        default: ""
     },
-    Last_updated_date:{
+    Last_updated_date: {
         type: Date,
         required: false,
         default: Date.now
     },
-    month:{
+    month: {
         type: String,
         required: true,
         default: ""
     },
-    bonus:{
+    bonus: {
         type: Number,
         required: false
     },
-    total_salary:{
+    total_salary: {
         type: Number,
         required: false
     },
-    net_salary:{
+    net_salary: {
         type: Number,
         required: false
     },
-    tds_deduction:{
+    tds_deduction: {
         type: Number,
         required: false
     },
-    user_name:{
+    user_name: {
         type: String,
         default: "",
         required: false
     },
-    toPay:{
+    toPay: {
         type: Number,
         required: false
     },
-    attendence_generated:{
-        type: Number,
-        required: false,
-        default:0
-    },
-    attendence_status:{
-        type: Number,
-        required: false,
-        default:0
-    },
-    salary_status:{
-        type: Number,
-        required: false,
-        default:0
-    },
-    salary_deduction:{
-        type: Number,
-        required: false,
-        default:0
-    },
-    salary:{
-        type: Number,
-        required: false,
-        default:0
-    },
-    sendToFinance:{
+    attendence_generated: {
         type: Number,
         required: false,
         default: 0
     },
-    invoiceNo:{
+    attendence_status: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    salary_status: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    salary_deduction: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    salary: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    sendToFinance: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    invoiceNo: {
         type: String,
         default: ""
+    },
+    attendence_status_flow: {
+        type: String,
+        default: "attendance pending",
+        required: false
     }
 });
 
 AutoIncrement.initialize(mongoose.connection);
 attendanceModel.plugin(
-    AutoIncrement.plugin, 
+    AutoIncrement.plugin,
     { model: 'attendanceModels', field: 'attendence_id', startAt: 1, incrementBy: 1 }
 );
 

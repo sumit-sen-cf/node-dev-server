@@ -1,4 +1,5 @@
 const constant = require("../common/constant.js");
+const attendanceModel = require("../models/attendanceModel.js");
 const financeModel = require("../models/financeModel.js");
 
 exports.addFinance = async (req, res) => {
@@ -14,6 +15,12 @@ exports.addFinance = async (req, res) => {
       pay_date: req.body.pay_date,
     });
     const simv = await simc.save();
+
+    await attendanceModel.findOneAndUpdate(
+      { attendence_id: parseInt(req.body.attendence_id) },
+      { attendence_status_flow: 'sent to finance' },
+      { new: true }
+    );
     res.send({ simv, status: 200 });
   } catch (err) {
     res
@@ -108,7 +115,7 @@ exports.getFinances = async (req, res) => {
           invoice_template_no: "$user_data.invoice_template_no",
           dept_name: "$dept_data.dept_name",
           image_url: { $concat: [financeImagesBaseUrl, "$screenshot"] },
-          digital_signature_image:"$user_data.digital_signature_image"
+          digital_signature_image: "$user_data.digital_signature_image"
         },
       },
     ]);
@@ -130,12 +137,19 @@ exports.editFinance = async (req, res) => {
       {
         status_: req.body.status_,
         reason: req.body.reason,
+        attendence_id: req.body.attendence_id,
         remark: req.body.remark,
         screenshot: req?.file?.filename,
         reference_no: req.body.reference_no,
         amount: req.body.amount,
         pay_date: req.body.pay_date,
       },
+      { new: true }
+    );
+
+    await attendanceModel.findOneAndUpdate(
+      { attendence_id: parseInt(req.body.attendence_id) },
+      { attendence_status_flow: 'invoice received' },
       { new: true }
     );
     if (!editsim) {

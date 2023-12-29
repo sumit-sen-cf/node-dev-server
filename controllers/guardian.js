@@ -9,8 +9,9 @@ exports.addGuardian = async (req, res) => {
         const guardian = new guardianModel({
             user_id: incrementedUser,
             guardian_name: req.body.guardian_name,
-            contact: req.body.contact,
-            address: req.body.address
+            guardian_contact: req.body.guardian_contact,
+            guardian_address: req.body.guardian_address,
+            relation_with_guardian: req.body.relation_with_guardian
         });
         const simv = await guardian.save();
         return response.returnTrue(
@@ -63,12 +64,10 @@ exports.editGuardian = async (req, res) => {
         if (!req.body.guardian_id) {
             const newGuardian = new guardianModel({
                 user_id: req.body.user_id,
-                name: req.body.name,
-                DOB: req.body.DOB,
-                relation: req.body.relation,
-                contact: req.body.contact,
-                occupation: req.body.occupation,
-                annual_income: req.body.annual_income
+                guardian_name: req.body.guardian_name,
+                guardian_contact: req.body.guardian_contact,
+                guardian_address: req.body.guardian_address,
+                relation_with_guardian: req.body.relation_with_guardian
             });
 
             const savedGuardian = await newGuardian.save();
@@ -76,7 +75,7 @@ exports.editGuardian = async (req, res) => {
         }
 
         const updateFields = {};
-        const allowedFields = ['user_id', 'guardian_name', 'contact', 'address'];
+        const allowedFields = ['user_id', 'guardian_name', 'contact', 'address', 'relation_with_guardian'];
 
         allowedFields.forEach((field) => {
             if (req.body[field] !== undefined) {

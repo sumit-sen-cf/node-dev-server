@@ -1153,6 +1153,7 @@ exports.getTotalAssetInCategoryAllocated = async (req, res) => {
 
 exports.showAssetDataToHR = async (req, res) => {
   try {
+    const imageUrl = "http://34.93.221.166:3000/uploads/";
     const HrData = await simModel
       .aggregate([
         {
@@ -1166,6 +1167,20 @@ exports.showAssetDataToHR = async (req, res) => {
         {
           $unwind: {
             path: "$repair",
+          },
+        },
+        {
+          $lookup: {
+            from: "usermodels",
+            localField: "repair.req_by",
+            foreignField: "user_id",
+            as: "userdata",
+          },
+        },
+        {
+          $unwind: {
+            path: "$userdata",
+            preserveNullAndEmptyArrays: true,
           },
         },
         {
@@ -1211,6 +1226,34 @@ exports.showAssetDataToHR = async (req, res) => {
           },
         },
         {
+          $lookup: {
+            from: "assetbrandmodels",
+            localField: "asset_brand_id",
+            foreignField: "asset_brand_id",
+            as: "brand",
+          },
+        },
+        {
+          $unwind: {
+            path: "$brand",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "assetmodalmodels",
+            localField: "asset_modal_id",
+            foreignField: "asset_modal_id",
+            as: "modal",
+          },
+        },
+        {
+          $unwind: {
+            path: "$modal",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           $project: {
             _id: "$_id",
             sim_id: "$sim_id",
@@ -1227,7 +1270,18 @@ exports.showAssetDataToHR = async (req, res) => {
             sub_category_name: "$subcategory.sub_category_name",
             vendor_name: "$vendor.vendor_name",
             vendor_contact_no: "$vendor.vendor_contact_no",
-            vendor_email_id: "$vendor.vendor_email_id"
+            vendor_email_id: "$vendor.vendor_email_id",
+            asset_brand_id: "$brand.asset_brand_id",
+            asset_brand_name: "$brand.asset_brand_name",
+            asset_modal_id: "$modal.asset_modal_id",
+            asset_modal_name: "$modal.asset_modal_name",
+            priority: "$repair.priority",
+            invoiceCopy: {
+              $concat: [imageUrl, "$invoiceCopy"]
+            },
+            req_by: "$repair.req_by",
+            req_by_name: "$userData.user_name",
+            req_date: "$repair.req_date"
           },
         },
       ])
@@ -1258,6 +1312,20 @@ exports.showAssetDataToUser = async (req, res) => {
           path: "$repair",
         },
       },
+      // {
+      //   $lookup: {
+      //     from: "usermodels",
+      //     localField: "repair.req_by",
+      //     foreignField: "user_id",
+      //     as: "userdata",
+      //   },
+      // },
+      // {
+      //   $unwind: {
+      //     path: "$userdata",
+      //     preserveNullAndEmptyArrays: true,
+      //   },
+      // },
       {
         $lookup: {
           from: "assetscategorymodels",
@@ -1301,6 +1369,34 @@ exports.showAssetDataToUser = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "assetbrandmodels",
+          localField: "asset_brand_id",
+          foreignField: "asset_brand_id",
+          as: "brand",
+        },
+      },
+      {
+        $unwind: {
+          path: "$brand",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "assetmodalmodels",
+          localField: "asset_modal_id",
+          foreignField: "asset_modal_id",
+          as: "modal",
+        },
+      },
+      {
+        $unwind: {
+          path: "$modal",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $project: {
           _id: "$_id",
           sim_id: "$sim_id",
@@ -1318,7 +1414,15 @@ exports.showAssetDataToUser = async (req, res) => {
           vendor_name: "$vendor.vendor_name",
           vendor_contact_no: "$vendor.vendor_contact_no",
           vendor_email_id: "$vendor.vendor_email_id",
-          multi_tag: "$repair.multi_tag"
+          multi_tag: "$repair.multi_tag",
+          asset_brand_id: "$brand.asset_brand_id",
+          asset_brand_name: "$brand.asset_brand_name",
+          asset_modal_id: "$modal.asset_modal_id",
+          asset_modal_name: "$modal.asset_modal_name",
+          priority: "$repair.priority",
+          // req_by: "$repair.req_by",
+          // req_by_name: "$userData.user_name",
+          // req_date: "$repair.req_date"
         },
       },
     ]).exec();

@@ -63,6 +63,14 @@ const repairRequestModel = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    req_by: {
+        type: Number,
+        required: false,
+    },
+    req_date: {
+        type: Date,
+        default: Date.now,
+    }
 });
 
 AutoIncrement.initialize(mongoose.connection);
