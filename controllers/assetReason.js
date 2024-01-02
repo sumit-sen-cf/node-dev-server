@@ -64,6 +64,31 @@ exports.getAssetReasons = async (req, res) => {
                         reason: "$reason"
                     },
                 },
+                {
+                    $lookup: {
+                      from: "repairrequestmodels", 
+                      localField: "asset_reason_id",
+                      foreignField: "asset_reason_id",
+                      as: "repairRequests",
+                    },
+                  },
+                  {
+                    $addFields: {
+                      requestCount: { $size: "$repairRequests" },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      asset_reason_id: 1,
+                      category_id: 1,
+                      sub_category_id: 1,
+                      category_name: 1,
+                      sub_category_name: 1,
+                      reason: 1,
+                      requestCount: 1,
+                    },
+                  },
             ])
             .exec();
 

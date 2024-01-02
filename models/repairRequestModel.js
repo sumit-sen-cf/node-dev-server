@@ -70,7 +70,13 @@ const repairRequestModel = new mongoose.Schema({
     req_date: {
         type: Date,
         default: Date.now,
-    }
+    },
+    asset_reason_id: {
+        type: Number,
+        required: false,
+        default:0
+    },
+    
 });
 
 AutoIncrement.initialize(mongoose.connection);
