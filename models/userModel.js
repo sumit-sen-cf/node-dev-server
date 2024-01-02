@@ -116,7 +116,7 @@ const userModel = new mongoose.Schema({
     },
     room_id: {
         type: Number,
-        required: [true, "Room Id Is Required"],
+        required: false,
         default: 0
     },
     salary: {

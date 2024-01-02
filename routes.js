@@ -1168,6 +1168,8 @@ router.put("/update_asset_modal", assetModal.editAssetModal);
 router.get("/get_all_asset_modals", assetModal.getAssetModals);
 router.get("/get_single_asset_modal/:id", assetModal.getAssetModalById);
 router.delete("/delete_asset_modal/:id", assetModal.deleteAssetModal);
+router.get("/get_asset_available_count_in_modal/:asset_modal_id", assetModal.getTotalAvailableAssetInModal);
+router.get("/get_asset_allocated_count_in_modal/:asset_modal_id", assetModal.getTotalAllocatedAssetInModal);
 
 /* email content routes */
 router.post("/add_email_content", emailContent.addEmailContent);
