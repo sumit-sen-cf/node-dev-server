@@ -14,6 +14,7 @@ exports.addRepairRequest = [
         try {
             const repairdata = new repairRequestModel({
                 sim_id: req.body.sim_id,
+                asset_reason_id: req.body.asset_reason_id,
                 priority: req.body.priority,
                 repair_request_date_time: req.body.repair_request_date_time,
                 problem_detailing: req.body.problem_detailing,
@@ -60,6 +61,7 @@ exports.getAllRepairRequests = async (req, res) => {
                     $project: {
                         repair_id: "$repair_id",
                         sim_id: "$sim_id",
+                        asset_reason_id: "$asset_reason_id",
                         asset_name: "$sim.assetsName",
                         priority: "$priority",
                         problem_detailing: "$problem_detailing",
@@ -125,6 +127,7 @@ exports.getSingleRepairRequests = async (req, res) => {
                     $project: {
                         repair_id: "$repair_id",
                         sim_id: "$sim_id",
+                        asset_reason_id: "$asset_reason_id",
                         asset_name: "$sim.assetsName",
                         priority: "$priority",
                         problem_detailing: "$problem_detailing",
@@ -182,6 +185,7 @@ exports.editRepairRequest = [
 
             const updateFields = {
                 sim_id: req.body.sim_id,
+                asset_reason_id: req.body.asset_reason_id,
                 repair_request_date_time: req.body.repair_request_date_time,
                 priority: req.body.priority,
                 problem_detailing: req.body.problem_detailing,
