@@ -1,4 +1,6 @@
 const assetModalModel = require("../models/assetModalModel.js");
+const simModel = require("../models/simModel.js");
+const response = require("../common/response.js");
 
 exports.addAssetModal = async (req, res) => {
   const { asset_brand_id, asset_modal_name } = req.body;
@@ -64,6 +66,29 @@ exports.getAssetModals = async (req, res) => {
             status: "$sim.status",
             creation_date: "$creation_date",
             updated_at: "$updated_at"
+          },
+        },
+        {
+          $group: {
+            _id: "$asset_modal_id",
+            asset_modal_name: { $first: "$asset_modal_name" },
+            total_available_asset: {
+              $sum: {
+                $cond: [{ $eq: ["$status", "Available"] }, 1, 0],
+              },
+            },
+            total_allocated_asset: {
+              $sum: {
+                $cond: [{ $eq: ["$status", "Allocated"] }, 1, 0],
+              },
+            },
+            asset_brand_name: { $first: "$asset_brand_name" },
+            asset_brand_id: { $first: "$asset_brand_id" },
+            sim_id: { $first: "$sim_id" },
+            asset_name: { $first: "$asset_name" },
+            status: { $first: "$status" },
+            creation_date: { $first: "$creation_date" },
+            updated_at: { $first: "$updated_at" },
           },
         },
       ])
@@ -159,5 +184,167 @@ exports.deleteAssetModal = async (req, res) => {
       message: "An error occurred while deleting the AssetModal",
       error: error.message,
     });
+  }
+};
+
+exports.getTotalAvailableAssetInModal = async (req, res) => {
+  try {
+    const assets = await simModel
+      .aggregate([
+        {
+          $match: {
+            asset_modal_id: parseInt(req.params.asset_modal_id),
+            status: "Available",
+          }
+        },
+        {
+          $lookup: {
+            from: "assetmodalmodels",
+            localField: "asset_modal_id",
+            foreignField: "asset_modal_id",
+            as: "modal",
+          },
+        },
+        {
+          $unwind: {
+            path: "$modal",
+          },
+        },
+        {
+          $lookup: {
+            from: "assetscategorymodels",
+            localField: "category_id",
+            foreignField: "category_id",
+            as: "category",
+          },
+        },
+        {
+          $unwind: {
+            path: "$category",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "assetssubcategorymodels",
+            localField: "sub_category_id",
+            foreignField: "sub_category_id",
+            as: "subcategory",
+          },
+        },
+        {
+          $unwind: {
+            path: "$subcategory",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: "$_id",
+            sim_id: "$sim_id",
+            asset_id: "$sim_no",
+            status: "$status",
+            asset_type: "$s_type",
+            assetsName: "$assetsName",
+            category_id: "$category_id",
+            sub_category_id: "$sub_category_id",
+            category_name: "$category.category_name",
+            sub_category_name: "$subcategory.sub_category_name",
+            asset_modal_id: "$modal.asset_modal_id",
+            asset_modal_name: "$modal.asset_modal_name"
+          },
+        },
+      ])
+      .exec();
+
+    if (!assets || assets.length === 0) {
+      return res.status(404).send({ success: false, message: 'No assets found for the given category_id' });
+    }
+
+    res.status(200).send({ success: true, data: assets });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ success: false, error: err, message: 'Error getting asset details' });
+  }
+};
+
+exports.getTotalAllocatedAssetInModal = async (req, res) => {
+  try {
+    const assets = await simModel
+      .aggregate([
+        {
+          $match: {
+            asset_modal_id: parseInt(req.params.asset_modal_id),
+            status: "Allocated",
+          }
+        },
+        {
+          $lookup: {
+            from: "assetmodalmodels",
+            localField: "asset_modal_id",
+            foreignField: "asset_modal_id",
+            as: "modal",
+          },
+        },
+        {
+          $unwind: {
+            path: "$modal",
+          },
+        },
+        {
+          $lookup: {
+            from: "assetscategorymodels",
+            localField: "category_id",
+            foreignField: "category_id",
+            as: "category",
+          },
+        },
+        {
+          $unwind: {
+            path: "$category",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "assetssubcategorymodels",
+            localField: "sub_category_id",
+            foreignField: "sub_category_id",
+            as: "subcategory",
+          },
+        },
+        {
+          $unwind: {
+            path: "$subcategory",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: "$_id",
+            sim_id: "$sim_id",
+            asset_id: "$sim_no",
+            status: "$status",
+            asset_type: "$s_type",
+            assetsName: "$assetsName",
+            category_id: "$category_id",
+            sub_category_id: "$sub_category_id",
+            category_name: "$category.category_name",
+            sub_category_name: "$subcategory.sub_category_name",
+            asset_modal_id: "$modal.asset_modal_id",
+            asset_modal_name: "$modal.asset_modal_name"
+          },
+        },
+      ])
+      .exec();
+
+    if (!assets || assets.length === 0) {
+      return res.status(404).send({ success: false, message: 'No assets found for the given category_id' });
+    }
+
+    res.status(200).send({ success: true, data: assets });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ success: false, error: err, message: 'Error getting asset details' });
   }
 };
