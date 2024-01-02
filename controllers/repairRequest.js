@@ -58,10 +58,101 @@ exports.getAllRepairRequests = async (req, res) => {
                     },
                 },
                 {
+                    $lookup: {
+                      from: "assetreasonmodels",
+                      localField: "asset_reason_id",
+                      foreignField: "asset_reason_id",
+                      as: "assetreasonmodelData",
+                    },
+                  },
+                  {
+                    $unwind: "$assetreasonmodelData",
+                  },
+                {
                     $project: {
                         repair_id: "$repair_id",
                         sim_id: "$sim_id",
                         asset_reason_id: "$asset_reason_id",
+                        reason_name: "$assetreasonmodelData.reason",
+                        asset_name: "$sim.assetsName",
+                        priority: "$priority",
+                        problem_detailing: "$problem_detailing",
+                        multi_tag: "$multi_tag",
+                        status: "$status",
+                        img1: "$img1",
+                        img2: "$img2",
+                        img3: "$img3",
+                        img4: "$img4",
+                        created_at: "$created_at",
+                        updated_at: "$updated_at",
+                        repair_request_date_time: "$repair_request_date_time",
+                        req_by: "$req_by",
+                        req_date: "$req_date"
+                    },
+                },
+            ])
+            .exec();
+        const assetRepairDataBaseUrl = "http://34.93.221.166:3000/uploads/assets/";
+        const dataWithImageUrl = assetsdata.map((assetrepairdatas) => ({
+            ...assetrepairdatas,
+            img1_url: assetrepairdatas.img1 ? assetRepairDataBaseUrl + assetrepairdatas.img1 : null,
+            img2_url: assetrepairdatas.img2 ? assetRepairDataBaseUrl + assetrepairdatas.img2 : null,
+            img3_url: assetrepairdatas.img3 ? assetRepairDataBaseUrl + assetrepairdatas.img3 : null,
+            img4_url: assetrepairdatas.img4 ? assetRepairDataBaseUrl + assetrepairdatas.img4 : null,
+        }));
+        if (dataWithImageUrl?.length === 0) {
+            res
+                .status(200)
+                .send({ success: true, data: [], message: "No Record found" });
+        } else {
+            res.status(200).send({ data: dataWithImageUrl });
+        }
+    } catch (err) {
+        return res
+            .status(500)
+            .send({ error: err.message, sms: "Error getting all Assets Repair Data" });
+    }
+};
+exports.getAllRepairRequestsByAssetReasonId = async (req, res) => {
+    try {
+        const assetsdata = await repairRequestModel
+            .aggregate([
+                
+                    {
+                        $match: { asset_reason_id: parseInt(req.params.id) },
+                    },
+                
+                {
+                    $lookup: {
+                        from: "simmodels",
+                        localField: "sim_id",
+                        foreignField: "sim_id",
+                        as: "sim",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$sim",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $lookup: {
+                      from: "assetreasonmodels",
+                      localField: "asset_reason_id",
+                      foreignField: "asset_reason_id",
+                      as: "assetreasonmodelData",
+                    },
+                  },
+                  {
+                    $unwind: "$assetreasonmodelData",
+                  },
+                {
+                    $project: {
+                        repair_id: "$repair_id",
+                        sim_id: "$sim_id",
+                        asset_reason_id: "$asset_reason_id",
+                        reason_name: "$assetreasonmodelData.reason",
                         asset_name: "$sim.assetsName",
                         priority: "$priority",
                         problem_detailing: "$problem_detailing",

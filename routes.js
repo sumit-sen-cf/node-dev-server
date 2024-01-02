@@ -1217,6 +1217,7 @@ router.post("/add_repair_request", repairRequest.addRepairRequest);
 router.put("/update_repair_request", repairRequest.editRepairRequest);
 router.get("/get_all_repair_request", repairRequest.getAllRepairRequests);
 router.get("/get_single_repair_request/:id", repairRequest.getSingleRepairRequests);
+router.get("/get_all_repair_request_by_asset_reasonId/:id", repairRequest.getAllRepairRequestsByAssetReasonId);
 router.delete("/delete_repair_request/:id", repairRequest.deleteRepairRequest);
 
 module.exports = router;
