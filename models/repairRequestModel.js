@@ -76,7 +76,30 @@ const repairRequestModel = new mongoose.Schema({
         required: false,
         default:0
     },
-    
+    acknowledge_date: {
+        type: Date,
+        default: "",
+    },
+    acknowledge_remark: {
+        type: String,
+        default: "",
+    },
+    submission_date: {
+        type: Date,
+        default: Date.now,
+    },
+    submission_remark: {
+        type: String,
+        default: "",
+    },
+    resolved_date: {
+        type: Date,
+        default: Date.now,
+    },
+    resolved_remark: {
+        type: String,
+        default: "",
+    },
 });
 
 AutoIncrement.initialize(mongoose.connection);

@@ -72,7 +72,7 @@ exports.editDemo = async (req, res) => {
 };
 
 exports.deleteDemo = async (req, res) =>{
-    demoModel.findByIdAndDelete(_id).then(item =>{
+    demoModel.findByIdAndDelete(req.params._id).then(item =>{
         if(item){
             return res.status(200).json({success:true, message:'demo data deleted'})
         }else{

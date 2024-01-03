@@ -235,6 +235,7 @@ router.post("/add_sim_allocation", sim.addAllocation); //done
 router.get("/get_all_allocations", sim.getAllocations);
 router.get("/get_allocation_by_alloid/:id", sim.getAllocationDataByAlloId);
 router.get("/get_allocation_data_by_id/:id", sim.getSimAllocationDataById);
+router.get("/get_allocated_asset_data_for_user_id/:id", sim.getAllocatedAssestByUserId);
 router.put("/update_allocationsim", sim.editAllocation);
 router.delete("/delete_allocation/:id", sim.deleteAllocation);
 router.get("/alldataofsimallocment", sim.alldataofsimallocment);
@@ -1217,6 +1218,7 @@ router.post("/add_repair_request", repairRequest.addRepairRequest);
 router.put("/update_repair_request", repairRequest.editRepairRequest);
 router.get("/get_all_repair_request", repairRequest.getAllRepairRequests);
 router.get("/get_single_repair_request/:id", repairRequest.getSingleRepairRequests);
+router.get("/get_all_repair_request_by_asset_reasonId/:id", repairRequest.getAllRepairRequestsByAssetReasonId);
 router.delete("/delete_repair_request/:id", repairRequest.deleteRepairRequest);
 
 module.exports = router;
