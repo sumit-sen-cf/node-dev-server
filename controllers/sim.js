@@ -567,6 +567,90 @@ exports.getAllocations = async (req, res) => {
   }
 };
 
+// Get User Allocated assests based on his user id
+exports.getAllocatedAssestByUserId = async (req, res) => {
+  try {
+    const assetData = await simAlloModel
+      .aggregate([
+        {
+          $match: { user_id: parseInt(req.params.id) },
+        },
+        {
+          $lookup: {
+            from: "simmodels",
+            localField: "sim_id",
+            foreignField: "sim_id",
+            as: "sim",
+          },
+        },
+        {
+          $unwind: {
+            path: "$sim",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "assetscategorymodels",
+            localField: "category_id",
+            foreignField: "category_id",
+            as: "category",
+          },
+        },
+        {
+          $unwind: {
+            path: "$category",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "assetssubcategorymodels",
+            localField: "sub_category_id",
+            foreignField: "sub_category_id",
+            as: "subcategory",
+          },
+        },
+        {
+          $unwind: {
+            path: "$subcategory",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: "$_id",
+            user_id: "$user_id",
+            category_id: "$category_id",
+            sub_category_id: "$sub_category_id",
+            sim_no: "$sim_no",
+            assetsName: "$sim.assetsName",
+            Remarks: "$Remarks",
+            sub_category_name: "$subcategory.sub_category_name",
+            category_name: "$category.category_name",
+            created_by: "$created_by",
+            status: "$status",
+            user_name: "$user.user_name",
+            s_type: "$s_type",
+            sim_id: "$sim_id",
+            type: "$type",
+            allo_id: "$allo_id",
+            submitted_at: "$submitted_at", 
+          },
+        },
+      ])
+      .exec();
+    if ( assetData && assetData.length <= 0 ) {
+     return res.status(500).send({ success: false , message : "No Record Found"});
+    }
+    return res.status(200).send({ data: assetData });
+  } catch (err) {
+    return  res
+      .status(500)
+      .send({ error: err.message, sms: "Error getting all sim allocatinos" });
+  }
+};
+
 exports.getAllocationDataByAlloId = async (req, res) => {
   try {
     const simc = await simAlloModel
@@ -1172,8 +1256,8 @@ exports.showAssetDataToHR = async (req, res) => {
         {
           $lookup: {
             from: "usermodels",
-            localField: "repair.req_by",
-            foreignField: "user_id",
+            localField: "user_id",
+            foreignField: "repair.req_by",
             as: "userdata",
           },
         },
@@ -1280,8 +1364,8 @@ exports.showAssetDataToHR = async (req, res) => {
               $concat: [imageUrl, "$invoiceCopy"]
             },
             req_by: "$repair.req_by",
-            req_by_name: "$userData.user_name",
-            req_date: "$repair.req_date"
+            req_by_name: "$userdata.user_name",
+            req_date: "$repair.repair_request_date_time"
           },
         },
       ])
@@ -1312,20 +1396,20 @@ exports.showAssetDataToUser = async (req, res) => {
           path: "$repair",
         },
       },
-      // {
-      //   $lookup: {
-      //     from: "usermodels",
-      //     localField: "repair.req_by",
-      //     foreignField: "user_id",
-      //     as: "userdata",
-      //   },
-      // },
-      // {
-      //   $unwind: {
-      //     path: "$userdata",
-      //     preserveNullAndEmptyArrays: true,
-      //   },
-      // },
+      {
+        $lookup: {
+          from: "usermodels",
+          localField: "user_id",
+          foreignField: "repair.req_by",
+          as: "userdata",
+        },
+      },
+      {
+        $unwind: {
+          path: "$userdata",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
       {
         $lookup: {
           from: "assetscategorymodels",
@@ -1420,9 +1504,9 @@ exports.showAssetDataToUser = async (req, res) => {
           asset_modal_id: "$modal.asset_modal_id",
           asset_modal_name: "$modal.asset_modal_name",
           priority: "$repair.priority",
-          // req_by: "$repair.req_by",
-          // req_by_name: "$userData.user_name",
-          // req_date: "$repair.req_date"
+          req_by: "$repair.req_by",
+          req_by_name: "$userdata.user_name",
+          req_date: "$repair.repair_request_date_time"
         },
       },
     ]).exec();

@@ -58,6 +58,16 @@ const simAlloModel = new mongoose.Schema({
     required: false,
     default: 0,
   },
+  assignment_type: {
+    type: String,
+    required: false,
+    default: "",
+  },
+  repair_status: {
+    type: String,
+    required: false,
+    default: "",
+  },
 });
 
 AutoIncrement.initialize(mongoose.connection);
