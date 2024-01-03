@@ -1256,8 +1256,8 @@ exports.showAssetDataToHR = async (req, res) => {
         {
           $lookup: {
             from: "usermodels",
-            localField: "user_id",
-            foreignField: "repair.req_by",
+            localField: "repair.req_by",
+            foreignField: "user_id",
             as: "userdata",
           },
         },
@@ -1399,8 +1399,8 @@ exports.showAssetDataToUser = async (req, res) => {
       {
         $lookup: {
           from: "usermodels",
-          localField: "user_id",
-          foreignField: "repair.req_by",
+          localField: "repair.req_by",
+          foreignField: "user_id",
           as: "userdata",
         },
       },
