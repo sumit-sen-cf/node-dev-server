@@ -1268,6 +1268,35 @@ exports.showAssetDataToHR = async (req, res) => {
           },
         },
         {
+           $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'userdata.dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+        },
+            
+        {
+         $unwind: {
+                path: "$department",
+                preserveNullAndEmptyArrays: true,
+         },
+        },
+         {
+            $lookup: {
+               from: 'designationmodels',
+               localField: 'userdata.user_designation',
+               foreignField: 'desi_id',
+               as: 'designation'
+              }
+        },
+            {
+              $unwind: {
+                path: "$designation",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+        {
           $lookup: {
             from: "assetscategorymodels",
             localField: "category_id",
@@ -1343,7 +1372,7 @@ exports.showAssetDataToHR = async (req, res) => {
             sim_id: "$sim_id",
             asset_id: "$sim_no",
             asset_name: "$assetsName",
-            status: "$status",
+            status: "$repair.status",
             category_id: "$category_id",
             sub_category_id: "$sub_category_id",
             vendor_id: "$vendor_id",
@@ -1365,7 +1394,8 @@ exports.showAssetDataToHR = async (req, res) => {
             },
             req_by: "$repair.req_by",
             req_by_name: "$userdata.user_name",
-            req_date: "$repair.repair_request_date_time"
+            req_by_designation: "$designation.desi_name",
+            req_by_department: "$department.dept_name",
           },
         },
       ])
