@@ -146,7 +146,7 @@ module.exports = {
 
     const departmentData = await departmentModel.findOne({ dept_id: dept_id });
     const shortName = departmentData.short_name;
-    const jobTypeSuffix = latestUser.job_type === "WFH" ? "H" : "O";
+    const jobTypeSuffix = latestUser.job_type === "WFHD" ? "H" : "O";
 
     return `CF/${shortName}/${jobTypeSuffix}/${latestUserId}`
   },

@@ -69,7 +69,7 @@ function monthNameToNumber(monthName) {
 //     });
 //     if (check1.length == 0) {
 //       const check2 = await userModel.find({
-//         job_type: "WFH",
+//         job_type: "WFHD",
 //         dept_id: req.body.dept,
 //       });
 
@@ -153,7 +153,7 @@ function monthNameToNumber(monthName) {
 //       req.body.year == check1[0].year
 //     ) {
 //       const results4 = await userModel.find({
-//         job_type: "WFH",
+//         job_type: "WFHD",
 //         user_id: parseInt(req.body.user_id),
 //       });
 
@@ -192,7 +192,7 @@ function monthNameToNumber(monthName) {
 //       return res.send({ status: 200 });
 //     } else {
 //       const check4 = await userModel.find({
-//         job_type: "WFH",
+//         job_type: "WFHD",
 //         dept_id: parseInt(req.body.dept),
 //       });
 
@@ -338,7 +338,7 @@ exports.addAttendance = async (req, res) => {
       });
       if (check1.length == 0) {
         const check2 = await userModel.find({
-          job_type: "WFH",
+          job_type: "WFHD",
           dept_id: req.body.dept,
         });
 
@@ -429,7 +429,7 @@ exports.addAttendance = async (req, res) => {
         });
         if (check1.length == 0) {
           const check2 = await userModel.find({
-            job_type: "WFH",
+            job_type: "WFHD",
             dept_id: req.body.dept,
           });
           check2.map(async (user) => {
@@ -493,7 +493,7 @@ exports.addAttendance = async (req, res) => {
           req.body.year == check1[0].year
         ) {
           const results4 = await userModel.find({
-            job_type: "WFH",
+            job_type: "WFHD",
             user_id: parseInt(req.body.user_id),
           });
           const perdaysal = results4[0].salary / 30;
@@ -607,7 +607,7 @@ exports.addAttendance = async (req, res) => {
 //           });
 //           if (check1.length == 0) {
 //             const check2 = await userModel.find({
-//               job_type: "WFH",
+//               job_type: "WFHD",
 //               dept_id: req.body.dept,
 //             });
 //             console.log("check2",check2)
@@ -682,7 +682,7 @@ exports.addAttendance = async (req, res) => {
 //             req.body.year == check1[0].year
 //           ) {
 //             const results4 = await userModel.find({
-//               job_type: "WFH",
+//               job_type: "WFHD",
 //               user_id: parseInt(req.body.user_id),
 //             });
 //             const perdaysal = results4[0].salary / 30;
@@ -736,7 +736,7 @@ exports.addAttendance = async (req, res) => {
 //       });
 //       if (check1.length == 0) {
 //         const check2 = await userModel.find({
-//           job_type: "WFH",
+//           job_type: "WFHD",
 //           dept_id: req.body.dept,
 //         });
 //         check2.map(async (user) => {
@@ -800,7 +800,7 @@ exports.addAttendance = async (req, res) => {
 //         req.body.year == check1[0].year
 //       ) {
 //         const results4 = await userModel.find({
-//           job_type: "WFH",
+//           job_type: "WFHD",
 //           user_id: parseInt(req.body.user_id),
 //         });
 //         const perdaysal = results4[0].salary / 30;
@@ -1309,7 +1309,7 @@ exports.getSalaryByUserId = async (req, res) => {
 
 exports.countWfhUsers = async (req, res) => {
   try {
-    const getCount = await attendanceModel.countDocuments({ job_type: "WFH" });
+    const getCount = await attendanceModel.countDocuments({ job_type: "WFHD" });
     res.status(200).send(getCount);
   } catch (err) {
     res
@@ -1678,7 +1678,7 @@ exports.allDeptsOfWfh = async (req, res) => {
     const editsim = await userModel
       .aggregate([
         {
-          $match: { job_type: "WFH" },
+          $match: { job_type: "WFHD" },
         },
         {
           $lookup: {
@@ -1730,7 +1730,7 @@ exports.deptWithWFH = async (req, res) => {
     const result = await userModel
       .aggregate([
         {
-          $match: { job_type: "WFH" },
+          $match: { job_type: "WFHD" },
         },
         {
           $lookup: {
@@ -1771,7 +1771,7 @@ exports.leftEmployees = async (req, res) => {
   try {
     const results = await userModel.find({
       dept_id: dept_id,
-      job_type: "WFH",
+      job_type: "WFHD",
     });
 
     let leftCount = 0;
@@ -1814,7 +1814,7 @@ exports.newJoiners = async (req, res) => {
     // Use Mongoose to query the MongoDB collection
     const results = await userModel.find({
       dept_id: dept_id,
-      job_type: "WFH",
+      job_type: "WFHD",
     });
 
     let newJoinersCount = 0;
@@ -1946,7 +1946,7 @@ exports.deptIdWithWfh = async (req, res) => {
     const results = await userModel.aggregate([
       {
         $match: {
-          job_type: "WFH",
+          job_type: "WFHD",
           dept_id: parseInt(dept_id),
         },
       },
@@ -2139,7 +2139,7 @@ exports.addAttendanceAllDepartments = async (req, res) => {
     const year = req.body.year;
 
     const getAllWfhUser = await userModel.find({
-      job_type: 'WFH'
+      job_type: 'WFHD'
     }).select({ dept_id: 1, user_id: 1, salary: 1 })
     // console.log(getAllWfhUser)
 

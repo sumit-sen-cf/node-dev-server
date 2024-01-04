@@ -92,6 +92,7 @@ const education = require('./controllers/education.js');
 const assetReson = require("./controllers/assetReason.js");
 const guardian = require("./controllers/guardian.js");
 const repairRequest = require("./controllers/repairRequest.js");
+const jobTypeController = require("./controllers/jobTypeController.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1220,5 +1221,12 @@ router.get("/get_all_repair_request", repairRequest.getAllRepairRequests);
 router.get("/get_single_repair_request/:id", repairRequest.getSingleRepairRequests);
 router.get("/get_all_repair_request_by_asset_reasonId/:id", repairRequest.getAllRepairRequestsByAssetReasonId);
 router.delete("/delete_repair_request/:id", repairRequest.deleteRepairRequest);
+
+// Job Type Routes
+router.post("/add_job_type", jobTypeController.addJobType);
+router.put("/update_job_type", jobTypeController.editJobType);
+router.get("/get_all_job_types", jobTypeController.getJobTypes);
+router.get("/get_single_job_type/:id", jobTypeController.getJobType);
+router.delete("/delete_job_type/:id", jobTypeController.deleteJobType);
 
 module.exports = router;

@@ -668,6 +668,21 @@ const userModel = new mongoose.Schema({
         type: String,
         required: false,
         default: ""
+    },
+    document_percentage_mandatory: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    document_percentage_non_mandatory: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    document_percentage: {
+        type: String,
+        required: false,
+        default: ""
     }
 });
 

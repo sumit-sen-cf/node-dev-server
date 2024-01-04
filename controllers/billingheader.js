@@ -51,7 +51,7 @@ exports.getBillingHeaders = async (req, res) => {
 
     const wfhUserCounts = await Promise.all(
       billingheaderdata.map(async (billingHeader) => {
-        const count = await userModel.countDocuments({ dept_id: billingHeader.dept_id, job_type: 'WFH' });
+        const count = await userModel.countDocuments({ dept_id: billingHeader.dept_id, job_type: 'WFHD' });
         return { dept_id: billingHeader.dept_id, wfhUserCount: count };
       })
     );

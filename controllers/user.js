@@ -179,7 +179,10 @@ exports.addUser = [upload, async (req, res) => {
             emergency_contact_person_name1: req.body.emergency_contact_person_name1,
             emergency_contact_person_name2: req.body.emergency_contact_person_name2,
             emergency_contact_relation1: req.body.emergency_contact_relation1,
-            emergency_contact_relation2: req.body.emergency_contact_relation2
+            emergency_contact_relation2: req.body.emergency_contact_relation2,
+            document_percentage_mandatory: req.body.document_percentage_mandatory,
+            document_percentage_non_mandatory: req.body.document_percentage_non_mandatory,
+            document_percentage: req.body.document_percentage
         })
         const simv = await simc.save();
 
@@ -429,8 +432,10 @@ exports.updateUser = [upload1, async (req, res) => {
             emergency_contact_person_name1: req.body.emergency_contact_person_name1,
             emergency_contact_person_name2: req.body.emergency_contact_person_name2,
             emergency_contact_relation1: req.body.emergency_contact_relation1,
-            emergency_contact_relation2: req.body.emergency_contact_relation2
-
+            emergency_contact_relation2: req.body.emergency_contact_relation2,
+            document_percentage_mandatory: req.body.document_percentage_mandatory,
+            document_percentage_non_mandatory: req.body.document_percentage_non_mandatory,
+            document_percentage: req.body.document_percentage
         }, { new: true });
         if (!editsim) {
             return res.status(500).send({ success: false })
@@ -447,7 +452,7 @@ exports.updateUser = [upload1, async (req, res) => {
 
 exports.getWFHUsersByDept = async (req, res) => {
     try {
-        const simc = await userModel.find({ dept_id: req.params.dept_id, job_type: 'WFH' }).lean();
+        const simc = await userModel.find({ dept_id: req.params.dept_id, job_type: 'WFHD' }).lean();
         if (!simc) {
             res.status(500).send({ success: false })
         }
@@ -745,6 +750,9 @@ exports.getAllUsers = async (req, res) => {
                     emergency_contact_person_name2: "$emergency_contact_person_name2",
                     emergency_contact_relation1: "$emergency_contact_relation1",
                     emergency_contact_relation2: "$emergency_contact_relation2",
+                    document_percentage_mandatory: "$document_percentage_mandatory",
+                    document_percentage_non_mandatory: "$document_percentage_non_mandatory",
+                    document_percentage: "$document_percentage",
                     documentPercentage: {
                         $multiply: [
                             {
@@ -1051,7 +1059,10 @@ exports.getSingleUser = async (req, res) => {
                     emergency_contact_person_name1: "$emergency_contact_person_name1",
                     emergency_contact_person_name2: "$emergency_contact_person_name2",
                     emergency_contact_relation1: "$emergency_contact_relation1",
-                    emergency_contact_relation2: "$emergency_contact_relation2"
+                    emergency_contact_relation2: "$emergency_contact_relation2",
+                    document_percentage_mandatory: "$document_percentage_mandatory",
+                    document_percentage_non_mandatory: "$document_percentage_non_mandatory",
+                    document_percentage: "$document_percentage",
                 }
             }
         ]).exec();
@@ -1388,7 +1399,10 @@ exports.deliveryUser = async (req, res) => {
                     guardian_address: "$guardian_address",
                     relation_with_guardian: "$relation_with_guardian",
                     gaurdian_number: "$gaurdian_number",
-                    emergency_contact: "$emergency_contact"
+                    emergency_contact: "$emergency_contact",
+                    document_percentage_mandatory: "$document_percentage_mandatory",
+                    document_percentage_non_mandatory: "$document_percentage_non_mandatory",
+                    document_percentage: "$document_percentage",
                 }
             }
         ]).exec();
@@ -1734,7 +1748,7 @@ exports.sendUserMail = async (req, res) => {
 
 exports.getUserByDeptAndWFH = async (req, res) => {
     try {
-        const delv = await userModel.find({ dept_id: req.params.dept_id, job_type: 'WFH' })
+        const delv = await userModel.find({ dept_id: req.params.dept_id, job_type: 'WFHD' })
         if (!delv) {
             res.status(500).send({ success: false })
         }
@@ -2181,7 +2195,7 @@ exports.sendMailAllWfoUser = async (req, res) => {
 
 exports.getAllWfhUsers = async (req, res) => {
     try {
-        const simc = await userModel.find({ job_type: 'WFH' }).lean();
+        const simc = await userModel.find({ job_type: 'WFHD' }).lean();
         if (simc.length === 0) {
             res.status(500).send({ success: false, message: "No record found" })
         }
@@ -2678,7 +2692,7 @@ exports.getUserGraphData = async (req, res) => {
                         _id: "$_id.dept_id",
                         wfhCount: {
                             $sum: {
-                                $cond: [{ $eq: ["$_id.job", "WFH"] }, "$count", 0],
+                                $cond: [{ $eq: ["$_id.job", "WFHD"] }, "$count", 0],
                             },
                         },
                         wfoCount: {
