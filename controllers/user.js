@@ -452,7 +452,7 @@ exports.updateUser = [upload1, async (req, res) => {
 
 exports.getWFHUsersByDept = async (req, res) => {
     try {
-        const simc = await userModel.find({ dept_id: req.params.dept_id, job_type: 'WFH' }).lean();
+        const simc = await userModel.find({ dept_id: req.params.dept_id, job_type: 'WFHD' }).lean();
         if (!simc) {
             res.status(500).send({ success: false })
         }
@@ -1748,7 +1748,7 @@ exports.sendUserMail = async (req, res) => {
 
 exports.getUserByDeptAndWFH = async (req, res) => {
     try {
-        const delv = await userModel.find({ dept_id: req.params.dept_id, job_type: 'WFH' })
+        const delv = await userModel.find({ dept_id: req.params.dept_id, job_type: 'WFHD' })
         if (!delv) {
             res.status(500).send({ success: false })
         }
@@ -2195,7 +2195,7 @@ exports.sendMailAllWfoUser = async (req, res) => {
 
 exports.getAllWfhUsers = async (req, res) => {
     try {
-        const simc = await userModel.find({ job_type: 'WFH' }).lean();
+        const simc = await userModel.find({ job_type: 'WFHD' }).lean();
         if (simc.length === 0) {
             res.status(500).send({ success: false, message: "No record found" })
         }
@@ -2692,7 +2692,7 @@ exports.getUserGraphData = async (req, res) => {
                         _id: "$_id.dept_id",
                         wfhCount: {
                             $sum: {
-                                $cond: [{ $eq: ["$_id.job", "WFH"] }, "$count", 0],
+                                $cond: [{ $eq: ["$_id.job", "WFHD"] }, "$count", 0],
                             },
                         },
                         wfoCount: {
