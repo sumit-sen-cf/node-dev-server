@@ -8,7 +8,7 @@ const userModel = new mongoose.Schema({
     },
     user_designation: {
         type: Number,
-        required: false
+        required: [true, "designation is Required"]
     },
     user_email_id: {
         type: String,
@@ -24,7 +24,7 @@ const userModel = new mongoose.Schema({
     },
     user_login_password: {
         type: String,
-        required: false,
+        required: [true, "Password is Required"],
         default: ""
     },
     user_name: {
@@ -46,7 +46,7 @@ const userModel = new mongoose.Schema({
     },
     dept_id: {
         type: Number,
-        required: [true, "Departent Id Should be Unique"],
+        required: [true, "Departent Id is required"],
         default: 0
     },
     location_id: {
@@ -126,7 +126,7 @@ const userModel = new mongoose.Schema({
     },
     SpokenLanguages: {
         type: String,
-        required: false,
+        required: [true, "Spoken language is Required"],
         default: ""
     },
     Gender: {
@@ -141,7 +141,8 @@ const userModel = new mongoose.Schema({
     },
     DOB: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        required: [true, "DOB is Required"]
     },
     Age: {
         type: Number,
@@ -150,12 +151,12 @@ const userModel = new mongoose.Schema({
     },
     fatherName: {
         type: String,
-        required: false,
+        required: [true, "father name is Required"],
         default: ""
     },
     motherName: {
         type: String,
-        required: false,
+        required: [true, "Mother name is Required"],
         default: ""
     },
     Hobbies: {
@@ -165,12 +166,12 @@ const userModel = new mongoose.Schema({
     },
     BloodGroup: {
         type: String,
-        required: false,
+        required: [true, "Blood group is Required"],
         default: ""
     },
     MartialStatus: {
         type: String,
-        required: false,
+        required: [true, "Maritial status is Required"],
         default: ""
     },
     DateOfMarriage: {
@@ -244,7 +245,7 @@ const userModel = new mongoose.Schema({
     },
     user_status: {
         type: String,
-        required: false,
+        required: [true, "user status is Required"],
         default: "Active"
     },
     lastupdated: {
@@ -257,7 +258,7 @@ const userModel = new mongoose.Schema({
     },
     sub_dept_id: {
         type: Number,
-        required: false,
+        required: [true, "sub dept id is Required"],
         default: 0
     },
     pan_no: {
@@ -387,17 +388,17 @@ const userModel = new mongoose.Schema({
     },
     permanent_city: {
         type: String,
-        required: false,
+        required: [true, "Permanent city is Required"],
         default: ""
     },
     permanent_state: {
         type: String,
-        required: false,
+        required: [true, "permanent state is Required"],
         default: ""
     },
     permanent_pin_code: {
         type: Number,
-        required: false,
+        required: [true, "permanent pincode is Required"],
         default: null
     },
     joining_date_extend: {
@@ -427,7 +428,7 @@ const userModel = new mongoose.Schema({
     },
     image: {
         type: String,
-        required: false,
+        required: [true, "Profile image is Required"],
         default: ""
     },
     UID: {
@@ -502,22 +503,22 @@ const userModel = new mongoose.Schema({
     },
     digital_signature_image: {
         type: String,
-        required: false,
+        required: [true, "Digital signature is Required"],
         default: ""
     },
     bank_name: {
         type: String,
-        required: false,
+        required: [true, "bank name is Required"],
         default: ""
     },
     ifsc_code: {
         type: String,
-        required: false,
+        required: [true, "ifsc is Required"],
         default: ""
     },
     account_no: {
         type: String,
-        required: false,
+        required: [true, "account number is Required"],
         default: ""
     },
     guardian_name: {
@@ -542,7 +543,7 @@ const userModel = new mongoose.Schema({
     },
     emergency_contact1: {
         type: Number,
-        required: false,
+        required: [true, "EME contact is Required"],
         default: 0
     },
     emergency_contact2: {
@@ -641,7 +642,7 @@ const userModel = new mongoose.Schema({
     },
     alternate_contact: {
         type: Number,
-        required: false,
+        required: [true, "Alt. Number is Required"],
         default: null
     },
     cast_type: {
@@ -651,12 +652,12 @@ const userModel = new mongoose.Schema({
     },
     emergency_contact_person_name1: {
         type: String,
-        required: false,
+        required: [true, "EME contact person name is Required"],
         default: ""
     },
     emergency_contact_relation1: {
         type: String,
-        required: false,
+        required: [true, "EME contact relation is Required"],
         default: ""
     },
     emergency_contact_person_name2: {
