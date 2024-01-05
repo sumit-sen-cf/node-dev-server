@@ -3,6 +3,7 @@ const logoBrandModel = require('../models/logoBrandModel.js');
 const path = require("path");
 const constant = require('../common/constant.js');
 const helper = require('../helper/helper.js');
+
 exports.addLogoBrandCat = async (req, res) =>{
     try{
         const simc = new logoCategoryModel({
@@ -256,16 +257,10 @@ return res.status(200).json({message : "No Record Found"});
         res.status(500).send({error:error.message, sms:'error while adding logo brand data'})
     }
 }
+
 exports.deleteLogoBrand = async (req, res) =>{
     logoBrandModel.findOneAndDelete({logo_id:req.params.logo_id}).then(item =>{
         if(item.deletedCount !== 0){
-            // const result = helper.fileRemove(
-            //     item?.upload_logo,
-            //     "../uploads/logo"
-            //   );
-            //   if (result?.status == false) {
-            //     return res.status(200).json({success:false, message: result.msg})
-            //   }
             return res.status(200).json({success:true, message:'logo brand deleted'})
         }else{
             return res.status(404).json({success:false, message:'logo brand not found'})
@@ -274,6 +269,7 @@ exports.deleteLogoBrand = async (req, res) =>{
         return res.status(400).json({success:false, message:err.message})
     })
 };
+
 exports.deleteLogoBrandBasedBrand = async (req, res) =>{
     logoBrandModel.deleteMany({brand_name:req.params.brand_name}).then(item =>{
         if(item){
@@ -292,6 +288,7 @@ exports.deleteLogoBrandBasedBrand = async (req, res) =>{
         return res.status(400).json({success:false, message:err.message})
     })
 };
+
 exports.getLogoBrandsCat = async (req, res) => {
     try{
         const simc = await logoCategoryModel.find();
@@ -345,3 +342,41 @@ exports.deleteLogoBrandCat = async (req, res) =>{
     })
 };
 
+exports.editLogoBrand = async(req, res) => {
+    try{
+        const editlogobrand = await logoBrandModel.findOneAndUpdate({logo_id:req.body.id},{
+            brand_name: req.body.brand_name,
+            image_type: req.body.image_type,
+            size: req.body.size,
+            size_in_mb: req.body.size_in_mb,
+            updated_at: req.body.updated_at, 
+            last_updated_by: req.body.last_updated_by,
+            remarks: req.body.remarks,
+            logo_cat: req.body.logo_cat,
+            upload_logo: req.file.filename
+        })
+
+        res.status(200).send({data:editlogobrand, sms:'logo brands details updated successfully'})
+    }catch(err){
+        res.status(500).send({error: err.message, sms:'error udpdating logo brands details'})
+    }
+}
+
+exports.editLogoBrandNew = async(req, res) => {
+    try{
+        const getName = await logoBrandModel.findOne({logo_id:req.body.id}).select({brand_name:1});
+        const getAllNames = await logoBrandModel.find({brand_name:getName}).select({logo_id:1});
+        const groupIds = getAllNames.map((item)=> item.logo_id);
+        const editlogoname = await logoBrandModel.updateMany({logo_id:{$in:groupIds}},{
+            $set:{
+                brand_name: req.body.brand_name,
+                updated_at: req.body.updated_at, 
+                last_updated_by: req.body.last_updated_by,
+                remarks: req.body.remarks
+            }
+        })
+        res.status(200).send({data:editlogoname, sms:'logo brand name updated successfully'})
+    }catch(err){
+        res.status(500).send({error: err.message, sms:'error udpdating logo brands details'})
+    }
+}

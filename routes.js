@@ -264,6 +264,8 @@ router.get("/get_single_logo_data/:logo_id", logoBrand.getSingleLogoData)
 router.get("/get_logo_data_for_brand/:brand_name", logoBrand.getLogoDataBasedBrand)
 router.delete("/delete_logo/:logo_id", logoBrand.deleteLogoBrand)
 router.delete("/delete_logo_based_brand/:brand_name", logoBrand.deleteLogoBrandBasedBrand)
+router.put("/update_logo_brand", upload1.single('upload_logo'), logoBrand.editLogoBrand)
+router.put("/update_logo_brand_new", logoBrand.editLogoBrandNew)
 
 /* department */
 router.post("/add_department", department.addDepartment); //Done
