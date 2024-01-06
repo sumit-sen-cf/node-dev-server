@@ -21,7 +21,11 @@ exports.addLogoBrandCat = async (req, res) =>{
 
 exports.addLogoBrand = async(req, res) => {
     try {
+        const lastRecord = await logoBrandModel.findOne({}, {}, { sort: { 'logo_id': -1 } });
+        const nextLogoId = (lastRecord && lastRecord.logo_id) ? lastRecord.logo_id + 1 : 1;
+
         const simc = new logoBrandModel({
+            logo_id: nextLogoId,
             brand_name: req.body.brand_name,
             image_type: req.body.image_type,
             size: req.body.size,
@@ -89,7 +93,7 @@ exports.getLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo_images/`,
+                                    `${constant.base_url}/uploads/logo/`,
                                     '$upload_logo'
                                 ]
                             },
@@ -101,7 +105,7 @@ exports.getLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo_images/`,
+                                    `${constant.base_url}/uploads/logo/`,
                                     '$upload_logo'
                                 ]
                             },
@@ -164,7 +168,7 @@ exports.getSingleLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo_images/`,
+                                    `${constant.base_url}/uploads/logo/`,
                                     '$upload_logo'
                                 ]
                             },
@@ -176,7 +180,7 @@ exports.getSingleLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo_images/`,
+                                    `${constant.base_url}/uploads/logo/`,
                                     '$upload_logo'
                                 ]
                             },
@@ -229,7 +233,7 @@ exports.getLogoDataBasedBrand = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo_images/`,
+                                    `${constant.base_url}/uploads/logo/`,
                                     '$upload_logo'
                                 ]
                             },
@@ -241,7 +245,7 @@ exports.getLogoDataBasedBrand = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo_images/`,
+                                    `${constant.base_url}/uploads/logo/`,
                                     '$upload_logo'
                                 ]
                             },
