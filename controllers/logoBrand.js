@@ -75,6 +75,7 @@ exports.getLogoData = async(req, res) => {
                     brand_name: '$brand_name',
                     image_type: '$image_type',
                     size: '$size',
+                    size_in_mb: '$size_in_mb',
                     remarks: '$remarks',
                     created_by: '$created_by',
                     user_name: { $arrayElemAt: ['$createdByUser.user_name', 0] },
@@ -149,6 +150,7 @@ exports.getSingleLogoData = async(req, res) => {
                     brand_name: '$brand_name',
                     image_type: '$image_type',
                     size: '$size',
+                    size_in_mb: '$size_in_mb',
                     remarks: '$remarks',
                     created_by: '$created_by',
                     user_name: { $arrayElemAt: ['$createdByUser.user_name', 0] },
@@ -303,7 +305,7 @@ exports.getLogoBrandsCat = async (req, res) => {
 
 exports.getSingleLogoBrandCat = async (req, res) => {
     try{
-        const singlesim = await logoCategoryModel.findById(req.params._id);
+        const singlesim = await logoCategoryModel.findOne({id:parseInt(req.params.id)});
         if(!singlesim){
             return res.status(500).send({success:false})
         }
@@ -315,7 +317,7 @@ exports.getSingleLogoBrandCat = async (req, res) => {
 
 exports.editLogoBrandCat = async (req, res) => {
     try{
-        const editsim = await logoCategoryModel.findByIdAndUpdate(req.body._id,{
+        const editsim = await logoCategoryModel.findOneAndUpdate({id:parseInt(req.body.id)},{
             cat_name: req.body.cat_name,
             remark: req.body.remark,
             created_at: req.body.created_at,
