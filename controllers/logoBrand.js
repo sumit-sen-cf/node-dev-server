@@ -258,7 +258,7 @@ exports.getLogoDataBasedBrand = async(req, res) => {
 if (productData?.length == 0){
 return res.status(200).json({message : "No Record Found"});
 }
-        res.status(200).json(productData[0]);
+        res.status(200).json(productData);
     } catch (error) {
         res.status(500).send({error:error.message, sms:'error while adding logo brand data'})
     }
