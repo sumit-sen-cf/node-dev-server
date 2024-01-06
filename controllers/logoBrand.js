@@ -59,8 +59,8 @@ exports.getLogoData = async(req, res) => {
             {
                 $lookup: {
                     from: 'logocategorymodels', 
-                    localField: 'id',
-                    foreignField: 'logo_cat',
+                    localField: 'logo_cat',
+                    foreignField: 'id',
                     as: 'logoCategory'
                 }
             },
@@ -134,8 +134,8 @@ exports.getSingleLogoData = async(req, res) => {
             {
                 $lookup: {
                     from: 'logocategorymodels', 
-                    localField: 'id',
-                    foreignField: 'logo_cat',
+                    localField: 'logo_cat',
+                    foreignField: 'id',
                     as: 'logoCategory'
                 }
             },
@@ -210,8 +210,8 @@ exports.getLogoDataBasedBrand = async(req, res) => {
             {
                 $lookup: {
                     from: 'logocategorymodels', 
-                    localField: 'id',
-                    foreignField: 'logo_cat',
+                    localField: 'logo_cat',
+                    foreignField: 'id',
                     as: 'logoCategory'
                 }
             },
@@ -222,6 +222,7 @@ exports.getLogoDataBasedBrand = async(req, res) => {
                     brand_name: '$brand_name',
                     image_type: '$image_type',
                     size: '$size',
+                    size_in_mb: '$size_in_mb',
                     remarks: '$remarks',
                     created_at: '$created_at',
                     last_updated_at: '$last_updated_at',
