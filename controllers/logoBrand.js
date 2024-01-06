@@ -371,7 +371,7 @@ exports.editLogoBrand = async(req, res) => {
 exports.editLogoBrandNew = async(req, res) => {
     try{
         const getName = await logoBrandModel.findOne({logo_id:req.body.id}).select({brand_name:1});
-        const getAllNames = await logoBrandModel.find({brand_name:getName}).select({logo_id:1});
+        const getAllNames = await logoBrandModel.find({brand_name:getName.brand_name}).select({logo_id:1});
         const groupIds = getAllNames.map((item)=> item.logo_id);
         const editlogoname = await logoBrandModel.updateMany({logo_id:{$in:groupIds}},{
             $set:{
