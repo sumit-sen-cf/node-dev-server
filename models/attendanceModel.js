@@ -117,6 +117,14 @@ const attendanceModel = new mongoose.Schema({
         type: String,
         default: "attendance pending",
         required: false
+    },
+    disputed_reason: {
+        type: String,
+        default: ""
+    },
+    disputed_date: {
+        type: Date,
+        default: ""
     }
 });
 

@@ -407,6 +407,8 @@ exports.addAttendance = async (req, res) => {
                 Created_by: req.body.user_id,
                 salary,
                 attendence_status_flow: "salary generated",
+                disputed_reason: req.body.disputed_reason,
+                disputed_date: req.body.disputed_date
               });
               const instav = await creators.save();
             }
@@ -482,6 +484,8 @@ exports.addAttendance = async (req, res) => {
                 Created_by: req.body.user_id,
                 salary,
                 attendence_status_flow: "salary generated",
+                disputed_reason: req.body.disputed_reason,
+                disputed_date: req.body.disputed_date
               });
               const instav = await creators.save();
             }
@@ -522,6 +526,8 @@ exports.addAttendance = async (req, res) => {
               salary_deduction,
               attendence_status,
               salary_status,
+              disputed_reason: req.body.disputed_reason,
+              disputed_date: req.body.disputed_date
             },
             { new: true }
           );
@@ -1292,6 +1298,19 @@ exports.getSalaryByUserId = async (req, res) => {
             screenshot: {
               $concat: [imageUrl, "$fn.screenshot"]
             },
+            beneficiary_name: "$user.beneficiary",
+            bank_name: "$user.bank_name",
+            account_no: "$user.account_no",
+            ifsc_code: "$user.ifsc_code",
+            pan_no: "$user.pan",
+            user_contact_no: "$user.user_contact_no",
+            current_address: "$user.current_address",
+            sendToFinance: "$sendToFinance",
+            digital_signature_image: {
+              $concat: [imageUrl, "$user.digital_signature_image"]
+            },
+            disputed_reason: "$disputed_reason",
+            disputed_date: "$disputed_date"
           },
         },
       ])
@@ -1595,11 +1614,11 @@ exports.getMonthYearData = async (req, res) => {
           loopMonthIndex <= currentMonthIndex
             ? loopYear
             : parseInt(loopYear) +
-              parseInt(
-                month == "January" || month == "February" || month == "March"
-                  ? 1
-                  : 0
-              ),
+            parseInt(
+              month == "January" || month == "February" || month == "March"
+                ? 1
+                : 0
+            ),
       };
     });
 
@@ -2441,6 +2460,27 @@ exports.getUsersCountByDept = async (req, res) => {
       error: error.message,
       status: 500,
       sms: "Error getting grouped attendance data",
+    });
+  }
+};
+
+exports.updateAttendance = async (req, res) => {
+  try {
+    const editsim = await attendanceModel.findOneAndUpdate(
+      { attendence_id: req.body.attendence_id },
+      {
+        attendence_status_flow: req.body.attendence_status_flow,
+        disputed_reason: req.body.disputed_reason,
+        disputed_date: req.body.disputed_date
+      },
+      { new: true }
+    );
+    res.send({ status: 200, sms: " update attendance data successfully", data: editsim });
+  } catch (error) {
+    return res.send({
+      error: error.message,
+      status: 500,
+      sms: "error updating send to attendance data",
     });
   }
 };

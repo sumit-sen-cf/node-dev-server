@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
       cb(null, "./uploads/logo");
     } else if (file.fieldname === "creatorImageToServer") {
       cb(null, "./uploads/Creator_s Avatar");
-    }else if (file.fieldname === "campaignImageToServer") {
+    } else if (file.fieldname === "campaignImageToServer") {
       cb(null, "./uploads/Campaign_s Avatar");
     } else if (file.fieldname === "brandImageToServer") {
       cb(null, "./uploads/Brand_s Avatar");
@@ -24,6 +24,8 @@ const storage = multer.diskStorage({
       cb(null, "./uploads/productImage");
     } else if (file.fieldname === "content_sec_file") {
       cb(null, "./uploads/contentSecFiles");
+    } else if (file.fieldname === "data_upload") {
+      cb(null, "./uploads/dataimages");
     } else {
       cb(null, "./uploads");
     }
