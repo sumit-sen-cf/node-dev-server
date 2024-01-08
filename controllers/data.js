@@ -4,6 +4,7 @@ const dataSubCategoryModel = require("../models/dataSubCategoryModel.js");
 const path = require("path");
 const constant = require('../common/constant.js');
 const helper = require('../helper/helper.js');
+const mongoose = require('mongoose');
 
 exports.addData = async (req, res) => {
     try {
@@ -155,8 +156,10 @@ exports.getDatas = async (req, res) => {
                     platform_id: 1,
                     brand_id: 1,
                     content_type_id: 1,
+                    created_at: 1,
                     created_by: 1,
                     updated_by: 1,
+                    data_upload: 1,
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
                     category_name: "$category.category_name",
@@ -186,7 +189,7 @@ exports.getSingleData = async (req, res) => {
         const singlesim = await dataModel.aggregate([
             {
                 $match: {
-                    _id: req.params._id
+                    _id: mongoose.Types.ObjectId(req.params._id),
                 }
             },
             {
@@ -284,13 +287,25 @@ exports.getSingleData = async (req, res) => {
                     content_type_id: 1,
                     created_by: 1,
                     updated_by: 1,
-                    created_by_name: "$userData.user_name",
-                    updated_by_name: "$userData.user_name",
-                    category_name: "$category.category_name",
-                    sub_category_name: "$subcategory. data_sub_cat_name",
-                    platform_name: "$platform.platform_name",
-                    brand_name: "$brand.brand_name",
-                    content_type_name: "$contenttype.content_name",
+                    created_by_name: {
+                        $cond: {
+                            if: { $isArray: '$userData' },
+                            then: { $arrayElemAt: [{ $split: ['$userData.user_name', ','] }, 0] },
+                            else: null
+                        }
+                    },
+                    updated_by_name: {
+                        $cond: {
+                            if: { $isArray: '$userData' },
+                            then: { $arrayElemAt: [{ $split: ['$userData.user_name', ','] }, 0] },
+                            else: null
+                        }
+                    },
+                    category_name: { $ifNull: ['$category.category_name', null] },
+                    sub_category_name: { $ifNull: ['$subcategory.data_sub_cat_name', null] },
+                    platform_name: { $ifNull: ['$platform.platform_name', null] },
+                    brand_name: { $ifNull: ['$brand.brand_name', null] },
+                    content_type_name: { $ifNull: ['$contenttype.content_name', null] },
                     data_image: {
                         $cond: {
                             if: { $ne: ['$data_upload', null] },
@@ -303,15 +318,21 @@ exports.getSingleData = async (req, res) => {
                             else: null
                         }
                     },
-                },
+                }
             },
         ]);
-        if (!singlesim) {
-            res.status(500).send({ success: false })
+        // if (!singlesim) {
+        //     res.status(500).send({ success: false })
+        // }
+        // res.status(200).send(singlesim)
+        if (!singlesim || singlesim.length === 0) {
+            res.status(500).send({ success: false });
+            return;
         }
-        res.status(200).send(singlesim)
+
+        res.status(200).send(singlesim[0]);
     } catch (err) {
-        res.status(500).send({ error: err, sms: 'Error getting data details' })
+        res.status(500).send({ error: err.message, sms: 'Error getting data details' })
     }
 };
 
@@ -410,18 +431,18 @@ exports.getDataBasedDataName = async (req, res) => {
             {
                 $project: {
                     _id: 1,
-                    data_name: 1,
-                    cat_id: 1,
-                    sub_cat_id: 1,
-                    platform_id: 1,
-                    brand_id: 1,
-                    content_type_id: 1,
-                    created_by: 1,
-                    updated_by: 1,
+                    data_name: "$data_name",
+                    cat_id: "$cat_id",
+                    sub_cat_id: "$sub_cat_id",
+                    platform_id: "$platform_id",
+                    brand_id: "$brand_id",
+                    content_type_id: "$content_type_id",
+                    created_by: "$created_by",
+                    updated_by: "updated_by",
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
                     category_name: "$category.category_name",
-                    sub_category_name: "$subcategory. data_sub_cat_name",
+                    sub_category_name: "$subcategory.data_sub_cat_name",
                     platform_name: "$platform.platform_name",
                     brand_name: "$brand.brand_name",
                     content_type_name: "$contenttype.content_name",

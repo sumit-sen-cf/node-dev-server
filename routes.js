@@ -1293,7 +1293,7 @@ router.delete("/delete_data_platform/:_id", dataPlatform.deleteDataPlatform);
 //Data Routes
 router.post("/add_data", upload.single('data_upload'), dataController.addData);
 router.get("/get_all_datas", dataController.getDatas);
-router.get("get_data_based_data_name", dataController.getDataBasedDataName);
+router.get("get_data_based_data_name/:data_name", dataController.getDataBasedDataName);
 router.get(
   "/get_single_data/:_id",
   dataController.getSingleData
