@@ -93,6 +93,12 @@ const assetReson = require("./controllers/assetReason.js");
 const guardian = require("./controllers/guardian.js");
 const repairRequest = require("./controllers/repairRequest.js");
 const jobTypeController = require("./controllers/jobTypeController.js");
+const dataSubCat = require("./controllers/dataSubCategory.js");
+const dataBrand = require("./controllers/dataBrand.js");
+const dataContentType = require("./controllers/dataContentType.js");
+const dataCategory = require("./controllers/dataCategory.js");
+const dataPlatform = require("./controllers/dataPlatform.js");
+const dataController = require("./controllers/data.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -818,6 +824,7 @@ router.post("/save_all_depts_attendance", attendance.addAttendanceAllDepartments
 router.get("/get_all_attendance_data", attendance.getAllAttendanceData);
 router.get("/get_salary_calculation_data", attendance.getSalarycalculationData);
 router.post("/get_users_count_by_dept", attendance.getUsersCountByDept);
+router.put("/update_attendance", attendance.updateAttendance);
 
 /* commitement */
 router.post("/add_commitment", cmtController.addCmt);
@@ -1230,5 +1237,69 @@ router.put("/update_job_type", jobTypeController.editJobType);
 router.get("/get_all_job_types", jobTypeController.getJobTypes);
 router.get("/get_single_job_type/:id", jobTypeController.getJobType);
 router.delete("/delete_job_type/:id", jobTypeController.deleteJobType);
+
+//----------------------------------------All Routes OF Data Module ------------------------------------------//
+// Data Sub Category Routes
+router.post("/add_data_sub_category", dataSubCat.addDataSubCat);
+router.get("/get_all_data_sub_categories", dataSubCat.getDataSubCats);
+router.get(
+  "/get_single_data_sub_category/:_id",
+  dataSubCat.getSingleDataSubCat
+);
+router.put("/update_data_sub_category", dataSubCat.editDataSubCat);
+router.delete("/delete_data_sub_category/:_id", dataSubCat.deleteDataSubCat);
+
+
+// Data Brand Routes
+router.post("/add_data_brand", dataBrand.addDataBrand);
+router.get("/get_all_data_brands", dataBrand.getDataBrands);
+router.get(
+  "/get_single_data_brand/:_id",
+  dataBrand.getSingleDataBrand
+);
+router.put("/update_data_brand", dataBrand.editDataBrand);
+router.delete("/delete_data_brand/:_id", dataBrand.deleteDataBrand);
+
+// Data Content Type Routes
+router.post("/add_data_content_type", dataContentType.addDataContentType);
+router.get("/get_all_data_content_types", dataContentType.getDataContentTypes);
+router.get(
+  "/get_single_data_content_type/:_id",
+  dataContentType.getSingleDataContentType
+);
+router.put("/update_data_content_type", dataContentType.editDataContentType);
+router.delete("/delete_data_content_type/:_id", dataContentType.deleteDataContentType);
+
+// Data Category Routes
+router.post("/add_data_category", dataCategory.addDataCategory);
+router.get("/get_all_data_categorys", dataCategory.getDataCategorys);
+router.get(
+  "/get_single_data_category/:_id",
+  dataCategory.getSingleDataCategory
+);
+router.put("/update_data_category", dataCategory.editDataCategory);
+router.delete("/delete_data_category/:_id", dataCategory.deleteDataCategory);
+
+// Data Platform Routes
+router.post("/add_data_platform", dataPlatform.addDataPlatform);
+router.get("/get_all_data_platforms", dataPlatform.getDataPlatforms);
+router.get(
+  "/get_single_data_platform/:_id",
+  dataPlatform.getSingleDataPlatform
+);
+router.put("/update_data_platform", dataPlatform.editDataPlatform);
+router.delete("/delete_data_platform/:_id", dataPlatform.deleteDataPlatform);
+
+//Data Routes
+router.post("/add_data", upload.single('data_upload'), dataController.addData);
+router.get("/get_all_datas", dataController.getDatas);
+router.get("get_data_based_data_name", dataController.getDataBasedDataName);
+router.get(
+  "/get_single_data/:_id",
+  dataController.getSingleData
+);
+router.put("/update_data", upload.single('data_upload'), dataController.editData);
+router.delete("/delete_data/:_id", dataController.deleteData);
+router.delete("/delete_data_based_data/:data_name", dataController.deleteDataBasedData);
 
 module.exports = router;
