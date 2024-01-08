@@ -24,8 +24,8 @@ const dataModel = new mongoose.Schema({
         ref: "dataCategoryModel"
     },
     sub_cat_id: {
-        type: Number,
-        required: false,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "dataSubCategoryModel"
     },
     platform_id: {
         type: mongoose.Schema.Types.ObjectId,
