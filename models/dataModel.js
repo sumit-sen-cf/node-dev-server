@@ -60,6 +60,11 @@ const dataModel = new mongoose.Schema({
         type: Number,
         required: false,
         default: 0
+    },
+    designed_by: {
+        type: Number,
+        required: false,
+        default: 0
     }
 });
 
