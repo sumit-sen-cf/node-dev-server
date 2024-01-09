@@ -1314,6 +1314,15 @@ exports.getSalaryByUserId = async (req, res) => {
             attendence_status_flow: "$attendence_status_flow"
           },
         },
+        {
+          $group: {
+            _id: "$user_id",
+            data: { $first: "$$ROOT" },
+          },
+        },
+        {
+          $replaceRoot: { newRoot: "$data" },
+        },
       ])
       .exec();
     if (getcreators?.length === 0) {

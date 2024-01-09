@@ -20,7 +20,8 @@ exports.addData = async (req, res) => {
             content_type_id: req.body.content_type_id,
             data_upload: req.file.filename,
             created_by: req.body.created_by,
-            updated_by: req.body.updated_by
+            updated_by: req.body.updated_by,
+            designed_by: req.body.designed_by
         });
         const simv = await data.save();
         return response.returnTrue(
@@ -124,6 +125,20 @@ exports.getDatas = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "usermodels",
+                    localField: 'designed_by',
+                    foreignField: 'user_id',
+                    as: 'userDataName'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userDataName",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     _id: 1,
                     data_name: 1,
@@ -135,9 +150,11 @@ exports.getDatas = async (req, res) => {
                     created_at: 1,
                     created_by: 1,
                     updated_by: 1,
+                    designed_by: 1,
                     // data_upload: 1,
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
+                    designed_by_name: "$userDataName.user_name",
                     category_name: "$category.category_name",
                     sub_category_name: "$subcategory. data_sub_cat_name",
                     platform_name: "$platform.platform_name",
@@ -262,6 +279,20 @@ exports.getSingleData = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "usermodels",
+                    localField: 'designed_by',
+                    foreignField: 'user_id',
+                    as: 'userDataName'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userDataName",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     _id: 1,
                     data_name: 1,
@@ -272,6 +303,8 @@ exports.getSingleData = async (req, res) => {
                     content_type_id: 1,
                     created_by: 1,
                     updated_by: 1,
+                    designed_by: 1,
+                    designed_by_name: "$userDataName.user_name",
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
                     category_name: { $ifNull: ['$category.category_name', null] },
@@ -413,6 +446,20 @@ exports.getDataBasedDataName = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "usermodels",
+                    localField: 'designed_by',
+                    foreignField: 'user_id',
+                    as: 'userDataName'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userDataName",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     _id: 1,
                     data_name: "$data_name",
@@ -424,6 +471,8 @@ exports.getDataBasedDataName = async (req, res) => {
                     created_by: "$created_by",
                     updated_by: "$updated_by",
                     created_at: "$created_at",
+                    designed_by: "$designed_by",
+                    designed_by_name: "$userDataName.user_name",
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
                     category_name: "$category.category_name",
@@ -485,7 +534,8 @@ exports.editData = async (req, res) => {
             data_upload: req?.file?.filename,
             created_by: req.body.created_by,
             updated_at: req.body.updated_at,
-            updated_by: req.body.updated_by
+            updated_by: req.body.updated_by,
+            designed_by: req.body.designed_by
         }, { new: true })
 
         res.status(200).send({ success: true, data: editsim })
