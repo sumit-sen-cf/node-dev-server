@@ -18,7 +18,7 @@ exports.addFinance = async (req, res) => {
 
     await attendanceModel.findOneAndUpdate(
       { attendence_id: parseInt(req.body.attendence_id) },
-      { attendence_status_flow: 'sent to finance' },
+      { attendence_status_flow: 'Pending For Invoice Verification' },
       { new: true }
     );
     res.send({ simv, status: 200 });

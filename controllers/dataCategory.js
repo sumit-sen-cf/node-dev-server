@@ -1,5 +1,6 @@
 const response = require("../common/response.js");
-const dataCategoryModel = require("../models/dataCategoryModel.js")
+const dataCategoryModel = require("../models/dataCategoryModel.js");
+const dataSubCategoryModel = require("../models/dataSubCategoryModel.js");
 
 exports.addDataCategory = async (req, res) => {
     try {
@@ -22,15 +23,53 @@ exports.addDataCategory = async (req, res) => {
     }
 };
 
+// exports.getDataCategorys = async (req, res) => {
+//     try {
+//         const simc = await dataCategoryModel.find({});
+
+//         const subCategoryCount = await dataSubCategoryModel.countDocuments({ cat_id: { $in: simc.map(cat => cat._id) } });
+
+//         if (!simc) {
+//             res.status(500).send({ success: false })
+//         }
+//         res.status(200).send({ simc, subCategoryCount })
+//     } catch (err) {
+//         res.status(500).send({ error: err, sms: 'Error getting all data categories' })
+//     }
+// };
+
 exports.getDataCategorys = async (req, res) => {
     try {
         const simc = await dataCategoryModel.find({});
+
+        const subCategoryCounts = await Promise.all(simc.map(async (category) => {
+            const subCategoryCount = await dataSubCategoryModel.countDocuments({ cat_id: category._id });
+            return {
+                _id: category._id,
+                category_name: category.category_name,
+                created_by: category.created_by,
+                updated_by: category.updated_by,
+                created_at: category.created_at,
+                updated_at: category.updated_at,
+                sub_category_count: subCategoryCount,
+                __v: category.__v
+            };
+        }));
+
+        // const totalSubCategoryCount = subCategoryCounts.reduce((total, category) => total + category.sub_category_count, 0);
+
         if (!simc) {
-            res.status(500).send({ success: false })
+            res.status(500).send({ success: false });
         }
-        res.status(200).send(simc)
+
+        const simcWithSubCategoryCount = simc.map((category, index) => ({
+            ...category.toObject(),
+            sub_category_count: subCategoryCounts[index].sub_category_count
+        }));
+
+        res.status(200).send({ simcWithSubCategoryCount });
     } catch (err) {
-        res.status(500).send({ error: err, sms: 'Error getting all data categories' })
+        res.status(500).send({ error: err, sms: 'Error getting all data categories' });
     }
 };
 
@@ -74,3 +113,37 @@ exports.deleteDataCategory = async (req, res) => {
     })
 };
 
+exports.getDataSubCategoryCount = async (req, res) => {
+    try {
+        const categoryId = req.params._id;
+
+        const category = await dataCategoryModel.findOne({
+            _id: categoryId,
+        });
+
+        if (!category) {
+            return response.returnFalse(200, req, res, "No Record Found...", {});
+        }
+
+        const subCategories = await dataSubCategoryModel.find({
+            cat_id: categoryId,
+        });
+
+        const subCategoryCount = subCategories.length;
+
+        const result = {
+            sub_categories: subCategories,
+            sub_category_count: subCategoryCount,
+        };
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Data Category Data Fetch Successfully",
+            result
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};

@@ -1248,6 +1248,10 @@ router.get(
 );
 router.put("/update_data_sub_category", dataSubCat.editDataSubCat);
 router.delete("/delete_data_sub_category/:_id", dataSubCat.deleteDataSubCat);
+router.get(
+  "/get_single_data_from_sub_category/:cat_id",
+  dataSubCat.getSingleDataSubCategory
+);
 
 
 // Data Brand Routes
@@ -1279,6 +1283,10 @@ router.get(
 );
 router.put("/update_data_category", dataCategory.editDataCategory);
 router.delete("/delete_data_category/:_id", dataCategory.deleteDataCategory);
+router.get(
+  "/get_data_sub_category_from_categoryid/:_id",
+  dataCategory.getDataSubCategoryCount
+);
 
 // Data Platform Routes
 router.post("/add_data_platform", dataPlatform.addDataPlatform);

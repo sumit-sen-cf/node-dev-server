@@ -135,7 +135,7 @@ exports.getDatas = async (req, res) => {
                     created_at: 1,
                     created_by: 1,
                     updated_by: 1,
-                    data_upload: 1,
+                    // data_upload: 1,
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
                     category_name: "$category.category_name",
@@ -145,6 +145,18 @@ exports.getDatas = async (req, res) => {
                     content_type_name: "$contenttype.content_name",
                     data_type: "$data_type",
                     size_in_mb: "$size_in_mb",
+                    data_image: {
+                        $cond: {
+                            if: { $ne: ['$data_upload', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}/uploads/dataimages/`,
+                                    '$data_upload'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
                 },
             },
         ]);
