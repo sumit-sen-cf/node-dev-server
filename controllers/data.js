@@ -35,30 +35,6 @@ exports.addData = async (req, res) => {
     }
 };
 
-
-// exports.getDatas = async (req, res) => {
-//     try {
-//         const simc = await dataModel.find()
-//             .populate('cat_id')
-//             .populate('sub_cat_id')
-//             .populate('platform_id')
-//             .populate('content_type_id')
-//             .populate('brand_id');
-
-//         if (!simc) {
-//             res.status(500).send({ success: false })
-//         }
-//         const simcWithSubcategories = await Promise.all(simc.map(async item => {
-//             const subCategoryData = await dataSubCategoryModel.findOne({ data_sub_cat_id: item.sub_cat_id });
-//             return { ...item.toObject(), sub_cat_data: subCategoryData };
-//         }));
-
-//         res.status(200).send(simcWithSubcategories);
-//     } catch (err) {
-//         res.status(500).send({ error: err, sms: 'Error getting all data brand' })
-//     }
-// };
-
 exports.getDatas = async (req, res) => {
     try {
 
@@ -166,7 +142,9 @@ exports.getDatas = async (req, res) => {
                     sub_category_name: "$subcategory. data_sub_cat_name",
                     platform_name: "$platform.platform_name",
                     brand_name: "$brand.brand_name",
-                    content_type_name: "$contenttype.content_name"
+                    content_type_name: "$contenttype.content_name",
+                    data_type: "$data_type",
+                    size_in_mb: "$size_in_mb",
                 },
             },
         ]);
@@ -181,11 +159,6 @@ exports.getDatas = async (req, res) => {
 
 exports.getSingleData = async (req, res) => {
     try {
-        // const singlesim = await dataModel.findById(req.params._id);
-        // if (!singlesim) {
-        //     return res.status(500).send({ success: false })
-        // }
-        // res.status(200).send(singlesim);
         const singlesim = await dataModel.aggregate([
             {
                 $match: {
@@ -287,25 +260,15 @@ exports.getSingleData = async (req, res) => {
                     content_type_id: 1,
                     created_by: 1,
                     updated_by: 1,
-                    created_by_name: {
-                        $cond: {
-                            if: { $isArray: '$userData' },
-                            then: { $arrayElemAt: [{ $split: ['$userData.user_name', ','] }, 0] },
-                            else: null
-                        }
-                    },
-                    updated_by_name: {
-                        $cond: {
-                            if: { $isArray: '$userData' },
-                            then: { $arrayElemAt: [{ $split: ['$userData.user_name', ','] }, 0] },
-                            else: null
-                        }
-                    },
+                    created_by_name: "$userData.user_name",
+                    updated_by_name: "$userData.user_name",
                     category_name: { $ifNull: ['$category.category_name', null] },
                     sub_category_name: { $ifNull: ['$subcategory.data_sub_cat_name', null] },
                     platform_name: { $ifNull: ['$platform.platform_name', null] },
                     brand_name: { $ifNull: ['$brand.brand_name', null] },
                     content_type_name: { $ifNull: ['$contenttype.content_name', null] },
+                    data_type: "$data_type",
+                    size_in_mb: "$size_in_mb",
                     data_image: {
                         $cond: {
                             if: { $ne: ['$data_upload', null] },
@@ -318,13 +281,22 @@ exports.getSingleData = async (req, res) => {
                             else: null
                         }
                     },
+                    data_image_download: {
+                        $cond: {
+                            if: { $ne: ['$data_upload', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}/uploads/dataimages/`,
+                                    '$data_upload'
+                                ]
+                            },
+                            else: null
+                        }
+                    }
                 }
             },
         ]);
-        // if (!singlesim) {
-        //     res.status(500).send({ success: false })
-        // }
-        // res.status(200).send(singlesim)
+
         if (!singlesim || singlesim.length === 0) {
             res.status(500).send({ success: false });
             return;
@@ -438,7 +410,8 @@ exports.getDataBasedDataName = async (req, res) => {
                     brand_id: "$brand_id",
                     content_type_id: "$content_type_id",
                     created_by: "$created_by",
-                    updated_by: "updated_by",
+                    updated_by: "$updated_by",
+                    created_at: "$created_at",
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
                     category_name: "$category.category_name",
@@ -446,6 +419,9 @@ exports.getDataBasedDataName = async (req, res) => {
                     platform_name: "$platform.platform_name",
                     brand_name: "$brand.brand_name",
                     content_type_name: "$contenttype.content_name",
+                    data_type: "$data_type",
+                    size_in_mb: "$size_in_mb",
+                    remark: "$remark",
                     data_image: {
                         $cond: {
                             if: { $ne: ['$data_upload', null] },
@@ -458,6 +434,18 @@ exports.getDataBasedDataName = async (req, res) => {
                             else: null
                         }
                     },
+                    data_image_download: {
+                        $cond: {
+                            if: { $ne: ['$data_upload', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}/uploads/dataimages/`,
+                                    '$data_upload'
+                                ]
+                            },
+                            else: null
+                        }
+                    }
                 },
             },
         ]);
@@ -524,3 +512,21 @@ exports.deleteDataBasedData = async (req, res) => {
         return res.status(400).json({ success: false, message: err.message })
     })
 };
+
+exports.editDataNew = async (req, res) => {
+    try {
+        const getName = await dataModel.findOne({ _id: req.body._id }).select({ data_name: 1 });
+        const getAllNames = await dataModel.find({ data_name: getName.data_name }).select({ _id: 1 });
+        const groupIds = getAllNames.map((item) => item._id);
+        const editdataname = await dataModel.updateMany({ _id: { $in: groupIds } }, {
+            $set: {
+                data_name: req.body.data_name,
+                updated_at: req.body.updated_at,
+                remark: req.body.remark
+            }
+        })
+        res.status(200).send({ data: editdataname, sms: 'Data updated successfully' })
+    } catch (err) {
+        res.status(500).send({ error: err.message, sms: 'error udpdating data details' })
+    }
+}
