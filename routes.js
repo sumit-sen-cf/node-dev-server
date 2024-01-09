@@ -1248,6 +1248,10 @@ router.get(
 );
 router.put("/update_data_sub_category", dataSubCat.editDataSubCat);
 router.delete("/delete_data_sub_category/:_id", dataSubCat.deleteDataSubCat);
+router.get(
+  "/get_single_data_from_sub_category/:cat_id",
+  dataSubCat.getSingleDataSubCategory
+);
 
 
 // Data Brand Routes
@@ -1279,6 +1283,10 @@ router.get(
 );
 router.put("/update_data_category", dataCategory.editDataCategory);
 router.delete("/delete_data_category/:_id", dataCategory.deleteDataCategory);
+router.get(
+  "/get_data_sub_category_from_categoryid/:_id",
+  dataCategory.getDataSubCategoryCount
+);
 
 // Data Platform Routes
 router.post("/add_data_platform", dataPlatform.addDataPlatform);
@@ -1291,15 +1299,16 @@ router.put("/update_data_platform", dataPlatform.editDataPlatform);
 router.delete("/delete_data_platform/:_id", dataPlatform.deleteDataPlatform);
 
 //Data Routes
-router.post("/add_data", upload.single('data_upload'), dataController.addData);
+router.post("/add_data", upload1.single('data_upload'), dataController.addData);
 router.get("/get_all_datas", dataController.getDatas);
-router.get("get_data_based_data_name/:data_name", dataController.getDataBasedDataName);
+router.get("/get_data_based_data_name/:data_name", dataController.getDataBasedDataName);
 router.get(
   "/get_single_data/:_id",
   dataController.getSingleData
 );
-router.put("/update_data", upload.single('data_upload'), dataController.editData);
+router.put("/update_data", upload1.single('data_upload'), dataController.editData);
 router.delete("/delete_data/:_id", dataController.deleteData);
 router.delete("/delete_data_based_data/:data_name", dataController.deleteDataBasedData);
+router.put("/edit_data_new", dataController.editDataNew);
 
 module.exports = router;

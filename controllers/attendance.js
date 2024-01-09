@@ -1306,11 +1306,12 @@ exports.getSalaryByUserId = async (req, res) => {
             user_contact_no: "$user.user_contact_no",
             current_address: "$user.current_address",
             sendToFinance: "$sendToFinance",
-            digital_signature_image: {
+            digital_signature_image_url: {
               $concat: [imageUrl, "$user.digital_signature_image"]
             },
             disputed_reason: "$disputed_reason",
-            disputed_date: "$disputed_date"
+            disputed_date: "$disputed_date",
+            attendence_status_flow: "$attendence_status_flow"
           },
         },
       ])

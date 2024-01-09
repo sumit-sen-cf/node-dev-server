@@ -1,5 +1,6 @@
 const response = require("../common/response.js");
 const dataSubCategoryModel = require("../models/dataSubCategoryModel.js");
+const mongoose = require('mongoose');
 
 exports.addDataSubCat = async (req, res) => {
     try {
@@ -78,3 +79,41 @@ exports.deleteDataSubCat = async (req, res) => {
     })
 };
 
+exports.getSingleDataSubCategory = async (req, res) => {
+    try {
+        const singlesim = await dataSubCategoryModel.aggregate([
+            {
+                $match: {
+                    cat_id: mongoose.Types.ObjectId(req.params.cat_id),
+                }
+            },
+            {
+                $lookup: {
+                    from: "datacategorymodels",
+                    localField: "cat_id",
+                    foreignField: "_id",
+                    as: "datacategory",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$datacategory",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    category_name: "$datacategory.category_name",
+                    data_sub_cat_name: "$data_sub_cat_name",
+                    cat_id: "$cat_id",
+                    remark: "$remark"
+                },
+            },
+        ]).exec();
+        return res.status(200).send(singlesim);
+    } catch (err) {
+        console.error("Error:", err);
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
