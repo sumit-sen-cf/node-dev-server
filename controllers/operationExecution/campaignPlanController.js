@@ -17,6 +17,7 @@ exports.createPlan=catchAsync(async (req,res,next) => {
             
             campaignName,
             postRemaining:pages[i].postPerPage,
+            storyRemaining:pages[i].storyPerPage,
            ...pages[i]
 
         }

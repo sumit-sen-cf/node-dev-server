@@ -6,11 +6,11 @@ const assignmentSchema = new mongoose.Schema({
     type: Number,
   },
   ass_to: {
-    // type:mongoose.SchemaTypes.ObjectId,
-    // ref:'ExpertiseModel',
-    type: String,
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: 'ExpertiseModel',
+    // type: String,
   },
-  exp_name:{
+  exp_name: {
     type: String,
   },
   ass_by: {
@@ -50,6 +50,14 @@ const assignmentSchema = new mongoose.Schema({
     type: String,
     default: this.postPerPage
   },
+  storyPerPage:{
+    type:Number,
+    // required: [true, "story per page is required`"]
+  },
+  storyRemaining: {
+    type: Number,
+    default: this.storyPerPage
+  },
   campaignName: {
     type: String,
     required: [true, "campign name is required"]
@@ -88,7 +96,7 @@ const assignmentSchema = new mongoose.Schema({
   replacement_status: {
     type: String,
     default: 'inactive',
-    enum: ['active', 'inactive', 'replaced', 'replacement', 'pending','rejected']
+    enum: ['active', 'inactive', 'replaced', 'replacement', 'pending', 'rejected']
   },
   delete_status: {
     type: String,
@@ -104,17 +112,18 @@ const assignmentSchema = new mongoose.Schema({
     default: 'N/A',
   },
   replacement_id: {
-    type: String,
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: 'pageReplacementRecordModel'
   },
   ass_status: {
     type: String,
-    
-    enum: ['assigned','unassigned','pending','executed', 'verified', 'rejected']
+    default:'unassigned',
+    enum: ['assigned', 'unassigned', 'pending', 'executed', 'verified', 'rejected']
   },
   executed_at: {
     type: Date
   },
-  
+
   verified_by: {
     // type:mongoose.SchemaTypes.ObjectId,
     // ref:'userModels',
@@ -128,7 +137,16 @@ const assignmentSchema = new mongoose.Schema({
   },
   updatedFrom: {
     type: String,
-    default : ""
+    default: ""
+  },
+
+  preAssignedTo: {
+    type: Array,
+    default: []
+  },
+  rejected_by:{
+    type:Array,
+    default: []
   }
 
 });
@@ -141,19 +159,11 @@ assignmentSchema.plugin(AutoIncrement.plugin, {
   incrementBy: 1,
 });
 
-// assignmentSchema.pre(['save', 'findOneAndUpdate'], async function (next) {
-//   try {
-//     const existingExpertise = await mongoose.model('assignmentModel').findOne({ ass_to: this.ass_to });
-
-//     // Set assignment_status based on the existence of the expertise document
-//     if(existingExpertise) next()
-//     if (!existingExpertise) {
-//       this.ass_status = 'unassigned';
-//     } 
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }})
+assignmentSchema.pre(/^find/,async function (next){
+  this.populate({
+    path:'ass_to'
+  })
+})
 
 
 

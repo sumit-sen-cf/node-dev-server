@@ -34,6 +34,14 @@ const phasePageSchema = new mongoose.Schema({
     type: String,
     default: this.postPerPage
   },
+  storyPerPage:{
+    type:Number,
+    required: [true, "story per page is required`"]
+  },
+  storyRemaining: {
+    type: Number,
+    default: this.storyPerPage
+  },
   campaignName: {
     type: String,
     required: [true, "campign name is required"]
