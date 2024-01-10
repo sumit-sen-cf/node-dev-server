@@ -100,6 +100,7 @@ const dataContentType = require("./controllers/dataContentType.js");
 const dataCategory = require("./controllers/dataCategory.js");
 const dataPlatform = require("./controllers/dataPlatform.js");
 const dataController = require("./controllers/data.js");
+const deptDesiAuth = require("./controllers/deptDesiAuth.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1314,5 +1315,10 @@ router.put("/update_data", upload1.single('data_upload'), dataController.editDat
 router.delete("/delete_data/:_id", dataController.deleteData);
 router.delete("/delete_data_based_data/:data_name", dataController.deleteDataBasedData);
 router.put("/edit_data_new", dataController.editDataNew);
+
+//deptDesiAuth routes
+router.post("/add_dept_desi_auth", deptDesiAuth.addDeptDesiAuth);
+router.get("/get_single_desi_dept_auth/:desi_id", deptDesiAuth.getSingleDeptDesiAuthDetail);
+router.put("/update_dept_desi_auth", deptDesiAuth.updateDeptDesiAuth);
 
 module.exports = router;

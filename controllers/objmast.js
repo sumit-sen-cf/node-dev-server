@@ -2,6 +2,7 @@ const objectMastSchema = require("../models/objModel.js");
 const userAuthModel = require('../models/userAuthModel.js');
 const userModel = require('../models/userModel.js');
 const response = require("../common/response");
+const deptDesiAuthModel = require('../models/deptDesiAuthModel.js');
 
 exports.addObjectMast = async (req, res) => {
   try {
@@ -14,13 +15,13 @@ exports.addObjectMast = async (req, res) => {
       Created_by: created_by,
     });
     const savedObjectMast = await Obj.save();
-    const objectId = savedObjectMast.obj_id; 
-    
+    const objectId = savedObjectMast.obj_id;
+
     let maxAuthId = await userAuthModel.findOne({}, { auth_id: 1 }, { sort: { auth_id: -1 } });
     let nextAuthId = maxAuthId ? maxAuthId.auth_id + 1 : 1;
 
     const userData = await userModel.find({});
-    
+
     let userAuthDocuments = [];
 
     for (const user of userData) {
@@ -55,10 +56,52 @@ exports.addObjectMast = async (req, res) => {
     // Save all userAuthDocuments in one go
     await userAuthModel.insertMany(userAuthDocuments);
 
+
+    let maxdeptDesiAuthId = await deptDesiAuthModel.findOne({}, { dept_desi_auth_id: 1 }, { sort: { dept_desi_auth_id: -1 } });
+    let nextdeptDesiAuthId = maxdeptDesiAuthId ? maxdeptDesiAuthId.dept_desi_auth_id + 1 : 1;
+
+    const userData1 = await userModel.find({});
+
+    let userDestDesiAuthDocuments = [];
+
+    for (const user of userData1) {
+      const desiId = user.user_designation;
+      const deptId = user.dept_id;
+      const roleId = user.role_id;
+      let insertValue = 0;
+      let viewValue = 0;
+      let updateValue = 0;
+      let deleteValue = 0;
+
+      if (roleId === 1) {
+        insertValue = 1;
+        viewValue = 1;
+        updateValue = 1;
+        deleteValue = 1;
+      }
+
+      const userAuthDocument = new deptDesiAuthModel({
+        dept_desi_auth_id: nextdeptDesiAuthId,
+        desi_id: desiId,
+        dept_id: deptId,
+        // Juser_id: userId,
+        obj_id: objectId,
+        insert_value: insertValue,
+        view_value: viewValue,
+        update_value: updateValue,
+        delete_flag_value: deleteValue,
+      });
+
+      userDestDesiAuthDocuments.push(userAuthDocument);
+      nextdeptDesiAuthId++;
+    }
+
+    await deptDesiAuthModel.insertMany(userDestDesiAuthDocuments);
+
     res.send({
       data: savedObjectMast,
       status: 200,
-      message: "Object and user_auth_detail added successfully",
+      message: "Object and user_auth_detail and dept_desi_auth_detail added successfully",
     });
   } catch (err) {
     res.status(500).send({ error: err.message, message: "This objMast cannot be created" });
@@ -130,7 +173,7 @@ exports.getObjectMasts = async (req, res) => {
       },
       {
         $project: {
-          obj_id:"$obj_id",
+          obj_id: "$obj_id",
           obj_name: "$obj_name",
           soft_name: "$soft_name",
           Dept_id: "$Dept_id",
@@ -184,23 +227,23 @@ exports.deleteObjectMast = async (req, res) => {
   const id = req.params.obj_id;
   const condition = { obj_id: id };
   try {
-      const result = await objectMastSchema.deleteOne(condition);
-      if (result.deletedCount === 1) {
-          return res.status(200).json({
-              success: true,
-              message: `objectMast with ID ${id} deleted successfully`,
-          });
-      } else {
-          return res.status(200).json({
-              success: false,
-              message: `objectMast with ID ${id} not found`,
-          });
-      }
-  } catch (error) {
-      return res.status(500).json({
-          success: false,
-          message: "An error occurred while deleting the Sitting",
-          error: error.message,
+    const result = await objectMastSchema.deleteOne(condition);
+    if (result.deletedCount === 1) {
+      return res.status(200).json({
+        success: true,
+        message: `objectMast with ID ${id} deleted successfully`,
       });
+    } else {
+      return res.status(200).json({
+        success: false,
+        message: `objectMast with ID ${id} not found`,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while deleting the Sitting",
+      error: error.message,
+    });
   }
 };
