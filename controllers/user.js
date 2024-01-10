@@ -26,6 +26,7 @@ const Sitting = require("../models/sittingModel.js");
 const { generateEmpId } = require("../helper/helper.js");
 const departmentModel = require("../models/departmentModel.js");
 const designationModel = require("../models/designationModel.js");
+const deptDesiAuthModel = require("../models/deptDesiAuthModel.js");
 
 const upload = multer({ dest: "uploads/" }).fields([
     { name: "image", maxCount: 1 },
@@ -264,6 +265,18 @@ exports.addUser = [upload, async (req, res) => {
             };
 
             await userAuthModel.create(userAuthDocument);
+        }
+
+        const deptDesiData = await deptDesiAuthModel.find({});
+        for (const deptDesi of deptDesiData) {
+            if (deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
+                const edit = await userAuthModel.findOneAndUpdate({ obj_id: deptDesi.obj_id }, {
+                    insert: deptDesi.insert,
+                    view: deptDesi.view,
+                    update: deptDesi.update,
+                    delete_flag: deptDesi.delete_flag
+                })
+            }
         }
 
         res.send({ simv, status: 200 });
