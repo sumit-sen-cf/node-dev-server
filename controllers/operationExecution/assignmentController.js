@@ -66,32 +66,17 @@ exports.createAssignment = catchAsync(async (req, res, next) => {
 // })
 exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
     const { pages } = req.body;
-    const maxAssIdAssignment = await AssignmentModel.findOne({}, {}, { sort: { 'ass_id': -1 } });
-
-    let lastAssId = maxAssIdAssignment ? maxAssIdAssignment.ass_id : 0;
+    
 
     const results = await Promise.all(pages.map(async (page) => {
-        let { _id, ...rest } = page;
-        let status = page.ass_to==null ? "unassigned":page.ass_status ;
-        const data = {
-            ass_status: status,
-            ...rest
-        };
-
-        let result;
-        if (!page.ass_id) {
-            data.ass_id = ++lastAssId;
-            result = await AssignmentModel.create(data);
-        } else {
-            result = await AssignmentModel.findOneAndUpdate({ ass_id: page.ass_id }, data, {
-                upsert: true,
-                new: true
-            });
-        }
-        return { ...result.toObject() };
+       
     }));
 
-    res.status(200).json({ data: results });
+    res.status(200).json({  });
+});
+exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
+    const { pages } = req.body;
+   
 });
 
 exports.getAllAssignmentToExpertee = catchAsync(async (req, res, next) => {
