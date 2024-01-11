@@ -50,6 +50,30 @@ const repairRequestModel = new mongoose.Schema({
         required: false,
         default: ""
     },
+    recovery_remark: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    recovery_image_upload1: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    recovery_image_upload2: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    recovery_by: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    recovery_date_time: {
+        type: Date,
+        default: Date.now,
+    },
     status: {
         type: String,
         required: false,
@@ -74,7 +98,7 @@ const repairRequestModel = new mongoose.Schema({
     asset_reason_id: {
         type: Number,
         required: false,
-        default:0
+        default: 0
     },
     acknowledge_date: {
         type: Date,
@@ -100,6 +124,19 @@ const repairRequestModel = new mongoose.Schema({
         type: String,
         default: "",
     },
+    scrap_remark: {
+        type: String,
+        default: "",
+    },
+    accept_date_time: {
+        type: Date,
+        default: Date.now,
+    },
+    accept_by: {
+        type: Number,
+        required: false,
+        default: 0
+    }
 });
 
 AutoIncrement.initialize(mongoose.connection);
