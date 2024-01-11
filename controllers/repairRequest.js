@@ -8,6 +8,8 @@ const upload = multer({ dest: "uploads/assets" }).fields([
     { name: "img2", maxCount: 1 },
     { name: "img3", maxCount: 1 },
     { name: "img4", maxCount: 1 },
+    { name: "recovery_image_upload1", maxCount: 1 },
+    { name: "recovery_image_upload2", maxCount: 1 },
 ]);
 
 exports.addRepairRequest = [
@@ -35,6 +37,12 @@ exports.addRepairRequest = [
                 img2: req.files.img2 ? req.files.img2[0].filename : "",
                 img3: req.files.img3 ? req.files.img3[0].filename : "",
                 img4: req.files.img4 ? req.files.img4[0].filename : "",
+                recovery_remark: req.body.recovery_remark,
+                recovery_image_upload1: req.files.recovery_image_upload1 ? req.files.recovery_image_upload1[0].filename : "",
+                recovery_image_upload2: req.files.recovery_image_upload2 ? req.files.recovery_image_upload2[0].filename : "",
+                recovery_by: req.body.recovery_by,
+                scrap_remark: req.body.scrap_remark,
+                accept_by: req.body.accept_by
             });
             const repairedAssets = await repairdata.save();
 
@@ -43,7 +51,7 @@ exports.addRepairRequest = [
             // await simAlloModel.findOneAndUpdate({  sim_id: req.body.sim_id }, {
             //    repair_status: "Requested", 
             //   }, { new: true })
-            
+
             // if(req.body.flagForReplacement === "temp"){
             //     const simc = new simAlloModel({
             //         user_id: req.body.user_id,
@@ -96,15 +104,15 @@ exports.getAllRepairRequests = async (req, res) => {
                 },
                 {
                     $lookup: {
-                      from: "assetreasonmodels",
-                      localField: "asset_reason_id",
-                      foreignField: "asset_reason_id",
-                      as: "assetreasonmodelData",
+                        from: "assetreasonmodels",
+                        localField: "asset_reason_id",
+                        foreignField: "asset_reason_id",
+                        as: "assetreasonmodelData",
                     },
-                  },
-                  {
+                },
+                {
                     $unwind: "$assetreasonmodelData",
-                  },
+                },
                 {
                     $project: {
                         repair_id: "$repair_id",
@@ -131,7 +139,12 @@ exports.getAllRepairRequests = async (req, res) => {
                         updated_at: "$updated_at",
                         repair_request_date_time: "$repair_request_date_time",
                         req_by: "$req_by",
-                        req_date: "$req_date"
+                        req_date: "$req_date",
+                        recovery_remark: "$recovery_remark",
+                        recovery_image_upload1: "$recovery_image_upload1",
+                        recovery_image_upload2: "$recovery_image_upload2",
+                        recovery_by: "$recovery_by",
+                        recovery_date_time: "$recovery_date_time"
                     },
                 },
             ])
@@ -143,6 +156,8 @@ exports.getAllRepairRequests = async (req, res) => {
             img2_url: assetrepairdatas.img2 ? assetRepairDataBaseUrl + assetrepairdatas.img2 : null,
             img3_url: assetrepairdatas.img3 ? assetRepairDataBaseUrl + assetrepairdatas.img3 : null,
             img4_url: assetrepairdatas.img4 ? assetRepairDataBaseUrl + assetrepairdatas.img4 : null,
+            recovery_image_upload1_url: assetrepairdatas.recovery_image_upload1 ? assetRepairDataBaseUrl + assetrepairdatas.recovery_image_upload1 : null,
+            recovery_image_upload2_url: assetrepairdatas.recovery_image_upload2 ? assetRepairDataBaseUrl + assetrepairdatas.recovery_image_upload2 : null,
         }));
         if (dataWithImageUrl?.length === 0) {
             res
@@ -157,15 +172,16 @@ exports.getAllRepairRequests = async (req, res) => {
             .send({ error: err.message, sms: "Error getting all Assets Repair Data" });
     }
 };
+
 exports.getAllRepairRequestsByAssetReasonId = async (req, res) => {
     try {
         const assetsdata = await repairRequestModel
             .aggregate([
-                
-                    {
-                        $match: { asset_reason_id: parseInt(req.params.id) },
-                    },
-                
+
+                {
+                    $match: { asset_reason_id: parseInt(req.params.id) },
+                },
+
                 {
                     $lookup: {
                         from: "simmodels",
@@ -182,15 +198,43 @@ exports.getAllRepairRequestsByAssetReasonId = async (req, res) => {
                 },
                 {
                     $lookup: {
-                      from: "assetreasonmodels",
-                      localField: "asset_reason_id",
-                      foreignField: "asset_reason_id",
-                      as: "assetreasonmodelData",
+                        from: "assetreasonmodels",
+                        localField: "asset_reason_id",
+                        foreignField: "asset_reason_id",
+                        as: "assetreasonmodelData",
                     },
-                  },
-                  {
+                },
+                {
                     $unwind: "$assetreasonmodelData",
-                  },
+                },
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "user_id",
+                        foreignField: "recovery_by",
+                        as: "recoveryByData",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$recoveryByData",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "user_id",
+                        foreignField: "accept_by",
+                        as: "acceptByData",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$acceptByData",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
                 {
                     $project: {
                         repair_id: "$repair_id",
@@ -216,7 +260,16 @@ exports.getAllRepairRequestsByAssetReasonId = async (req, res) => {
                         updated_at: "$updated_at",
                         repair_request_date_time: "$repair_request_date_time",
                         req_by: "$req_by",
-                        req_date: "$req_date"
+                        req_date: "$req_date",
+                        recovery_remark: "$recovery_remark",
+                        recovery_image_upload1: "$recovery_image_upload1",
+                        recovery_image_upload2: "$recovery_image_upload2",
+                        recovery_by: "$recovery_by",
+                        recovery_by_name: "$recoveryByData.user_name",
+                        recovery_date_time: "$recovery_date_time",
+                        scrap_remark: "$scrap_remark",
+                        accept_by: "$accept_by",
+                        accept_by_name: "$acceptByData.user_name"
                     },
                 },
             ])
@@ -228,6 +281,8 @@ exports.getAllRepairRequestsByAssetReasonId = async (req, res) => {
             img2_url: assetrepairdatas.img2 ? assetRepairDataBaseUrl + assetrepairdatas.img2 : null,
             img3_url: assetrepairdatas.img3 ? assetRepairDataBaseUrl + assetrepairdatas.img3 : null,
             img4_url: assetrepairdatas.img4 ? assetRepairDataBaseUrl + assetrepairdatas.img4 : null,
+            recovery_image_upload1_url: assetrepairdatas.recovery_image_upload1 ? assetRepairDataBaseUrl + assetrepairdatas.recovery_image_upload1 : null,
+            recovery_image_upload2_url: assetrepairdatas.recovery_image_upload2 ? assetRepairDataBaseUrl + assetrepairdatas.recovery_image_upload2 : null,
         }));
         if (dataWithImageUrl?.length === 0) {
             res
@@ -265,6 +320,34 @@ exports.getSingleRepairRequests = async (req, res) => {
                     },
                 },
                 {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "user_id",
+                        foreignField: "recovery_by",
+                        as: "recoveryByData",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$recoveryByData",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "user_id",
+                        foreignField: "accept_by",
+                        as: "acceptByData",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$acceptByData",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
                     $project: {
                         repair_id: "$repair_id",
                         sim_id: "$sim_id",
@@ -288,7 +371,16 @@ exports.getSingleRepairRequests = async (req, res) => {
                         updated_at: "$updated_at",
                         repair_request_date_time: "$repair_request_date_time",
                         req_by: "$req_by",
-                        req_date: "$req_date"
+                        req_date: "$req_date",
+                        recovery_remark: "$recovery_remark",
+                        recovery_image_upload1: "$recovery_image_upload1",
+                        recovery_image_upload2: "$recovery_image_upload2",
+                        recovery_by: "$recovery_by",
+                        recovery_by_name: "$recoveryByData.user_name",
+                        recovery_date_time: "$recovery_date_time",
+                        scrap_remark: "$scrap_remark",
+                        accept_by: "$accept_by",
+                        accept_by_name: "$acceptByData.user_name"
                     },
                 },
             ])
@@ -300,6 +392,8 @@ exports.getSingleRepairRequests = async (req, res) => {
             img2_url: assetrepairdatas.img2 ? assetRepairDataBaseUrl + assetrepairdatas.img2 : null,
             img3_url: assetrepairdatas.img3 ? assetRepairDataBaseUrl + assetrepairdatas.img3 : null,
             img4_url: assetrepairdatas.img4 ? assetRepairDataBaseUrl + assetrepairdatas.img4 : null,
+            recovery_image_upload1_url: assetrepairdatas.recovery_image_upload1 ? assetRepairDataBaseUrl + assetrepairdatas.recovery_image_upload1 : null,
+            recovery_image_upload2_url: assetrepairdatas.recovery_image_upload2 ? assetRepairDataBaseUrl + assetrepairdatas.recovery_image_upload2 : null,
         }));
         if (dataWithImageUrl?.length === 0) {
             res
@@ -320,6 +414,8 @@ const upload1 = multer({ dest: "uploads/assets" }).fields([
     { name: "img2", maxCount: 1 },
     { name: "img3", maxCount: 1 },
     { name: "img4", maxCount: 1 },
+    { name: "recovery_image_upload1", maxCount: 1 },
+    { name: "recovery_image_upload2", maxCount: 1 },
 ]);
 
 exports.editRepairRequest = [
@@ -346,7 +442,14 @@ exports.editRepairRequest = [
                 status: req.body.status,
                 req_by: req.body.req_by,
                 req_date: req.body.req_date,
-                updated_at: req.body.updated_at
+                updated_at: req.body.updated_at,
+                recovery_remark: req.body.recovery_remark,
+                recovery_image_upload1: req.body.recovery_image_upload1,
+                recovery_image_upload2: req.body.recovery_image_upload2,
+                recovery_by: req.body.recovery_by,
+                recovery_date_time: req.body.recovery_date_time,
+                scrap_remark: req.body.scrap_remark,
+                accept_by: req.body.accept_by
             };
 
             if (req.files) {
@@ -354,6 +457,8 @@ exports.editRepairRequest = [
                 updateFields.img2 = req.files["img2"] ? req.files["img2"][0].filename : existingRepairRequest.img2;
                 updateFields.img3 = req.files["img3"] ? req.files["img3"][0].filename : existingRepairRequest.img3;
                 updateFields.img4 = req.files["img4"] ? req.files["img4"][0].filename : existingRepairRequest.img4;
+                updateFields.recovery_image_upload1 = req.files["recovery_image_upload1"] ? req.files["recovery_image_upload1"][0].filename : existingRepairRequest.recovery_image_upload1;
+                updateFields.recovery_image_upload2 = req.files["recovery_image_upload2"] ? req.files["recovery_image_upload2"][0].filename : existingRepairRequest.recovery_image_upload2;
             }
 
             const editrepairdata = await repairRequestModel.findOneAndUpdate(
