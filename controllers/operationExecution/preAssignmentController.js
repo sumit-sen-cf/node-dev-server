@@ -141,9 +141,10 @@ exports.preAssignmentUpdate=catchAsync(async (req,res,next) => {
 
 exports.getPreAssignmentForExpertee=catchAsync(async (req,res,next) => {
     const pre_ass_to=req.params.id
-    const preAss=await PreAssignmentModel.find({pre_ass_to})
+    const preAsss=await PreAssignmentModel.find()
+    const preAss=preAsss.filter(page=>page.pre_ass_to?._id==pre_ass_to)
     res.status(200).json({
-        data:preAss
+        data:preAsss
     })
 })
 

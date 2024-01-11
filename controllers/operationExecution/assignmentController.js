@@ -81,7 +81,8 @@ exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
 
 exports.getAllAssignmentToExpertee = catchAsync(async (req, res, next) => {
     const id = req.params.id
-    const result = await AssignmentModel.find({ ass_to: id })
+    const results = await AssignmentModel.find()
+    const result=results.filter(page=>page.ass_to?._id==id)
     // if(!result) {
     //     return next(new appError(404,"assignment not found"))
     // }
