@@ -38,7 +38,7 @@ exports.createPreAssignment = catchAsync(async (req, res, next) => {
                 preAssignedTo: []
             };
             await AssignmentModel.create(data);
-            console.log(x)
+            
         }
         for (const expert of filteredExpert) {
             const x = await PreAssignmentModel.create({
@@ -48,7 +48,7 @@ exports.createPreAssignment = catchAsync(async (req, res, next) => {
             });
 
             const assignExpert = await PreAssignmentModel.findOne({ pre_ass_id: x.pre_ass_id });
-
+            console.log(assignExpert)
            
             const data = {
                 ass_by,
@@ -58,9 +58,9 @@ exports.createPreAssignment = catchAsync(async (req, res, next) => {
             };
 
             const assExist = await AssignmentModel.findOne({ p_id: page.p_id,phase_id });
-            console.log(assExist);
+            
             if (assExist) {
-                console.log("hello");
+               
                 if (!assExist.preAssignedTo.includes(assignExpert.pre_ass_to?.exp_name)) {
                     assExist.preAssignedTo.push(assignExpert.pre_ass_to?.exp_name);
                     await assExist.save();
@@ -142,9 +142,9 @@ exports.preAssignmentUpdate=catchAsync(async (req,res,next) => {
 exports.getPreAssignmentForExpertee=catchAsync(async (req,res,next) => {
     const pre_ass_to=req.params.id
     const preAsss=await PreAssignmentModel.find()
-    const preAss=preAsss.filter(page=>page.pre_ass_to?._id==pre_ass_to)
+    const preAss=preAsss.filter(page=>page.pre_ass_to?.user_id==pre_ass_to)
     res.status(200).json({
-        data:preAsss
+        data:preAss
     })
 })
 
