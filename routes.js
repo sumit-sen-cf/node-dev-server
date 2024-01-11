@@ -73,7 +73,7 @@ const assignmentController = require('./controllers/operationExecution/assignmen
 const assignmentCommitController = require('./controllers/operationExecution/assignmentCommitController.js')
 const operationDasboard = require('./controllers/operationExecution/dashboard.controller.js')
 const pageReplacementController = require('./controllers/operationExecution/pageReplacementController.js')
-const preAssignmentController=require('./controllers/operationExecution/preAssignmentController.js')
+const preAssignmentController = require('./controllers/operationExecution/preAssignmentController.js')
 //opertaion + execution imports ends here`
 
 const city = require("./controllers/cityController.js");
@@ -101,6 +101,9 @@ const dataCategory = require("./controllers/dataCategory.js");
 const dataPlatform = require("./controllers/dataPlatform.js");
 const dataController = require("./controllers/data.js");
 const deptDesiAuth = require("./controllers/deptDesiAuth.js");
+
+/* Task Mangement Controller Import */
+const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -140,21 +143,21 @@ router.post('/assignment', assignmentController.createAssignment)
 router.get('/assignment', assignmentController.getAllGodamnAssignments)
 router.get('/assignment/:id', assignmentController.getSingleAssignment)
 
-router.get('/assignment/all/:id',assignmentController.getAllAssignmentToExpertee)
-router.get('/assignment/phase/:id',assignmentController.getAllAssignmentInPhase)
-router.get('/assignment/campaign/:id',assignmentController.getAllAssignmentInCampaign)
-router.post('/assignment/status',assignmentController.updateAssignmentStatus)
+router.get('/assignment/all/:id', assignmentController.getAllAssignmentToExpertee)
+router.get('/assignment/phase/:id', assignmentController.getAllAssignmentInPhase)
+router.get('/assignment/campaign/:id', assignmentController.getAllAssignmentInCampaign)
+router.post('/assignment/status', assignmentController.updateAssignmentStatus)
 
-router.post('/assignment/commit',assignmentCommitController.createAssComm)
-router.post('/assignment/bulk',assignmentController.createAssignmentBulk)
-router.get('/assignment/commit/:id',assignmentCommitController.getAllAssComm)
-router.get('/assignment/commit/single/:id',assignmentCommitController.getAssCommitAssId)
-router.put('/assignment/commit/single/:id',assignmentCommitController.updateSingleCommitment)
-router.post('/preassignment',preAssignmentController.createPreAssignment)
-router.get('/preassignment/:id',preAssignmentController.getPreAssignmentForExpertee)
-router.post('/preassignment/phase',preAssignmentController.getPreAssignmnetOnPhaseId)
-router.post('/preassignment/phase/update',preAssignmentController.preAssignmentUpdate)
-router.post('/operation_phase_dashboard',operationDasboard.phaseDashboard)
+router.post('/assignment/commit', assignmentCommitController.createAssComm)
+router.post('/assignment/bulk', assignmentController.createAssignmentBulk)
+router.get('/assignment/commit/:id', assignmentCommitController.getAllAssComm)
+router.get('/assignment/commit/single/:id', assignmentCommitController.getAssCommitAssId)
+router.put('/assignment/commit/single/:id', assignmentCommitController.updateSingleCommitment)
+router.post('/preassignment', preAssignmentController.createPreAssignment)
+router.get('/preassignment/:id', preAssignmentController.getPreAssignmentForExpertee)
+router.post('/preassignment/phase', preAssignmentController.getPreAssignmnetOnPhaseId)
+router.post('/preassignment/phase/update', preAssignmentController.preAssignmentUpdate)
+router.post('/operation_phase_dashboard', operationDasboard.phaseDashboard)
 
 router.post('/replacement/plan', pageReplacementController.createReplacementPlan)
 router.get('/replacement/plan', pageReplacementController.getAllRecord)
@@ -1320,5 +1323,13 @@ router.put("/edit_data_new", dataController.editDataNew);
 router.post("/add_dept_desi_auth", deptDesiAuth.addDeptDesiAuth);
 router.get("/get_single_desi_dept_auth/:desi_id", deptDesiAuth.getSingleDeptDesiAuthDetail);
 router.put("/update_dept_desi_auth", deptDesiAuth.updateDeptDesiAuth);
+
+
+// --------------------------------------------------------------Task Mangements all Routes------------------------------------------//
+router.post("/deptwisestatus", deptWiseStatus.addDeptWiseStatus);
+router.put("/deptwisestatus", deptWiseStatus.editDataDeptWiseStatus);
+router.get("/deptwisestatus", deptWiseStatus.getDeptWiseStatus);
+router.get("/deptwisestatus/:_id", deptWiseStatus.getSingleDeptWiseStatus);
+router.delete("/deptwisestatus/:_id", deptWiseStatus.deleteDataDeptWiseStatus);
 
 module.exports = router;

@@ -635,17 +635,17 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
             sim_id: "$sim_id",
             type: "$type",
             allo_id: "$allo_id",
-            submitted_at: "$submitted_at", 
+            submitted_at: "$submitted_at",
           },
         },
       ])
       .exec();
-    if ( assetData && assetData.length <= 0 ) {
-     return res.status(500).send({ success: false , message : "No Record Found"});
+    if (assetData && assetData.length <= 0) {
+      return res.status(500).send({ success: false, message: "No Record Found" });
     }
     return res.status(200).send({ data: assetData });
   } catch (err) {
-    return  res
+    return res
       .status(500)
       .send({ error: err.message, sms: "Error getting all sim allocatinos" });
   }
@@ -1268,34 +1268,34 @@ exports.showAssetDataToHR = async (req, res) => {
           },
         },
         {
-           $lookup: {
-                    from: 'departmentmodels',
-                    localField: 'userdata.dept_id',
-                    foreignField: 'dept_id',
-                    as: 'department'
-                }
+          $lookup: {
+            from: 'departmentmodels',
+            localField: 'userdata.dept_id',
+            foreignField: 'dept_id',
+            as: 'department'
+          }
         },
-            
+
         {
-         $unwind: {
-                path: "$department",
-                preserveNullAndEmptyArrays: true,
-         },
+          $unwind: {
+            path: "$department",
+            preserveNullAndEmptyArrays: true,
+          },
         },
-         {
-            $lookup: {
-               from: 'designationmodels',
-               localField: 'userdata.user_designation',
-               foreignField: 'desi_id',
-               as: 'designation'
-              }
+        {
+          $lookup: {
+            from: 'designationmodels',
+            localField: 'userdata.user_designation',
+            foreignField: 'desi_id',
+            as: 'designation'
+          }
         },
-            {
-              $unwind: {
-                path: "$designation",
-                preserveNullAndEmptyArrays: true,
-              },
-            },
+        {
+          $unwind: {
+            path: "$designation",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
         {
           $lookup: {
             from: "assetscategorymodels",
@@ -1370,6 +1370,7 @@ exports.showAssetDataToHR = async (req, res) => {
           $project: {
             _id: "$_id",
             sim_id: "$sim_id",
+            repair_id: "$repair.repair_id",
             asset_id: "$sim_no",
             asset_name: "$assetsName",
             status: "$repair.status",
