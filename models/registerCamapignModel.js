@@ -23,11 +23,11 @@ const registerCampaignSchema = new mongoose.Schema({
   },
 captions:{
   type: Array,
-  required:[true, "captions are required"]
+  // required:[true, "captions are required"]
 },
 hashtags:{
   type: String,
-  required: [true, "hashtags are required"]
+  // required: [true, "hashtags are required"]
 
 },
   //   commitment: [String],
