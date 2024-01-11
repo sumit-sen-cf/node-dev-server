@@ -16,6 +16,8 @@ const orderReqModel = require("../models/orderReqModel.js");
 const userModel = require("../models/userModel.js");
 const sittingModel = require("../models/sittingModel.js");
 const transferReqModel = require("../models/transferReqModel.js");
+const emailTempModel = require("../models/emailTempModel.js")
+const nodemailer = require("nodemailer");
 
 //Product Related api's
 
@@ -489,31 +491,55 @@ exports.addOrderReq = async (req, res) => {
 
     const savedOrderReqObj = await orderReqObj.save();
 
-    //Fetching User Details
     const userDetails = await userModel.findOne({ user_id: parseInt(user_id) });
-    //Fetching Sitting Informations
     const sittingDetails = await sittingModel.findOne({
       sitting_id: parseInt(sitting_id),
     });
 
-    //Creating Template for sending in mail
-    const templatePath = path.join(__dirname, "template1.ejs");
-    const template = await fs.promises.readFile(templatePath, "utf-8");
-    const userName = userDetails.user_name;
-    // const userName = "Lalit";
-    const SittingRefNo = sittingDetails.sitting_ref_no;
-    // const SittingRefNo = "cabin 4";
-    const SittingArea = sittingDetails.sitting_area;
-    // const SittingArea = "105";
+    // const templatePath = path.join(__dirname, "template1.ejs");
+    // const template = await fs.promises.readFile(templatePath, "utf-8");
+    // const userName = userDetails.user_name;
+    // const SittingRefNo = sittingDetails.sitting_ref_no;
+    // const SittingArea = sittingDetails.sitting_area;
 
-    const html = ejs.render(template, {
-      userName,
-      SittingRefNo,
-      SittingArea,
+    // const html = ejs.render(template, {userName,SittingRefNo,SittingArea});
+    // sendMail("Pantry New Order", html, email);
+
+    /* dynamic email temp code */
+    let contentList = await emailTempModel.find({ email_for_id: 5 })
+    let content = contentList[0];
+      
+      const filledEmailContent = content.email_content
+      .replace("{{user_name}}", userDetails.user_name)
+      .replace("{{sitting_ref}}", sittingDetails.sitting_ref_no)
+      .replace("{{sitting_area}}", sittingDetails.sitting_area);
+      
+      var html;
+      html = filledEmailContent;
+
+    var transport = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "onboarding@creativefuel.io",
+        pass: "fjjmxuavwpescyat",
+      },
     });
+      
+    const mail = (subject, html,email) => {
+      let mailOptions = {
+          from: "onboarding@creativefuel.io",
+          to: email,
+          // subject: "Pantry New Order",
+          subject: content.email_sub,
+          html: html,
+      };
+      transport.sendMail(mailOptions, function (error, info) {
+          if (error) console.log(error);
+          return info;
+      });
+    };
+    /* dynamic email temp code */
 
-    //Send Mail with Template
-    sendMail("Pantry New Order", html, email);
     return response.returnTrue(
       200,
       req,

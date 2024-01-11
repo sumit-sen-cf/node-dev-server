@@ -101,6 +101,9 @@ const dataCategory = require("./controllers/dataCategory.js");
 const dataPlatform = require("./controllers/dataPlatform.js");
 const dataController = require("./controllers/data.js");
 const deptDesiAuth = require("./controllers/deptDesiAuth.js");
+const taskDelivery = require("./controllers/TMS/taskDelivery.js")
+const task = require("./controllers/TMS/task.js")
+const taskSequence = require("./controllers/TMS/taskSequence.js")
 
 /* Task Mangement Controller Import */
 const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1331,5 +1334,20 @@ router.put("/deptwisestatus", deptWiseStatus.editDataDeptWiseStatus);
 router.get("/deptwisestatus", deptWiseStatus.getDeptWiseStatus);
 router.get("/deptwisestatus/:_id", deptWiseStatus.getSingleDeptWiseStatus);
 router.delete("/deptwisestatus/:_id", deptWiseStatus.deleteDataDeptWiseStatus);
+
+router.post("/task_delivery", taskDelivery.addTaskDelivery)
+router.get("/task_delivery", taskDelivery.getTaskDelivery)
+router.put("/task_delivery", taskDelivery.editTaskDelivery)
+router.delete("/task_delivery", taskDelivery.deleteTaskDelivery)
+
+router.post("/task", task.addTask)
+router.get("/task", task.getTasks)
+router.put("/task", task.editTask)
+router.delete("/task", task.deleteTask)
+
+router.post("/task_sequence", taskSequence.addSequence)
+router.get("/task_sequence", taskSequence.getSequences)
+router.put("/task_sequence", taskSequence.editTaskSequence)
+router.delete("/task_sequence", taskSequence.deleteTaskSequence)
 
 module.exports = router;

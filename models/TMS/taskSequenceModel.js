@@ -1,17 +1,15 @@
 const { default: mongoose } = require("mongoose");
+const deptWiseStatusModel = require("./deptWiseStatusModel");
 
-const deptWiseStatusModel = new mongoose.Schema({
-    dept_id: {
+const taskSequenceModel = new mongoose.Schema({
+    sequence: {
         type: Number,
         required: true,
+        unique: true
     },
-    status: {
-        type: String,
-        required: false
-    },
-    description: {
-        type: String,
-        required: false
+    status_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "deptWiseStatusModel"
     },
     created_at: {
         type: Date,
@@ -32,6 +30,6 @@ const deptWiseStatusModel = new mongoose.Schema({
 });
 
 module.exports = mongoose.model(
-    "deptWiseStatusModel",
-    deptWiseStatusModel
-);
+ "taskSequenceModel",
+ taskSequenceModel   
+)

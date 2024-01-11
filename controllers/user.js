@@ -27,6 +27,7 @@ const { generateEmpId } = require("../helper/helper.js");
 const departmentModel = require("../models/departmentModel.js");
 const designationModel = require("../models/designationModel.js");
 const deptDesiAuthModel = require("../models/deptDesiAuthModel.js");
+const emailTempModel = require("../models/emailTempModel")
 
 const upload = multer({ dest: "uploads/" }).fields([
     { name: "image", maxCount: 1 },
@@ -1647,16 +1648,22 @@ exports.sendUserMail = async (req, res) => {
         const { email, subject, name, password, login_id, status, text, name2 } = req.body;
         const attachment = req.file;
         if (status == "onboarded") {
-            const templatePath = path.join(__dirname, "template.ejs");
-            const template = await fs.promises.readFile(templatePath, "utf-8");
+            // const templatePath = path.join(__dirname, "template.ejs");
+            // const template = await fs.promises.readFile(templatePath, "utf-8");
+            // const html = ejs.render(template, {email,password,name,login_id,text});
 
-            const html = ejs.render(template, {
-                email,
-                password,
-                name,
-                login_id,
-                text,
-            });
+            /* dynamic email temp code start */
+            let contentList = await emailTempModel.find({ email_for_id: 6 })
+            let content = contentList[0];
+
+            const filledEmailContent = content.email_content
+            .replace("{{user_name}}", name)
+            .replace("{{user_email}}", email)
+            .replace("{{user_password}}", password)
+            .replace("{{user_login_id}}", login_id);
+
+            const html = filledEmailContent;
+            /* dynamic email temp code end */
 
             let mailTransporter = nodemailer.createTransport({
                 service: "gmail",
@@ -1684,13 +1691,18 @@ exports.sendUserMail = async (req, res) => {
             await mailTransporter.sendMail(mailOptions);
             res.sendStatus(200);
         } else if (status == "reportTo") {
-            const templatePath = path.join(__dirname, "reportTo.ejs");
-            const template = await fs.promises.readFile(templatePath, "utf-8");
+            // const templatePath = path.join(__dirname, "reportTo.ejs");
+            // const template = await fs.promises.readFile(templatePath, "utf-8");
+            // const html = ejs.render(template, { name, name2 });
 
-            const html = ejs.render(template, {
-                name,
-                name2
-            });
+            /* dynamic email temp code start */
+            let contentList = await emailTempModel.find({ email_for_id: 7 })
+            let content = contentList[0];
+
+            const filledEmailContent = content.email_content.replace("{{user_reportTo}}", name2);
+
+            const html = filledEmailContent;
+            /* dynamic email temp code end */
 
             let mailTransporter = nodemailer.createTransport({
                 service: "gmail",
@@ -1718,16 +1730,36 @@ exports.sendUserMail = async (req, res) => {
             await mailTransporter.sendMail(mailOptions);
             res.sendStatus(200);
         } else {
-            const templatePath = path.join(__dirname, "template.ejs");
-            const template = await fs.promises.readFile(templatePath, "utf-8");
-            const html = ejs.render(template, {
-                email,
-                password,
-                name,
-                login_id,
-                text,
-            });
+            // const templatePath = path.join(__dirname, "template.ejs");
+            // const template = await fs.promises.readFile(templatePath, "utf-8");
+            // const html = ejs.render(template, {
+            //     email,
+            //     password,
+            //     name,
+            //     login_id,
+            //     text,
+            // });
 
+            // let mailTransporter = nodemailer.createTransport({
+            //     service: "gmail",
+            //     auth: {
+            //         user: "onboarding@creativefuel.io",
+            //         pass: "fjjmxuavwpescyat",
+            //     },
+            // });
+
+            /* dynamic email temp code start */
+            let contentList = await emailTempModel.find({ email_for_id: 8 })
+            let content = contentList[0];
+
+            const filledEmailContent = content.email_content
+            .replace("{{user_name}}", name)
+            .replace("{{user_email}}", email)
+            .replace("{{user_password}}", password)
+            .replace("{{user_login_id}}", login_id);
+
+            const html = filledEmailContent;
+            /* dynamic email temp code end */
             let mailTransporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
@@ -2275,16 +2307,49 @@ exports.forgotPass = async (req, res) => {
             user_login_password: encryptedPass
         });
 
-        const templatePath = path.join(__dirname, "forgotemailtemp.ejs");
-        const template = await fs.promises.readFile(templatePath, "utf-8");
-        const html = ejs.render(template, {
-            email,
-            password: getRandomPassword
+        // const templatePath = path.join(__dirname, "forgotemailtemp.ejs");
+        // const template = await fs.promises.readFile(templatePath, "utf-8");
+        // const html = ejs.render(template, {
+        //     email,
+        //     password: getRandomPassword
+        // });
 
-        });
-
+        /* dynamic email temp code start */
+        let contentList = await emailTempModel.find({ email_for_id: 9 })
+        let content = contentList[0];
+      
+        const filledEmailContent = content.email_content
+        .replace("{{user_email}}", email)
+        .replace("{{user_password}}", getRandomPassword);
+      
+        var html;
+        html = filledEmailContent;
+        /* dynamic email temp code end */
         if (updatePass) {
-            sendMail("Forgot password", html, email);
+            // sendMail("Forgot password", html, email);
+        /* dynamic email temp code start */
+            var transport = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                  user: "onboarding@creativefuel.io",
+                  pass: "fjjmxuavwpescyat",
+              },
+            });
+              
+            const mail = (subject, html,email) => {
+                let mailOptions = {
+                    from: "onboarding@creativefuel.io",
+                    to: email,
+                    // subject: "Forgot password",
+                    subject: content.email_sub,
+                    html: html,
+                };
+                transport.sendMail(mailOptions, function (error, info) {
+                    if (error) console.log(error);
+                    return info;
+                });
+            };
+        /* dynamic email temp code end */
         } else {
             return res.status(500).send({ sms: 'email couldn not send' });
         }

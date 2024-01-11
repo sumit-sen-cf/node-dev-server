@@ -1,17 +1,28 @@
 const { default: mongoose } = require("mongoose");
+const taskModel = require("./taskModel");
 
-const deptWiseStatusModel = new mongoose.Schema({
-    dept_id: {
-        type: Number,
+const taskDeliveryModel = new mongoose.Schema({
+    task_id: {
+        type: mongoose.Schema.Types.ObjectId,
         required: true,
+        ref: "taskModel"
     },
-    status: {
+    delivery_date_time: {
+        type: Date,
+        required: false
+    },
+    delivery_status: {
         type: String,
         required: false
     },
-    description: {
-        type: String,
+    changes_date_time:{
+        type: Date,
         required: false
+    },
+    changes_summary:{
+        type: String,
+        required: false,
+        default: ""
     },
     created_at: {
         type: Date,
@@ -32,6 +43,6 @@ const deptWiseStatusModel = new mongoose.Schema({
 });
 
 module.exports = mongoose.model(
-    "deptWiseStatusModel",
-    deptWiseStatusModel
-);
+ "taskDeliveryModel",
+ taskDeliveryModel   
+)

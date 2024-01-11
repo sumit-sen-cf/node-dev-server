@@ -6,7 +6,8 @@ exports.addDeptWiseStatus = async (req, res) => {
         const dataDeptWiseStatus = new deptWiseStatusModel({
             dept_id: req.body.dept_id,
             status: req.body.status,
-            description: req.body.description
+            description: req.body.description,
+            created_by: req.body.created_by
         });
         const dataDeptWiseStatusResult = await dataDeptWiseStatus.save();
         return response.returnTrue(
@@ -51,7 +52,7 @@ exports.editDataDeptWiseStatus = async (req, res) => {
             dept_id: req.body.dept_id,
             status: req.body.status,
             description: req.body.description,
-            updated_at: req.body.updated_at
+            updated_by: req.body.updated_by
         }, { new: true })
 
         res.status(200).send({ success: true, data: editDataDeptWiseStatus })
