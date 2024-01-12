@@ -1321,6 +1321,8 @@ router.put("/update_data", upload1.single('data_upload'), dataController.editDat
 router.delete("/delete_data/:_id", dataController.deleteData);
 router.delete("/delete_data_based_data/:data_name", dataController.deleteDataBasedData);
 router.put("/edit_data_new", dataController.editDataNew);
+router.get("/distinct_created_by", dataController.DistinctCreatedByWithUserName);
+router.get("/distinct_designed_by", dataController.DistinctDesignedByWithUserName);
 
 //deptDesiAuth routes
 router.post("/add_dept_desi_auth", deptDesiAuth.addDeptDesiAuth);
@@ -1338,16 +1340,16 @@ router.delete("/deptwisestatus/:_id", deptWiseStatus.deleteDataDeptWiseStatus);
 router.post("/task_delivery", taskDelivery.addTaskDelivery)
 router.get("/task_delivery", taskDelivery.getTaskDelivery)
 router.put("/task_delivery", taskDelivery.editTaskDelivery)
-router.delete("/task_delivery", taskDelivery.deleteTaskDelivery)
+router.delete("/task_delivery/:_id", taskDelivery.deleteTaskDelivery)
 
 router.post("/task", task.addTask)
 router.get("/task", task.getTasks)
 router.put("/task", task.editTask)
-router.delete("/task", task.deleteTask)
+router.delete("/task/:_id", task.deleteTask)
 
 router.post("/task_sequence", taskSequence.addSequence)
 router.get("/task_sequence", taskSequence.getSequences)
 router.put("/task_sequence", taskSequence.editTaskSequence)
-router.delete("/task_sequence", taskSequence.deleteTaskSequence)
+router.delete("/task_sequence/:_id", taskSequence.deleteTaskSequence)
 
 module.exports = router;
