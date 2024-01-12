@@ -25,8 +25,8 @@ const cocModel = new mongoose.Schema({
   },
   sub_heading_sequence: {
     type: Number,
-    required: true,
-    unique: true,
+    required: false,
+    unique: false,
   },
   description: {
     type: String,
