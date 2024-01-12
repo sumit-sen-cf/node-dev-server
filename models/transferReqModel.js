@@ -1,9 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
+
 const transferReqSchema = new mongoose.Schema({
   Transfer_req_id: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   From_id: {
@@ -27,11 +28,17 @@ const transferReqSchema = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-transferReqSchema.plugin(AutoIncrement.plugin, {
-  model: "transferRequestModel",
-  field: "Transfer_req_id",
-  startAt: 1,
-  incrementBy: 1,
+transferReqSchema.pre('save', async function (next) {
+  if (!this.Transfer_req_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'Transfer_req_id': -1 } });
+
+    if (lastAgency && lastAgency.Transfer_req_id) {
+      this.Transfer_req_id = lastAgency.Transfer_req_id + 1;
+    } else {
+      this.Transfer_req_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model("transferRequestModel", transferReqSchema);

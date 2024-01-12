@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const simModel = new mongoose.Schema({
   sim_id: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   sim_no: {
@@ -160,12 +160,17 @@ const simModel = new mongoose.Schema({
   }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-simModel.plugin(AutoIncrement.plugin, {
-  model: "simModels",
-  field: "sim_id",
-  startAt: 1,
-  incrementBy: 1,
+simModel.pre('save', async function (next) {
+  if (!this.sim_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'sim_id': -1 } });
+
+    if (lastAgency && lastAgency.sim_id) {
+      this.sim_id = lastAgency.sim_id + 1;
+    } else {
+      this.sim_id = 1;
+    }
+  }
+  next();
 });
 
 module.exports = mongoose.model("simModel", simModel);

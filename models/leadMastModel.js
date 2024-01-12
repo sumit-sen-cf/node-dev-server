@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const leadMastSchema = new mongoose.Schema({
   leadmast_id: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   lead_name: {
@@ -82,12 +82,17 @@ const leadMastSchema = new mongoose.Schema({
   }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-leadMastSchema.plugin(AutoIncrement.plugin, {
-  model: "leadMastModel",
-  field: "leadmast_id",
-  startAt: 1,
-  incrementBy: 1,
-});
-module.exports = mongoose.model("leadMastModel", leadMastSchema);
+leadMastSchema.pre('save', async function (next) {
+  if (!this.leadmast_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'leadmast_id': -1 } });
 
+    if (lastAgency && lastAgency.leadmast_id) {
+      this.leadmast_id = lastAgency.leadmast_id + 1;
+    } else {
+      this.leadmast_id = 1;
+    }
+  }
+  next();
+});
+
+module.exports = mongoose.model("leadMastModel", leadMastSchema);

@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const roleModel = new mongoose.Schema({
   role_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   Role_name: {
     type: String,
@@ -37,12 +37,17 @@ const roleModel = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-roleModel.plugin(AutoIncrement.plugin, {
-  model: "roleModels",
-  field: "role_id",
-  startAt: 1,
-  incrementBy: 1,
+roleModel.pre('save', async function (next) {
+  if (!this.role_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'role_id': -1 } });
+
+    if (lastAgency && lastAgency.role_id) {
+      this.role_id = lastAgency.role_id + 1;
+    } else {
+      this.role_id = 1;
+    }
+  }
+  next();
 });
 
 module.exports = mongoose.model("roleModel", roleModel);

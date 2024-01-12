@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const exePurchaseModel = new mongoose.Schema({
   p_id: {
@@ -37,13 +37,5 @@ const exePurchaseModel = new mongoose.Schema({
     default:0
  }
 });
-
-// AutoIncrement.initialize(mongoose.connection);
-// vendorModel.plugin(AutoIncrement.plugin, {
-//   model: "exeCountHisModels",
-//   field: "p_id",
-//   startAt: 1,
-//   incrementBy: 1,
-// });
 
 module.exports = mongoose.model("exePurchaseModel", exePurchaseModel);

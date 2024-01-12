@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const variable = require('../variables.js');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const instaPageCountModel = new mongoose.Schema({
     id:{
       type: Number,
-      required: true
+      required: false
     },
     ip_id:{
         type: Number,
@@ -38,11 +38,5 @@ const instaPageCountModel = new mongoose.Schema({
         default: 0
     }
 });
-
-AutoIncrement.initialize(mongoose.connection);
-instaPageCountModel.plugin(
-    AutoIncrement.plugin, 
-    { model: 'instaPageCountModels', field: 'id', startAt: 1, incrementBy: 1 }
-);
 
 module.exports = mongoose.model('instaPageCountModel', instaPageCountModel);

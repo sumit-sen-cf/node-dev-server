@@ -1,5 +1,5 @@
 const { default: mongoose } = require("mongoose");
-// const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const phasePageSchema = new mongoose.Schema({
   phase_id: {

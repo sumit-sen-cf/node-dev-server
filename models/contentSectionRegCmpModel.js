@@ -1,5 +1,5 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const contentSectionRegSchema = new mongoose.Schema({
   content_section_id: {
@@ -58,13 +58,19 @@ const contentSectionRegSchema = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-contentSectionRegSchema.plugin(AutoIncrement.plugin, {
-  model: "contentSectionRegCmpModel",
-  field: "content_section_id",
-  startAt: 1,
-  incrementBy: 1,
+contentSectionRegSchema.pre('save', async function (next) {
+  if (!this.content_section_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'content_section_id': -1 } });
+
+    if (lastAgency && lastAgency.content_section_id) {
+      this.content_section_id = lastAgency.content_section_id + 1;
+    } else {
+      this.content_section_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model(
   "contentSectionRegCmpModel",
   contentSectionRegSchema

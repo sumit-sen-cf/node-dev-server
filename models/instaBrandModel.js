@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const instaBrandSchema = new mongoose.Schema({
   instaBrandId: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   instaBrandName: {
@@ -98,11 +98,4 @@ const instaBrandSchema = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-instaBrandSchema.plugin(AutoIncrement.plugin, {
-  model: "instaBrand",
-  field: "instaBrandId",
-  startAt: 1,
-  incrementBy: 1,
-});
 module.exports = mongoose.model("instaBrand", instaBrandSchema);

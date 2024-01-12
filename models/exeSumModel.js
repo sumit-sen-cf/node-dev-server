@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const variable = require('../variables.js');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const exeSumModel = new mongoose.Schema({
     // creator_id:{
@@ -10,7 +10,7 @@ const exeSumModel = new mongoose.Schema({
     // },
     id: { 
         type: Number,
-        required: true,
+        required: false,
         unique: true,
     },
     sale_booking_execution_id: {
@@ -181,10 +181,17 @@ const exeSumModel = new mongoose.Schema({
     }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-exeSumModel.plugin(
-    AutoIncrement.plugin, 
-    { model: 'exeSumModels', field: 'id', startAt: 1, incrementBy: 1 }
-);
+exeSumModel.pre('save', async function (next) {
+    if (!this.id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'id': -1 } });
+  
+      if (lastAgency && lastAgency.id) {
+        this.id = lastAgency.id + 1;
+      } else {
+        this.id = 1;
+      }
+    }
+    next();
+});
 
 module.exports = mongoose.model('exeSumModel', exeSumModel);

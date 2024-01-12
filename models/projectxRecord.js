@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const projectxRecordSchema = new mongoose.Schema({
   record_id: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   date: {
@@ -117,11 +117,17 @@ const projectxRecordSchema = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-projectxRecordSchema.plugin(AutoIncrement.plugin, {
-  model: "projectxRecords",
-  field: "record_id",
-  startAt: 1,
-  incrementBy: 1,
+projectxRecordSchema.pre('save', async function (next) {
+  if (!this.record_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'record_id': -1 } });
+
+    if (lastAgency && lastAgency.record_id) {
+      this.record_id = lastAgency.record_id + 1;
+    } else {
+      this.record_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model("projectxRecord", projectxRecordSchema);

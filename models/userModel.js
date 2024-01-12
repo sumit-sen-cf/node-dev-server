@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const userModel = new mongoose.Schema({
     user_id: {
         type: Number,
-        required: true
+        required: false
     },
     user_designation: {
         type: Number,
@@ -687,10 +687,17 @@ const userModel = new mongoose.Schema({
     }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-userModel.plugin(
-    AutoIncrement.plugin,
-    { model: 'userModels', field: 'user_id', startAt: 1, incrementBy: 1 }
-);
+userModel.pre('save', async function (next) {
+    if (!this.user_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'user_id': -1 } });
+  
+      if (lastAgency && lastAgency.user_id) {
+        this.user_id = lastAgency.user_id + 1;
+      } else {
+        this.user_id = 1;
+      }
+    }
+    next();
+});
 
 module.exports = mongoose.model('userModel', userModel);

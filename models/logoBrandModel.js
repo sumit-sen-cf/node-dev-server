@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const logoBrandModel = new mongoose.Schema({
     logo_id:{
         type: Number,
-        required: true,
+        required: false,
         unique: true
     },
     brand_name: { 
@@ -60,11 +60,5 @@ const logoBrandModel = new mongoose.Schema({
         default: 0
     }
 });
-
-// AutoIncrement.initialize(mongoose.connection);
-// logoBrandModel.plugin(
-//     AutoIncrement.plugin, 
-//     { model: 'logoBrandModels', field: 'logo_id', startAt: 1, incrementBy: 1 }
-// );
 
 module.exports = mongoose.model('logoBrandModel', logoBrandModel);

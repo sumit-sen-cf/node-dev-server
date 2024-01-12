@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const educationModel = new mongoose.Schema({
   education_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   user_id: {
     type: Number,
@@ -53,13 +53,19 @@ const educationModel = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-educationModel.plugin(AutoIncrement.plugin, {
-  model: "educationModels",
-  field: "education_id",
-  startAt: 1,
-  incrementBy: 1,
+educationModel.pre('save', async function (next) {
+  if (!this.education_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'education_id': -1 } });
+
+    if (lastAgency && lastAgency.education_id) {
+      this.education_id = lastAgency.education_id + 1;
+    } else {
+      this.education_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model(
   "educationModel",
   educationModel

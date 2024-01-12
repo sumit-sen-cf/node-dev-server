@@ -239,10 +239,4 @@ const exeInvenModel = new mongoose.Schema({
     }
 });
 
-// AutoIncrement.initialize(mongoose.connection);
-// exeInvenModel.plugin(
-//     AutoIncrement.plugin, 
-//     { model: 'exeInvenModels', field: 'creator_id', startAt: 1, incrementBy: 1 }
-// );
-
 module.exports = mongoose.model('exeInvenModel', exeInvenModel);

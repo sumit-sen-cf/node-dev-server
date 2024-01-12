@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const variable = require('../variables.js');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const instaTypeModel = new mongoose.Schema({
     id:{
       type: Number,
-      required: true
+      required: false
     },
     name:{
         type: String,
@@ -37,11 +37,5 @@ const instaTypeModel = new mongoose.Schema({
         default: 0
     }
 });
-
-AutoIncrement.initialize(mongoose.connection);
-instaTypeModel.plugin(
-    AutoIncrement.plugin, 
-    { model: 'instaTypeModels', field: 'id', startAt: 1, incrementBy: 1 }
-);
 
 module.exports = mongoose.model('instaTypeModel', instaTypeModel);

@@ -1,5 +1,5 @@
 const { default: mongoose } = require("mongoose");
-// const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const pageDeleteRecordSchema = new mongoose.Schema({
   plan_id:{

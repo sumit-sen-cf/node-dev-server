@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const roomModel = new mongoose.Schema({
     room_id: { 
         type: Number,
-        required: true,
+        required: false,
         unique: true,
     },
     sitting_ref_no: {
@@ -38,10 +38,17 @@ const roomModel = new mongoose.Schema({
    
 });
 
-AutoIncrement.initialize(mongoose.connection);
-roomModel.plugin(
-    AutoIncrement.plugin, 
-    { model: 'roomModel', field: 'room_id', startAt: 1, incrementBy: 1 }
-);
+roomModel.pre('save', async function (next) {
+    if (!this.room_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'room_id': -1 } });
+  
+      if (lastAgency && lastAgency.room_id) {
+        this.room_id = lastAgency.room_id + 1;
+      } else {
+        this.room_id = 1;
+      }
+    }
+    next();
+});
 
 module.exports = mongoose.model('roomModel', roomModel);

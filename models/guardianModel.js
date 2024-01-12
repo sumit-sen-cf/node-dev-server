@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const guardianModel = new mongoose.Schema({
     guardian_id: {
         type: Number,
-        required: true,
+        required: false,
     },
     user_id: {
         type: Number,
@@ -40,13 +40,19 @@ const guardianModel = new mongoose.Schema({
     },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-guardianModel.plugin(AutoIncrement.plugin, {
-    model: "guardianModels",
-    field: "guardian_id",
-    startAt: 1,
-    incrementBy: 1,
+guardianModel.pre('save', async function (next) {
+    if (!this.guardian_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'guardian_id': -1 } });
+  
+      if (lastAgency && lastAgency.guardian_id) {
+        this.guardian_id = lastAgency.guardian_id + 1;
+      } else {
+        this.guardian_id = 1;
+      }
+    }
+    next();
 });
+
 module.exports = mongoose.model(
     "guardianModel",
     guardianModel

@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const objMastSchema = new mongoose.Schema({
   obj_id: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   obj_name: {
@@ -37,11 +37,17 @@ const objMastSchema = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-objMastSchema.plugin(AutoIncrement.plugin, {
-  model: "objectModel",
-  field: "obj_id",
-  startAt: 1,
-  incrementBy: 1,
+objMastSchema.pre('save', async function (next) {
+  if (!this.obj_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'obj_id': -1 } });
+
+    if (lastAgency && lastAgency.obj_id) {
+      this.obj_id = lastAgency.obj_id + 1;
+    } else {
+      this.obj_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model("objectModel", objMastSchema);

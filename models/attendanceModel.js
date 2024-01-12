@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const attendanceModel = new mongoose.Schema({
     attendence_id: {
         type: Number,
-        required: true
+        required: false
     },
     dept: {
         type: Number,
@@ -128,10 +128,17 @@ const attendanceModel = new mongoose.Schema({
     }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-attendanceModel.plugin(
-    AutoIncrement.plugin,
-    { model: 'attendanceModels', field: 'attendence_id', startAt: 1, incrementBy: 1 }
-);
+attendanceModel.pre('save', async function (next) {
+    if (!this.attendence_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'attendence_id': -1 } });
+  
+      if (lastAgency && lastAgency.attendence_id) {
+        this.attendence_id = lastAgency.attendence_id + 1;
+      } else {
+        this.attendence_id = 1;
+      }
+    }
+    next();
+});
 
 module.exports = mongoose.model('attendanceModel', attendanceModel);

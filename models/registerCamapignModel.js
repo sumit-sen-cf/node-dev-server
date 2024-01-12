@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const registerCampaignSchema = new mongoose.Schema({
   register_campaign_id: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   brand_id: {
@@ -45,13 +45,19 @@ hashtags:{
   commitment: [mongoose.Schema.Types.Mixed],
 });
 
-AutoIncrement.initialize(mongoose.connection);
-registerCampaignSchema.plugin(AutoIncrement.plugin, {
-  model: "registerCampaignModel",
-  field: "register_campaign_id",
-  startAt: 1,
-  incrementBy: 1,
+registerCampaignSchema.pre('save', async function (next) {
+  if (!this.register_campaign_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'register_campaign_id': -1 } });
+
+    if (lastAgency && lastAgency.register_campaign_id) {
+      this.register_campaign_id = lastAgency.register_campaign_id + 1;
+    } else {
+      this.register_campaign_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model(
   "registerCampaignModel",
   registerCampaignSchema

@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const contentMgntModel = new mongoose.Schema({
     contentM_id: { 
         type: Number,
-        required: true,
+        required: false,
         unique: true,
     },
     page_name: {
@@ -45,10 +45,17 @@ const contentMgntModel = new mongoose.Schema({
     }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-contentMgntModel.plugin(
-    AutoIncrement.plugin, 
-    { model: 'contentMgntModels', field: 'contentM_id', startAt: 1, incrementBy: 1 }
-);
+contentMgntModel.pre('save', async function (next) {
+    if (!this.contentM_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'contentM_id': -1 } });
+  
+      if (lastAgency && lastAgency.contentM_id) {
+        this.contentM_id = lastAgency.contentM_id + 1;
+      } else {
+        this.contentM_id = 1;
+      }
+    }
+    next();
+});
 
 module.exports = mongoose.model('contentMgntModel', contentMgntModel);

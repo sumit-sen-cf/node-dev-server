@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const agencyModel = new mongoose.Schema({
   agency_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   agency_name: {
     type: String,
@@ -21,14 +21,17 @@ const agencyModel = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-agencyModel.plugin(AutoIncrement.plugin, {
-  model: "agencyModels",
-  field: "agency_id",
-  startAt: 1,
-  incrementBy: 1,
+agencyModel.pre('save', async function (next) {
+  if (!this.agency_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'agency_id': -1 } });
+
+    if (lastAgency && lastAgency.agency_id) {
+      this.agency_id = lastAgency.agency_id + 1;
+    } else {
+      this.agency_id = 1;
+    }
+  }
+  next();
 });
-module.exports = mongoose.model(
-  "agencyModel",
-  agencyModel
-);
+
+module.exports = mongoose.model("agencyModel",agencyModel)

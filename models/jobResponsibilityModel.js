@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const jobResponsibilityModel = new mongoose.Schema({
     Job_res_id:{
         type: Number,
-        required: true
+        required: false
     },
     user_id: { 
         type: Number,
@@ -40,10 +40,17 @@ const jobResponsibilityModel = new mongoose.Schema({
     }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-jobResponsibilityModel.plugin(
-    AutoIncrement.plugin, 
-    { model: 'jobResponsibilityModels', field: 'Job_res_id', startAt: 1, incrementBy: 1 }
-);
+jobResponsibilityModel.pre('save', async function (next) {
+    if (!this.Job_res_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'Job_res_id': -1 } });
+  
+      if (lastAgency && lastAgency.Job_res_id) {
+        this.Job_res_id = lastAgency.Job_res_id + 1;
+      } else {
+        this.Job_res_id = 1;
+      }
+    }
+    next();
+});
 
 module.exports = mongoose.model('jobResponsibilityModel', jobResponsibilityModel);

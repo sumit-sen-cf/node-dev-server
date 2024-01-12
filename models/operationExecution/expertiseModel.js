@@ -1,5 +1,5 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const expertiseSchema = new mongoose.Schema({
     exp_id:{
@@ -48,13 +48,19 @@ expertiseSchema.pre(/^find/, function(next){
     next();
 })
 
-AutoIncrement.initialize(mongoose.connection);
-expertiseSchema.plugin(AutoIncrement.plugin, {
-  model: "ExpertiseModel",
-  field: "exp_id",
-  startAt: 1,
-  incrementBy: 1,
+expertiseSchema.pre('save', async function (next) {
+    if (!this.exp_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'exp_id': -1 } });
+  
+      if (lastAgency && lastAgency.exp_id) {
+        this.exp_id = lastAgency.exp_id + 1;
+      } else {
+        this.exp_id = 1;
+      }
+    }
+    next();
 });
+
 module.exports = mongoose.model(
   "ExpertiseModel",
   expertiseSchema

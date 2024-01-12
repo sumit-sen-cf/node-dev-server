@@ -1,9 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
+
 const productSchema = new mongoose.Schema({
   product_id: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   Product_name: {
@@ -75,11 +76,17 @@ const productSchema = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-productSchema.plugin(AutoIncrement.plugin, {
-  model: "productModel",
-  field: "product_id",
-  startAt: 1,
-  incrementBy: 1,
+productSchema.pre('save', async function (next) {
+  if (!this.product_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'product_id': -1 } });
+
+    if (lastAgency && lastAgency.product_id) {
+      this.product_id = lastAgency.product_id + 1;
+    } else {
+      this.product_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model("productModel", productSchema);

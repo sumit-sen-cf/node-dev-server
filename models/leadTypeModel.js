@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const leadTypeSchema = new mongoose.Schema({
   leadtype_id: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   location: {
@@ -34,12 +34,17 @@ const leadTypeSchema = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-leadTypeSchema.plugin(AutoIncrement.plugin, {
-  model: "leadTypeModel",
-  field: "leadtype_id",
-  startAt: 1,
-  incrementBy: 1,
-});
-module.exports = mongoose.model("leadTypeModel", leadTypeSchema);
+leadTypeSchema.pre('save', async function (next) {
+  if (!this.leadtype_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'leadtype_id': -1 } });
 
+    if (lastAgency && lastAgency.leadtype_id) {
+      this.leadtype_id = lastAgency.leadtype_id + 1;
+    } else {
+      this.leadtype_id = 1;
+    }
+  }
+  next();
+});
+
+module.exports = mongoose.model("leadTypeModel", leadTypeSchema);

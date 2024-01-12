@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const departmentModel = new mongoose.Schema({
   dept_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   dept_name: {
     type: String,
@@ -42,12 +42,17 @@ const departmentModel = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-departmentModel.plugin(AutoIncrement.plugin, {
-  model: "departmentModels",
-  field: "dept_id",
-  startAt: 1,
-  incrementBy: 1,
+departmentModel.pre('save', async function (next) {
+  if (!this.dept_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'dept_id': -1 } });
+
+    if (lastAgency && lastAgency.dept_id) {
+      this.dept_id = lastAgency.dept_id + 1;
+    } else {
+      this.dept_id = 1;
+    }
+  }
+  next();
 });
 
 module.exports = mongoose.model("departmentModel", departmentModel);

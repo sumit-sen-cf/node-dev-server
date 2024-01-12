@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const hobbyModel = new mongoose.Schema({
   hobby_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   hobby_name: {
     type: String,
@@ -26,13 +26,19 @@ const hobbyModel = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-hobbyModel.plugin(AutoIncrement.plugin, {
-  model: "hobbyModels",
-  field: "hobby_id",
-  startAt: 1,
-  incrementBy: 1,
+hobbyModel.pre('save', async function (next) {
+  if (!this.hobby_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'hobby_id': -1 } });
+
+    if (lastAgency && lastAgency.hobby_id) {
+      this.hobby_id = lastAgency.hobby_id + 1;
+    } else {
+      this.hobby_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model(
   "hobbyModel",
   hobbyModel

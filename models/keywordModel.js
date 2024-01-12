@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const keywordSchema = new mongoose.Schema({
   keywordId: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   keyword: {
@@ -33,11 +33,4 @@ const keywordSchema = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-keywordSchema.plugin(AutoIncrement.plugin, {
-  model: "keywordModel",
-  field: "keywordId",
-  startAt: 1,
-  incrementBy: 1,
-});
 module.exports = mongoose.model("keywordModel", keywordSchema);

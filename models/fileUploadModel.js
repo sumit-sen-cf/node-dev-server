@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const fileUploadSchema = new mongoose.Schema({
   fileId: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   contentSecRegId: {
@@ -16,11 +16,17 @@ const fileUploadSchema = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-fileUploadSchema.plugin(AutoIncrement.plugin, {
-  model: "fileUploadModel",
-  field: "fileId",
-  startAt: 1,
-  incrementBy: 1,
+fileUploadSchema.pre('save', async function (next) {
+  if (!this.fileId) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'fileId': -1 } });
+
+    if (lastAgency && lastAgency.fileId) {
+      this.fileId = lastAgency.fileId + 1;
+    } else {
+      this.fileId = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model("fileUploadModel", fileUploadSchema);

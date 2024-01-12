@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const kraTransModel = new mongoose.Schema({
     kraTrans_id: {
         type: Number,
-        required: true,
+        required: false,
         unique: true
     },
     user_to_id: {
@@ -41,13 +41,19 @@ const kraTransModel = new mongoose.Schema({
     }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-kraTransModel.plugin(AutoIncrement.plugin, {
-    model: "kraTransModels",
-    field: "kraTrans_id",
-    startAt: 1,
-    incrementBy: 1,
+kraTransModel.pre('save', async function (next) {
+    if (!this.kraTrans_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'kraTrans_id': -1 } });
+  
+      if (lastAgency && lastAgency.kraTrans_id) {
+        this.kraTrans_id = lastAgency.kraTrans_id + 1;
+      } else {
+        this.kraTrans_id = 1;
+      }
+    }
+    next();
 });
+
 module.exports = mongoose.model(
     "kraTransModel",
     kraTransModel

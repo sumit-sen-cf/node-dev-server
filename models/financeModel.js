@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 const Schema = mongoose.Schema;
 
 const financeModel = new mongoose.Schema({
     id:{
         type: Number,
-        required: true
+        required: false
     },
     status_: { 
         type: Number,
@@ -50,10 +50,17 @@ const financeModel = new mongoose.Schema({
     }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-financeModel.plugin(
-    AutoIncrement.plugin, 
-    { model: 'financeModels', field: 'id', startAt: 1, incrementBy: 1 }
-);
+financeModel.pre('save', async function (next) {
+    if (!this.id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'id': -1 } });
+  
+      if (lastAgency && lastAgency.id) {
+        this.id = lastAgency.id + 1;
+      } else {
+        this.id = 1;
+      }
+    }
+    next();
+});
 
 module.exports = mongoose.model('financeModel', financeModel);

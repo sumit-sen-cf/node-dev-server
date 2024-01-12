@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const contentTypeSchema = new mongoose.Schema({
   content_type_id: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   content_type: {
@@ -34,13 +34,17 @@ const contentTypeSchema = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-contentTypeSchema.plugin(AutoIncrement.plugin, {
-  model: "contentTypeModel",
-  field: "content_type_id",
-  startAt: 1,
-  incrementBy: 1,
+contentTypeSchema.pre('save', async function (next) {
+  if (!this.content_type_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'content_type_id': -1 } });
+
+    if (lastAgency && lastAgency.content_type_id) {
+      this.content_type_id = lastAgency.content_type_id + 1;
+    } else {
+      this.content_type_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model("contentTypeModel", contentTypeSchema);
-
-

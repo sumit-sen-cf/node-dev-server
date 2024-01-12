@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const botMSchema = new mongoose.Schema({
   botMId: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   number: {
@@ -31,11 +31,4 @@ const botMSchema = new mongoose.Schema({
   
 });
 
-AutoIncrement.initialize(mongoose.connection);
-botMSchema.plugin(AutoIncrement.plugin, {
-  model: "instaBotMModel",
-  field: "botMId",
-  startAt: 1,
-  incrementBy: 1,
-});
 module.exports = mongoose.model("instaBotMModel", botMSchema);

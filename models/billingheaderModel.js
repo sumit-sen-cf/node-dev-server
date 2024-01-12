@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const billingheaderModel = new mongoose.Schema({
   billingheader_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   billing_header_name: {
     type: String,
@@ -16,13 +16,19 @@ const billingheaderModel = new mongoose.Schema({
   }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-billingheaderModel.plugin(AutoIncrement.plugin, {
-  model: "billingheaderModels",
-  field: "billingheader_id",
-  startAt: 1,
-  incrementBy: 1,
+billingheaderModel.pre('save', async function (next) {
+  if (!this.billingheader_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'billingheader_id': -1 } });
+
+    if (lastAgency && lastAgency.billingheader_id) {
+      this.billingheader_id = lastAgency.billingheader_id + 1;
+    } else {
+      this.billingheader_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model(
   "billingheaderModel",
   billingheaderModel

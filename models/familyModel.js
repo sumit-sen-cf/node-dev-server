@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const familyModel = new mongoose.Schema({
   family_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   user_id: {
     type: Number,
@@ -49,13 +49,19 @@ const familyModel = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-familyModel.plugin(AutoIncrement.plugin, {
-  model: "familyModels",
-  field: "family_id",
-  startAt: 1,
-  incrementBy: 1,
+familyModel.pre('save', async function (next) {
+  if (!this.family_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'family_id': -1 } });
+
+    if (lastAgency && lastAgency.family_id) {
+      this.family_id = lastAgency.family_id + 1;
+    } else {
+      this.family_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model(
   "familyModel",
   familyModel

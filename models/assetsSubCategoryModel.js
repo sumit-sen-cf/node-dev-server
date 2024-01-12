@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const assetsSubCategoryModel = new mongoose.Schema({
   sub_category_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   sub_category_name: {
     type: String,
@@ -45,12 +45,17 @@ const assetsSubCategoryModel = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-assetsSubCategoryModel.plugin(AutoIncrement.plugin, {
-  model: "assetsSubCategoryModels",
-  field: "sub_category_id",
-  startAt: 1,
-  incrementBy: 1,
+assetsSubCategoryModel.pre('save', async function (next) {
+  if (!this.sub_category_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'sub_category_id': -1 } });
+
+    if (lastAgency && lastAgency.sub_category_id) {
+      this.sub_category_id = lastAgency.sub_category_id + 1;
+    } else {
+      this.sub_category_id = 1;
+    }
+  }
+  next();
 });
 
 module.exports = mongoose.model("assetsSubCategoryModel", assetsSubCategoryModel);

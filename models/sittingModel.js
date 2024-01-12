@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const sittingModel = new mongoose.Schema({
     sitting_id: { 
         type: Number,
-        required: true,
+        required: false,
         unique: true,
     },
     sitting_ref_no: {
@@ -42,10 +42,17 @@ const sittingModel = new mongoose.Schema({
     },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-sittingModel.plugin(
-    AutoIncrement.plugin, 
-    { model: 'sittingModels', field: 'sitting_id', startAt: 1, incrementBy: 1 }
-);
+sittingModel.pre('save', async function (next) {
+    if (!this.sitting_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'sitting_id': -1 } });
+  
+      if (lastAgency && lastAgency.sitting_id) {
+        this.sitting_id = lastAgency.sitting_id + 1;
+      } else {
+        this.sitting_id = 1;
+      }
+    }
+    next();
+});
 
 module.exports = mongoose.model('sittingModel', sittingModel);

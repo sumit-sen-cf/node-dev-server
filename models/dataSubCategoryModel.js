@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const dataSubCategoryModel = new mongoose.Schema({
     data_sub_cat_name: {
@@ -26,11 +26,5 @@ const dataSubCategoryModel = new mongoose.Schema({
         default: 0
     }
 });
-
-// AutoIncrement.initialize(mongoose.connection);
-// dataSubCategoryModel.plugin(
-//     AutoIncrement.plugin,
-//     { model: 'dataSubCategoryModels', field: 'data_sub_cat_id', startAt: 1, incrementBy: 1 }
-// );
 
 module.exports = mongoose.model('dataSubCategoryModel', dataSubCategoryModel);

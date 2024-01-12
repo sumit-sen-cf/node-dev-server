@@ -69,10 +69,4 @@ const instaCModel = new mongoose.Schema({
     },
 });
 
-// AutoIncrement.initialize(mongoose.connection);
-// instaCModel.plugin(
-//     AutoIncrement.plugin, 
-//     { model: 'instaCModels', field: 'creator_id', startAt: 1, incrementBy: 1 }
-// );
-
 module.exports = mongoose.model('instaCModel', instaCModel);

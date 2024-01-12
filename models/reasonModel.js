@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-auto-increment');
+// const AutoIncrement = require('mongoose-auto-increment');
 
 const reasonModel = new mongoose.Schema({
     id:{
         type: Number,
-        required: true
+        required: false
     },
     reason:{
         type: String,
@@ -27,10 +27,17 @@ const reasonModel = new mongoose.Schema({
     }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-reasonModel.plugin(
-    AutoIncrement.plugin, 
-    { model: 'reasonModels', field: 'id', startAt: 1, incrementBy: 1 }
-);
+reasonModel.pre('save', async function (next) {
+    if (!this.id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'id': -1 } });
+  
+      if (lastAgency && lastAgency.id) {
+        this.id = lastAgency.id + 1;
+      } else {
+        this.id = 1;
+      }
+    }
+    next();
+});
 
 module.exports = mongoose.model('reasonModel', reasonModel);

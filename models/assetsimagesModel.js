@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const assetsImagesModel = new mongoose.Schema({
   asset_image_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   sim_id: {
     type: Number,
@@ -46,12 +46,17 @@ const assetsImagesModel = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-assetsImagesModel.plugin(AutoIncrement.plugin, {
-  model: "assetsImagesModels",
-  field: "asset_image_id",
-  startAt: 1,
-  incrementBy: 1,
+assetsImagesModel.pre('save', async function (next) {
+  if (!this.asset_image_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'asset_image_id': -1 } });
+
+    if (lastAgency && lastAgency.asset_image_id) {
+      this.asset_image_id = lastAgency.asset_image_id + 1;
+    } else {
+      this.asset_image_id = 1;
+    }
+  }
+  next();
 });
 
 module.exports = mongoose.model("assetsImagesModel", assetsImagesModel);

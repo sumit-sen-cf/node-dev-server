@@ -1,9 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
+
 const orderReqSchema = new mongoose.Schema({
   Order_req_id: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   product_id: {
@@ -91,11 +92,17 @@ const orderReqSchema = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-orderReqSchema.plugin(AutoIncrement.plugin, {
-  model: "OrderReqModel",
-  field: "Order_req_id",
-  startAt: 1,
-  incrementBy: 1,
+orderReqSchema.pre('save', async function (next) {
+  if (!this.Order_req_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'Order_req_id': -1 } });
+
+    if (lastAgency && lastAgency.Order_req_id) {
+      this.Order_req_id = lastAgency.Order_req_id + 1;
+    } else {
+      this.Order_req_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model("OrderReqModel", orderReqSchema);

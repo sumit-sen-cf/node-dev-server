@@ -1,5 +1,5 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const assignmentCommitSchema = new mongoose.Schema({
     comm_id:{
@@ -43,12 +43,17 @@ const assignmentCommitSchema = new mongoose.Schema({
     }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-assignmentCommitSchema.plugin(AutoIncrement.plugin, {
-  model: "AssignmentCommitModel",
-  field: "comm_id",
-  startAt: 1,
-  incrementBy: 1,
+assignmentCommitSchema.pre('save', async function (next) {
+    if (!this.comm_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'comm_id': -1 } });
+  
+      if (lastAgency && lastAgency.comm_id) {
+        this.comm_id = lastAgency.comm_id + 1;
+      } else {
+        this.comm_id = 1;
+      }
+    }
+    next();
 });
 
 module.exports = mongoose.model(

@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const brandCategoryModel = new mongoose.Schema({
     brandCategory_id: {
         type: Number,
-        required: true,
+        required: false,
     },
     brandCategory_name: {
         type: String,
@@ -25,13 +25,19 @@ const brandCategoryModel = new mongoose.Schema({
     }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-brandCategoryModel.plugin(AutoIncrement.plugin, {
-    model: "brandCategoryModels",
-    field: "brandCategory_id",
-    startAt: 1,
-    incrementBy: 1,
+brandCategoryModel.pre('save', async function (next) {
+    if (!this.brandCategory_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'brandCategory_id': -1 } });
+  
+      if (lastAgency && lastAgency.brandCategory_id) {
+        this.brandCategory_id = lastAgency.brandCategory_id + 1;
+      } else {
+        this.brandCategory_id = 1;
+      }
+    }
+    next();
 });
+
 module.exports = mongoose.model(
     "brandCategoryModel",
     brandCategoryModel

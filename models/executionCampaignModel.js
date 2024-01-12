@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const exeCampaignSchema = new mongoose.Schema({
   exeCmpId: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   exeCmpName: {
@@ -42,11 +42,17 @@ const exeCampaignSchema = new mongoose.Schema({
   }
 });
 
-AutoIncrement.initialize(mongoose.connection);
-exeCampaignSchema.plugin(AutoIncrement.plugin, {
-  model: "exeCampaignModel",
-  field: "exeCmpId",
-  startAt: 1,
-  incrementBy: 1,
+exeCampaignSchema.pre('save', async function (next) {
+  if (!this.exeCmpId) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'exeCmpId': -1 } });
+
+    if (lastAgency && lastAgency.exeCmpId) {
+      this.exeCmpId = lastAgency.exeCmpId + 1;
+    } else {
+      this.exeCmpId = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model("exeCampaignModel", exeCampaignSchema);

@@ -206,10 +206,4 @@ const instaPModel = new mongoose.Schema({
     },
 });
 
-// AutoIncrement.initialize(mongoose.connection);
-// instaPModel.plugin(
-//     AutoIncrement.plugin, 
-//     { model: 'instaPModels', field: 'post_id', startAt: 1, incrementBy: 1 }
-// );
-
 module.exports = mongoose.model('instaPModel', instaPModel);

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const preAssignmentSchema=new mongoose.Schema({
     pre_ass_id:{
@@ -28,13 +28,17 @@ const preAssignmentSchema=new mongoose.Schema({
     }
 })
 
+preAssignmentSchema.pre('save', async function (next) {
+  if (!this.pre_ass_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'pre_ass_id': -1 } });
 
-AutoIncrement.initialize(mongoose.connection);
-preAssignmentSchema.plugin(AutoIncrement.plugin, {
-  model: "PreAssignmentModel",
-  field: "pre_ass_id",
-  startAt: 1,
-  incrementBy: 1,
+    if (lastAgency && lastAgency.pre_ass_id) {
+      this.pre_ass_id = lastAgency.pre_ass_id + 1;
+    } else {
+      this.pre_ass_id = 1;
+    }
+  }
+  next();
 });
 
 preAssignmentSchema.pre(/^find/,async function(next){

@@ -1,5 +1,5 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const campaignPlanSchema = new mongoose.Schema({
     planName: {
@@ -99,12 +99,17 @@ const campaignPlanSchema = new mongoose.Schema({
 
 });
 
-AutoIncrement.initialize(mongoose.connection);
-campaignPlanSchema.plugin(AutoIncrement.plugin, {
-    model: "CampaignPlanModel",
-    field: "plan_id",
-    startAt: 1,
-    incrementBy: 1,
+campaignPlanSchema.pre('save', async function (next) {
+    if (!this.plan_id) {
+      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'plan_id': -1 } });
+  
+      if (lastAgency && lastAgency.plan_id) {
+        this.plan_id = lastAgency.plan_id + 1;
+      } else {
+        this.plan_id = 1;
+      }
+    }
+    next();
 });
 
 campaignPlanSchema.pre(/^find/, async function (next) {

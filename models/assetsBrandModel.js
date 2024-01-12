@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const AutoIncrement = require("mongoose-auto-increment");
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const assetBrandModel = new mongoose.Schema({
   asset_brand_id: {
     type: Number,
-    required: true,
+    required: false,
   },
   asset_brand_name: {
     type: String,
@@ -21,13 +21,19 @@ const assetBrandModel = new mongoose.Schema({
   },
 });
 
-AutoIncrement.initialize(mongoose.connection);
-assetBrandModel.plugin(AutoIncrement.plugin, {
-  model: "assetBrandModels",
-  field: "asset_brand_id",
-  startAt: 1,
-  incrementBy: 1,
+assetBrandModel.pre('save', async function (next) {
+  if (!this.asset_brand_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'asset_brand_id': -1 } });
+
+    if (lastAgency && lastAgency.asset_brand_id) {
+      this.asset_brand_id = lastAgency.asset_brand_id + 1;
+    } else {
+      this.asset_brand_id = 1;
+    }
+  }
+  next();
 });
+
 module.exports = mongoose.model(
     "assetBrandModel",
     assetBrandModel
