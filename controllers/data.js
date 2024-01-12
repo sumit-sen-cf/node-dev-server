@@ -592,3 +592,63 @@ exports.editDataNew = async (req, res) => {
         res.status(500).send({ error: err.message, sms: 'error udpdating data details' })
     }
 }
+
+exports.DistinctCreatedByWithUserName = async (req, res) => {
+    try {
+        const distinctCreatedByValues = await dataModel.aggregate([
+            {
+                $group: {
+                    _id: "$created_by"
+                }
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "_id",
+                    foreignField: "user_id",
+                    as: "userDetails"
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    user_name: { $arrayElemAt: ["$userDetails.user_name", 0] }
+                }
+            }
+        ]);
+
+        return res.status(200).json({ success: true, data: distinctCreatedByValues });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.DistinctDesignedByWithUserName = async (req, res) => {
+    try {
+        const distinctCreatedByValues = await dataModel.aggregate([
+            {
+                $group: {
+                    _id: "$designed_by"
+                }
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "_id",
+                    foreignField: "user_id",
+                    as: "userDetails"
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    user_name: { $arrayElemAt: ["$userDetails.user_name", 0] }
+                }
+            }
+        ]);
+
+        return res.status(200).json({ success: true, data: distinctCreatedByValues });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+};
