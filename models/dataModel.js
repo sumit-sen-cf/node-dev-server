@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const dataModel = new mongoose.Schema({
+    data_id: {
+        type: Number,
+        required: false
+    },
     data_name: {
         type: String,
         required: true
@@ -66,6 +70,19 @@ const dataModel = new mongoose.Schema({
         required: false,
         default: 0
     }
+});
+
+dataModel.pre('save', async function (next) {
+    if (!this.data_id) {
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'data_id': -1 } });
+
+        if (lastAgency && lastAgency.data_id) {
+            this.data_id = lastAgency.data_id + 1;
+        } else {
+            this.data_id = 1;
+        }
+    }
+    next();
 });
 
 module.exports = mongoose.model("dataModel", dataModel);

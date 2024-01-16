@@ -60,15 +60,18 @@ const attendanceModel = new mongoose.Schema({
     },
     total_salary: {
         type: Number,
-        required: false
+        required: false,
+        default: 0
     },
     net_salary: {
         type: Number,
-        required: false
+        required: false,
+        default: 0
     },
     tds_deduction: {
         type: Number,
-        required: false
+        required: false,
+        default: 0
     },
     user_name: {
         type: String,
@@ -77,7 +80,8 @@ const attendanceModel = new mongoose.Schema({
     },
     toPay: {
         type: Number,
-        required: false
+        required: false,
+        default: 0
     },
     attendence_generated: {
         type: Number,
@@ -130,13 +134,13 @@ const attendanceModel = new mongoose.Schema({
 
 attendanceModel.pre('save', async function (next) {
     if (!this.attendence_id) {
-      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'attendence_id': -1 } });
-  
-      if (lastAgency && lastAgency.attendence_id) {
-        this.attendence_id = lastAgency.attendence_id + 1;
-      } else {
-        this.attendence_id = 1;
-      }
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'attendence_id': -1 } });
+
+        if (lastAgency && lastAgency.attendence_id) {
+            this.attendence_id = lastAgency.attendence_id + 1;
+        } else {
+            this.attendence_id = 1;
+        }
     }
     next();
 });
