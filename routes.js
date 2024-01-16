@@ -101,6 +101,7 @@ const dataCategory = require("./controllers/dataCategory.js");
 const dataPlatform = require("./controllers/dataPlatform.js");
 const dataController = require("./controllers/data.js");
 const deptDesiAuth = require("./controllers/deptDesiAuth.js");
+const assetRequest = require("./controllers/assetRequest.js");
 const taskDelivery = require("./controllers/TMS/taskDelivery.js")
 const task = require("./controllers/TMS/task.js")
 const taskSequence = require("./controllers/TMS/taskSequence.js")
@@ -243,26 +244,7 @@ router.get("/get_stats_update_flag/:p_id", exe.getStatUpdateFlag);
 router.get("/get_distinct_count_history/:p_id?", exe.getDistinctExeCountHistory);
 router.post("/page_health_dashboard", exe.pageHealthDashboard);
 
-/*sim api*/
-router.get("/get_all_sims", sim.getSims); // done
-router.post("/add_sim", upload.single("invoiceCopy"), sim.addSim); //done
-router.get("/get_single_sim/:id", sim.getSingleSim); // done
-router.put("/update_sim", upload.single("invoiceCopy"), sim.editSim); //done
-router.delete("/delete_sim/:id", sim.deleteSim); //done
-router.post("/add_sim_allocation", sim.addAllocation); //done
-router.get("/get_all_allocations", sim.getAllocations);
-router.get("/get_allocation_by_alloid/:id", sim.getAllocationDataByAlloId);
-router.get("/get_allocation_data_by_id/:id", sim.getSimAllocationDataById);
-router.get("/get_allocated_asset_data_for_user_id/:id", sim.getAllocatedAssestByUserId);
-router.put("/update_allocationsim", sim.editAllocation);
-router.delete("/delete_allocation/:id", sim.deleteAllocation);
-router.get("/alldataofsimallocment", sim.alldataofsimallocment);
-router.get("/get_asset_department_count", sim.getAssetDepartmentCount);
-router.get("/get_asset_users_of_dept/:dept_id", sim.getAssetUsersDepartment);
-router.get("/get_total_asset_in_category/:category_id", sim.getTotalAssetInCategory);
-router.get("/get_total_asset_in_category_allocated/:category_id", sim.getTotalAssetInCategoryAllocated);
-router.get("/show_asset_hr_data", sim.showAssetDataToHR);
-router.get("/show_asset_user_data/:user_id", sim.showAssetDataToUser);
+
 
 /* logo brand */
 router.post("/add_logo_category", logoBrand.addLogoBrandCat);
@@ -699,7 +681,8 @@ router.get("/insta_brand/:id", instaBrand.getInstaBrandById);
 router.put("/insta_brand", instaBrand.editInstaBrand);
 router.delete("/insta_brand/:id", instaBrand.deleteInstaBrand);
 
-/* user */
+//---------------------------------------------------------------------------All Routes OF User Module Starts Here ---------------------------------------------------------------------------------------------------//
+
 router.post("/add_user", user.addUser);
 router.post("/forgot_pass", user.forgotPass);
 router.put("/update_user", user.updateUser);
@@ -777,7 +760,10 @@ router.get("/get_all_percentage", user.getFilledPercentage);
 // router.get("/get_first_time_login_users", user.getAllFirstLoginUsers)
 router.post("/get_user_graph_data", user.getUserGraphData)
 
-/* attendance */
+//---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
+
+//---------------------------------------------------------------------------All Routes OF Attendance Module Starts Here ---------------------------------------------------------------------------------------------------//
+
 router.post("/add_attendance", attendance.addAttendance);
 router.post(
   "/get_salary_by_id_month_year",
@@ -844,7 +830,9 @@ router.get("/get_all_commitments", cmtController.getCmt);
 router.get("/get_single_commitment/:id", cmtController.getCmtById);
 router.delete("/delete_commitment/:id", cmtController.deleteCmt);
 
-/* Product */
+//---------------------------------------------------------------------------All Routes OF Attendance Module Ends Here ---------------------------------------------------------------------------------------------------//
+
+//---------------------------------------------------------------------------All Routes OF Product Module Starts Here ---------------------------------------------------------------------------------------------------//
 
 //Product
 router.post(
@@ -965,6 +953,8 @@ router.get(
   productController.getAllTransferReq
 ); //done
 
+//---------------------------------------------------------------------------All Routes OF Product Module Ends Here ---------------------------------------------------------------------------------------------------//
+
 /* KRA Routes */
 router.post("/add_kra", kra.addKra);
 router.get("/get_single_kra/:user_id", kra.getJobResponById);
@@ -995,6 +985,8 @@ router.post("/dataforgraph", instapage.dataForGraph);
 router.get("/get_all_instapages", instapage.getAllInstaPages);
 router.post("/instagram", instapage.Instagram);
 
+//---------------------------------------------------------------------------All Routes OF Lead Module Starts Here ---------------------------------------------------------------------------------------------------//
+
 /* Lead Remark Route */
 router.post("/add_leadremark", leadremark.addLeadRemark);
 router.get("/get_all_leadremarks", leadremark.getLeadRemarks);
@@ -1024,6 +1016,31 @@ router.get(
 router.put("/update_leadmast", leadmast.editLeadMast);
 router.delete("/delete_leadmast", leadmast.deleteLeadMast);
 
+//---------------------------------------------------------------------------All Routes OF Lead Module Ends Here ---------------------------------------------------------------------------------------------------//
+
+//---------------------------------------------------------------------------All Routes OF Asset Module Starts Here ---------------------------------------------------------------------------------------------------//
+
+/*sim api*/
+router.get("/get_all_sims", sim.getSims); // done
+router.post("/add_sim", upload.single("invoiceCopy"), sim.addSim); //done
+router.get("/get_single_sim/:id", sim.getSingleSim); // done
+router.put("/update_sim", upload.single("invoiceCopy"), sim.editSim); //done
+router.delete("/delete_sim/:id", sim.deleteSim); //done
+router.post("/add_sim_allocation", sim.addAllocation); //done
+router.get("/get_all_allocations", sim.getAllocations);
+router.get("/get_allocation_by_alloid/:id", sim.getAllocationDataByAlloId);
+router.get("/get_allocation_data_by_id/:id", sim.getSimAllocationDataById);
+router.get("/get_allocated_asset_data_for_user_id/:id", sim.getAllocatedAssestByUserId);
+router.put("/update_allocationsim", sim.editAllocation);
+router.delete("/delete_allocation/:id", sim.deleteAllocation);
+router.get("/alldataofsimallocment", sim.alldataofsimallocment);
+router.get("/get_asset_department_count", sim.getAssetDepartmentCount);
+router.get("/get_asset_users_of_dept/:dept_id", sim.getAssetUsersDepartment);
+router.get("/get_total_asset_in_category/:category_id", sim.getTotalAssetInCategory);
+router.get("/get_total_asset_in_category_allocated/:category_id", sim.getTotalAssetInCategoryAllocated);
+router.get("/show_asset_hr_data", sim.showAssetDataToHR);
+router.get("/show_asset_user_data/:user_id", sim.showAssetDataToUser);
+
 /* Asset Category Routes */
 router.post("/add_asset_category", assetCategory.addAssetCategory);
 router.get("/get_all_asset_category", assetCategory.getAssetCategorys);
@@ -1052,10 +1069,6 @@ router.get(
   "/get_single_asset_cat/:sub_category_id",
   assetSubCategory.getSingleAssetCat
 );
-// router.get(
-//   "/get_single_category/:sub_category_id",
-//   assetSubCategory.getSingleAsset
-// );
 router.put("/update_asset_sub_category", assetSubCategory.editAssetSubCategory);
 router.delete(
   "/delete_asset_sub_category/:sub_category_id",
@@ -1072,6 +1085,60 @@ router.get("/get_all_vendor", vendor.getVendors);
 router.get("/get_single_vendor/:vendor_id", vendor.getSingleVendor);
 router.put("/update_vendor", vendor.editVendor);
 router.delete("/delete_vendor/:vendor_id", vendor.deleteVendor);
+
+// Asset Brand Routes 
+router.post("/add_asset_brand", assetBrand.addAssetBrand);
+router.put("/update_asset_brand", assetBrand.editAssetBrand);
+router.get("/get_all_asset_brands", assetBrand.getAssetBrands);
+router.get("/get_single_asset_brand/:id", assetBrand.getAssetBrandById);
+router.delete("/delete_asset_brand/:id", assetBrand.deleteAssetBrand);
+router.get("/get_asset_available_count_in_brand/:asset_brand_id", assetBrand.getTotalAvailableAssetInBrand);
+router.get("/get_asset_allocated_count_in_brand/:asset_brand_id", assetBrand.getTotalAllocatedAssetInBrand);
+
+// Asset Modal Routes 
+router.post("/add_asset_modal", assetModal.addAssetModal);
+router.put("/update_asset_modal", assetModal.editAssetModal);
+router.get("/get_all_asset_modals", assetModal.getAssetModals);
+router.get("/get_single_asset_modal/:id", assetModal.getAssetModalById);
+router.delete("/delete_asset_modal/:id", assetModal.deleteAssetModal);
+router.get("/get_asset_available_count_in_modal/:asset_modal_id", assetModal.getTotalAvailableAssetInModal);
+router.get("/get_asset_allocated_count_in_modal/:asset_modal_id", assetModal.getTotalAllocatedAssetInModal);
+
+// Asset Request Routes
+router.post("/assetrequest", assetRequest.addAssetRequest);
+router.put("/assetrequest", assetRequest.editAssetRequest);
+router.get("/assetrequest", assetRequest.getAssetRequests);
+router.get("/assetrequest/:_id", assetRequest.getAssetRequestById);
+router.delete("/assetrequest/:_id", assetRequest.deleteAssetRequest);
+router.get("/assetrequest/:user_id", assetRequest.showAssetRequestData);
+
+// Asset Reason Routes
+router.post("/add_asset_reason", assetReson.addAssetReason);
+router.put("/update_asset_reason", assetReson.editAssetReason);
+router.get("/get_all_assetResons", assetReson.getAssetReasons);
+router.get("/get_single_assetReson/:id", assetReson.getAssetReasonById);
+router.delete("/delete_assetReson/:id", assetReson.deleteAssetReason);
+
+// Asset Repair Request Routes
+router.post("/add_repair_request", repairRequest.addRepairRequest);
+router.put("/update_repair_request", repairRequest.editRepairRequest);
+router.get("/get_all_repair_request", repairRequest.getAllRepairRequests);
+router.get("/get_single_repair_request/:id", repairRequest.getSingleRepairRequests);
+router.get("/get_all_repair_request_by_asset_reasonId/:id", repairRequest.getAllRepairRequestsByAssetReasonId);
+router.delete("/delete_repair_request/:id", repairRequest.deleteRepairRequest);
+
+/* Assets Images master */
+router.post("/add_assets_images", assetsImage.addAssetImage);
+router.get("/get_all_assets_images", assetsImage.getAllAssetsImages);
+router.post("/get_single_assets_image", assetsImage.getSingleAssetsImage);
+router.put("/update_assets_images", assetsImage.updateAssetImage);
+router.delete(
+  "/delete_assets_images/:asset_image_id",
+  assetsImage.deleteAssetImage
+);
+
+//---------------------------------------------------------------------------All Routes OF Asset Module Ends Here ---------------------------------------------------------------------------------------------------//
+
 /* Page Uniqueness routes for insta */
 router.post("/page_uniqueness", pageUniqueness.addPageUniqueness);
 router.get("/page_uniqueness", pageUniqueness.getAllPageUniqueness);
@@ -1100,15 +1167,6 @@ router.post(
 );
 router.put("/update_doc_history", documentController.editHistoryDoc);
 
-/* Assets Images master */
-router.post("/add_assets_images", assetsImage.addAssetImage);
-router.get("/get_all_assets_images", assetsImage.getAllAssetsImages);
-router.post("/get_single_assets_image", assetsImage.getSingleAssetsImage);
-router.put("/update_assets_images", assetsImage.updateAssetImage);
-router.delete(
-  "/delete_assets_images/:asset_image_id",
-  assetsImage.deleteAssetImage
-);
 
 /* crawler count api */
 router.post("/add_crawler_count", insta.addCrawlerCount);
@@ -1175,24 +1233,6 @@ router.post("/add_php_sale_booking_tds_verification_data_in_node", phpSaleBookin
 router.get("/get_all_php_sale_booking_tds_verification_data", phpSaleBookingTds.getAllphpSaleBookingTdsVerificationData);
 router.get("/get_all_php_payment_acc_data_customers/:cust_id", phpPayment.getAccListDataFromCustId)
 
-// Asset Brand Routes 
-router.post("/add_asset_brand", assetBrand.addAssetBrand);
-router.put("/update_asset_brand", assetBrand.editAssetBrand);
-router.get("/get_all_asset_brands", assetBrand.getAssetBrands);
-router.get("/get_single_asset_brand/:id", assetBrand.getAssetBrandById);
-router.delete("/delete_asset_brand/:id", assetBrand.deleteAssetBrand);
-router.get("/get_asset_available_count_in_brand/:asset_brand_id", assetBrand.getTotalAvailableAssetInBrand);
-router.get("/get_asset_allocated_count_in_brand/:asset_brand_id", assetBrand.getTotalAllocatedAssetInBrand);
-
-// Asset Modal Routes 
-router.post("/add_asset_modal", assetModal.addAssetModal);
-router.put("/update_asset_modal", assetModal.editAssetModal);
-router.get("/get_all_asset_modals", assetModal.getAssetModals);
-router.get("/get_single_asset_modal/:id", assetModal.getAssetModalById);
-router.delete("/delete_asset_modal/:id", assetModal.deleteAssetModal);
-router.get("/get_asset_available_count_in_modal/:asset_modal_id", assetModal.getTotalAvailableAssetInModal);
-router.get("/get_asset_allocated_count_in_modal/:asset_modal_id", assetModal.getTotalAllocatedAssetInModal);
-
 /* email content routes */
 router.post("/add_email_content", emailContent.addEmailContent);
 router.put("/update_email_content", emailContent.editEmailContent);
@@ -1227,21 +1267,6 @@ router.get("/get_all_guardians", guardian.getGuardians);
 router.get("/get_single_guardian/:user_id", guardian.getSingleGuardian);
 router.delete("/delete_guardian/:id", guardian.deleteGuardian);
 
-// Asset Reason Routes
-router.post("/add_asset_reason", assetReson.addAssetReason);
-router.put("/update_asset_reason", assetReson.editAssetReason);
-router.get("/get_all_assetResons", assetReson.getAssetReasons);
-router.get("/get_single_assetReson/:id", assetReson.getAssetReasonById);
-router.delete("/delete_assetReson/:id", assetReson.deleteAssetReason);
-
-// Asset Repair Request Routes
-router.post("/add_repair_request", repairRequest.addRepairRequest);
-router.put("/update_repair_request", repairRequest.editRepairRequest);
-router.get("/get_all_repair_request", repairRequest.getAllRepairRequests);
-router.get("/get_single_repair_request/:id", repairRequest.getSingleRepairRequests);
-router.get("/get_all_repair_request_by_asset_reasonId/:id", repairRequest.getAllRepairRequestsByAssetReasonId);
-router.delete("/delete_repair_request/:id", repairRequest.deleteRepairRequest);
-
 // Job Type Routes
 router.post("/add_job_type", jobTypeController.addJobType);
 router.put("/update_job_type", jobTypeController.editJobType);
@@ -1249,7 +1274,7 @@ router.get("/get_all_job_types", jobTypeController.getJobTypes);
 router.get("/get_single_job_type/:id", jobTypeController.getJobType);
 router.delete("/delete_job_type/:id", jobTypeController.deleteJobType);
 
-//----------------------------------------All Routes OF Data Module ------------------------------------------//
+//---------------------------------------------------------------------------All Routes OF Data Module Starts Here ---------------------------------------------------------------------------------------------------//
 // Data Sub Category Routes
 router.post("/add_data_sub_category", dataSubCat.addDataSubCat);
 router.get("/get_all_data_sub_categories", dataSubCat.getDataSubCats);
@@ -1312,7 +1337,7 @@ router.delete("/delete_data_platform/:_id", dataPlatform.deleteDataPlatform);
 //Data Routes
 router.post("/add_data", upload1.single('data_upload'), dataController.addData);
 router.get("/get_all_datas", dataController.getDatas);
-router.get("/get_data_based_data_name/:data_name", dataController.getDataBasedDataName);
+router.get("/get_data_based_data_name/:data_id", dataController.getDataBasedDataName);
 router.get(
   "/get_single_data/:_id",
   dataController.getSingleData
@@ -1323,6 +1348,9 @@ router.delete("/delete_data_based_data/:data_name", dataController.deleteDataBas
 router.put("/edit_data_new", dataController.editDataNew);
 router.get("/distinct_created_by", dataController.DistinctCreatedByWithUserName);
 router.get("/distinct_designed_by", dataController.DistinctDesignedByWithUserName);
+router.get("/images_with_data_name/:data_name", dataController.ImagesWithDataName);
+
+//---------------------------------------------------------------------------All Routes OF Data Module Ends Here ---------------------------------------------------------------------------------------------------//
 
 //deptDesiAuth routes
 router.post("/add_dept_desi_auth", deptDesiAuth.addDeptDesiAuth);

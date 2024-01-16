@@ -236,6 +236,20 @@ exports.getAllRepairRequestsByAssetReasonId = async (req, res) => {
                     },
                 },
                 {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "multi_tag",
+                        foreignField: "user_id",
+                        as: "multiTagUsers",
+                    },
+                },
+                // {
+                //     $unwind: {
+                //         path: "$multiTagUsers",
+                //         preserveNullAndEmptyArrays: true,
+                //     },
+                // },
+                {
                     $project: {
                         repair_id: "$repair_id",
                         sim_id: "$sim_id",
@@ -269,7 +283,8 @@ exports.getAllRepairRequestsByAssetReasonId = async (req, res) => {
                         recovery_date_time: "$recovery_date_time",
                         scrap_remark: "$scrap_remark",
                         accept_by: "$accept_by",
-                        accept_by_name: "$acceptByData.user_name"
+                        accept_by_name: "$acceptByData.user_name",
+                        multi_tag_users_name: "$multiTagUsers.user_name"
                     },
                 },
             ])

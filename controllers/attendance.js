@@ -385,11 +385,13 @@ exports.addAttendance = async (req, res) => {
               const presentDays = work_days - 0;
               const perdaysal = user.salary / 30;
               const totalSalary = perdaysal * presentDays;
-              const netSalary = totalSalary;
+              const Bonus = bonus || 0;
+              const netSalary = totalSalary + Bonus;
               const tdsDeduction = (netSalary * user.tds_per) / 100;
               const ToPay = netSalary - tdsDeduction;
               const salary = user.salary;
               let invoiceNo = await createNextInvoiceNumber(user.user_id);
+              console.log("present Days", presentDays, "perdaySalary", perdaysal, "totalSalary", totalSalary, "tdsDedusction", tdsDeduction, "toPay", ToPay, "salary", salary, "netSalary", netSalary, "Bonus", Bonus)
               const creators = new attendanceModel({
                 dept: user.dept_id,
                 user_id: user.user_id,
@@ -398,7 +400,7 @@ exports.addAttendance = async (req, res) => {
                 noOfabsent: 0,
                 month: req.body.month,
                 year: req.body.year,
-                bonus: 0,
+                bonus: Bonus,
                 total_salary: user.salary && user.salary.toFixed(2),
                 tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
                 net_salary: netSalary && netSalary.toFixed(2),
@@ -406,7 +408,7 @@ exports.addAttendance = async (req, res) => {
                 remark: "",
                 Created_by: req.body.user_id,
                 salary,
-                attendence_status_flow: "salary generated",
+                attendence_status_flow: "Payout generated",
                 disputed_reason: req.body.disputed_reason,
                 disputed_date: req.body.disputed_date
               });
@@ -461,7 +463,8 @@ exports.addAttendance = async (req, res) => {
               const presentDays = work_days - 0;
               const perdaysal = user.salary / 30;
               const totalSalary = perdaysal * presentDays;
-              const netSalary = totalSalary;
+              const Bonus = bonus || 0;
+              const netSalary = totalSalary + Bonus;
               const tdsDeduction = (netSalary * user.tds_per) / 100;
               const ToPay = netSalary - tdsDeduction;
               const salary = user.salary;
@@ -475,7 +478,7 @@ exports.addAttendance = async (req, res) => {
                 noOfabsent: 0,
                 month: req.body.month,
                 year: req.body.year,
-                bonus: 0,
+                bonus: Bonus,
                 total_salary: user.salary && user.salary.toFixed(2),
                 tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
                 net_salary: netSalary && netSalary.toFixed(2),
@@ -483,7 +486,7 @@ exports.addAttendance = async (req, res) => {
                 remark: "",
                 Created_by: req.body.user_id,
                 salary,
-                attendence_status_flow: "salary generated",
+                attendence_status_flow: "Payout generated",
                 disputed_reason: req.body.disputed_reason,
                 disputed_date: req.body.disputed_date
               });
@@ -502,8 +505,9 @@ exports.addAttendance = async (req, res) => {
           });
           const perdaysal = results4[0].salary / 30;
           const totalSalary = perdaysal * (30 - noOfabsent);
-          const netSalary = bonus
-            ? totalSalary + bonus - salary_deduction
+          const Bonus = bonus || 0;
+          const netSalary = Bonus
+            ? totalSalary + Bonus - salary_deduction
             : totalSalary;
           const tdsDeduction = (netSalary * results4[0].tds_per) / 100;
           const ToPay = netSalary - tdsDeduction;
@@ -993,6 +997,7 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
             },
             digital_signature_image: "$user.digital_signature_image",
           },
+          attendence_status_flow: "$attendence_status_flow"
         },
       ])
       .exec();

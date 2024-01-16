@@ -37,7 +37,7 @@ const simAlloModel = new mongoose.Schema({
   },
   submitted_at: {
     type: String,
-    default: null,
+    default: Date.now,
   },
   submitted_by: {
     type: Number,

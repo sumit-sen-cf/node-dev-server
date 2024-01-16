@@ -269,17 +269,23 @@ exports.addUser = [upload, async (req, res) => {
         }
 
         const deptDesiData = await deptDesiAuthModel.find({});
-        for (const deptDesi of deptDesiData) {
-            if (deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
-                const edit = await userAuthModel.findOneAndUpdate({ obj_id: deptDesi.obj_id }, {
-                    insert: deptDesi.insert,
-                    view: deptDesi.view,
-                    update: deptDesi.update,
-                    delete_flag: deptDesi.delete_flag
-                })
-            }
-        }
 
+        await Promise.all(deptDesiData.map(async (deptDesi) => {
+            if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
+                const updatedData = await userAuthModel.updateMany(
+                    { obj_id: deptDesi.obj_id },
+                    {
+                        $set: {
+                            insert: deptDesi.insert,
+                            view: deptDesi.view,
+                            update: deptDesi.update,
+                            delete_flag: deptDesi.delete_flag
+                        }
+                    },
+                    { new: true }
+                );
+            }
+        }));
         res.send({ simv, status: 200 });
     } catch (err) {
         res.status(500).send({ error: err.message, sms: 'This user cannot be created' })
@@ -1167,7 +1173,9 @@ exports.loginUser = async (req, res) => {
                     user_status: '$user_status',
                     user_login_password: '$user_login_password',
                     onboard_status: '$onboard_status',
-                    user_login_id: '$user_login_id'
+                    user_login_id: '$user_login_id',
+                    invoice_template_no: "$invoice_template_no",
+                    digital_signature_image: "$digital_signature_image"
                 }
             }
         ]).exec();
@@ -1176,9 +1184,8 @@ exports.loginUser = async (req, res) => {
             return res.status(500).send({ error: "Invalid Login Id" });
         }
 
-        const isPasswordValid = bcrypt.compareSync(req.body.user_login_password, simc[0]?.user_login_password || role === constant.ADMIN_ROLE);
-
-        if (isPasswordValid || simc[0]?.user_login_password) {
+        let role = req.body?.role_id;
+        if (bcrypt.compareSync(req.body.user_login_password, simc[0]?.user_login_password) || role === constant.ADMIN_ROLE) {
             const token = jwt.sign(
                 {
                     id: simc[0]?.id,
@@ -1191,6 +1198,8 @@ exports.loginUser = async (req, res) => {
                     sitting_ref_no: simc[0]?.sitting_ref_no,
                     onboard_status: simc[0]?.onboard_status,
                     user_status: simc[0]?.user_status,
+                    invoice_template_no: simc[0].invoice_template_no,
+                    digital_signature_image: simc[0].digital_signature_image
                 },
                 constant.SECRET_KEY_LOGIN,
                 { expiresIn: constant.CONST_VALIDATE_SESSION_EXPIRE }
@@ -1657,10 +1666,10 @@ exports.sendUserMail = async (req, res) => {
             let content = contentList[0];
 
             const filledEmailContent = content.email_content
-            .replace("{{user_name}}", name)
-            .replace("{{user_email}}", email)
-            .replace("{{user_password}}", password)
-            .replace("{{user_login_id}}", login_id);
+                .replace("{{user_name}}", name)
+                .replace("{{user_email}}", email)
+                .replace("{{user_password}}", password)
+                .replace("{{user_login_id}}", login_id);
 
             const html = filledEmailContent;
             /* dynamic email temp code end */
@@ -1753,10 +1762,10 @@ exports.sendUserMail = async (req, res) => {
             let content = contentList[0];
 
             const filledEmailContent = content.email_content
-            .replace("{{user_name}}", name)
-            .replace("{{user_email}}", email)
-            .replace("{{user_password}}", password)
-            .replace("{{user_login_id}}", login_id);
+                .replace("{{user_name}}", name)
+                .replace("{{user_email}}", email)
+                .replace("{{user_password}}", password)
+                .replace("{{user_login_id}}", login_id);
 
             const html = filledEmailContent;
             /* dynamic email temp code end */
@@ -2317,26 +2326,26 @@ exports.forgotPass = async (req, res) => {
         /* dynamic email temp code start */
         let contentList = await emailTempModel.find({ email_for_id: 9 })
         let content = contentList[0];
-      
+
         const filledEmailContent = content.email_content
-        .replace("{{user_email}}", email)
-        .replace("{{user_password}}", getRandomPassword);
-      
+            .replace("{{user_email}}", email)
+            .replace("{{user_password}}", getRandomPassword);
+
         var html;
         html = filledEmailContent;
         /* dynamic email temp code end */
         if (updatePass) {
             // sendMail("Forgot password", html, email);
-        /* dynamic email temp code start */
+            /* dynamic email temp code start */
             var transport = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
-                  user: "onboarding@creativefuel.io",
-                  pass: "fjjmxuavwpescyat",
-              },
+                    user: "onboarding@creativefuel.io",
+                    pass: "fjjmxuavwpescyat",
+                },
             });
-              
-            const mail = (subject, html,email) => {
+
+            const mail = (subject, html, email) => {
                 let mailOptions = {
                     from: "onboarding@creativefuel.io",
                     to: email,
@@ -2349,7 +2358,7 @@ exports.forgotPass = async (req, res) => {
                     return info;
                 });
             };
-        /* dynamic email temp code end */
+            /* dynamic email temp code end */
         } else {
             return res.status(500).send({ sms: 'email couldn not send' });
         }

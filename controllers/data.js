@@ -141,6 +141,7 @@ exports.getDatas = async (req, res) => {
             {
                 $project: {
                     _id: 1,
+                    data_id: 1,
                     data_name: 1,
                     cat_id: 1,
                     sub_cat_id: 1,
@@ -358,7 +359,7 @@ exports.getDataBasedDataName = async (req, res) => {
         const productData = await dataModel.aggregate([
             {
                 $match: {
-                    data_name: req.params.data_name
+                    data_id: parseInt(req.params.data_id)
                 }
             },
             {
@@ -462,6 +463,7 @@ exports.getDataBasedDataName = async (req, res) => {
             {
                 $project: {
                     _id: 1,
+                    data_id: "$data_id",
                     data_name: "$data_name",
                     cat_id: "$cat_id",
                     sub_cat_id: "$sub_cat_id",
@@ -650,5 +652,63 @@ exports.DistinctDesignedByWithUserName = async (req, res) => {
         return res.status(200).json({ success: true, data: distinctCreatedByValues });
     } catch (err) {
         return res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.ImagesWithDataName = async (req, res) => {
+    try {
+        const { data_name } = req.params;
+
+        const productData = await dataModel.aggregate([
+            {
+                $match: {
+                    data_name: data_name
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    data_name: 1,
+                    data_type: 1,
+                    size_in_mb: 1,
+                    remark: 1,
+                    data_image: {
+                        $cond: {
+                            if: { $ne: ['$data_upload', null] },
+                            then: {
+                                $concat: [
+                                    constant.base_url,
+                                    '/uploads/dataimages/',
+                                    '$data_upload'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    data_image_download: {
+                        $cond: {
+                            if: { $ne: ['$data_upload', null] },
+                            then: {
+                                $concat: [
+                                    constant.base_url,
+                                    '/downloads/dataimages/',
+                                    '$data_upload'
+                                ]
+                            },
+                            else: null
+                        }
+                    }
+                },
+            },
+        ]);
+
+        if (productData.length === 0) {
+            return res.status(404).json({ message: "No Record Found" });
+        }
+
+        res.status(200).json(productData);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message, message: 'Error getting data details' });
     }
 };
