@@ -633,6 +633,48 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
           },
         },
         {
+          $lookup: {
+            from: "assetrequestmodels",
+            localField: "sim_id",
+            foreignField: "sim_id",
+            as: "assetrequest",
+          },
+        },
+        {
+          $unwind: {
+            path: "$assetrequest",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "usermodels",
+            localField: "assetrequest.request_by",
+            foreignField: "user_id",
+            as: "userRequest",
+          },
+        },
+        {
+          $unwind: {
+            path: "$userRequest",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "usermodels",
+            localField: "assetrequest.multi_tag",
+            foreignField: "user_id",
+            as: "userMulti",
+          },
+        },
+        {
+          $unwind: {
+            path: "$userMulti",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           $project: {
             _id: "$_id",
             user_id: "$user_id",
@@ -652,7 +694,13 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
             allo_id: "$allo_id",
             submitted_at: "$submitted_at",
             submitted_by: "$submitted_by",
-            submitted_by_name: "$user.user_name"
+            submitted_by_name: "$user.user_name",
+            asset_request_detail: "$assetrequest.detail",
+            asset_request_priority: "$assetrequest.priority",
+            asset_request_asset_request_status: "$assetrequest.asset_request_status",
+            asset_request_request_by: "$assetrequest.request_by",
+            asset_request_request_by_name: "$userRequest.user_name",
+            asset_request_multi_tag_name: "$userMulti.user_name"
           },
         },
       ])
@@ -1556,6 +1604,20 @@ exports.showAssetDataToUser = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "usermodels",
+          localField: "assetrequest.multi_tag",
+          foreignField: "user_id",
+          as: "userMulti",
+        },
+      },
+      {
+        $unwind: {
+          path: "$userMulti",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $project: {
           _id: "$_id",
           sim_id: "$sim_id",
@@ -1582,9 +1644,12 @@ exports.showAssetDataToUser = async (req, res) => {
           req_by: "$repair.req_by",
           req_by_name: "$userdata.user_name",
           req_date: "$repair.repair_request_date_time",
-          detail: "$assetrequest.detail",
-          priority: "$assetrequest.priority",
-          asset_request_status: "$assetrequest.asset_request_status"
+          asset_request_detail: "$assetrequest.detail",
+          asset_request_priority: "$assetrequest.priority",
+          asset_request_asset_request_status: "$assetrequest.asset_request_status",
+          asset_request_request_by: "$assetrequest.request_by",
+          asset_request_by_name: "$userRequest.user_name",
+          asset_request_multi_tag_name: "$userMulti.user_name"
         },
       },
     ]).exec();

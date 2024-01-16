@@ -27,7 +27,8 @@ const { generateEmpId } = require("../helper/helper.js");
 const departmentModel = require("../models/departmentModel.js");
 const designationModel = require("../models/designationModel.js");
 const deptDesiAuthModel = require("../models/deptDesiAuthModel.js");
-const emailTempModel = require("../models/emailTempModel")
+const emailTempModel = require("../models/emailTempModel");
+const vari = require("../variables.js");
 
 const upload = multer({ dest: "uploads/" }).fields([
     { name: "image", maxCount: 1 },
