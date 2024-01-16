@@ -2,6 +2,7 @@ const repairRequestModel = require("../models/repairRequestModel.js");
 const simAlloModel = require("../models/simAlloModel.js");
 const replacementModel = require("../models/requestReplacementModel.js");
 const multer = require("multer");
+const vari = require("../variables");
 
 const upload = multer({ dest: "uploads/assets" }).fields([
     { name: "img1", maxCount: 1 },
@@ -149,7 +150,7 @@ exports.getAllRepairRequests = async (req, res) => {
                 },
             ])
             .exec();
-        const assetRepairDataBaseUrl = "http://34.93.221.166:3000/uploads/assets/";
+        const assetRepairDataBaseUrl = `${vari.IMAGE_URL}/`;
         const dataWithImageUrl = assetsdata.map((assetrepairdatas) => ({
             ...assetrepairdatas,
             img1_url: assetrepairdatas.img1 ? assetRepairDataBaseUrl + assetrepairdatas.img1 : null,
@@ -289,7 +290,7 @@ exports.getAllRepairRequestsByAssetReasonId = async (req, res) => {
                 },
             ])
             .exec();
-        const assetRepairDataBaseUrl = "http://34.93.221.166:3000/uploads/assets/";
+        const assetRepairDataBaseUrl = `${vari.IMAGE_URL}/`;
         const dataWithImageUrl = assetsdata.map((assetrepairdatas) => ({
             ...assetrepairdatas,
             img1_url: assetrepairdatas.img1 ? assetRepairDataBaseUrl + assetrepairdatas.img1 : null,
@@ -400,7 +401,7 @@ exports.getSingleRepairRequests = async (req, res) => {
                 },
             ])
             .exec();
-        const assetRepairDataBaseUrl = "http://34.93.221.166:3000/uploads/assets/";
+        const assetRepairDataBaseUrl = `${vari.IMAGE_URL}/`;
         const dataWithImageUrl = assetsdata.map((assetrepairdatas) => ({
             ...assetrepairdatas,
             img1_url: assetrepairdatas.img1 ? assetRepairDataBaseUrl + assetrepairdatas.img1 : null,

@@ -2,6 +2,7 @@ const { createNextInvoiceNumber } = require("../helper/helper.js");
 const attendanceModel = require("../models/attendanceModel.js");
 const userModels = require("../models/userAuthModel.js");
 const userModel = require("../models/userModel.js");
+const vari = require("../variables");
 
 async function doesUserExistInAttendance(userId, month, year) {
   const results = await attendanceModel.find({
@@ -391,7 +392,7 @@ exports.addAttendance = async (req, res) => {
               const ToPay = netSalary - tdsDeduction;
               const salary = user.salary;
               let invoiceNo = await createNextInvoiceNumber(user.user_id);
-              console.log("present Days", presentDays, "perdaySalary", perdaysal, "totalSalary", totalSalary, "tdsDedusction", tdsDeduction, "toPay", ToPay, "salary", salary, "netSalary", netSalary, "Bonus", Bonus)
+              
               const creators = new attendanceModel({
                 dept: user.dept_id,
                 user_id: user.user_id,
@@ -853,7 +854,7 @@ exports.addAttendance = async (req, res) => {
 
 exports.getSalaryByDeptIdMonthYear = async (req, res) => {
   try {
-    const imageUrl = "http://34.93.221.166:3000/uploads/";
+    const imageUrl = `${vari.IMAGE_URL}/`;
 
     const getcreators = await attendanceModel
       .aggregate([
@@ -1013,7 +1014,7 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
 
 exports.getSalaryByMonthYear = async (req, res) => {
   try {
-    const imageUrl = "http://34.93.221.166:3000/uploads/";
+    const imageUrl = "";
 
     const getcreators = await attendanceModel
       .aggregate([
@@ -1178,7 +1179,7 @@ exports.getSalaryByFilter = async (req, res) => {
 
 exports.getSalaryByUserId = async (req, res) => {
   try {
-    const imageUrl = "http://34.93.221.166:3000/uploads/";
+    const imageUrl = `${vari.IMAGE_URL}/`;
     const getcreators = await attendanceModel
       .aggregate([
         {
@@ -2224,7 +2225,7 @@ exports.addAttendanceAllDepartments = async (req, res) => {
 
 exports.getAllAttendanceData = async (req, res) => {
   try {
-    const imageUrl = "http://34.93.221.166:3000/uploads/";
+    const imageUrl = `${vari.IMAGE_URL}/`;
 
     // const allAttendanceData = await attendanceModel.find();
     const allAttendanceData = await attendanceModel.aggregate([

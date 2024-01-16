@@ -1,6 +1,7 @@
 const userModel = require('../models/userModel.js');
 const kraTransModel = require('../models/kraTransModel.js');
 const jobResponsibilityModel = require("../models/jobResponsibilityModel.js");
+const vari = require("../variables");
 
 exports.addKra = async (req, res) => {
     try {
@@ -28,7 +29,7 @@ exports.addKra = async (req, res) => {
 exports.getJobResponById = async (req, res) => {
     try {
         const user_id = req.params.user_id;
-        const ImageUrl = 'http://34.93.221.166:3000/uploads/';
+        const ImageUrl = `${vari.IMAGE_URL}/`;
         const userJobResponsi = await jobResponsibilityModel.aggregate([
             {
                 $match: { user_id: parseInt(user_id) },

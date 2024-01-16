@@ -787,7 +787,7 @@ exports.getAllUsers = async (req, res) => {
                 }
             }
         ]).exec();
-        const userImagesBaseUrl = "http://34.93.221.166:3000/uploads/";
+        const userImagesBaseUrl = `${vari.IMAGE_URL}/`;
         const fieldsToCheck = [
             'user_name', 'PersonalEmail', 'PersonalNumber', 'fatherName', 'Gender', 'motherName',
             'Hobbies', 'BloodGroup', 'SpokenLanguage', 'DO', 'Nationality', 'guardian_name',
@@ -1086,7 +1086,7 @@ exports.getSingleUser = async (req, res) => {
                 }
             }
         ]).exec();
-        const userImagesBaseUrl = "http://34.93.221.166:3000/uploads/";
+        const userImagesBaseUrl = `${vari.IMAGE_URL}/`;
         const dataWithImageUrl = singlesim.map((user) => ({
             ...user,
             image_url: user.image ? userImagesBaseUrl + user.image : null,
@@ -1266,7 +1266,7 @@ exports.deliveryBoyByRoom = async (req, res) => {
 }
 
 exports.deliveryUser = async (req, res) => {
-    const ImageUrl = "http://34.93.221.166:3000/uploads/";
+    const ImageUrl = `${vari.IMAGE_URL}/`;
     try {
         const delv = await userModel.aggregate([
             {
@@ -2289,7 +2289,7 @@ exports.loginUserData = async (req, res) => {
         };
 
         if (user.image) {
-            userObject.image = `http://34.93.221.166:3000/uploads/${user.image}`;
+            userObject.image = `${vari.IMAGE_URL}/${user.image}`;
         } else {
             userObject.image = null;
         }

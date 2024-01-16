@@ -1,6 +1,7 @@
 const simModel = require("../models/simModel.js");
 const simAlloModel = require("../models/simAlloModel.js");
 const userModel = require("../models/userModel.js");
+const vari = require("../variables");
 
 exports.addSim = async (req, res) => {
   try {
@@ -132,7 +133,7 @@ exports.addSim = async (req, res) => {
 
 exports.getSims = async (req, res) => {
   try {
-    const assetsImagesUrl = "http://34.93.221.166:3000/uploads/";
+    const assetsImagesUrl = `${vari.IMAGE_URL}/`;
     const simc = await simModel
       .aggregate([
         {
@@ -1253,7 +1254,7 @@ exports.getTotalAssetInCategoryAllocated = async (req, res) => {
 
 exports.showAssetDataToHR = async (req, res) => {
   try {
-    const imageUrl = "http://34.93.221.166:3000/uploads/";
+    const imageUrl = `${vari.IMAGE_URL}/`;
     const HrData = await simModel
       .aggregate([
         {

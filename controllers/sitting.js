@@ -3,6 +3,7 @@ const helper = require("../helper/helper.js");
 const roomModel = require("../models/roomModel.js");
 const sittingModel = require('../models/sittingModel.js');
 const userModel = require("../models/userModel.js");
+const vari = require("../variables");
 
 exports.addSitting = async (req, res) => {
   try {
@@ -184,7 +185,7 @@ exports.getRooms = async (req, res) => {
       },
     ]);
 
-    const url = "http://34.93.221.166:3000/uploads/";
+    const url = `${vari.IMAGE_URL}/`;
     const dataWithImageUrl = roomObj.map((room) => ({
       ...room,
       room_image_url: room.roomImage ? url + room.roomImage : null,

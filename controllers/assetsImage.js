@@ -1,6 +1,7 @@
 const assetsImagesModel = require("../models/assetsimagesModel");
 const simModel = require("../models/simModel");
 const multer = require("multer");
+const vari = require("../variables");
 
 const upload = multer({ dest: "uploads/assets" }).fields([
   { name: "img1", maxCount: 1 },
@@ -74,7 +75,7 @@ exports.getAllAssetsImages = async (req, res) => {
         },
       ])
       .exec();
-    const assetImagesBaseUrl = "http://34.93.221.166:3000/uploads/assets/";
+    const assetImagesBaseUrl = `${vari.IMAGE_URL}/`;
     const dataWithImageUrl = assetsdata.map((assetimage) => ({
       ...assetimage,
       img1_url: assetimage.img1 ? assetImagesBaseUrl + assetimage.img1 : null,
@@ -133,7 +134,7 @@ exports.getSingleAssetsImage = async (req, res) => {
         },
       ])
       .exec();
-    const assetImagesBaseUrl = "http://34.93.221.166:3000/uploads/assets/";
+    const assetImagesBaseUrl = `${vari.IMAGE_URL}/`;
     const dataWithImageUrl = assetsdata.map((assetimage) => ({
       ...assetimage,
       img1_url: assetimage.img1 ? assetImagesBaseUrl + assetimage.img1 : null,
