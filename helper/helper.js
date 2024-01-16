@@ -47,7 +47,7 @@ module.exports = {
       let digitalSignature;
       if (empData?.digital_signature_image) {
         pdfFileName += " Signed";
-        digitalSignature = `${constant.base_url}/uploads/${empData?.digital_signature_image}`;
+        digitalSignature = `${constant.base_url}/${empData?.digital_signature_image}`;
         var currentDate = new Date();
         var formattedDateTime = currentDate.toLocaleString();
         const sms = new notificationModel({
@@ -115,7 +115,7 @@ module.exports = {
         { user_id: empData?.user_id },
         {
           $set: {
-            offer_later_pdf_url: `${base_url}/uploads/offerLetterPdf/${pdfFileName} Offer Letter.pdf`,
+            offer_later_pdf_url: `${base_url}/${pdfFileName} Offer Letter.pdf`,
           },
         }
       );

@@ -17,7 +17,7 @@ const allRegisterCmpData = {
       ],
       register_campaign_id: 54,
       __v: 0,
-      download_excel_file: `${constant.base_url}/uploads/df06441b3479b32922098abc532825d8`,
+      download_excel_file: `${constant.base_url}/`,
     },
   ],
 };

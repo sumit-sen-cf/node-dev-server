@@ -242,7 +242,7 @@ exports.getRoomById = async (req, res) => {
       },
     ]);
     const baseUrl = constant.base_url;
-    let roomImageUrl = `${baseUrl}/uploads/`;
+    let roomImageUrl = `${baseUrl}/`;
     const dataWithImageUrl = roomObj?.map((room) => ({
       ...room,
       room_image_url: room?.roomImage ? roomImageUrl + room?.roomImage : null,

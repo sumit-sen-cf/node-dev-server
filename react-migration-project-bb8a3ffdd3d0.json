@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "react-migration-project",
+  "private_key_id": "bb8a3ffdd3d0e1e8687a828dfbb04ca8fdeb46d9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC62Fz3klMV9dSO\nDuFBu0+tP9PlQTOjrNR9wohp6ImfrcTKgviqzY9AHFsdzHD1CxRgPHwIy5ucSt3V\nt3Nsp7jlcU3fCtIU0HVT1Ny84dC6Fk2RucB8Sqs4WlOFLYShR9Iwqj98zTzCIM2x\nEAWq+flZ/u/GIScsK3UvxL19o0k6YlJNbhJfGWgkLXBmgzAG46W0XWCQLVN2/UOI\n77vNi9NdePm7WWdJ/ucXLADENRSVRhUIf+mbHizXZl9x7lO8y2TGfLqhcZOKTLHj\n0xX1LfdTnMfkwZi7pP+t41yYg+5srlim/TJUeM2mxgsCTKD+0OxsDf91nlxKI7FF\n2+OHLqAdAgMBAAECggEAHMYKFxQhGG4ppBDVjqZWYFNGgfUXCzsn5BALquelHgKI\nHjmqKr+KMnDLdVzQ/mOM6T8XSNF2Lsz2uZ1NOKvhlO/sco87h/oMP3M15R6PYsDh\nhDILWviywnRijU1TsfSaAWWObl064JhlpMFXZhul0z6n1Saw3iP5IXiWR91X/xX1\n96u/SMU9pWK9jMTBKA1lfQ63Cfuvfcscfv/sR/tsEj4sJJxaS2li2JWmQXT9Ve65\nor8fpTPn+BRCrSq+nBN4i1AVV0xETL5svXavkXNg1J7TMhMwWwUnQ0ETMiP/EAJh\nLbyq0HG/j+Xd3MqqYMAMP5HNyhvyZSGCbby1urY2jwKBgQD+/lFoj6J3rwgQY6ly\nlzw4NkX2eVJZ4ukbYaxlrKJ3b8SnsgNtXPDfLo67xmOhGiAed8JUZYjKxxF+63ie\nPXr58icVfzqy9FRYT2aRC0awE54QCBSRqdIT6eYjp6uNJlKwR9sY7Enurm3BEyp+\nff8Pt/pPRP86E+PWvUDcX8H3rwKBgQC7lS2oxR1qEZO9zKMUWwFYzum92neoTu4d\nN9Qj5RUJcueJOW2++5wlgsKCibB0vRWDEJ0N8+/H5/gsPiHoTwdzZU6dbPNgp8Ib\nQoifizqB9Uo/jn105Xjq3hGhUFdKW2mq1D/ABD3wFogO0OwnKO4++oPlQalBGt6z\n6JjpKVQL8wKBgCEJfCyq52bQQ6Az+WFCXOf/iCL95wCEWKVWi0qFCmulDHqZor4J\nm5+e3ZlQg9n8k4q/A2uB2C5FimvCQFdoKcW2bP/pAwbqhv8GEojaSCdJ82GqWlfh\nA7nWxR17fMuF2pLCTI23F4EYElpAjHHlCyXTNVgN3W994jgRPxUORwg7AoGBALZ3\nDNv/KXaUtHbKSNOzFmNRmhKgIQbqCDsJpGRqIIV5bPmRkExXKXNfd19NGgTkLLm5\n/lulLlfxL/mxUoBL5357S/ZcFX2ukWS82nL/FqF1fYzHSQfdczpbWyDkKpTcyLNw\nFLbuKWWSNTTcSupoqR8/xe7KaR44SesM1Tjwh527AoGAWL3EVrwwYAdaNGqOSJRO\nBpGPGk3BToV17J85pi54uChtcGb6ny5VaGKO16N9GQjPuRatyW85mScXzI9dgVge\nUl772V/6MkcKYpLT/EYKWsjk5SCpSiIzvj0oZocIQU4l9dOe/VkRdG4/MAAZRJAi\nqAaV65sQLfLLHon1B+M3xoc=\n-----END PRIVATE KEY-----\n",
+  "client_email": "jarvis-dot-work-bucket-creden@react-migration-project.iam.gserviceaccount.com",
+  "client_id": "116129114357334926553",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/jarvis-dot-work-bucket-creden%40react-migration-project.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

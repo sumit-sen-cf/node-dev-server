@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "node-develop-server",
+  "private_key_id": "d8f031e525edfaa68024c59bbf9e76988c3e2c3c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDjX8Vglorb8eWj\nip3WGA0mTfJ6s2DvB1BqgDFQ2L2ZdZKwTSKm+mpvb83tUIrnlVoe2VBV1TYbHtjd\nX1CWsssNk/eQ87FHvJhcogvrqR3trX7dPGA4oPhg/1IR48jWB+U7DEMegx3yBoj8\nnkWSxi2yNpUv+eGRxK3o7qJ8mb29u74y2oxMkb5yoj12ktuImi9oUxXEpgvlqLet\nkLlN+2s13IH9KXg/B41zE2jD1eXUjmGJ3zmKoL6LijjJFU/UaUol/zIuQIifWVaA\nutq5z0bMDWJ0EYxWSy7544Qm6HMEePmj918AS2lAW+5VwFa7vzwEZrzO+N2SPneD\nJ7LvTDoJAgMBAAECggEATJDykV0Ac6JYlyLVlcPRocV70u/Ww4cuAD8c3EGwTx31\ngKLo+Vu4PcBjkvedXvC/QUYitFSw/J79nkY7iBO7Jt5d7pTxbNvIXuE+rGPtrRzQ\nbMWpDUi/e0JfK6EN/2z3N1QgwgSbL+YdeRv/B7buqmWRBW/bEtAtVBQP6W+IInyU\nn2YUAFdWLid3OID/875NPgsNc7szJaOMeryjGwnIF/8KiXV+GvSehgY4Zj8WhtZ/\nh83vAEhMTDXs+nwqlDr96f0Dr4/Q8t6MuVUjYOpJ5C9NTXZbz27vw9089v0L2tE9\n/2eB8aVEblrfiwZvbPHwah6SEN0rLfekDUxVBuX7JQKBgQD8Zpv+e1PSsVgZo9WX\ncksXF8nAf8KPHuAL0ZJ0y+sf7DSDWicL8tTXc1A+W55lVB2e7nPklTxv7NAZjNZW\nDKTxKLatw1DKxlzI3tdrHGJR9ZE0/xFyg2z+p0m9qi0/wXyKlyMbZkBmdwbEQ4Jj\n//2/Z6Zp3W4C9g5LPSyEGs3tXwKBgQDmnc0uxhobEM/EctEG7GUxb6fhtmvzdTFw\n5LEeMnRLxwnzSUKTdDiiCiW21MCO8c6KsRIwMhpH6MpTMtBDxaM3ZWTZIyZlEKMx\nE9YuOah0d4l3KoJdkewtELxnPLX4cJKn2/zEZQFkw6gg64h5C5IwgQ/xsiJZZXYn\nyO3N688plwKBgQCTcS13P3v7/HVGpRpE2hNbbh4BQaDaEmM3BDnV2LmFcGpMwQFG\nTZhgM5CQnNyuvLCBAzLYOQWRLHl0M32Rztkbt3jfkNVFXxMclHCqtW4KCrXEi6wZ\nhQTKzdaZ4SuFrvWd0CRGATlloepmBDnLSONmSJpCBYQaXrqC4T17/lyFaQKBgQDk\nHU9qZvZHs3dwwInWqVrnbaTIdaOObGv9WZmBXzL+CeHjzqGWLa4fSp5HnWbjfnhp\nZAGzvruUScZoSakMgKCUGS2KQ2SlL7Hcx9xiWRIyMlO9lkThvYe6hAV4sOrm1qOa\netYqhia8v3S9K34RDcsLQ367+xJTDzOy4uOnfwup/QKBgHLlMr9mVEF+0Ix9KFvY\nTANrpVZ3PWPW+JW7oFMQlYpj/Mo8DUxizDtygN0+fd5sHa/KjS7mvG9MeiL6VMPS\nufwetsAYtjWju/Tt0XXAZ6bReSZGOpJ9+0m0fmgklUeHkZh6qCCTYGPEF4xk8Dm+\nDGzyYlY7Rn2+iDyIGJ0xTK5n\n-----END PRIVATE KEY-----\n",
+  "client_email": "642603505158-compute@developer.gserviceaccount.com",
+  "client_id": "107521390787465714472",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/642603505158-compute%40developer.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

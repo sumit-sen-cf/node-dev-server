@@ -93,7 +93,7 @@ exports.getLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo/`,
+                                    `${constant.base_url}/`,
                                     '$upload_logo'
                                 ]
                             },
@@ -105,7 +105,7 @@ exports.getLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo/`,
+                                    `${constant.base_url}/`,
                                     '$upload_logo'
                                 ]
                             },
@@ -168,7 +168,7 @@ exports.getSingleLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo/`,
+                                    `${constant.base_url}/`,
                                     '$upload_logo'
                                 ]
                             },
@@ -180,7 +180,7 @@ exports.getSingleLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo/`,
+                                    `${constant.base_url}/`,
                                     '$upload_logo'
                                 ]
                             },
@@ -234,7 +234,7 @@ exports.getLogoDataBasedBrand = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo/`,
+                                    `${constant.base_url}/`,
                                     '$upload_logo'
                                 ]
                             },
@@ -246,7 +246,7 @@ exports.getLogoDataBasedBrand = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/uploads/logo/`,
+                                    `${constant.base_url}/`,
                                     '$upload_logo'
                                 ]
                             },

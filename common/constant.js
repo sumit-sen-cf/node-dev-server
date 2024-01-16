@@ -1,6 +1,8 @@
+const vari = require("../variables")
+
 module.exports = Object.freeze({
-  // base_url: "http://34.93.135.33:8080",
-  base_url: "http://34.93.221.166:3000",
+  // base_url: vari.IMAGE_URL, //http://34.93.135.33:8080,
+  base_url: vari.IMAGE_URL, //http://34.93.221.166:3000
   local_base_url: "http://localhost:3000",
   CREATOR_INSIGHTS: "https://app.ylytic.com/ylytic/api/v1/rt_tracking/insights",
   CF_INSTA_API: "https://www.instagram.com/trolls_official/?__a=1&__d=dis",
@@ -26,11 +28,5 @@ module.exports = Object.freeze({
   UPDATED_SUCCESSFULLY :"Data Updated Successfully...",
   FETCH_SUCCESSFULLY :"Data Updated Successfully...",
   NO_RECORD_FOUND:"No Record found..."
-
-  /* html template usages */
-  // <img
-  //       src="https://media.licdn.com/dms/image/C4D0BAQF6QHYd1myKyw/company-logo_200_200/0/1630521048751/creative_fuel_io_logo?e=2147483647&v=beta&t=E0hyxWgbSM42fPDcFCT-q7Y9LvSuysj-dLMWcVC1aSw"
-  //       alt="CreativeFuel Logo"
-  //     />
  
 });

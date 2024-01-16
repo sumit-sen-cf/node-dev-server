@@ -64,15 +64,15 @@ exports.getImages = async (req, res) => {
                       branches: [
                         {
                           case: { $eq: ["$img_type", 1] },
-                          then: `${constant.base_url}/uploads/Brand_s Avatar/`,
+                          then: `${constant.base_url}/`,
                         },
                         {
                           case: { $eq: ["$img_type", 2] },
-                          then: `${constant.base_url}/uploads/Campaign_s Avatar/`,
+                          then: `${constant.base_url}/`,
                         },
                         {
                           case: { $eq: ["$img_type", 3] },
-                          then: `${constant.base_url}/uploads/Creator_s Avatar/`,
+                          then: `${constant.base_url}/`,
                         },
                       ],
                       default: "",
@@ -125,15 +125,15 @@ exports.getImage = async (req, res) => {
                       branches: [
                         {
                           case: { $eq: ["$img_type", 1] },
-                          then: `${constant.base_url}/uploads/Brand_s Avatar/`,
+                          then: `${constant.base_url}/`,
                         },
                         {
                           case: { $eq: ["$img_type", 2] },
-                          then: `${constant.base_url}/uploads/Campaign_s Avatar/`,
+                          then: `${constant.base_url}/`,
                         },
                         {
                           case: { $eq: ["$img_type", 3] },
-                          then: `${constant.base_url}/uploads/Creator_s Avatar/`,
+                          then: `${constant.base_url}/`,
                         },
                       ],
                       default: "",

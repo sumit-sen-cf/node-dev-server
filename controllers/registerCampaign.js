@@ -37,7 +37,7 @@ exports.getRegisterCampaigns = async (req, res) => {
         .status(200)
         .send({ success: true, data: [], message: constant.NO_RECORD_FOUND });
     } else {
-      const url = `${constant.base_url}/uploads/`;
+      const url = `${constant.base_url}/`;
       const dataWithFileUrls = campaigns.map((item) => ({
         ...item.toObject(),
         download_excel_file: item.excel_path ? url + item.excel_path : "",
