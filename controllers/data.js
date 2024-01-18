@@ -670,7 +670,7 @@ exports.getDataBasedDataNameNew = async (req, res) => {
                             if: { $ne: ['$data_upload', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/`,
+                                    `${constant.base_url}`,
                                     '$data_upload'
                                 ]
                             },
@@ -682,7 +682,7 @@ exports.getDataBasedDataNameNew = async (req, res) => {
                             if: { $ne: ['$data_upload', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/`,
+                                    `${constant.base_url}`,
                                     '$data_upload'
                                 ]
                             },
