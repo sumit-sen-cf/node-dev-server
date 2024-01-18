@@ -1346,6 +1346,7 @@ router.delete("/delete_data_platform/:_id", dataPlatform.deleteDataPlatform);
 router.post("/add_data", upload1.single('data_upload'), dataController.addData);
 router.get("/get_all_datas", dataController.getDatas);
 router.get("/get_data_based_data_name/:data_id", dataController.getDataBasedDataName);
+router.get("/get_data_based_data_name_new/:data_name", dataController.getDataBasedDataNameNew);
 router.get(
   "/get_single_data/:data_id",
   dataController.getSingleData

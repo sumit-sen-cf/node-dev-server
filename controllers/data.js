@@ -534,6 +534,173 @@ exports.getDataBasedDataName = async (req, res) => {
     }
 }
 
+exports.getDataBasedDataNameNew = async (req, res) => {
+    try {
+        const productData = await dataModel.aggregate([
+            {
+                $match: {
+                    data_name: req.params.data_name
+                }
+            },
+            {
+                $lookup: {
+                    from: "datacategorymodels",
+                    localField: "cat_id",
+                    foreignField: "_id",
+                    as: "category",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$category",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "datasubcategorymodels",
+                    localField: "sub_cat_id",
+                    foreignField: "_id",
+                    as: "subcategory",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$subcategory",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "dataplatformmodels",
+                    localField: "platform_id",
+                    foreignField: "_id",
+                    as: "platform",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$platform",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "datacontenttypemodels",
+                    localField: "content_type_id",
+                    foreignField: "_id",
+                    as: "contenttype",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$contenttype",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "databrandmodels",
+                    localField: "brand_id",
+                    foreignField: "_id",
+                    as: "brand",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$brand",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: 'created_by',
+                    foreignField: 'user_id',
+                    as: 'userData'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: 'designed_by',
+                    foreignField: 'user_id',
+                    as: 'userDataName'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userDataName",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    data_id: "$data_id",
+                    data_name: "$data_name",
+                    cat_id: "$cat_id",
+                    sub_cat_id: "$sub_cat_id",
+                    platform_id: "$platform_id",
+                    brand_id: "$brand_id",
+                    content_type_id: "$content_type_id",
+                    created_by: "$created_by",
+                    updated_by: "$updated_by",
+                    created_at: "$created_at",
+                    designed_by: "$designed_by",
+                    designed_by_name: "$userDataName.user_name",
+                    created_by_name: "$userData.user_name",
+                    updated_by_name: "$userData.user_name",
+                    category_name: "$category.category_name",
+                    sub_category_name: "$subcategory.data_sub_cat_name",
+                    platform_name: "$platform.platform_name",
+                    brand_name: "$brand.brand_name",
+                    content_type_name: "$contenttype.content_name",
+                    data_type: "$data_type",
+                    size_in_mb: "$size_in_mb",
+                    remark: "$remark",
+                    data_image: {
+                        $cond: {
+                            if: { $ne: ['$data_upload', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}/`,
+                                    '$data_upload'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    data_image_download: {
+                        $cond: {
+                            if: { $ne: ['$data_upload', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}/`,
+                                    '$data_upload'
+                                ]
+                            },
+                            else: null
+                        }
+                    }
+                },
+            },
+        ]);
+        if (productData?.length == 0) {
+            return res.status(200).json({ message: "No Record Found" });
+        }
+        res.status(200).json(productData);
+    } catch (error) {
+        res.status(500).send({ error: error.message, sms: 'error while adding logo brand data' })
+    }
+}
+
 exports.editData = async (req, res) => {
     try {
         const editsim = await dataModel.findOneAndUpdate({ data_id: req.body.data_id }, {
