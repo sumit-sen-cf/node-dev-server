@@ -392,7 +392,7 @@ exports.addAttendance = async (req, res) => {
               const ToPay = netSalary - tdsDeduction;
               const salary = user.salary;
               let invoiceNo = await createNextInvoiceNumber(user.user_id);
-              
+
               const creators = new attendanceModel({
                 dept: user.dept_id,
                 user_id: user.user_id,
@@ -532,7 +532,8 @@ exports.addAttendance = async (req, res) => {
               attendence_status,
               salary_status,
               disputed_reason: req.body.disputed_reason,
-              disputed_date: req.body.disputed_date
+              disputed_date: req.body.disputed_date,
+              attendence_status_flow: req.body.attendence_status_flow,
             },
             { new: true }
           );
@@ -854,7 +855,7 @@ exports.addAttendance = async (req, res) => {
 
 exports.getSalaryByDeptIdMonthYear = async (req, res) => {
   try {
-    const imageUrl = `${vari.IMAGE_URL}/`;
+    const imageUrl = "http://34.93.221.166:3000/uploads";
 
     const getcreators = await attendanceModel
       .aggregate([
@@ -874,7 +875,10 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
           },
         },
         {
-          $unwind: "$department",
+          $unwind: {
+            path: "$department",
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
           $lookup: {
@@ -902,7 +906,10 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
           },
         },
         {
-          $unwind: "$user",
+          $unwind: {
+            path: "$user",
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
           $lookup: {
@@ -913,7 +920,10 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
           },
         },
         {
-          $unwind: "$designation",
+          $unwind: {
+            path: "$designation",
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
           $lookup: {
@@ -949,6 +959,7 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
             total_salary: 1,
             net_salary: 1,
             tds_deduction: 1,
+            attendence_status_flow: 1,
             user_name: "$user.user_name",
             user_email_id: "$user.user_email_id",
             user_contact_no: "$user.user_contact_no",
@@ -998,7 +1009,6 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
             },
             digital_signature_image: "$user.digital_signature_image",
           },
-          attendence_status_flow: "$attendence_status_flow"
         },
       ])
       .exec();
@@ -1007,7 +1017,7 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
     }
     return res.status(200).send({ data: getcreators });
   } catch (err) {
-    return res.status(500).send({ error: err, sms: "Error getting salary" });
+    return res.status(500).send({ error: err.message, sms: "Error getting salary" });
   }
 };
 
@@ -1179,7 +1189,7 @@ exports.getSalaryByFilter = async (req, res) => {
 
 exports.getSalaryByUserId = async (req, res) => {
   try {
-    const imageUrl = `${vari.IMAGE_URL}/`;
+    const imageUrl = "http://34.93.221.166:3000/uploads/";
     const getcreators = await attendanceModel
       .aggregate([
         {
@@ -1315,9 +1325,10 @@ exports.getSalaryByUserId = async (req, res) => {
             digital_signature_image_url: {
               $concat: [imageUrl, "$user.digital_signature_image"]
             },
+            attendence_status_flow: 1,
             disputed_reason: "$disputed_reason",
             disputed_date: "$disputed_date",
-            attendence_status_flow: "$attendence_status_flow"
+            attendence_status_flow: 1
           },
         },
         {

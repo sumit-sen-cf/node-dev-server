@@ -1,9 +1,17 @@
 const mongoose = require("mongoose");
 
+// const subCategorySchema = new mongoose.Schema({
+//     subCategoryId: [{
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: "dataSubCategoryModel"
+//     }]
+// });
+
 const dataModel = new mongoose.Schema({
     data_id: {
         type: Number,
-        required: false
+        required: false,
+        unique: true
     },
     data_name: {
         type: String,
@@ -27,10 +35,11 @@ const dataModel = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "dataCategoryModel"
     },
-    sub_cat_id: {
+    // sub_cat_id: subCategorySchema,
+    sub_cat_id: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "dataSubCategoryModel"
-    },
+    }],
     platform_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "dataPlatformModel"

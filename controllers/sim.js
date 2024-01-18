@@ -1649,7 +1649,8 @@ exports.showAssetDataToUser = async (req, res) => {
           asset_request_asset_request_status: "$assetrequest.asset_request_status",
           asset_request_request_by: "$assetrequest.request_by",
           asset_request_by_name: "$userRequest.user_name",
-          asset_request_multi_tag_name: "$userMulti.user_name"
+          asset_request_multi_tag_name: "$userMulti.user_name",
+          asset_repair_request_status: "$repair.status"
         },
       },
     ]).exec();

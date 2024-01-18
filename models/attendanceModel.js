@@ -127,7 +127,7 @@ const attendanceModel = new mongoose.Schema({
         default: ""
     },
     disputed_date: {
-        type: Date,
+        type: String,
         default: ""
     }
 });
