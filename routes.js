@@ -104,7 +104,8 @@ const deptDesiAuth = require("./controllers/deptDesiAuth.js");
 const assetRequest = require("./controllers/assetRequest.js");
 const taskDelivery = require("./controllers/TMS/taskDelivery.js")
 const task = require("./controllers/TMS/task.js")
-const taskSequence = require("./controllers/TMS/taskSequence.js")
+const taskSequence = require("./controllers/TMS/taskSequence.js");
+const assetReturnRequest = require("./controllers/assetReturn.js");
 
 /* Task Mangement Controller Import */
 const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1137,6 +1138,13 @@ router.delete(
   assetsImage.deleteAssetImage
 );
 
+// Asset Return Request Routes
+router.post("/assetreturn", assetReturnRequest.addAssetReturnRequest);
+router.put("/assetreturn", assetReturnRequest.editAssetReturnRequest);
+router.get("/assetreturn", assetReturnRequest.getAssetReturnRequests);
+router.get("/assetreturn/:_id", assetReturnRequest.getAssetReturnRequestById);
+router.delete("/assetreturn/:_id", assetReturnRequest.deleteAssetReturnRequest);
+
 //---------------------------------------------------------------------------All Routes OF Asset Module Ends Here ---------------------------------------------------------------------------------------------------//
 
 /* Page Uniqueness routes for insta */
@@ -1339,7 +1347,7 @@ router.post("/add_data", upload1.single('data_upload'), dataController.addData);
 router.get("/get_all_datas", dataController.getDatas);
 router.get("/get_data_based_data_name/:data_id", dataController.getDataBasedDataName);
 router.get(
-  "/get_single_data/:_id",
+  "/get_single_data/:data_id",
   dataController.getSingleData
 );
 router.put("/update_data", upload1.single('data_upload'), dataController.editData);

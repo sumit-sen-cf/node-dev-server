@@ -1087,7 +1087,7 @@ exports.getSingleUser = async (req, res) => {
                 }
             }
         ]).exec();
-        const userImagesBaseUrl = `${vari.IMAGE_URL}/`;
+        const userImagesBaseUrl = "http:/34.93.221.166:3000/uploads/";
         const dataWithImageUrl = singlesim.map((user) => ({
             ...user,
             image_url: user.image ? userImagesBaseUrl + user.image : null,
