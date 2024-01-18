@@ -1,6 +1,8 @@
 const phpPaymentRefundModel = require("../models/phpPaymentRefundModel.js");
 const axios = require('axios');
 const FormData = require('form-data');
+const vari = require('../variables.js');
+const {storage} = require('../common/uploadFile.js')
 
 async function checkIfDataExists(sale_booking_refund_id) {
     const query = { sale_booking_refund_id: sale_booking_refund_id };
@@ -105,7 +107,16 @@ exports.getAllphpPaymentRefundDataStatus = async (req, res) => {
 
 exports.pendingApprovalRefundUpdate = async (req,res) => {
     try {
-        let payment_screenshot = req?.file?.filename;
+        let payment_screenshot;
+
+        const bucketName = vari.BUCKET_NAME;
+        const bucket = storage.bucket(bucketName);
+        const blob = bucket.file(req.file.originalname);
+        payment_screenshot = blob.name;
+        const blobStream = blob.createWriteStream();
+        blobStream.on("finish", () => { return res.status(200).send("Success") });
+        blobStream.end(req.file.buffer);
+
         const editPendingApprovalRefundData = await phpPaymentAccListModel.findOneAndUpdate(
             { sale_booking_refund_id: parseInt(req.body.sale_booking_refund_id) },
             {

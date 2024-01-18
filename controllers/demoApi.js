@@ -1,5 +1,6 @@
 const demoModel = require('../models/demoModel.js');
-// const cocHisModel = require('../models/cocHisModel.js')
+const vari = require("../variables.js");
+const {storage} = require('../common/uploadFile.js')
 
 exports.addDemo = async (req, res) =>{
     try{
@@ -16,8 +17,17 @@ exports.addDemo = async (req, res) =>{
             t10: req.body.t10,
             t11: req.body.t11,
             t12: req.body.t12,
-            t13 : req?.file?.filename
+            // t13 : req?.file?.filename
         })
+
+        const bucketName = vari.BUCKET_NAME;
+        const bucket = storage.bucket(bucketName);
+        const blob = bucket.file(req.file.originalname);
+        simc.t13 = blob.name;
+        const blobStream = blob.createWriteStream();
+        blobStream.on("finish", () => { return res.status(200).send("Success") });
+        blobStream.end(req.file.buffer);
+
         const simv = await simc.save();
         res.send({simv,status:200});
     } catch(err){
@@ -62,8 +72,19 @@ exports.editDemo = async (req, res) => {
             t10: req.body.t10,
             t11: req.body.t11,
             t12: req.body.t12,
-            t13 : req?.file?.filename
+            t13 : req.file?.originalname
         }, { new: true })
+
+        const bucketName = vari.BUCKET_NAME;
+        const bucket = storage.bucket(bucketName);
+        const blob = bucket.file(req.file.originalname);
+        editsim.t13 = blob.name;
+        const blobStream = blob.createWriteStream();
+        blobStream.on("finish", () => { 
+            editsim.save();
+            return res.status(200).send("Success") 
+        });
+        blobStream.end(req.file.buffer);
 
         res.status(200).send({success:true,data:editsim})
     } catch(err){

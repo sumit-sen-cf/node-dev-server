@@ -36,10 +36,10 @@ const dataModel = new mongoose.Schema({
         ref: "dataCategoryModel"
     },
     // sub_cat_id: subCategorySchema,
-    sub_cat_id: [{
+    sub_cat_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "dataSubCategoryModel"
-    }],
+    },
     platform_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "dataPlatformModel"

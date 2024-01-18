@@ -1,6 +1,8 @@
 const constant = require("../common/constant.js");
 const attendanceModel = require("../models/attendanceModel.js");
 const financeModel = require("../models/financeModel.js");
+const vari = require("../variables.js");
+const {storage} = require('../common/uploadFile.js')
 
 exports.addFinance = async (req, res) => {
   try {
@@ -8,12 +10,21 @@ exports.addFinance = async (req, res) => {
       status_: req.body.status_,
       reason: req.body.reason,
       remark: req.body.remark,
-      screenshot: req.file?.filename,
+      // screenshot: req.file?.filename,
       attendence_id: req.body.attendence_id,
       reference_no: req.body.reference_no,
       amount: req.body.amount,
       pay_date: req.body.pay_date,
     });
+
+    const bucketName = vari.BUCKET_NAME;
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(req.file.originalname);
+    simc.screenshot = blob.name;
+    const blobStream = blob.createWriteStream();
+    blobStream.on("finish", () => { return res.status(200).send("Success") });
+    blobStream.end(req.file.buffer);
+
     const simv = await simc.save();
 
     await attendanceModel.findOneAndUpdate(
@@ -31,7 +42,7 @@ exports.addFinance = async (req, res) => {
 
 exports.getFinances = async (req, res) => {
   try {
-    const financeImagesBaseUrl = "http://44.211.225.140:8000/user_images/";
+    const financeImagesBaseUrl = vari.IMAGE_URL;
     const simc = await financeModel.aggregate([
       {
         $lookup: {
@@ -140,13 +151,24 @@ exports.editFinance = async (req, res) => {
         reason: req.body.reason,
         attendence_id: req.body.attendence_id,
         remark: req.body.remark,
-        screenshot: req?.file?.filename,
+        screenshot: req.file?.originalname,
         reference_no: req.body.reference_no,
         amount: req.body.amount,
         pay_date: req.body.pay_date,
       },
       { new: true }
     );
+
+    const bucketName = vari.BUCKET_NAME;
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(req.file.originalname);
+    editsim.screenshot = blob.name;
+    const blobStream = blob.createWriteStream();
+    blobStream.on("finish", () => { 
+      editsim.save();
+      return res.status(200).send("Success") 
+    });
+    blobStream.end(req.file.buffer);
 
     await attendanceModel.findOneAndUpdate(
       { attendence_id: parseInt(req.body.attendence_id) },

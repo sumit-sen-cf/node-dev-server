@@ -1,6 +1,8 @@
 const documentModel = require("../models/documentModel");
 const documentHisModel = require("../models/documentHisModel");
 const response = require("../common/response.js");
+const vari = require("../variables.js");
+const {storage} = require('../common/uploadFile.js');
 
 exports.addDocument = async (req, res) => {
   try {
@@ -142,10 +144,18 @@ exports.addHistoryDoc = async (req, res) => {
       const simc = new documentHisModel({
         user_id: req.body.user_id,
         doc_id: req.body.doc_id,
-        doc_file: file.filename,
+        // doc_file: file.filename,
         status: req.body.status,
         updated_by: req.body.updated_by
       });
+
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(file.filename);
+      simc.doc_file = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => { return res.status(200).send("Success") });
+      blobStream.end(req.file.buffer);
 
       const simv = await simc.save();
       savedDocuments.push(simv);
@@ -162,10 +172,21 @@ exports.editHistoryDoc = async (req, res) => {
     const editsim = await documentHisModel.findByIdAndUpdate(req.body._id, {
       user_id: req.body.user_id,
       // doc_id: req.body.doc_id,
-      doc_file_name: req?.file?.filename,
+      doc_file_name: req.file?.originalname,
       status: req.body.status,
       updated_by: req.body.updated_by
     }, { new: true })
+
+    const bucketName = vari.BUCKET_NAME;
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(req.file.originalname);
+    editsim.doc_file = blob.name;
+    const blobStream = blob.createWriteStream();
+    blobStream.on("finish", () => { 
+      editsim.save();
+      return res.status(200).send("Success") 
+    });
+    blobStream.end(req.file.buffer);
 
     res.status(200).send({ success: true, data: editsim })
   } catch (err) {

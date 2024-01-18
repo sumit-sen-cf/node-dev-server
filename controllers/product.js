@@ -18,6 +18,8 @@ const sittingModel = require("../models/sittingModel.js");
 const transferReqModel = require("../models/transferReqModel.js");
 const emailTempModel = require("../models/emailTempModel.js")
 const nodemailer = require("nodemailer");
+const vari = require('../variables.js')
+const {storage} = require('../common/uploadFile.js')
 
 //Product Related api's
 
@@ -51,8 +53,16 @@ exports.addProduct = async (req, res) => {
       props1,
       props2,
       props3,
-      Product_image: req?.file?.filename,
+      // Product_image: req?.file?.filename,
     });
+
+    const bucketName = vari.BUCKET_NAME;
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(req.file.originalname);
+    productObj.Product_image = blob.name;
+    const blobStream = blob.createWriteStream();
+    blobStream.on("finish", () => { return res.status(200).send("Success") });
+    blobStream.end(req.file.buffer);
 
     const savedProduct = await productObj.save();
     return response.returnTrue(
@@ -69,10 +79,20 @@ exports.addProduct = async (req, res) => {
 
 exports.editProduct = async (req, res) => {
   try {
+    let pro_image = req.file?.originalname;
+
+    const bucketName = vari.BUCKET_NAME;
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(req.file.originalname);
+    pro_image = blob.name;
+    const blobStream = blob.createWriteStream();
+    blobStream.on("finish", () => { return res.status(200).send("Success") });
+    blobStream.end(req.file.buffer);
+
     const editProductObj = await productModel.findOneAndUpdate(
       { product_id: parseInt(req.body.id) }, // Filter condition
       {
-        $set: { ...req.body, Product_image: req?.file?.filename },
+        $set: { ...req.body, Product_image: pro_image },
       },
       { new: true }
     );
@@ -124,7 +144,7 @@ exports.getProductById = async (req, res) => {
         {}
       );
     }
-    const url = `${constant.base_url}/`;
+    const url = `${constant.base_url}`;
     const dataWithFileUrls = product.map((item) => ({
       ...item,
       imageUrl: item.Product_image ? url + item.Product_image : "",
@@ -162,7 +182,7 @@ exports.getProduct = async (req, res) => {
         {}
       );
     }
-    const url = `${constant.base_url}/`;
+    const url = `${constant.base_url}`;
     const dataWithFileUrls = product.map((item) => ({
       ...item,
       Product_image_download_url: item.Product_image ? url + item.Product_image : "",
@@ -912,7 +932,7 @@ exports.pendingOrdersById = async (req, res) => {
 
     const responseData = orders.map((item) => {
       const orderRequestId = item.Order_req_id;
-      const imageUrl = `${constant.base_url}/${item.Product_image}`;
+      const imageUrl = `${constant.base_url}${item.Product_image}`;
       if (!timers1[orderRequestId]) {
         timers1[orderRequestId] = {
           startTime: currentTime,
@@ -1025,7 +1045,7 @@ exports.delivereOrdersById = async (req, res) => {
 
     const responseData = orders.map((item) => {
       const orderRequestId = item.Order_req_id;
-      const imageUrl = `${constant.base_url}/${item.Product_image}`;
+      const imageUrl = `${constant.base_url}${item.Product_image}`;
       if (!timers1[orderRequestId]) {
         timers1[orderRequestId] = {
           startTime: currentTime,
@@ -1392,10 +1412,10 @@ exports.orderReqHistory = async (req, res) => {
 
     const responseData = orderReqHis.map((item) => {
       const imageUrl = item.Product_image
-        ? `${constant.base_url}/${item.Product_image}`
+        ? `${constant.base_url}${item.Product_image}`
         : "";
       const userImageeUrl = item.image
-        ? `${constant.base_url}/${item.image}`
+        ? `${constant.base_url}${item.image}`
         : "";
 
       return {
@@ -1546,10 +1566,10 @@ exports.getOrderReqsBasedOnFilter = async (req, res) => {
 
     const responseData = orderReq.map((item) => {
       const imageUrl = item.Product_image
-        ? `${constant.base_url}/${item.Product_image}`
+        ? `${constant.base_url}${item.Product_image}`
         : "";
       const userImageeUrl = item.image
-        ? `${constant.base_url}/${item.image}`
+        ? `${constant.base_url}${item.image}`
         : "";
       return {
         ...item,

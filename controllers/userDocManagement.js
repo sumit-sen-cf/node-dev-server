@@ -77,7 +77,7 @@ exports.getUserDoc = async (req, res) => {
               if: "$doc_image",
               then: {
                 $concat: [
-                  `${constant.base_url}/`,
+                  `${constant.base_url}`,
                   "$doc_image",
                 ],
               },

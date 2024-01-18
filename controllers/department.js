@@ -48,7 +48,7 @@ exports.getSingleDepartment = async (req, res) => {
       dept_id: parseInt(req.params.id),
     });
     if (!singlesim) {
-      return response.returnFalse(200, req, res, "No Reord Found...", {});
+      return response.returnFalse(200, req, res, "No Record Found...", {});
     }
     return response.returnTrue(
       200,
@@ -181,7 +181,6 @@ exports.deleteSubDepartment = async (req, res) => {
 exports.getSubDepartmentsFromDeptId = async (req, res) => {
   try {
     const deptId = req.params.id;
-    // console.log('fffffff', req.params)
 
     const singlesim = await subDepartmentModel
       .aggregate([
@@ -211,16 +210,6 @@ exports.getSubDepartmentsFromDeptId = async (req, res) => {
       ])
       .exec();
 
-    // if (!singlesim || singlesim.length === 0) {
-    //   return response.returnFalse(200, req, res, "No Reord Found...", {});
-    // }
-    // return response.returnTrue(
-    //   200,
-    //   req,
-    //   res,
-    //   "Data Fetch Successfully",
-    //   singlesim
-    // );
     return res.status(200).send(singlesim);
   } catch (err) {
     return response.returnFalse(500, req, res, err.message, {});
@@ -259,7 +248,7 @@ exports.getSubDepartments = async (req, res) => {
       ])
       .exec();
     if (!simc) {
-      return response.returnFalse(200, req, res, "No Reord Found...", []);
+      return response.returnFalse(200, req, res, "No Record Found...", []);
     }
     res.status(200).send(simc)
   } catch (err) {

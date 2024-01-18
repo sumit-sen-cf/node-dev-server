@@ -2,7 +2,7 @@ const { createNextInvoiceNumber } = require("../helper/helper.js");
 const attendanceModel = require("../models/attendanceModel.js");
 const userModels = require("../models/userAuthModel.js");
 const userModel = require("../models/userModel.js");
-const vari = require("../variables");
+const vari = require("../variables.js");
 
 async function doesUserExistInAttendance(userId, month, year) {
   const results = await attendanceModel.find({
@@ -855,7 +855,7 @@ exports.addAttendance = async (req, res) => {
 
 exports.getSalaryByDeptIdMonthYear = async (req, res) => {
   try {
-    const imageUrl = "http://34.93.221.166:3000/uploads";
+    const imageUrl = vari.IMAGE_URL;
 
     const getcreators = await attendanceModel
       .aggregate([
@@ -1024,7 +1024,7 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
 
 exports.getSalaryByMonthYear = async (req, res) => {
   try {
-    const imageUrl = "";
+    const imageUrl = vari.IMAGE_URL;
 
     const getcreators = await attendanceModel
       .aggregate([
@@ -1189,7 +1189,7 @@ exports.getSalaryByFilter = async (req, res) => {
 
 exports.getSalaryByUserId = async (req, res) => {
   try {
-    const imageUrl = "http://34.93.221.166:3000/uploads/";
+    const imageUrl = vari.IMAGE_URL;
     const getcreators = await attendanceModel
       .aggregate([
         {

@@ -1,23 +1,34 @@
 const registerCamapign = require("../models/registerCamapignModel");
 const constant = require("../common/constant.js");
 const response = require("../common/response");
+const vari = require('../variables.js');
+const {storage} = require('../common/uploadFile.js')
+
 exports.addRegisterCampaign = async (req, res) => {
   try {
     const { brand_id, brnad_dt, commitment, status, stage, detailing, exeCmpId } =
       req.body;
-    const excel_file = req.file.filename ?? "";
+    // const excel_file = req.file.filename ?? "";
 
     let parsedCommitment = JSON.parse(commitment);
     const Obj = new registerCamapign({
       brand_id,
       brnad_dt,
       status,
-      excel_path: excel_file,
+      // excel_path: excel_file,
       commitment: parsedCommitment,
       stage,
       detailing,
       exeCmpId
     });
+
+    const bucketName = vari.BUCKET_NAME;
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(req.file.originalname);
+    Obj.excel_path = blob.name;
+    const blobStream = blob.createWriteStream();
+    blobStream.on("finish", () => { return res.status(200).send("Success") });
+    blobStream.end(req.file.buffer);
 
     const savedRegisterCampaign = await Obj.save();
     res.send({ data: savedRegisterCampaign, status: 200 });
@@ -37,7 +48,7 @@ exports.getRegisterCampaigns = async (req, res) => {
         .status(200)
         .send({ success: true, data: [], message: constant.NO_RECORD_FOUND });
     } else {
-      const url = `${constant.base_url}/`;
+      const url = `${constant.base_url}`;
       const dataWithFileUrls = campaigns.map((item) => ({
         ...item.toObject(),
         download_excel_file: item.excel_path ? url + item.excel_path : "",

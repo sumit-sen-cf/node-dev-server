@@ -121,7 +121,7 @@ exports.getContentSectionReg = async (req, res) => {
         .status(200)
         .send({ success: true, data: [], message: "No Record found" });
     } else {
-      const url = `${constant.base_url}/`;
+      const url = `${constant.base_url}`;
       const dataWithFileUrls = ContentSectionReg.map((item) => {
         const data = item.files?.filter(
           //here apply filter because query not produce exact output
@@ -131,7 +131,7 @@ exports.getContentSectionReg = async (req, res) => {
           return {
             ...file,
             downloadContentSecFile: file.contentSecFile
-              ? `${constant.base_url}/`
+              ? `${constant.base_url}`
               : "", // Construct the download URL
           };
         });

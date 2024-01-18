@@ -1,7 +1,8 @@
 const simModel = require("../models/simModel.js");
 const simAlloModel = require("../models/simAlloModel.js");
 const userModel = require("../models/userModel.js");
-const vari = require("../variables");
+const vari = require("../variables.js");
+const {storage} = require('../common/uploadFile.js')
 
 exports.addSim = async (req, res) => {
   try {
@@ -31,7 +32,7 @@ exports.addSim = async (req, res) => {
       hrAuditPeriod: req.body.hrAuditPeriod || 0,
       selfAuditUnit: req.body.selfAuditUnit || 0,
       hrAuditUnit: req.body.hrAuditUnit || 0,
-      invoiceCopy: req.file?.filename,
+      // invoiceCopy: req.file?.filename,
       assetsValue: req.body.assetsValue,
       assetsCurrentValue: req.body.assetsCurrentValue,
       last_hr_audit_date: req.body.last_hr_audit_date,
@@ -43,6 +44,15 @@ exports.addSim = async (req, res) => {
       asset_brand_id: req.body.asset_brand_id,
       asset_modal_id: req.body.asset_modal_id,
     });
+
+    const bucketName = vari.BUCKET_NAME;
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(req.file.originalname);
+    simc.invoiceCopy = blob.name;
+    const blobStream = blob.createWriteStream();
+    blobStream.on("finish", () => { return res.status(200).send("Success") });
+    blobStream.end(req.file.buffer);
+
     const simv = await simc.save();
     res.send({ simv, status: 200 });
   } catch (err) {
@@ -133,7 +143,7 @@ exports.addSim = async (req, res) => {
 
 exports.getSims = async (req, res) => {
   try {
-    const assetsImagesUrl = `${vari.IMAGE_URL}/`;
+    const assetsImagesUrl = `${vari.IMAGE_URL}`;
     const simc = await simModel
       .aggregate([
         {
@@ -387,7 +397,7 @@ exports.editSim = async (req, res) => {
         hrAuditPeriod: req.body.hrAuditPeriod || 0,
         selfAuditUnit: req.body.selfAuditUnit || 0,
         hrAuditUnit: req.body.hrAuditUnit || 0,
-        invoiceCopy: req.file?.filename,
+        invoiceCopy: req.file?.originalname,
         assetsValue: req.body.assetsValue,
         assetsCurrentValue: req.body.assetsCurrentValue,
         asset_financial_type: req.body.asset_financial_type,
@@ -400,9 +410,21 @@ exports.editSim = async (req, res) => {
     if (!editsim) {
       res.status(500).send({ success: false });
     }
-    res.status(200).send({ success: true, data: editsim });
+
+    const bucketName = vari.BUCKET_NAME;
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(req.file.originalname);
+    editsim.invoiceCopy = blob.name;
+    const blobStream = blob.createWriteStream();
+    blobStream.on("finish", () => { 
+      editsim.save();
+      return res.status(200).send("Success") 
+    });
+    blobStream.end(req.file.buffer);
+
+    return res.status(200).send({ success: true, data: editsim });
   } catch (err) {
-    res
+    return res
       .status(500)
       .send({ error: err.message, sms: "Error updating sim details" });
   }
@@ -1302,7 +1324,7 @@ exports.getTotalAssetInCategoryAllocated = async (req, res) => {
 
 exports.showAssetDataToHR = async (req, res) => {
   try {
-    const imageUrl = `${vari.IMAGE_URL}/`;
+    const imageUrl = `${vari.IMAGE_URL}`;
     const HrData = await simModel
       .aggregate([
         {

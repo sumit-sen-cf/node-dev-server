@@ -29,7 +29,7 @@ exports.addKra = async (req, res) => {
 exports.getJobResponById = async (req, res) => {
     try {
         const user_id = req.params.user_id;
-        const ImageUrl = `${vari.IMAGE_URL}/`;
+        const ImageUrl = `${vari.IMAGE_URL}`;
         const userJobResponsi = await jobResponsibilityModel.aggregate([
             {
                 $match: { user_id: parseInt(user_id) },

@@ -79,10 +79,6 @@ const hrAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
 });
 
 async function sendReminderAssetEmail(simModel) {
-  // const templatePath = path.join(__dirname, `assetemailtemp.ejs`);
-  // const template = await fs.promises.readFile(templatePath, "utf-8");
-  // const name = simModel.assetsName;    
-  // const html = ejs.render(template, { name });
   
   /* dynamic email temp code start */
   let contentList = await emailTempModel.find({ email_for_id: 4 })
@@ -194,10 +190,6 @@ const selfAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
 });
 
 async function sendReminderAssetEmail1(simModel) {
-  // const templatePath = path.join(__dirname, `assetemailtemp.ejs`);
-  // const template = await fs.promises.readFile(templatePath, "utf-8");
-  // const name = simModel.assetsName;
-  // const html = ejs.render(template, { name });
 
   /* dynamic email temp code start */
   let contentList = await emailTempModel.find({ email_for_id: 4 })

@@ -1,5 +1,6 @@
 const projectxSubCategorySchema = require("../models/projectxSubCategoryModel.js");
 const response = require("../common/response");
+
 exports.addProjectxSubCategory = async (req, res) => {
   const { sub_category_name, category_id } = req.body;
   try {

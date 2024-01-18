@@ -4,6 +4,7 @@ const roomModel = require("../models/roomModel.js");
 const sittingModel = require('../models/sittingModel.js');
 const userModel = require("../models/userModel.js");
 const vari = require("../variables");
+const {storage} = require('../common/uploadFile.js')
 
 exports.addSitting = async (req, res) => {
   try {
@@ -136,13 +137,22 @@ exports.getNotAllocSitting = async (req, res) => {
 exports.addRoom = async (req, res) => {
   try {
     const { sitting_ref_no, remarks, created_by } = req.body;
-    let roomImage = req.file.filename;
+    let roomImage;
     const roomObj = new roomModel({
       sitting_ref_no,
       remarks,
-      roomImage,
+      // roomImage,
       created_by
     });
+
+    const bucketName = vari.BUCKET_NAME;
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(req.file.originalname);
+    roomObj.roomImage = blob.name;
+    const blobStream = blob.createWriteStream();
+    blobStream.on("finish", () => { return res.status(200).send("Success") });
+    blobStream.end(req.file.buffer);
+
     const roomObjSaved = await roomObj.save();
     res.status(200).send(roomObjSaved);
   } catch (err) {
@@ -185,7 +195,7 @@ exports.getRooms = async (req, res) => {
       },
     ]);
 
-    const url = `${vari.IMAGE_URL}/`;
+    const url = `${vari.IMAGE_URL}`;
     const dataWithImageUrl = roomObj.map((room) => ({
       ...room,
       room_image_url: room.roomImage ? url + room.roomImage : null,
@@ -243,7 +253,7 @@ exports.getRoomById = async (req, res) => {
       },
     ]);
     const baseUrl = constant.base_url;
-    let roomImageUrl = `${baseUrl}/`;
+    let roomImageUrl = `${baseUrl}`;
     const dataWithImageUrl = roomObj?.map((room) => ({
       ...room,
       room_image_url: room?.roomImage ? roomImageUrl + room?.roomImage : null,
@@ -266,7 +276,7 @@ exports.editRoom = async (req, res) => {
   try {
     const { sitting_ref_no, remarks,room_id, Last_updated_by } = req.body;
     let last_updated_date = Date.now();
-    let roomImage = req?.file?.filename;
+    let roomImage = req.file?.originalname;
     const editRoomObj = await roomModel.findOneAndUpdate(
       { room_id: parseInt(room_id) }, // Filter condition
       {
@@ -280,6 +290,18 @@ exports.editRoom = async (req, res) => {
         },
       }
     );
+
+    const bucketName = vari.BUCKET_NAME;
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(req.file.originalname);
+    editRoomObj.roomImage = blob.name;
+    const blobStream = blob.createWriteStream();
+    blobStream.on("finish", () => {
+      editRoomObj.save();
+      return res.status(200).send("Success") 
+    });
+    blobStream.end(req.file.buffer);
+
     if (editRoomObj?.roomImage && roomImage ) {
       const result = helper.fileRemove(editRoomObj?.roomImage, "../uploads");
       if (result?.status == false) {

@@ -1,6 +1,8 @@
 const phpPaymentBalListModel = require("../models/phpPaymentBalListModel.js");
 const axios = require('axios');
 const FormData = require('form-data');
+const vari = require('../variables.js');
+const {storage} = require('../common/uploadFile.js')
 
 async function checkIfDataExists(sale_booking_id) {
     const query = { sale_booking_id: sale_booking_id };
@@ -106,7 +108,16 @@ exports.getAllphpPaymentBalData = async (req, res) => {
 
 exports.balancePaymentListUpdate = async (req, res) => {
     try {
-        let payment_screenshot = req?.file?.filename;
+        let payment_screenshot;
+        
+        const bucketName = vari.BUCKET_NAME;
+        const bucket = storage.bucket(bucketName);
+        const blob = bucket.file(req.file.originalname);
+        payment_screenshot = blob.name;
+        const blobStream = blob.createWriteStream();
+        blobStream.on("finish", () => { return res.status(200).send("Success") });
+        blobStream.end(req.file.buffer);
+
         const editPendingApprovalRefundData = await phpPaymentBalListModel.findOneAndUpdate(
             { sale_booking_id: parseInt(req.body.sale_booking_id) },
             {
@@ -121,7 +132,7 @@ exports.balancePaymentListUpdate = async (req, res) => {
                 200,
                 req,
                 res,
-                "No Reord Found ",
+                "No Record Found ",
                 {}
             );
         }

@@ -2,7 +2,6 @@ const exeSum = require('../models/exeSumModel.js');
 const exeInven = require('../models/exeInvenModel.js');
 const exePurchaseModel = require("../models/exePurchaseModel.js");
 const jwt = require('jsonwebtoken');
-const variable = require('../variables.js');
 const axios = require('axios');
 const exeCountHisModel = require('../models/exeCountHisModel.js');
 const response = require("../common/response.js");
@@ -1153,7 +1152,7 @@ exports.getAllExeHistory = async (req, res) => {
 exports.getExeIpCountHistory = async (req, res) => {
     try {
         const cocData = await exeCountHisModel.find({ p_id: req.params.p_id, stats_update_flag: true }).lean();
-        const exeImagesBaseUrl = `${vari.IMAGE_URL}/`;
+        const exeImagesBaseUrl = `${vari.IMAGE_URL}`;
         const dataWithImageUrl = cocData.map((exe) => ({
             ...exe,
             media_url: exe.media ? exeImagesBaseUrl + exe.media : null,
@@ -1310,7 +1309,7 @@ exports.getDistinctExeCountHistory = async (req, res) => {
                     .sort({ creation_date: -1 })
                     .lean();
 
-                const exeImagesBaseUrl = `${vari.IMAGE_URL}/`;
+                const exeImagesBaseUrl = `${vari.IMAGE_URL}`;
 
                 // Map URLs here if needed, similar to your existing logic
                 const dataWithImageUrl = {

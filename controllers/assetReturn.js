@@ -1,6 +1,7 @@
 const assetReturnModel = require("../models/assetReturnModel.js");
 const multer = require("multer");
 const mongoose = require("mongoose");
+const vari = require("../variables.js")
 
 const upload = multer({ dest: "uploads/assets" }).fields([
     { name: "return_asset_image_1", maxCount: 1 },
@@ -38,7 +39,7 @@ exports.addAssetReturnRequest = [
 
 exports.getAssetReturnRequests = async (req, res) => {
     try {
-        const imageUrl = "http://34.93.221.166:3000/uploads/assets/";
+        const imageUrl = vari.IMAGE_URL;
         const singleAssetReturnRequest = await assetReturnModel.aggregate([
             {
                 $lookup: {
@@ -109,7 +110,7 @@ exports.getAssetReturnRequests = async (req, res) => {
 exports.getAssetReturnRequestById = async (req, res) => {
     try {
         // const singleAssetReturnRequest = await assetReturnModel.findById(req.params._id);
-        const imageUrl = "http://34.93.221.166:3000/uploads/assets/";
+        const imageUrl = vari.IMAGE_URL;
         const singleAssetReturnRequest = await assetReturnModel.aggregate([
             {
                 $match: {

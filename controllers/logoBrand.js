@@ -3,6 +3,8 @@ const logoBrandModel = require('../models/logoBrandModel.js');
 const path = require("path");
 const constant = require('../common/constant.js');
 const helper = require('../helper/helper.js');
+const vari = require('../variables.js');
+const {storage} = require('../common/uploadFile.js');
 
 exports.addLogoBrandCat = async (req, res) =>{
     try{
@@ -35,8 +37,17 @@ exports.addLogoBrand = async(req, res) => {
             last_updated_by: req.body.last_updated_by,
             remarks: req.body.remarks,
             logo_cat: req.body.logo_cat,
-            upload_logo: req.file.filename 
+            // upload_logo: req.file.filename 
         })
+
+        const bucketName = vari.BUCKET_NAME;
+        const bucket = storage.bucket(bucketName);
+        const blob = bucket.file(req.file.originalname);
+        simc.upload_logo = blob.name;
+        const blobStream = blob.createWriteStream();
+        blobStream.on("finish", () => { return res.status(200).send("Success") });
+        blobStream.end(req.file.buffer);
+
         const simv = await simc.save()
         res.send({simv, status:200})
     } catch (error) {
@@ -93,7 +104,7 @@ exports.getLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/`,
+                                    `${constant.base_url}`,
                                     '$upload_logo'
                                 ]
                             },
@@ -105,7 +116,7 @@ exports.getLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/`,
+                                    `${constant.base_url}`,
                                     '$upload_logo'
                                 ]
                             },
@@ -168,7 +179,7 @@ exports.getSingleLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/`,
+                                    `${constant.base_url}`,
                                     '$upload_logo'
                                 ]
                             },
@@ -180,7 +191,7 @@ exports.getSingleLogoData = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/`,
+                                    `${constant.base_url}`,
                                     '$upload_logo'
                                 ]
                             },
@@ -234,7 +245,7 @@ exports.getLogoDataBasedBrand = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/`,
+                                    `${constant.base_url}`,
                                     '$upload_logo'
                                 ]
                             },
@@ -246,7 +257,7 @@ exports.getLogoDataBasedBrand = async(req, res) => {
                             if: { $ne: ['$upload_logo', null] },
                             then: {
                                 $concat: [
-                                    `${constant.base_url}/`,
+                                    `${constant.base_url}`,
                                     '$upload_logo'
                                 ]
                             },
@@ -360,8 +371,19 @@ exports.editLogoBrand = async(req, res) => {
             last_updated_by: req.body.last_updated_by,
             remarks: req.body.remarks,
             logo_cat: req.body.logo_cat,
-            upload_logo: req.file.filename
+            upload_logo: req.file?.originalname
         })
+
+        const bucketName = vari.BUCKET_NAME;
+        const bucket = storage.bucket(bucketName);
+        const blob = bucket.file(req.file.originalname);
+        editlogobrand.upload_logo = blob.name;
+        const blobStream = blob.createWriteStream();
+        blobStream.on("finish", () => {
+            editlogobrand.save(); 
+            return res.status(200).send("Success") 
+        });
+        blobStream.end(req.file.buffer);
 
         res.status(200).send({data:editlogobrand, sms:'logo brands details updated successfully'})
     }catch(err){

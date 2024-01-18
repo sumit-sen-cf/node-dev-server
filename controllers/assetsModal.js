@@ -94,7 +94,7 @@ exports.getAssetModals = async (req, res) => {
       ])
       .exec();
     if (!assetBrandData) {
-      return response.returnFalse(200, req, res, "No Reord Found...", []);
+      return response.returnFalse(200, req, res, "No Record Found...", []);
     }
     res.status(200).send(assetBrandData)
   } catch (err) {
