@@ -1351,7 +1351,7 @@ router.get(
   "/get_single_data/:data_id",
   dataController.getSingleData
 );
-router.put("/update_data", upload1.single('data_upload'), dataController.editData);
+router.put("/update_data", dataController.editData);
 router.delete("/delete_data/:_id", dataController.deleteData);
 router.delete("/delete_data_based_data/:data_name", dataController.deleteDataBasedData);
 router.put("/edit_data_new", dataController.editDataNew);

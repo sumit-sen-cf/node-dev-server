@@ -713,23 +713,23 @@ exports.editData = async (req, res) => {
             platform_id: req.body.platform_id,
             brand_id: req.body.brand_id,
             content_type_id: req.body.content_type_id,
-            data_upload: req.file?.originalname,
+            // data_upload: req.file?.originalname,
             created_by: req.body.created_by,
             updated_at: req.body.updated_at,
             updated_by: req.body.updated_by,
             designed_by: req.body.designed_by
         }, { new: true })
 
-        const bucketName = vari.BUCKET_NAME;
-        const bucket = storage.bucket(bucketName);
-        const blob = bucket.file(req.file.originalname);
-        editsim.data_upload = blob.name;
-        const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { 
-            editsim.save();
-            return res.status(200).send("Success") 
-        });
-        blobStream.end(req.file.buffer);
+        // const bucketName = vari.BUCKET_NAME;
+        // const bucket = storage.bucket(bucketName);
+        // const blob = bucket.file(req.file.originalname);
+        // editsim.data_upload = blob.name;
+        // const blobStream = blob.createWriteStream();
+        // blobStream.on("finish", () => { 
+        //     editsim.save();
+        //     return res.status(200).send("Success") 
+        // });
+        // blobStream.end(req.file.buffer);
 
         res.status(200).send({ success: true, data: editsim })
     } catch (err) {
