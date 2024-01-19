@@ -150,7 +150,7 @@ exports.addRoom = async (req, res) => {
     const blob = bucket.file(req.file.originalname);
     roomObj.roomImage = blob.name;
     const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { return res.status(200).send("Success") });
+    blobStream.on("finish", () => { res.status(200).send("Success") });
     blobStream.end(req.file.buffer);
 
     const roomObjSaved = await roomObj.save();
@@ -298,7 +298,7 @@ exports.editRoom = async (req, res) => {
     const blobStream = blob.createWriteStream();
     blobStream.on("finish", () => {
       editRoomObj.save();
-      return res.status(200).send("Success") 
+      res.status(200).send("Success") 
     });
     blobStream.end(req.file.buffer);
 

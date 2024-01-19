@@ -115,7 +115,7 @@ exports.balancePaymentListUpdate = async (req, res) => {
         const blob = bucket.file(req.file.originalname);
         payment_screenshot = blob.name;
         const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { return res.status(200).send("Success") });
+        blobStream.on("finish", () => { res.status(200).send("Success") });
         blobStream.end(req.file.buffer);
 
         const editPendingApprovalRefundData = await phpPaymentBalListModel.findOneAndUpdate(

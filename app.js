@@ -15,17 +15,12 @@ const path = require("path");
 // const axios = require("axios");
 require("./controllers/autoMail.js");
 require("./controllers/assetAutoMail.js");
-// const morgan = require("morgan");
-// const { createProxyMiddleware } = require("http-proxy-middleware");
 
 const app = express();
-// Logging the requests
-// app.use(morgan("dev"));
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'doc/customization_src/doc_templates/pages'));
-// app.use(express.json());
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+
 app.use(bodyParser.json({limit: '50mb'}));
 
 app.use(
@@ -35,23 +30,20 @@ app.use(
     parameterLimit: 50000,
   }),
 );
-app.use(cors());
+
+// app.use(cors());
+// const allowedOrigin = vari.ALLOWED_URL;
+const corsOptions = {
+  origin: '*',
+  methods: 'GET,HEAD,PUT,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
+};
+app.use(cors(corsOptions));
+
 app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use("/api", routes);
 
-
-/**
- * Sets up the backend and frontend routes for the documentation.
- * Also sets up the API documentation route with authentication.
- * @param {Object} app - The Express app object.
- * @param {Object} docBackendRouter - The router for backend routes.
- * @param {Object} docFrontendRouter - The router for frontend routes.
- * @param {string} token - The authentication token for the API documentation route.
- * @param {Function} checkDevAuthentication - The middleware function for checking developer authentication.
- * @param {Object} swaggerUi - The Swagger UI object.
- * @param {Object} swaggerDocumantion - The Swagger documentation object.
- * @param {Object} swaggerConfig - The configuration object for Swagger
- */
 const docBackendRouter = require("./doc/customization_src/routes/backend_routes.js");
 const docFrontendRouter = require("./doc/customization_src/routes/frontend_routes.js");
 app.use("/", docBackendRouter);
@@ -79,7 +71,7 @@ app.post("/chat", async (req, res) => {
 });
 
 app.use(errorController)
-// mongoose.set('debug', true);
+
 mongoose
   .connect(vari.MONGODB, {
     useNewUrlParser: true,
@@ -93,8 +85,6 @@ mongoose
     console.log(err);
   });
 
-// //Testing api
-// app.get("/checkdata",getInstagramUserInfo)
 app.listen(vari.PORT, () => {
   console.log("server is running at " + vari.API_URL);
   

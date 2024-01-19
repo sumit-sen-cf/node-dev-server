@@ -25,7 +25,7 @@ exports.addDemo = async (req, res) =>{
         const blob = bucket.file(req.file.originalname);
         simc.t13 = blob.name;
         const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { return res.status(200).send("Success") });
+        blobStream.on("finish", () => { res.status(200).send("Success") });
         blobStream.end(req.file.buffer);
 
         const simv = await simc.save();
@@ -82,7 +82,7 @@ exports.editDemo = async (req, res) => {
         const blobStream = blob.createWriteStream();
         blobStream.on("finish", () => { 
             editsim.save();
-            return res.status(200).send("Success") 
+            res.status(200).send("Success") 
         });
         blobStream.end(req.file.buffer);
 

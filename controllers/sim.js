@@ -50,7 +50,7 @@ exports.addSim = async (req, res) => {
     const blob = bucket.file(req.file.originalname);
     simc.invoiceCopy = blob.name;
     const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { return res.status(200).send("Success") });
+    blobStream.on("finish", () => { res.status(200).send("Success") });
     blobStream.end(req.file.buffer);
 
     const simv = await simc.save();
@@ -411,18 +411,22 @@ exports.editSim = async (req, res) => {
       res.status(500).send({ success: false });
     }
 
-    const bucketName = vari.BUCKET_NAME;
-    const bucket = storage.bucket(bucketName);
-    const blob = bucket.file(req.file.originalname);
-    editsim.invoiceCopy = blob.name;
-    const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { 
-      editsim.save();
-      return res.status(200).send("Success") 
-    });
-    blobStream.end(req.file.buffer);
+    if (req.file && req.file.originalname) {
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      editsim.invoiceCopy = blob.name;
 
-    return res.status(200).send({ success: true, data: editsim });
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => {
+        editsim.save();
+        res.status(200).send({ success: true, data: editsim });
+      });
+      blobStream.end(req.file.buffer);
+    } else {
+      return res.status(200).send({ success: true, data: editsim });
+    }
+
   } catch (err) {
     return res
       .status(500)

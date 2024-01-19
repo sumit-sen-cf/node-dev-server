@@ -27,7 +27,7 @@ exports.addRegisterCampaign = async (req, res) => {
     const blob = bucket.file(req.file.originalname);
     Obj.excel_path = blob.name;
     const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { return res.status(200).send("Success") });
+    blobStream.on("finish", () => { res.status(200).send("Success") });
     blobStream.end(req.file.buffer);
 
     const savedRegisterCampaign = await Obj.save();

@@ -154,7 +154,7 @@ exports.addHistoryDoc = async (req, res) => {
       const blob = bucket.file(file.filename);
       simc.doc_file = blob.name;
       const blobStream = blob.createWriteStream();
-      blobStream.on("finish", () => { return res.status(200).send("Success") });
+      blobStream.on("finish", () => { res.status(200).send("Success") });
       blobStream.end(req.file.buffer);
 
       const simv = await simc.save();
@@ -184,7 +184,7 @@ exports.editHistoryDoc = async (req, res) => {
     const blobStream = blob.createWriteStream();
     blobStream.on("finish", () => { 
       editsim.save();
-      return res.status(200).send("Success") 
+      res.status(200).send("Success") 
     });
     blobStream.end(req.file.buffer);
 

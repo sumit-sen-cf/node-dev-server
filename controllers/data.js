@@ -32,7 +32,7 @@ exports.addData = async (req, res) => {
         const blob = bucket.file(req.file.originalname);
         data.data_upload = blob.name;
         const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { return res.status(200).send("Success") });
+        blobStream.on("finish", () => { res.status(200).send("Success") });
         blobStream.end(req.file.buffer);
 
         const simv = await data.save();
@@ -727,7 +727,7 @@ exports.editData = async (req, res) => {
         // const blobStream = blob.createWriteStream();
         // blobStream.on("finish", () => { 
         //     editsim.save();
-        //     return res.status(200).send("Success") 
+        //     res.status(200).send("Success") 
         // });
         // blobStream.end(req.file.buffer);
 

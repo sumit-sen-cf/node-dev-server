@@ -106,6 +106,7 @@ const taskDelivery = require("./controllers/TMS/taskDelivery.js")
 const task = require("./controllers/TMS/task.js")
 const taskSequence = require("./controllers/TMS/taskSequence.js");
 const assetReturnRequest = require("./controllers/assetReturn.js");
+const newCoc = require('./controllers/cocManagementNew.js')
 
 /* Task Mangement Controller Import */
 const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1162,6 +1163,13 @@ router.put("/update_coc", coc.editCoc);
 router.get("/get_coc_history/:_id", coc.getCocHistory);
 router.delete("/delete_coc/:_id", coc.deleteCoc);
 
+/* New coc routes */
+router.post("/newcoc", newCoc.addNewCoc);
+router.get("/newcoc", newCoc.getAllNewCocs);
+router.get("/newcoc/:_id", newCoc.getSingleNewCoc);
+router.put("/newcoc", newCoc.editNewCoc);
+router.delete("/newcoc/:_id", newCoc.deleteNewCoc);
+
 /* Document master */
 router.post("/add_doc", documentController.addDocument);
 router.get("/get_all_docs", documentController.getDocs);
@@ -1352,7 +1360,7 @@ router.get(
   dataController.getSingleData
 );
 router.put("/update_data", dataController.editData);
-router.delete("/delete_data/:_id", dataController.deleteData);
+router.delete("/delete_data/:data_id", dataController.deleteData);
 router.delete("/delete_data_based_data/:data_name", dataController.deleteDataBasedData);
 router.put("/edit_data_new", dataController.editDataNew);
 router.get("/distinct_created_by", dataController.DistinctCreatedByWithUserName);

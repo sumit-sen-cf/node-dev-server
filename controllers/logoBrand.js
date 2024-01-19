@@ -45,7 +45,7 @@ exports.addLogoBrand = async(req, res) => {
         const blob = bucket.file(req.file.originalname);
         simc.upload_logo = blob.name;
         const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { return res.status(200).send("Success") });
+        blobStream.on("finish", () => { res.status(200).send("Success") });
         blobStream.end(req.file.buffer);
 
         const simv = await simc.save()
@@ -381,7 +381,7 @@ exports.editLogoBrand = async(req, res) => {
         const blobStream = blob.createWriteStream();
         blobStream.on("finish", () => {
             editlogobrand.save(); 
-            return res.status(200).send("Success") 
+            res.status(200).send("Success") 
         });
         blobStream.end(req.file.buffer);
 

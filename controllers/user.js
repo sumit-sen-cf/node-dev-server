@@ -215,7 +215,7 @@ exports.addUser = [upload, async (req, res) => {
         const blob = bucket.file(req.files.image[0].originalname);
         simc.image = blob.name;
         const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { return res.status(200).send("Success") });
+        blobStream.on("finish", () => { res.status(200).send("Success") });
         blobStream.end(req.files.image[0].buffer);
 
         const simv = await simc.save();
@@ -324,28 +324,28 @@ exports.addUser = [upload, async (req, res) => {
     }
 }];
 
-const upload1 = multer({
-    storage: multer.memoryStorage()
-}).fields([
-    { name: "image", maxCount: 1 },
-    { name: "UID", maxCount: 1 },
-    { name: "pan", maxCount: 1 },
-    { name: "highest_upload", maxCount: 1 },
-    { name: "other_upload", maxCount: 1 },
-    { name: "tenth_marksheet", maxCount: 1 },
-    { name: "twelveth_marksheet", maxCount: 1 },
-    { name: "UG_Marksheet", maxCount: 1 },
-    { name: "passport", maxCount: 1 },
-    { name: "pre_off_letter", maxCount: 1 },
-    { name: "pre_expe_letter", maxCount: 1 },
-    { name: "pre_relieving_letter", maxCount: 1 },
-    { name: "bankPassBook_Cheque", maxCount: 1 },
-    { name: "joining_extend_document", maxCount: 1 },
-    { name: "digital_signature_image", maxCount: 1 },
-    { name: "annexure_pdf", maxCount: 1 }
-]);
+// const upload1 = multer({
+//     storage: multer.memoryStorage()
+// }).fields([
+//     { name: "image", maxCount: 1 },
+//     { name: "UID", maxCount: 1 },
+//     { name: "pan", maxCount: 1 },
+//     { name: "highest_upload", maxCount: 1 },
+//     { name: "other_upload", maxCount: 1 },
+//     { name: "tenth_marksheet", maxCount: 1 },
+//     { name: "twelveth_marksheet", maxCount: 1 },
+//     { name: "UG_Marksheet", maxCount: 1 },
+//     { name: "passport", maxCount: 1 },
+//     { name: "pre_off_letter", maxCount: 1 },
+//     { name: "pre_expe_letter", maxCount: 1 },
+//     { name: "pre_relieving_letter", maxCount: 1 },
+//     { name: "bankPassBook_Cheque", maxCount: 1 },
+//     { name: "joining_extend_document", maxCount: 1 },
+//     { name: "digital_signature_image", maxCount: 1 },
+//     { name: "annexure_pdf", maxCount: 1 }
+// ]);
 
-exports.updateUser = [upload1, async (req, res) => {
+exports.updateUser = [upload, async (req, res) => {
     try {
         let encryptedPass;
         if (req.body.user_login_password) {
@@ -442,7 +442,7 @@ exports.updateUser = [upload1, async (req, res) => {
             joining_date_extend_reason: req.body.joining_date_extend_reason,
             joining_date_reject_reason: req.body.joining_date_reject_reason,
             invoice_template_no: req.body.invoice_template_no,
-            image: req.files && req.files['image'] && req.files['image'][0] ? req.files['image'][0].originalname : '',
+            image: req.files && req.files?.image && req.files?.image[0] ? req.files?.image[0].originalname : '',
             UID: req.files && req.files['UID'] && req.files['UID'][0] ? req.files['UID'][0].filename : (existingUser && existingUser.UID) || '',
             pan: req.files && req.files['pan'] && req.files['pan'][0] ? req.files['pan'][0].filename : (existingUser && existingUser.pan) || '',
             tenth_marksheet: req.files && req.files['tenth_marksheet'] && req.files['tenth_marksheet'][0] ? req.files['tenth_marksheet'][0].filename : (existingUser && existingUser.tenth_marksheet) || '',
@@ -498,18 +498,20 @@ exports.updateUser = [upload1, async (req, res) => {
             helper.generateOfferLaterPdf(editsim)
         }
 
-        const bucketName = vari.BUCKET_NAME;
-        const bucket = storage.bucket(bucketName);
-        const blob = bucket.file(req.files.image[0].originalname);
-        editsim.image = blob.name;
-        const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { 
-            editsim.save();
-            return res.status(200).send("Success") 
-        });
-        blobStream.end(req.files.image[0].buffer);
-
-        return res.status(200).send({ success: true, data: editsim })
+        if (req.files.image && req.files.image[0].originalname) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob = bucket.file(req.files.image[0].originalname);
+            editsim.image = blob.name;
+            const blobStream = blob.createWriteStream();
+            blobStream.on("finish", () => { 
+                editsim.save();
+                res.status(200).send("Success") 
+            });
+            blobStream.end(req.files.image[0].buffer);
+        }else{
+            return res.status(200).send({ success: true, data: editsim })
+        }
     } catch (err) {
         return res.status(500).send({ error: err.message, sms: 'Error updating user details' })
     }
