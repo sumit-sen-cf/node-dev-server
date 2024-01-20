@@ -6,52 +6,52 @@ const constant = require('../common/constant.js');
 const axios = require("axios")
 const FormData = require('form-data');
 
-// exports.addPhpVendorPaymentRequest = async (req, res) => {
-//     try {
-//         const data = new phpVendorPaymentRequestModel({
-//             request_id: req.body.request_id,
-//             vendor_id: req.body.vendor_id,
-//             request_by: req.body.request_by,
-//             request_amount: req.body.request_amount,
-//             priority: req.body.priority,
-//             status: req.body.status,
-//             payment_mode: req.body.payment_mode,
-//             payment_amount: req.body.payment_amount,
-//             payment_by: req.body.payment_by,
-//             remark_finance: req.body.remark_finance,
-//             invc_no: req.body.invc_no,
-//             invc_remark: req.body.invc_remark,
-//             remark_audit: req.body.remark_audit,
-//             outstandings: req.body.outstandings,
-//             name: req.body.name,
-//             vendor_name: req.body.vendor_name,
-//             request_date: req.body.request_date,
-//             payment_date: req.body.payment_date
-//         });
+exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
+    try {
+        const data = new phpVendorPaymentRequestModel({
+            request_id: req.body.request_id,
+            vendor_id: req.body.vendor_id,
+            request_by: req.body.request_by,
+            request_amount: req.body.request_amount,
+            priority: req.body.priority,
+            status: req.body.status,
+            payment_mode: req.body.payment_mode,
+            payment_amount: req.body.payment_amount,
+            payment_by: req.body.payment_by,
+            remark_finance: req.body.remark_finance,
+            invc_no: req.body.invc_no,
+            invc_remark: req.body.invc_remark,
+            remark_audit: req.body.remark_audit,
+            outstandings: req.body.outstandings,
+            name: req.body.name,
+            vendor_name: req.body.vendor_name,
+            request_date: req.body.request_date,
+            payment_date: req.body.payment_date
+        });
 
-//         if (req.file) {
-//             const bucketName = vari.BUCKET_NAME;
-//             const bucket = storage.bucket(bucketName);
-//             const blob = bucket.file(req.file.originalname);
-//             data.evidence = blob.name;
-//             const blobStream = blob.createWriteStream();
-//             blobStream.on("finish", () => res.status(200).send("Success"));
-//             blobStream.end(req.file.buffer);
+        if (req.file) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob = bucket.file(req.file.originalname);
+            data.evidence = blob.name;
+            const blobStream = blob.createWriteStream();
+            blobStream.on("finish", () => res.status(200).send("Success"));
+            blobStream.end(req.file.buffer);
 
-//         }
+        }
 
-//         const phpVendorPaymentRequestData = await data.save();
-//         return response.returnTrue(
-//             200,
-//             req,
-//             res,
-//             "phpVendorPaymentRequestData Created Successfully",
-//             phpVendorPaymentRequestData
-//         );
-//     } catch (err) {
-//         return response.returnFalse(500, req, res, err.message, {});
-//     }
-// }
+        const phpVendorPaymentRequestData = await data.save();
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "phpVendorPaymentRequestData Created Successfully",
+            phpVendorPaymentRequestData
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
 
 async function checkIfDataExists(request_id) {
     const query = { request_id: request_id };
@@ -59,7 +59,7 @@ async function checkIfDataExists(request_id) {
     return result !== null;
 }
 
-exports.addPhpVendorPaymentRequest = async (req, res) => {
+exports.addPhpVendorPaymentRequestSet = async (req, res) => {
     try {
         
         const response = await axios.get(
