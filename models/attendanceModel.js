@@ -132,17 +132,17 @@ const attendanceModel = new mongoose.Schema({
     }
 });
 
-attendanceModel.pre('save', async function (next) {
-    if (!this.attendence_id) {
-        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'attendence_id': -1 } });
+// attendanceModel.pre('save', async function (next) {
+//     if (!this.attendence_id) {
+//         const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'attendence_id': -1 } });
 
-        if (lastAgency && lastAgency.attendence_id) {
-            this.attendence_id = lastAgency.attendence_id + 1;
-        } else {
-            this.attendence_id = 1;
-        }
-    }
-    next();
-});
+//         if (lastAgency && lastAgency.attendence_id) {
+//             this.attendence_id = lastAgency.attendence_id + 1;
+//         } else {
+//             this.attendence_id = 1;
+//         }
+//     }
+//     next();
+// });
 
 module.exports = mongoose.model('attendanceModel', attendanceModel);

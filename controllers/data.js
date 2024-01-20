@@ -901,3 +901,20 @@ exports.ImagesWithDataName = async (req, res) => {
         res.status(500).json({ error: err.message, message: 'Error getting data details' });
     }
 };
+
+exports.totalCountOfData = async (req, res) => {
+    try {
+        const distinctDataNames = await dataModel.distinct('data_name');
+        const distinctDataNamesCount = distinctDataNames.length;
+
+        return res.status(200).send({
+            success: true,
+            message: "Distinct data names count retrieved successfully",
+            distinctDataNamesCount,
+            distinctDataNames
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message, message: 'Error getting data details' });
+    }
+};
