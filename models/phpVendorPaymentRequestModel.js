@@ -46,7 +46,7 @@ const phpVendorPaymentRequestModel = new mongoose.Schema({
         required: false
     },
     payment_date: {
-        type: Date,
+        type: String,
         // default: Date.now
     },
     payment_mode: {
@@ -72,8 +72,8 @@ const phpVendorPaymentRequestModel = new mongoose.Schema({
         required: false,
     },
     invc_Date: {
-        type: Date,
-        default: Date.now
+        type: String,
+        // default: Date.now
     },
     invc_remark: {
         type: String,

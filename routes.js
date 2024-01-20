@@ -1403,6 +1403,7 @@ router.delete("/task_sequence/:_id", taskSequence.deleteTaskSequence)
 
 //phpVendorRequest Routes
 router.post("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaymentRequest.addPhpVendorPaymentRequest);
+router.get("/phpvendor_insert_data_node", phpVendorPaymentRequest.addPhpVendorPaymentRequest);
 router.get("/phpvendorpaymentrequest", phpVendorPaymentRequest.getPhpVendorPaymentRequests);
 router.get("/phpvendorpaymentrequest/:request_id", phpVendorPaymentRequest.getSinglePhpVendorPaymentRequest)
 router.put("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaymentRequest.updatePhpVendorPaymentRequest)
