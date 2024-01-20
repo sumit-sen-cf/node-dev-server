@@ -282,6 +282,13 @@ function monthNameToNumber(monthName) {
 //   }
 // };
 
+let attendanceIdCounter = 1;
+const getNextAttendanceId = () => {
+  return new Promise((resolve) => {
+    resolve(attendanceIdCounter++);
+  });
+};
+
 exports.addAttendance = async (req, res) => {
   try {
     const {
@@ -329,7 +336,7 @@ exports.addAttendance = async (req, res) => {
         },
       },
     ]);
-    // console.log("attendanceData",attendanceData)
+
     if (attendanceData.length !== 0) {
       //Extract user data
       const check1 = await attendanceModel.find({
@@ -354,11 +361,8 @@ exports.addAttendance = async (req, res) => {
         let filteredUserData = check2.filter(
           (user) => !resignedOrSuspendedUsers.includes(user.user_id)
         );
-        // console.log("filteredUserData",filteredUserData)
         filteredUserData?.length > 0 &&
           filteredUserData.map(async (user) => {
-            // console.log("loop")
-            // console.log("loop user",user)
             var work_days;
             const joining = user.joining_date;
             const convertDate = new Date(joining);
@@ -393,7 +397,9 @@ exports.addAttendance = async (req, res) => {
               const salary = user.salary;
               let invoiceNo = await createNextInvoiceNumber(user.user_id);
 
+              const attendanceId = await getNextAttendanceId();
               const creators = new attendanceModel({
+                attendence_id: attendanceId,
                 dept: user.dept_id,
                 user_id: user.user_id,
                 invoiceNo: invoiceNo,
@@ -470,7 +476,6 @@ exports.addAttendance = async (req, res) => {
               const ToPay = netSalary - tdsDeduction;
               const salary = user.salary;
               let invoiceNo = await createNextInvoiceNumber(user.user_id);
-              console.log("here 6");
               const creators = new attendanceModel({
                 dept: user.dept_id,
                 user_id: user.user_id,
@@ -513,8 +518,15 @@ exports.addAttendance = async (req, res) => {
           const tdsDeduction = (netSalary * results4[0].tds_per) / 100;
           const ToPay = netSalary - tdsDeduction;
           const salary = results4[0].salary;
+          // const attendanceId = await getNextAttendanceId();
           const editsim = await attendanceModel.findOneAndUpdate(
-            { attendence_id: parseInt(check1[0].attendence_id) },
+            // { attendence_id: parseInt(check1[0].attendence_id) },
+            // { attendence_id: attendanceId },
+            {
+              attendence_id: parseInt(req.body.attendence_id),
+              month: req.body.month,
+              year: req.body.year,
+            },
             {
               dept: req.body.dept,
               user_id: req.body.user_id,
@@ -536,7 +548,7 @@ exports.addAttendance = async (req, res) => {
               attendence_status_flow: req.body.attendence_status_flow,
             },
             { new: true }
-          );
+          ).sort({ attendence_id: 1 });
           return res.send({ status: 200 });
         }
       }
@@ -1327,8 +1339,7 @@ exports.getSalaryByUserId = async (req, res) => {
             },
             attendence_status_flow: 1,
             disputed_reason: "$disputed_reason",
-            disputed_date: "$disputed_date",
-            attendence_status_flow: 1
+            disputed_date: "$disputed_date"
           },
         },
         {
@@ -2374,7 +2385,7 @@ exports.getAllAttendanceData = async (req, res) => {
           digital_signature_image: "$user.digital_signature_image",
         },
       },
-    ]);
+    ]).sort({ attendence_id: 1 });
     res.status(200).send({ data: allAttendanceData });
 
   } catch (error) {

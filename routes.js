@@ -107,6 +107,7 @@ const task = require("./controllers/TMS/task.js")
 const taskSequence = require("./controllers/TMS/taskSequence.js");
 const assetReturnRequest = require("./controllers/assetReturn.js");
 const newCoc = require('./controllers/cocManagementNew.js')
+const phpVendorPaymentRequest = require("./controllers/phpVendorPaymentRequest.js");
 
 /* Task Mangement Controller Import */
 const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1366,6 +1367,7 @@ router.put("/edit_data_new", dataController.editDataNew);
 router.get("/distinct_created_by", dataController.DistinctCreatedByWithUserName);
 router.get("/distinct_designed_by", dataController.DistinctDesignedByWithUserName);
 router.get("/images_with_data_name/:data_name", dataController.ImagesWithDataName);
+router.get('/total_count_data', dataController.totalCountOfData);
 
 //---------------------------------------------------------------------------All Routes OF Data Module Ends Here ---------------------------------------------------------------------------------------------------//
 
@@ -1396,5 +1398,10 @@ router.post("/task_sequence", taskSequence.addSequence)
 router.get("/task_sequence", taskSequence.getSequences)
 router.put("/task_sequence", taskSequence.editTaskSequence)
 router.delete("/task_sequence/:_id", taskSequence.deleteTaskSequence)
+
+//phpVendorRequest Routes
+router.post("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaymentRequest.addPhpVendorPaymentRequest);
+router.get("/phpvendorpaymentrequest", phpVendorPaymentRequest.getPhpVendorPaymentRequests);
+router.get("/phpvendorpaymentrequest/:request_id", phpVendorPaymentRequest.getSinglePhpVendorPaymentRequest)
 
 module.exports = router;
