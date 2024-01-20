@@ -104,3 +104,33 @@ exports.getSinglePhpVendorPaymentRequest = async (req, res) => {
         });
     }
 };
+
+exports.updatePhpVendorPaymentRequest = async (req, res) => {
+    try{
+        const updatedData = phpVendorPaymentRequestModel.findOneAndUpdate({request_id: req.body.request_id},{
+            status: 1,
+            evidence: req.files?.evidence,
+            payment_date: req.body.payment_date,
+            payment_mode: req.body.payment_mode,
+            payment_amount: req.body.payment_amount,
+            payment_by: req.body.payment_by,
+            remark_finance: req.body.remark_finance
+        });
+        if (req.file && req.file.originalname) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob = bucket.file(req.file.originalname);
+            updatedData.evidence = blob.name;
+            const blobStream = blob.createWriteStream();
+            blobStream.on("finish", () => { res.status(200).send("Success") });
+            blobStream.end(req.file.buffer);
+        }else{
+            updatedData.save();
+            return response.returnTrue(
+                200, req, res, "phpVendor Payment Request data updated", updatedData
+            )
+        }
+    }catch (err){
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}

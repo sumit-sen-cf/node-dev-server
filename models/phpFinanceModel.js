@@ -362,6 +362,10 @@ const phpFinanceModel = new mongoose.Schema({
     user_name: {
         type: String,
         required: false
+    },
+    payment_update_remarks: {
+        type: String,
+        required: false
     }
 });
 

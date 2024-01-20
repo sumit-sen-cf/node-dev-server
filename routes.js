@@ -1043,6 +1043,7 @@ router.get("/get_total_asset_in_category/:category_id", sim.getTotalAssetInCateg
 router.get("/get_total_asset_in_category_allocated/:category_id", sim.getTotalAssetInCategoryAllocated);
 router.get("/show_asset_hr_data", sim.showAssetDataToHR);
 router.get("/show_asset_user_data/:user_id", sim.showAssetDataToUser);
+router.get("/show_new_asset_user_data/:user_id", sim.showNewAssetDataToUser);
 
 /* Asset Category Routes */
 router.post("/add_asset_category", assetCategory.addAssetCategory);
@@ -1403,5 +1404,6 @@ router.delete("/task_sequence/:_id", taskSequence.deleteTaskSequence)
 router.post("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaymentRequest.addPhpVendorPaymentRequest);
 router.get("/phpvendorpaymentrequest", phpVendorPaymentRequest.getPhpVendorPaymentRequests);
 router.get("/phpvendorpaymentrequest/:request_id", phpVendorPaymentRequest.getSinglePhpVendorPaymentRequest)
+router.put("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaymentRequest.updatePhpVendorPaymentRequest)
 
 module.exports = router;
