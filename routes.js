@@ -1044,6 +1044,7 @@ router.get("/get_total_asset_in_category_allocated/:category_id", sim.getTotalAs
 router.get("/show_asset_hr_data", sim.showAssetDataToHR);
 router.get("/show_asset_user_data/:user_id", sim.showAssetDataToUser);
 router.get("/show_new_asset_user_data/:user_id", sim.showNewAssetDataToUser);
+router.get("/show_asset_user_data_report/:user_id", sim.showAssetDataToUserReport);
 
 /* Asset Category Routes */
 router.post("/add_asset_category", assetCategory.addAssetCategory);

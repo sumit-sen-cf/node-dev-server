@@ -24,7 +24,32 @@ exports.addDeptWiseStatus = async (req, res) => {
 
 exports.getDeptWiseStatus = async (req, res) => {
     try {
-        const dataDeptWiseStatus = await deptWiseStatusModel.find({});
+        const dataDeptWiseStatus = await deptWiseStatusModel.aggregate([
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    dept_id: '$dept_id',
+                    status: '$status',
+                    description: '$description',
+                    created_by: '$created_by',
+                    dept_name: '$department.dept_name'
+                }
+            }
+        ]).exec();
+        // const dataDeptWiseStatus = await deptWiseStatusModel.find({});
         if (!dataDeptWiseStatus) {
             res.status(500).send({ success: false })
         }

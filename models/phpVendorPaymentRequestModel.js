@@ -47,7 +47,7 @@ const phpVendorPaymentRequestModel = new mongoose.Schema({
     },
     payment_date: {
         type: Date,
-        default: Date.now
+        // default: Date.now
     },
     payment_mode: {
         type: String,

@@ -23,7 +23,8 @@ exports.addPhpVendorPaymentRequest = async (req, res) => {
             outstandings: req.body.outstandings,
             name: req.body.name,
             vendor_name: req.body.vendor_name,
-            request_date: req.body.request_date
+            request_date: req.body.request_date,
+            payment_date: req.body.payment_date
         });
 
         if (req.file) {
