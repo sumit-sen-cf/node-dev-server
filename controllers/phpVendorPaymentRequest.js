@@ -35,9 +35,10 @@ exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
             const blob = bucket.file(req.file.originalname);
             data.evidence = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => res.status(200).send("Success"));
+            blobStream.on("finish", () => {
+                // res.status(200).send("Success")
+            });
             blobStream.end(req.file.buffer);
-
         }
 
         const phpVendorPaymentRequestData = await data.save();
@@ -99,9 +100,10 @@ exports.addPhpVendorPaymentRequestSet = async (req, res) => {
                     const blob = bucket.file(req.file.originalname);
                     data.evidence = blob.name;
                     const blobStream = blob.createWriteStream();
-                    blobStream.on("finish", () => res.status(200).send("Success"));
+                    blobStream.on("finish", () => {
+                        // res.status(200).send("Success")
+                    });
                     blobStream.end(req.file.buffer);
-        
                 }
                 const phpVendorPaymentRequestData = await creators.save();
             }else{
@@ -215,7 +217,9 @@ exports.updatePhpVendorPaymentRequest = async (req, res) => {
             const blob = bucket.file(req.file.originalname);
             updatedData.evidence = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => { res.status(200).send("Success") });
+            blobStream.on("finish", () => { 
+                // res.status(200).send("Success") 
+            });
             blobStream.end(req.file.buffer);
         }else{
             updatedData.save();

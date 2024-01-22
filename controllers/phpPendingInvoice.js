@@ -168,7 +168,9 @@ exports.pendingInvoiceUpdate = async (req, res) => {
             const blob = bucket.file(req.file.originalname);
             editPendingApprovalData.invoice = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => { res.status(200).send("Success") });
+            blobStream.on("finish", () => { 
+                // res.status(200).send("Success") 
+            });
             blobStream.end(req.file.buffer);
         }
         return response.returnTrue(200, req, res, "Updation Successfully", editPendingApprovalData);

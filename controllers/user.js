@@ -215,7 +215,9 @@ exports.addUser = [upload, async (req, res) => {
         const blob = bucket.file(req.files.image[0].originalname);
         simc.image = blob.name;
         const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { res.status(200).send("Success") });
+        blobStream.on("finish", () => { 
+            // res.status(200).send("Success") 
+        });
         blobStream.end(req.files.image[0].buffer);
 
         const simv = await simc.save();

@@ -22,13 +22,17 @@ exports.addRegisterCampaign = async (req, res) => {
       exeCmpId
     });
 
-    const bucketName = vari.BUCKET_NAME;
-    const bucket = storage.bucket(bucketName);
-    const blob = bucket.file(req.file.originalname);
-    Obj.excel_path = blob.name;
-    const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { res.status(200).send("Success") });
-    blobStream.end(req.file.buffer);
+    if(req.file){
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      Obj.excel_path = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => { 
+        // res.status(200).send("Success") 
+      });
+      blobStream.end(req.file.buffer);
+    }
 
     const savedRegisterCampaign = await Obj.save();
     res.send({ data: savedRegisterCampaign, status: 200 });

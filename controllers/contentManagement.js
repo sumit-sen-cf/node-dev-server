@@ -16,13 +16,17 @@ exports.addcontentManagement = async (req, res) =>{
             uploaded_by : req.body.uploaded_by
         })
 
-        const bucketName = vari.BUCKET_NAME;
-        const bucket = storage.bucket(bucketName);
-        const blob = bucket.file(req.file.originalname);
-        contentManagementc.content = blob.name;
-        const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { res.status(200).send("Success") });
-        blobStream.end(req.file.buffer);
+        if(req.file){
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob = bucket.file(req.file.originalname);
+            contentManagementc.content = blob.name;
+            const blobStream = blob.createWriteStream();
+            blobStream.on("finish", () => { 
+                // res.status(200).send("Success") 
+            });
+            blobStream.end(req.file.buffer);
+        }
 
         const contentManagementv = await contentManagementc.save();
         res.send({contentManagementv,status:200});
@@ -82,17 +86,18 @@ exports.editcontentManagement = async (req, res) => {
             res.status(500).send({success:false})
         }
 
-        const bucketName = vari.BUCKET_NAME;
-        const bucket = storage.bucket(bucketName);
-        const blob = bucket.file(req.file.originalname);
-        editcontentmanagement.content = blob.name;
-        const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { 
-            editcontentmanagement.save();
-            res.status(200).send("Success") 
-        });
-        blobStream.end(req.file.buffer);
-
+        if (req.file) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob = bucket.file(req.file.originalname);
+            editcontentmanagement.content = blob.name;
+            const blobStream = blob.createWriteStream();
+            blobStream.on("finish", () => { 
+                editcontentmanagement.save();
+                // res.status(200).send("Success") 
+            });
+            blobStream.end(req.file.buffer);
+        }
         res.status(200).send({success:true,data:editcontentmanagement})
     } catch(err){
         res.status(500).send({error:err.message,sms:'Error updating contentManagement details'})

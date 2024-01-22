@@ -89,21 +89,6 @@ exports.getAllphpPaymentBalData = async (req, res) => {
     try {
         const getData = await phpPaymentBalListModel.find({}).sort({ sno: 1 });
 
-        // .select( { _id: 1,
-        //     sale_booking_id: 1,
-        //     campaign_amount: 1,
-        //     sale_booking_date: 1,
-        //     user_id: 1,
-        //     created_by: 1,
-        //     manager_approval: 1,
-        //     invoice_creation_status: 1,
-        //     salesexe_credit_approval: 1,
-        //     payment_update_id: 1,
-        //     payment_amount: 1,
-        //     payment_type: 1,
-        //     cust_name: 1,
-        //     total_paid_amount: 1,
-        //     sno: 1})
         res.status(200).send({ data: getData })
     } catch (error) {
         res.status(500).send({ error: error.message, sms: "error getting php payment account data" })
@@ -113,14 +98,6 @@ exports.getAllphpPaymentBalData = async (req, res) => {
 exports.balancePaymentListUpdate = async (req, res) => {
     try {
         // let payment_screenshot;
-
-        // const bucketName = vari.BUCKET_NAME;
-        // const bucket = storage.bucket(bucketName);
-        // const blob = bucket.file(req.file.originalname);
-        // payment_screenshot = blob.name;
-        // const blobStream = blob.createWriteStream();
-        // blobStream.on("finish", () => { res.status(200).send("Success") });
-        // blobStream.end(req.file.buffer);
 
         const editPendingApprovalRefundData = await phpPaymentBalListModel.findOneAndUpdate(
             { sale_booking_id: req.body.sale_booking_id },
@@ -143,7 +120,9 @@ exports.balancePaymentListUpdate = async (req, res) => {
             const blob = bucket.file(req.file.originalname);
             editPendingApprovalRefundData.payment_screenshot = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => { res.status(200).send("Success") });
+            blobStream.on("finish", () => { 
+                // res.status(200).send("Success") 
+            });
             blobStream.end(req.file.buffer);
         }
 

@@ -17,13 +17,17 @@ exports.addFinance = async (req, res) => {
       pay_date: req.body.pay_date,
     });
 
-    const bucketName = vari.BUCKET_NAME;
-    const bucket = storage.bucket(bucketName);
-    const blob = bucket.file(req.file.originalname);
-    simc.screenshot = blob.name;
-    const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { res.status(200).send("Success") });
-    blobStream.end(req.file.buffer);
+    if(req.file){
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      simc.screenshot = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => { 
+        // res.status(200).send("Success") 
+      });
+      blobStream.end(req.file.buffer);
+    }
 
     const simv = await simc.save();
 
@@ -158,17 +162,19 @@ exports.editFinance = async (req, res) => {
       },
       { new: true }
     );
-
-    const bucketName = vari.BUCKET_NAME;
-    const bucket = storage.bucket(bucketName);
-    const blob = bucket.file(req.file.originalname);
-    editsim.screenshot = blob.name;
-    const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { 
-      editsim.save();
-      res.status(200).send("Success") 
-    });
-    blobStream.end(req.file.buffer);
+    
+    if(req.file){
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      editsim.screenshot = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => { 
+        editsim.save();
+        // res.status(200).send("Success") 
+      });
+      blobStream.end(req.file.buffer);
+    }
 
     await attendanceModel.findOneAndUpdate(
       { attendence_id: parseInt(req.body.attendence_id) },

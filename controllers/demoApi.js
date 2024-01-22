@@ -20,14 +20,17 @@ exports.addDemo = async (req, res) =>{
             // t13 : req?.file?.filename
         })
 
-        const bucketName = vari.BUCKET_NAME;
-        const bucket = storage.bucket(bucketName);
-        const blob = bucket.file(req.file.originalname);
-        simc.t13 = blob.name;
-        const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { res.status(200).send("Success") });
-        blobStream.end(req.file.buffer);
-
+        if(req.file){
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob = bucket.file(req.file.originalname);
+            simc.t13 = blob.name;
+            const blobStream = blob.createWriteStream();
+            blobStream.on("finish", () => { 
+                // res.status(200).send("Success") 
+            });
+            blobStream.end(req.file.buffer);
+        }
         const simv = await simc.save();
         res.send({simv,status:200});
     } catch(err){
@@ -75,16 +78,18 @@ exports.editDemo = async (req, res) => {
             t13 : req.file?.originalname
         }, { new: true })
 
-        const bucketName = vari.BUCKET_NAME;
-        const bucket = storage.bucket(bucketName);
-        const blob = bucket.file(req.file.originalname);
-        editsim.t13 = blob.name;
-        const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { 
-            editsim.save();
-            res.status(200).send("Success") 
-        });
-        blobStream.end(req.file.buffer);
+        if(req.file){
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob = bucket.file(req.file.originalname);
+            editsim.t13 = blob.name;
+            const blobStream = blob.createWriteStream();
+            blobStream.on("finish", () => { 
+                editsim.save();
+                // res.status(200).send("Success") 
+            });
+            blobStream.end(req.file.buffer);
+        }
 
         res.status(200).send({success:true,data:editsim})
     } catch(err){

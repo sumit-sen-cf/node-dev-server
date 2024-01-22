@@ -145,13 +145,17 @@ exports.addRoom = async (req, res) => {
       created_by
     });
 
-    const bucketName = vari.BUCKET_NAME;
-    const bucket = storage.bucket(bucketName);
-    const blob = bucket.file(req.file.originalname);
-    roomObj.roomImage = blob.name;
-    const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { res.status(200).send("Success") });
-    blobStream.end(req.file.buffer);
+    if(req.file){
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      roomObj.roomImage = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => { 
+        // res.status(200).send("Success") 
+      });
+      blobStream.end(req.file.buffer);
+    }
 
     const roomObjSaved = await roomObj.save();
     res.status(200).send(roomObjSaved);
@@ -291,16 +295,18 @@ exports.editRoom = async (req, res) => {
       }
     );
 
-    const bucketName = vari.BUCKET_NAME;
-    const bucket = storage.bucket(bucketName);
-    const blob = bucket.file(req.file.originalname);
-    editRoomObj.roomImage = blob.name;
-    const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => {
-      editRoomObj.save();
-      res.status(200).send("Success") 
-    });
-    blobStream.end(req.file.buffer);
+    if(req.file){
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      editRoomObj.roomImage = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => {
+        editRoomObj.save();
+        // res.status(200).send("Success") 
+      });
+      blobStream.end(req.file.buffer);
+    }
 
     if (editRoomObj?.roomImage && roomImage ) {
       const result = helper.fileRemove(editRoomObj?.roomImage, "../uploads");

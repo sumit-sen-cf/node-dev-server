@@ -149,13 +149,17 @@ exports.addHistoryDoc = async (req, res) => {
         updated_by: req.body.updated_by
       });
 
-      const bucketName = vari.BUCKET_NAME;
-      const bucket = storage.bucket(bucketName);
-      const blob = bucket.file(file.filename);
-      simc.doc_file = blob.name;
-      const blobStream = blob.createWriteStream();
-      blobStream.on("finish", () => { res.status(200).send("Success") });
-      blobStream.end(req.file.buffer);
+    if(req.file){
+        const bucketName = vari.BUCKET_NAME;
+        const bucket = storage.bucket(bucketName);
+        const blob = bucket.file(file.originalname);
+        simc.doc_file = blob.name;
+        const blobStream = blob.createWriteStream();
+        blobStream.on("finish", () => { 
+          // res.status(200).send("Success") 
+        });
+        blobStream.end(req.file.buffer);
+    }
 
       const simv = await simc.save();
       savedDocuments.push(simv);
@@ -177,16 +181,18 @@ exports.editHistoryDoc = async (req, res) => {
       updated_by: req.body.updated_by
     }, { new: true })
 
-    const bucketName = vari.BUCKET_NAME;
-    const bucket = storage.bucket(bucketName);
-    const blob = bucket.file(req.file.originalname);
-    editsim.doc_file = blob.name;
-    const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { 
-      editsim.save();
-      res.status(200).send("Success") 
-    });
-    blobStream.end(req.file.buffer);
+    if(req.file){
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      editsim.doc_file = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => { 
+        editsim.save();
+        // res.status(200).send("Success") 
+      });
+      blobStream.end(req.file.buffer);
+    }
 
     res.status(200).send({ success: true, data: editsim })
   } catch (err) {

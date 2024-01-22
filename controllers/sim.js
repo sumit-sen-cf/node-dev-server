@@ -45,13 +45,17 @@ exports.addSim = async (req, res) => {
       asset_modal_id: req.body.asset_modal_id,
     });
 
-    const bucketName = vari.BUCKET_NAME;
-    const bucket = storage.bucket(bucketName);
-    const blob = bucket.file(req.file.originalname);
-    simc.invoiceCopy = blob.name;
-    const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { res.status(200).send("Success") });
-    blobStream.end(req.file.buffer);
+    if(req.file){
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      simc.invoiceCopy = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => { 
+        // res.status(200).send("Success") 
+      });
+      blobStream.end(req.file.buffer);
+    }
 
     const simv = await simc.save();
     res.send({ simv, status: 200 });

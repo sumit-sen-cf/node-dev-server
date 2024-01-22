@@ -45,7 +45,9 @@ exports.addLogoBrand = async(req, res) => {
         const blob = bucket.file(req.file.originalname);
         simc.upload_logo = blob.name;
         const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { res.status(200).send("Success") });
+        blobStream.on("finish", () => { 
+            // res.status(200).send("Success") 
+        });
         blobStream.end(req.file.buffer);
 
         const simv = await simc.save()
@@ -373,17 +375,6 @@ exports.editLogoBrand = async(req, res) => {
             logo_cat: req.body.logo_cat,
             upload_logo: req.file?.originalname
         })
-
-        const bucketName = vari.BUCKET_NAME;
-        const bucket = storage.bucket(bucketName);
-        const blob = bucket.file(req.file.originalname);
-        editlogobrand.upload_logo = blob.name;
-        const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => {
-            editlogobrand.save(); 
-            res.status(200).send("Success") 
-        });
-        blobStream.end(req.file.buffer);
 
         res.status(200).send({data:editlogobrand, sms:'logo brands details updated successfully'})
     }catch(err){

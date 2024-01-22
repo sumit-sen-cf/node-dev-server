@@ -61,7 +61,9 @@ exports.addProduct = async (req, res) => {
     const blob = bucket.file(req.file.originalname);
     productObj.Product_image = blob.name;
     const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { res.status(200).send("Success") });
+    blobStream.on("finish", () => { 
+      // res.status(200).send("Success") 
+    });
     blobStream.end(req.file.buffer);
 
     const savedProduct = await productObj.save();
@@ -81,13 +83,17 @@ exports.editProduct = async (req, res) => {
   try {
     let pro_image = req.file?.originalname;
 
-    const bucketName = vari.BUCKET_NAME;
-    const bucket = storage.bucket(bucketName);
-    const blob = bucket.file(req.file.originalname);
-    pro_image = blob.name;
-    const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { res.status(200).send("Success") });
-    blobStream.end(req.file.buffer);
+    if(req.file){
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      pro_image = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => { 
+        // res.status(200).send("Success") 
+      });
+      blobStream.end(req.file.buffer);
+    }
 
     const editProductObj = await productModel.findOneAndUpdate(
       { product_id: parseInt(req.body.id) }, // Filter condition
