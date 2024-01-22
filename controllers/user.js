@@ -29,7 +29,7 @@ const designationModel = require("../models/designationModel.js");
 const deptDesiAuthModel = require("../models/deptDesiAuthModel.js");
 const emailTempModel = require("../models/emailTempModel");
 const vari = require("../variables.js");
-const {storage} = require('../common/uploadFile.js');
+const { storage } = require('../common/uploadFile.js');
 
 // const upload = multer({ dest: "uploads/" }).fields([
 //     { name: "image", maxCount: 1 },
@@ -505,7 +505,7 @@ exports.updateUser = [upload, async (req, res) => {
             const blob = bucket.file(req.files.image[0].originalname);
             editsim.image = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => { 
+            blobStream.on("finish", () => {
                 editsim.save();
                 // res.status(200).send("Success") 
             });
@@ -517,7 +517,7 @@ exports.updateUser = [upload, async (req, res) => {
             const blob = bucket.file(req.files.digital_signature_image[0].originalname);
             editsim.digital_signature_image = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => { 
+            blobStream.on("finish", () => {
                 editsim.save();
                 // res.status(200).send("Success") 
             });
@@ -1107,7 +1107,7 @@ exports.getSingleUser = async (req, res) => {
                     joining_extend_document: "$joining_extend_document",
                     invoice_template_no: "$invoice_template_no",
                     userSalaryStatus: "$userSalaryStatus",
-                    digital_signature_image: { $concat: [vari.IMAGE_URL, "$digital_signature_image"] },
+                    digital_signature_image: "$digital_signature_image",
                     department_name: '$department.dept_name',
                     Role_name: "$role.Role_name",
                     report: "$reportTo.user_name",

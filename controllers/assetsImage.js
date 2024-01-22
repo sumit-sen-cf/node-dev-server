@@ -2,7 +2,7 @@ const assetsImagesModel = require("../models/assetsimagesModel");
 const simModel = require("../models/simModel");
 const multer = require("multer");
 const vari = require("../variables.js");
-const {storage} = require('../common/uploadFile.js')
+const { storage } = require('../common/uploadFile.js')
 
 // const upload = multer({ dest: "uploads/assets" }).fields([
 //   { name: "img1", maxCount: 1 },
@@ -37,28 +37,30 @@ exports.addAssetImage = [
       const bucketName = vari.BUCKET_NAME;
       const bucket = storage.bucket(bucketName);
 
-      if(req.files.img1 && req.files.img1[0].originalname){
+      if (req.files.img1 && req.files.img1[0].originalname) {
         const blob1 = bucket.file(req.files.img1[0].originalname);
         assetImage.img1 = blob1.name;
         const blobStream1 = blob1.createWriteStream();
-        blobStream1.on("finish", () => res.status(200).send("Success"));
+        blobStream1.on("finish", () => {
+          // res.status(200).send("Success")
+        });
         blobStream1.end(req.files.img1[0].buffer);
       }
-      if(req.files.img2 && req.files.img2[0].originalname){
+      if (req.files.img2 && req.files.img2[0].originalname) {
         const blob2 = bucket.file(req.files.img2[0].originalname);
         assetImage.img2 = blob2.name;
         const blobStream2 = blob2.createWriteStream();
         blobStream2.on("finish", () => { res.status(200).send("Success") });
         blobStream2.end(req.files.img2[0].buffer);
       }
-      if(req.files.img3 && req.files.img3[0].originalname){
+      if (req.files.img3 && req.files.img3[0].originalname) {
         const blob3 = bucket.file(req.files.img3[0].originalname);
         assetImage.img3 = blob3.name;
         const blobStream3 = blob3.createWriteStream();
         blobStream3.on("finish", () => { res.status(200).send("Success") });
         blobStream3.end(req.files.img3[0].buffer);
       }
-      if(req.files.img4 && req.files.img4[0].originalname){
+      if (req.files.img4 && req.files.img4[0].originalname) {
         const blob4 = bucket.file(req.files.img4[0].originalname);
         assetImage.img4 = blob4.name;
         const blobStream4 = blob4.createWriteStream();
@@ -232,7 +234,7 @@ exports.updateAssetImage = [
       const bucketName = vari.BUCKET_NAME;
       const bucket = storage.bucket(bucketName);
 
-      if(req.files.img1 && req.files.img1[0].originalname){
+      if (req.files.img1 && req.files.img1[0].originalname) {
         const blob1 = bucket.file(req.files.img1[0].originalname);
         editassetimage.img1 = blob1.name;
         const blobStream1 = blob1.createWriteStream();
@@ -242,33 +244,33 @@ exports.updateAssetImage = [
         });
         blobStream1.end(req.files.img1[0].buffer);
       }
-      if(req.files.img2 && req.files.img2[0].originalname){
+      if (req.files.img2 && req.files.img2[0].originalname) {
         const blob2 = bucket.file(req.files.img2[0].originalname);
         editassetimage.img2 = blob2.name;
         const blobStream2 = blob2.createWriteStream();
-        blobStream2.on("finish", () => { 
+        blobStream2.on("finish", () => {
           editassetimage.save();
-          res.status(200).send("Success") 
+          res.status(200).send("Success")
         });
         blobStream2.end(req.files.img2[0].buffer);
       }
-      if(req.files.img3 && req.files.img3[0].originalname){
+      if (req.files.img3 && req.files.img3[0].originalname) {
         const blob3 = bucket.file(req.files.img3[0].originalname);
         editassetimage.img3 = blob3.name;
         const blobStream3 = blob3.createWriteStream();
-        blobStream3.on("finish", () => { 
+        blobStream3.on("finish", () => {
           editassetimage.save();
-          res.status(200).send("Success") 
+          res.status(200).send("Success")
         });
         blobStream3.end(req.files.img3[0].buffer);
       }
-      if(req.files.img4 && req.files.img4[0].originalname){
+      if (req.files.img4 && req.files.img4[0].originalname) {
         const blob4 = bucket.file(req.files.img4[0].originalname);
         editassetimage.img4 = blob4.name;
         const blobStream4 = blob4.createWriteStream();
-        blobStream4.on("finish", () => { 
+        blobStream4.on("finish", () => {
           editassetimage.save();
-          res.status(200).send("Success") 
+          res.status(200).send("Success")
         });
         blobStream4.end(req.files.img4[0].buffer);
       }

@@ -1246,6 +1246,7 @@ router.get("/get_all_php_payment_bal_data", phpPaymentBal.getAllphpPaymentBalDat
 router.put("/balance_payment_list_update", phpPaymentBal.balancePaymentListUpdate);
 router.post("/add_php_pending_invoice_data_in_node", phpPendingInvoice.savePhpPaymentPendingInvoiceDataInNode);
 router.get("/get_all_php_pending_invoice_data", phpPendingInvoice.getAllphpPaymentPendingInvoiceData);
+router.put("/pending_invoice_update", upload1.single("invoice"), phpPendingInvoice.pendingInvoiceUpdate);
 router.post("/add_php_sale_booking_tds_data_in_node", phpSaleBookingTds.savePhpSaleBookingTdsDataInNode);
 router.get("/get_all_php_sale_booking_tds_data", phpSaleBookingTds.getAllphpSaleBookingTdsData);
 router.post("/add_php_sale_booking_tds_verification_data_in_node", phpSaleBookingTds.savePhpSaleBookingTdsVerificationDataInNode);

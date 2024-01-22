@@ -19,6 +19,10 @@ const phpPaymentBalListModel = new mongoose.Schema({
         type: Number,
         required: false
     },
+    username: {
+        type: String,
+        required: false
+    },
     created_by: {
         type: Number,
         required: false
@@ -61,17 +65,17 @@ const phpPaymentBalListModel = new mongoose.Schema({
     },
     cust_id: {
         type: Number,
-        required: false  
+        required: false
     },
     base_amount: {
         type: Number,
-        required: false 
+        required: false
     },
     gst_amount: {
         type: Number,
         required: false
     },
-    net_amount:{
+    net_amount: {
         type: Number,
         required: false
     },
@@ -91,211 +95,228 @@ const phpPaymentBalListModel = new mongoose.Schema({
         type: String,
         required: false
     },
-    invoice : {
+    invoice: {
         type: String,
         required: false
     },
-    invoice_particular : {
+    invoice_particular: {
         type: String,
         required: false
     },
-    invoice_action_reason : {
+    invoice_action_reason: {
         type: String,
         required: false
     },
-    salesexe_credit_used : {
+    salesexe_credit_used: {
         type: Number,
         required: false
     },
-    execution_approval : {
+    execution_approval: {
         type: Number,
         required: false
     },
-    last_action_reason : {
+    last_action_reason: {
         type: String,
         required: false
     },
-    execution_date : {
+    execution_date: {
         type: String,
         required: false
     },
-    execution_remark : {
+    execution_remark: {
         type: String,
         required: false
     },
-    execution_done_by : {
+    execution_done_by: {
         type: Number,
         required: false
     },
-    execution_summary : {
+    execution_summary: {
         type: String,
         required: false
     },
-    reason_credit_approval : {
+    reason_credit_approval: {
         type: String,
         required: false
     },
-    fixed_credit_approval_reason : {
+    fixed_credit_approval_reason: {
         type: Number,
         required: false
     },
-    balance_payment_ondate : {
+    balance_payment_ondate: {
         type: String,
         required: false
     },
-    gst_status :{
+    gst_status: {
         type: Number,
         required: false
     },
-    tds_status : {
+    tds_status: {
         type: Number,
         required: false
     },
-    close_date : {
+    close_date: {
         type: String,
         required: false
     },
-    verified_amount : {
+    verified_amount: {
         type: Number,
         required: false
     },
-    verified_remark : {
+    verified_remark: {
         type: String,
         required: false
     },
-    sale_booking_file : {
+    sale_booking_file: {
         type: String,
         required: false
     },
-    remarks : {
+    remarks: {
         type: String,
         required: false
     },
-    no_incentive : {
+    no_incentive: {
         type: Number,
         required: false
     },
-    old_sale_booking_id : {
+    old_sale_booking_id: {
         type: Number,
         required: false
     },
-    sale_booking_type : {
+    sale_booking_type: {
         type: String,
         required: false
     },
-    rs_sale_booking_id : {
+    rs_sale_booking_id: {
         type: Number,
         required: false
     },
-    service_taken_amount : {
+    service_taken_amount: {
         type: Number,
         required: false
     },
-    last_updated_by : {
+    last_updated_by: {
         type: Number,
         required: false
     },
-    creation_date : {
+    creation_date: {
         type: Date,
-        default : Date.now
+        default: Date.now
     },
-    last_updated_date : {
+    last_updated_date: {
         type: String,
     },
-    invoice_particular_id : {
+    invoice_particular_id: {
         type: Number,
         required: false
     },
-    invoice_particular_name : {
-        type: String,
-        required: false
-    },
-    sales_exe_name : {
+    invoice_particular_name: {
         type: String,
         required: false
     },
-    total_refund_amount : {
-        type: Number,
-        required: false
-    },
-    balance_refund_amount : {
-        type: Number,
-        required: false
-    },
-    net_balance_amount_to_pay_percentage : {
-        type: Number,
-        required: false
-    },
-    booking_created_date : {
+    sales_exe_name: {
         type: String,
         required: false
     },
-    show_fstatus : {
+    total_refund_amount: {
+        type: Number,
+        required: false
+    },
+    balance_refund_amount: {
+        type: Number,
+        required: false
+    },
+    net_balance_amount_to_pay_percentage: {
+        type: Number,
+        required: false
+    },
+    booking_created_date: {
         type: String,
         required: false
     },
-    execution_status : {
-        type: Number,
-        required: false
-    },
-    full_or_partial : {
+    show_fstatus: {
         type: String,
         required: false
     },
-    payment_approval_status : {
+    execution_status: {
         type: Number,
         required: false
     },
-    total_record_services : {
+    full_or_partial: {
+        type: String,
+        required: false
+    },
+    payment_approval_status: {
         type: Number,
         required: false
     },
-    total_record_services_amount : {
+    total_record_services: {
         type: Number,
         required: false
     },
-    total_execution_approval : {
+    total_record_services_amount: {
         type: Number,
         required: false
     },
-    total_execution_approval_pending : {
+    total_execution_approval: {
         type: Number,
         required: false
     },
-    total_execution_approval_sent : {
+    total_execution_approval_pending: {
         type: Number,
         required: false
     },
-    total_execution_approval_done : {
+    total_execution_approval_sent: {
         type: Number,
         required: false
     },
-    total_execution_approval_pending_amount : {
+    total_execution_approval_done: {
         type: Number,
         required: false
     },
-    total_execution_approval_sent_amount : {
+    total_execution_approval_pending_amount: {
         type: Number,
         required: false
     },
-    total_execution_approval_done_amount : {
+    total_execution_approval_sent_amount: {
         type: Number,
         required: false
     },
-    total_refund_amount :{
+    total_execution_approval_done_amount: {
         type: Number,
         required: false
     },
-    manager_refund_reason :{
+    total_refund_amount: {
         type: Number,
         required: false
     },
-    credit_limit : {
+    manager_refund_reason: {
         type: Number,
         required: false
     },
-    access : {
+    credit_limit: {
         type: Number,
+        required: false
+    },
+    access: {
+        type: Number,
+        required: false
+    },
+    payment_mode: {
+        type: String,
+        required: false
+    },
+    payment_ref_no: {
+        type: String,
+        required: false
+    },
+    paid_amount: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    sales_person_username: {
+        type: String,
         required: false
     }
 });

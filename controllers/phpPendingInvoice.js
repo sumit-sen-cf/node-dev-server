@@ -1,6 +1,9 @@
 const phpPaymentBalListModel = require("../models/phpPaymentBalListModel.js");
 const axios = require('axios');
 const FormData = require('form-data');
+const response = require("../common/response.js");
+const vari = require('../variables.js');
+const { storage } = require('../common/uploadFile.js')
 
 
 exports.savePhpPaymentPendingInvoiceDataInNode = async (req, res) => {
@@ -60,10 +63,11 @@ exports.savePhpPaymentPendingInvoiceDataInNode = async (req, res) => {
                         creation_date: data.creation_date,
                         last_updated_date: data.last_updated_date,
                         invoice_particular_id: data.invoice_particular_id,
-                        invoice_particular_name: data.invoice_particular_name
+                        invoice_particular_name: data.invoice_particular_name,
+                        sales_person_username: data.sales_person_username
                     }
                 },
-                { new: true } 
+                { new: true }
             );
         }));
 
@@ -76,57 +80,59 @@ exports.savePhpPaymentPendingInvoiceDataInNode = async (req, res) => {
 exports.getAllphpPaymentPendingInvoiceData = async (req, res) => {
     try {
         const getData = await phpPaymentBalListModel.find({})
-        .select({ _id: 1,
-            sale_booking_id: 1,
-            cust_id: 1,
-            sale_booking_date: 1,
-            campaign_amount: 1,
-            base_amount: 1,
-            gst_amount: 1,
-            net_amount: 1,
-            campaign_amount_without_gst: 1,
-            total_paid_amount: 1,
-            balance: 1,
-            description: 1,
-            status_desc: 1,
-            invoice_creation_status: 1,
-            invoice: 1,
-            invoice_particular: 1,
-            invoice_action_reason: 1,
-            manager_approval: 1,
-            salesexe_credit_approval: 1,
-            salesexe_credit_used: 1,
-            execution_approval: 1,
-            last_action_reason: 1,
-            execution_date: 1,
-            execution_remark: 1,
-            execution_done_by: 1,
-            execution_status: 1,
-            execution_summary: 1,
-            reason_credit_approval: 1,
-            fixed_credit_approval_reason: 1,
-            balance_payment_ondate: 1,
-            gst_status: 1,
-            tds_status: 1,
-            close_date: 1,
-            verified_amount: 1,
-            verified_remark: 1,
-            sale_booking_file: 1,
-            remarks: 1,
-            no_incentive: 1,
-            old_sale_booking_id: 1,
-            sale_booking_type: 1,
-            rs_sale_booking_id: 1,
-            service_taken_amount: 1,
-            user_id: 1,
-            created_by: 1,
-            last_updated_by: 1,
-            creation_date: 1,
-            last_updated_date: 1,
-            cust_name: 1,
-            invoice_particular_id: 1,
-            invoice_particular_name: 1,
-            sno: 1});
+            .select({
+                _id: 1,
+                sale_booking_id: 1,
+                cust_id: 1,
+                sale_booking_date: 1,
+                campaign_amount: 1,
+                base_amount: 1,
+                gst_amount: 1,
+                net_amount: 1,
+                campaign_amount_without_gst: 1,
+                total_paid_amount: 1,
+                balance: 1,
+                description: 1,
+                status_desc: 1,
+                invoice_creation_status: 1,
+                invoice: 1,
+                invoice_particular: 1,
+                invoice_action_reason: 1,
+                manager_approval: 1,
+                salesexe_credit_approval: 1,
+                salesexe_credit_used: 1,
+                execution_approval: 1,
+                last_action_reason: 1,
+                execution_date: 1,
+                execution_remark: 1,
+                execution_done_by: 1,
+                execution_status: 1,
+                execution_summary: 1,
+                reason_credit_approval: 1,
+                fixed_credit_approval_reason: 1,
+                balance_payment_ondate: 1,
+                gst_status: 1,
+                tds_status: 1,
+                close_date: 1,
+                verified_amount: 1,
+                verified_remark: 1,
+                sale_booking_file: 1,
+                remarks: 1,
+                no_incentive: 1,
+                old_sale_booking_id: 1,
+                sale_booking_type: 1,
+                rs_sale_booking_id: 1,
+                service_taken_amount: 1,
+                user_id: 1,
+                created_by: 1,
+                last_updated_by: 1,
+                creation_date: 1,
+                last_updated_date: 1,
+                cust_name: 1,
+                invoice_particular_id: 1,
+                invoice_particular_name: 1,
+                sno: 1
+            });
 
         res.status(200).send({ data: getData })
     } catch (error) {
@@ -134,23 +140,36 @@ exports.getAllphpPaymentPendingInvoiceData = async (req, res) => {
     }
 }
 
-exports.pendingInvoiceUpdate = async (req,res) => {
+exports.pendingInvoiceUpdate = async (req, res) => {
     try {
         const editPendingApprovalData = await phpPaymentBalListModel.findOneAndUpdate(
             { sale_booking_id: parseInt(req.body.sale_booking_id) },
             {
-               status : req.body.status
+                invoice: req.file?.originalname,
+                loggedin_user_id: req.body.loggedin_user_id,
+                status: req.body.status
             },
             { new: true }
         );
+
         if (!editPendingApprovalData) {
             return response.returnFalse(
                 200,
                 req,
                 res,
-                "No Reord Found ",
+                "No Record Found ",
                 {}
             );
+        }
+
+        if (req.file && req.file.originalname) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob = bucket.file(req.file.originalname);
+            editPendingApprovalData.invoice = blob.name;
+            const blobStream = blob.createWriteStream();
+            blobStream.on("finish", () => { res.status(200).send("Success") });
+            blobStream.end(req.file.buffer);
         }
         return response.returnTrue(200, req, res, "Updation Successfully", editPendingApprovalData);
     } catch (err) {
