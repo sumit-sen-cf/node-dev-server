@@ -7,8 +7,8 @@ module.exports = {
     // MONGODB: 'mongodb+srv://root:MongoDBPassword123@atlascluster.dhgrrgb.mongodb.net/instaDB?retryWrites=true&w=majority',
     BUCKET_NAME: 'node-dev-server-bucket',
     // BUCKET_NAME: 'jarvis-dot-work-bucket',
-    IMAGE_URL: 'https://storage.cloud.google.com/node-dev-server-bucket/',
-    // IMAGE_URL: 'https://storage.cloud.google.com/jarvis-dot-work-bucket/',
+    IMAGE_URL: 'https://storage.googleapis.com/node-dev-server-bucket/',
+    // IMAGE_URL: 'https://storage.googleapis.com/jarvis-dot-work-bucket/',
     ALLOWED_URL: 'http://34.93.92.90',
     // ALLOWED_URL: 'https://jarvis.work'
 };
