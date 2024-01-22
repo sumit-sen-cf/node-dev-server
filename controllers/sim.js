@@ -1716,7 +1716,7 @@ exports.showNewAssetDataToUser = async (req, res) => {
       {
         $lookup: {
           from: "usermodels",
-          localField: "repair.req_by",
+          localField: "repair.request_by",
           foreignField: "user_id",
           as: "userdata",
         },
@@ -1840,7 +1840,7 @@ exports.showNewAssetDataToUser = async (req, res) => {
           req_date: "$repair.date_and_time_of_asset_request",
           asset_request_by_name: "$userRequest.user_name",
           asset_request_multi_tag_name: "$userMulti.user_name",
-          asset_repair_request_status: "$repair.status"
+          asset_new_request_status: "$repair.asset_request_status"
         },
       },
     ]).exec();
@@ -1881,7 +1881,7 @@ exports.showAssetDataToUserReport = async (req, res) => {
       {
         $lookup: {
           from: "usermodels",
-          localField: "repair.req_by",
+          localField: "repair.request_by",
           foreignField: "user_id",
           as: "userdata",
         },
@@ -2010,8 +2010,9 @@ exports.showAssetDataToUserReport = async (req, res) => {
           req_date: "$repair.date_and_time_of_asset_request",
           asset_request_by_name: "$userRequest.user_name",
           asset_request_multi_tag_name: "$userMulti.user_name",
-          asset_repair_request_status: "$repair.status",
-          users_manager: "$userMulti.Report_L1"
+          asset_new_request_status: "$repair.asset_request_status",
+          users_manager: "$userMulti.Report_L1",
+          asset_request_id: "$repair._id"
         },
       },
     ]).exec();
