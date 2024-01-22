@@ -1342,15 +1342,15 @@ exports.getSalaryByUserId = async (req, res) => {
             disputed_date: "$disputed_date"
           },
         },
-        {
-          $group: {
-            _id: "$user_id",
-            data: { $first: "$$ROOT" },
-          },
-        },
-        {
-          $replaceRoot: { newRoot: "$data" },
-        },
+        // {
+        //   $group: {
+        //     _id: "$user_id",
+        //     data: { $first: "$$ROOT" },
+        //   },
+        // },
+        // {
+        //   $replaceRoot: { newRoot: "$data" },
+        // },
       ])
       .exec();
     if (getcreators?.length === 0) {
@@ -2505,7 +2505,11 @@ exports.getUsersCountByDept = async (req, res) => {
 exports.updateAttendance = async (req, res) => {
   try {
     const editsim = await attendanceModel.findOneAndUpdate(
-      { attendence_id: req.body.attendence_id },
+      {
+        attendence_id: req.body.attendence_id,
+        month: req.body.month,
+        year: req.body.year
+      },
       {
         attendence_status_flow: req.body.attendence_status_flow,
         disputed_reason: req.body.disputed_reason,
