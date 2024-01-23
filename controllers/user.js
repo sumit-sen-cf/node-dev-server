@@ -2358,7 +2358,7 @@ exports.loginUserData = async (req, res) => {
         };
 
         if (user.image) {
-            userObject.image = `${vari.IMAGE_URL}/${user.image}`;
+            userObject.image = `${vari.IMAGE_URL}${user.image}`;
         } else {
             userObject.image = null;
         }
