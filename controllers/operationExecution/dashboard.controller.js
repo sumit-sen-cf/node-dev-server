@@ -2,6 +2,7 @@ const response = require("../../common/response");
 const appError = require("../../helper/appError");
 const catchAsync = require("../../helper/catchAsync");
 const PhasePageModel = require("../../models/operationExecution/phasePageModel");
+const campaignplanmodels = require('../../models/operationExecution/campaignPlanModel')
 
 exports.phaseDashboard = catchAsync(async (req, res, next) => {
   let phase_id = req.body.phase_id;
@@ -139,7 +140,7 @@ exports.phaseDashboard = catchAsync(async (req, res, next) => {
               campaignId: "$_id.campaignId",
               verified_execution_total: 1,
               executed_execution_total: 1,
-              plan_id : 1,
+              plan_id: 1,
               total_executers: 1,
               page_assigned: 1,
               total_no_of_post: 1,
@@ -263,3 +264,200 @@ remaining_for_assignment : Calculate based on this remaining_for_assignment: {
 // overplan = get from based on campaignId from campaignplan model here campaignId is attach with plan and one campaign is only contaion one plan
 // phase occupency = totoal no of post in phase / total no of post in plan [ sum of all fields for postPerPage which is get from based on this "overplan" ] * 100
 // total replacement  = ""
+
+
+exports.planDashboard = catchAsync(async (req, res, next) => {
+  const campaignId = req.body.campaignId;
+  const result = await campaignplanmodels.aggregate([
+    {
+      $match: { campaignId }
+    },
+    {
+      $facet: {
+        // Sub-pipeline 1: Count pages by category
+        by_category_wise_page_model: [
+          {
+            $group: {
+              _id: "$cat_name",
+              count: { $sum: 1 },
+            },
+          },
+        ],
+
+        // Sub-pipeline 2: Count pages by platform
+        by_plateform_wise_page_model: [
+          {
+            $group: {
+              _id: "$platform",
+              count: { $sum: 1 },
+            },
+          },
+        ],
+        aggregatedData: [
+          {
+            $group: {
+              _id: { campaignId: "$campaignId" },
+              total_no_of_post: { $sum: { $toInt: "$postPerPage" } },
+              total_no_of_page: { $sum: 1 },
+              // plan_id: { $first: "$plan_id" },
+              total_no_of_replacement: {
+                $sum: {
+                  $cond: [{ $eq: ["$replacement_status", "replaced"] }, 1, 0],
+                },
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "assignmentmodels",
+              localField: "_id.campaignId",
+              foreignField: "campaignId",
+              as: "assignmentModelData",
+            },
+          },
+          {
+            $unwind: "$assignmentModelData",
+          },
+
+          {
+            $group: {
+              _id: "$_id",
+              verified_execution_total: {
+                $sum: {
+                  $cond: [
+                    { $eq: ["$assignmentModelData.ass_status", "verified"] },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              executed_execution_total: {
+                $sum: {
+                  $cond: [
+                    { $eq: ["$assignmentModelData.ass_status", "executed"] },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              total_executers: { $addToSet: "$assignmentModelData.ass_to" },
+              page_assigned: { $sum: 1 },
+              total_no_of_post: { $first: "$total_no_of_post" },
+              total_no_of_page: { $first: "$total_no_of_page" },
+              total_no_of_replacement: { $first: "$total_no_of_replacement" },
+              // plan_id: { $first: "$plan_id" },
+            },
+          },
+          {
+            $lookup: {
+              from: "campaignplanmodels",
+              localField: "_id.campaignId",
+              foreignField: "campaignId",
+              as: "campaignPlanModelData",
+            },
+          },
+
+          // Stage 6: Unwind campaignPlanModelData array for further grouping
+          {
+            $unwind: "$campaignPlanModelData",
+          },
+
+          {
+            $group: {
+              _id: "$_id",
+              // _id: "$_id",
+              total_no_of_post_in_plan: {
+                $sum: { $toInt: "$campaignPlanModelData.postPerPage" },
+              },
+              total_no_of_post: { $first: "$total_no_of_post" },
+              total_no_of_page: { $first: "$total_no_of_page" },
+              total_no_of_replacement: { $first: "$total_no_of_replacement" },
+              verified_execution_total: { $first: "$verified_execution_total" },
+              executed_execution_total: { $first: "$executed_execution_total" },
+              total_executers: { $first: "$total_executers" },
+              page_assigned: { $first: "$page_assigned" },
+              total_data_for_assignment_model: { $first: "$page_assigned" },
+              // plan_id: { $first: "$plan_id" },
+            },
+          },
+
+          {
+            $project: {
+              _id: 0,
+              // phase_id: "$_id.phase_id",
+              campaignId: "$_id.campaignId",
+              verified_execution_total: 1,
+              executed_execution_total: 1,
+              // plan_id: 1,
+              total_executers: 1,
+              page_assigned: 1,
+              total_no_of_post: 1,
+              total_no_of_page: 1,
+              total_no_of_post_in_plan: 1,
+              total_data_for_assignment_model: 1,
+              total_executers: { $size: "$total_executers" },
+
+              execution_done_percentage: {
+                $multiply: [
+                  {
+                    $divide: [
+                      "$executed_execution_total",
+                      "$total_data_for_assignment_model",
+                    ],
+                  },
+                  100,
+                ],
+              },
+              verified_percentage: {
+                $multiply: [
+                  {
+                    $divide: [
+                      "$verified_execution_total",
+                      "$total_data_for_assignment_model",
+                    ],
+                  },
+                  100,
+                ],
+              },
+              total_no_of_replacement: 1,
+              total_no_of_assign_pages: "$total_data_for_assignment_model",
+              remaining_for_assignment: {
+                $subtract: [
+                  "$total_no_of_page",
+                  { $ifNull: ["$total_no_of_assign_pages", 0] },
+                ],
+              },
+            },
+          },
+
+
+
+        ]
+      }
+    },
+    {
+      $project: {
+        category_wise_page_count: "$by_category_wise_page_model",
+        plateform_wise_page_count: "$by_plateform_wise_page_model",
+        aggregatedData: { $arrayElemAt: ["$aggregatedData", 0] },
+      },
+    },
+  ])
+  
+  if (result && result.length === 0) {
+    return next(new appError(404, "No Record Found"));
+  }
+
+  let resObj = {
+    category_wise_page_count: result[0].category_wise_page_count,
+    plateform_wise_page_count: result[0].plateform_wise_page_count,
+    ...result[0].aggregatedData,
+  };
+  return response.returnTrue(
+    200,
+    req,
+    res,
+    "Fetching operations perform Successfully",
+    resObj
+  );
+})
