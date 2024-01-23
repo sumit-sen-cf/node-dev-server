@@ -252,22 +252,28 @@ exports.addUser = [upload, async (req, res) => {
         const tdsDeduction = netSalary * (simv.tds_per) / 100;
         const ToPay = netSalary - tdsDeduction;
 
-        const lastInserted = new attendanceModel({
-            dept: simv.dept_id,
-            user_id: simv.user_id,
-            user_name: req.body.user_name,
-            noOfabsent: 0,
-            month: joiningMonth,
-            year: joiningYear,
-            bonus: 0,
-            total_salary: simv.salary,
-            tds_deduction: tdsDeduction,
-            net_salary: netSalary,
-            toPay: ToPay,
-            remark: "",
-            created_by: 99
+        const checkIfAttendanceExist = await attendanceModel.findOne({
+            month: req.body.month,
+            year: req.body.year  
         })
-        await lastInserted.save();
+        if(checkIfAttendanceExist){
+            const lastInserted = new attendanceModel({
+                dept: simv.dept_id,
+                user_id: simv.user_id,
+                user_name: req.body.user_name,
+                noOfabsent: 0,
+                month: joiningMonth,
+                year: joiningYear,
+                bonus: 0,
+                total_salary: simv.salary && simv.salary.toFixed(2),
+                tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
+                net_salary: netSalary && netSalary.toFixed(2),
+                toPay: ToPay && ToPay.toFixed(2),
+                remark: "",
+                created_by: 99
+            })
+            await lastInserted.save();
+        }
 
         const objectData = await objModel.find();
         const objects = objectData;

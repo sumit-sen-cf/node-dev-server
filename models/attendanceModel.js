@@ -19,6 +19,14 @@ const attendanceModel = new mongoose.Schema({
         type: Number,
         required: false
     },
+    present_days: {
+        type: Number,
+        required: false
+    },
+    month_salary: {
+        type: Number,
+        required: false
+    },
     year: {
         type: Number,
         required: true,
