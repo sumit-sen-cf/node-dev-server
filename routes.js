@@ -1145,9 +1145,11 @@ router.get("/get_asset_allocated_count_in_modal/:asset_modal_id", assetModal.get
 router.post("/assetrequest", assetRequest.addAssetRequest);
 router.put("/assetrequest", assetRequest.editAssetRequest);
 router.get("/assetrequest", assetRequest.getAssetRequests);
-router.get("/assetrequest/:_id", assetRequest.getAssetRequestById);
+router.get("/assetrequest/:id", assetRequest.getAssetRequestById);
 router.delete("/assetrequest/:_id", assetRequest.deleteAssetRequest);
 router.get("/assetrequest/:user_id", assetRequest.showAssetRequestData);
+router.get("/show_asset_with_status", assetRequest.showAssetWithStatus);
+
 
 // Asset Reason Routes
 router.post("/add_asset_reason", assetReson.addAssetReason);
