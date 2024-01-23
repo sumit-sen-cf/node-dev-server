@@ -3,11 +3,11 @@ const constant = require("../common/constant.js");
 const response = require("../common/response");
 const vari = require('../variables.js');
 const {storage} = require('../common/uploadFile.js')
+const catchAsync = require('../helper/catchAsync.js')
 
-exports.addRegisterCampaign = async (req, res) => {
-  try {
-    const { brand_id, brnad_dt, commitment, status, stage, detailing, exeCmpId } =
-      req.body;
+exports.addRegisterCampaign = catchAsync(async (req, res) => {
+  
+    const { brand_id, brnad_dt,captions,hashtags, industry,goal,agency,commitment, status, stage, detailing, exeCmpId } =req.body;
     // const excel_file = req.file.filename ?? "";
 
     let parsedCommitment = JSON.parse(commitment);
@@ -19,7 +19,13 @@ exports.addRegisterCampaign = async (req, res) => {
       commitment: parsedCommitment,
       stage,
       detailing,
-      exeCmpId
+      exeCmpId,
+      captions,
+      hashtags,
+      industry,
+      goal,
+      agency
+
     });
 
     if(req.file){
@@ -35,14 +41,11 @@ exports.addRegisterCampaign = async (req, res) => {
     }
 
     const savedRegisterCampaign = await Obj.save();
-    res.send({ data: savedRegisterCampaign, status: 200 });
-  } catch (err) {
-    res
-      .status(500)
-      .send({ error: err.message, message: "This campaign cannot be created" });
+    res.status(200).json({ data: savedRegisterCampaign, status: 200 });
+    // res.status(200).json({ data: savedRegisterCampaign, status: 200 });
+  
   }
-};
-
+)
 exports.getRegisterCampaigns = async (req, res) => {
   try {
     const campaigns = await registerCamapign.find();
@@ -68,6 +71,7 @@ exports.getRegisterCampaigns = async (req, res) => {
 
 exports.getSingleRegisterCampign=async(req,res,next) => {
   try {
+  
     const campaign=await  registerCamapign.findById(req.params.id)
     if (!campaign) {
       res
