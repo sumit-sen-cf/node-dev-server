@@ -375,11 +375,11 @@ exports.addAttendance = async (req, res) => {
             const mergeJoining = parseInt(joiningMonth + joiningYear);
             const monthNumber = monthNameToNumber(month);
             const mergeJoining1 = `${monthNumber}` + `${year}`;
-            // if (mergeJoining == mergeJoining1) {
-              work_days = 30 - extractDate;
-            // } else {
-            // work_days = 30;
-            // }
+            if (mergeJoining == mergeJoining1) {
+              work_days = 31 - extractDate;
+            } else {
+              work_days = 30;
+            }
             const userExistsInAttendance = await doesUserExistInAttendance(
               user.user_id,
               req.body.month,
@@ -458,11 +458,11 @@ exports.addAttendance = async (req, res) => {
             const mergeJoining = parseInt(joiningMonth + joiningYear);
             const monthNumber = monthNameToNumber(month);
             const mergeJoining1 = `${monthNumber}` + `${year}`;
-            // if (mergeJoining == mergeJoining1) {
-              work_days = 30 - extractDate;
-            // } else {
-            // work_days = 30;
-            // }
+            if (mergeJoining == mergeJoining1) {
+              work_days = 31 - extractDate;
+            } else {
+              work_days = 30;
+            }
             const userExistsInAttendance = await doesUserExistInAttendance(
               user.user_id,
               req.body.month,
