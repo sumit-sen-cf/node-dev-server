@@ -2,7 +2,7 @@ const simModel = require("../models/simModel.js");
 const simAlloModel = require("../models/simAlloModel.js");
 const userModel = require("../models/userModel.js");
 const vari = require("../variables.js");
-const {storage} = require('../common/uploadFile.js')
+const { storage } = require('../common/uploadFile.js')
 
 exports.addSim = async (req, res) => {
   try {
@@ -45,13 +45,13 @@ exports.addSim = async (req, res) => {
       asset_modal_id: req.body.asset_modal_id,
     });
 
-    if(req.file){
+    if (req.file) {
       const bucketName = vari.BUCKET_NAME;
       const bucket = storage.bucket(bucketName);
       const blob = bucket.file(req.file.originalname);
       simc.invoiceCopy = blob.name;
       const blobStream = blob.createWriteStream();
-      blobStream.on("finish", () => { 
+      blobStream.on("finish", () => {
         // res.status(200).send("Success") 
       });
       blobStream.end(req.file.buffer);
@@ -665,8 +665,8 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
         {
           $lookup: {
             from: "assetrequestmodels",
-            localField: "sim_id",
-            foreignField: "sim_id",
+            localField: "sub_category_id",
+            foreignField: "sub_category_id",
             as: "assetrequest",
           },
         },
@@ -1622,8 +1622,8 @@ exports.showAssetDataToUser = async (req, res) => {
       {
         $lookup: {
           from: "assetrequestmodels",
-          localField: "sim_id",
-          foreignField: "sim_id",
+          localField: "sub_category_id",
+          foreignField: "sub_category_id",
           as: "assetrequest",
         },
       },
@@ -1707,14 +1707,15 @@ exports.showNewAssetDataToUser = async (req, res) => {
       {
         $lookup: {
           from: "assetrequestmodels",
-          localField: "sim_id",
-          foreignField: "sim_id",
+          localField: "sub_category_id",
+          foreignField: "sub_category_id",
           as: "repair",
         },
       },
       {
         $unwind: {
           path: "$repair",
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -1872,14 +1873,15 @@ exports.showAssetDataToUserReport = async (req, res) => {
       {
         $lookup: {
           from: "assetrequestmodels",
-          localField: "sim_id",
-          foreignField: "sim_id",
+          localField: "sub_category_id",
+          foreignField: "sub_category_id",
           as: "repair",
         },
       },
       {
         $unwind: {
           path: "$repair",
+          preserveNullAndEmptyArrays: true,
         },
       },
       {

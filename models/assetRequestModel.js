@@ -2,9 +2,13 @@ const { default: mongoose } = require("mongoose");
 // const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const assetRequestModel = new mongoose.Schema({
-    sim_id: {
+    sub_category_id: {
         type: Number,
         required: true
+    },
+    sim_id: {
+        type: Number,
+        required: false
     },
     detail: {
         type: String,

@@ -17,7 +17,7 @@ exports.addAssetReturnRequest = [
                 asset_return_remark: req.body.asset_return_remark,
                 return_asset_image_1: req.files.return_asset_image_1 ? req.files.return_asset_image_1[0].filename : "",
                 return_asset_image_2: req.files.return_asset_image_2 ? req.files.return_asset_image_2[0].filename : "",
-                asset_return_by: req.body.return_by
+                asset_return_by: req.body.asset_return_by
             });
 
             const returnedAsset = await returndata.save();
