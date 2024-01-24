@@ -99,10 +99,9 @@ async function sendReminderEmail(daysBefore) {
     // const html = ejs.render(template, {name} );
 
     /* dynamic email temp code start */
-    let contentList = await emailTempModel.find({ email_for_id: daysBefore })
-    let content = contentList[0];
+    let contentList = await emailTempModel.findOne({ email_for_id: daysBefore })
   
-    const filledEmailContent = content.email_content.replace("{{user_name}}", user.user_name);
+    const filledEmailContent = contentList.email_content.replace("{{user_name}}", user.user_name);
   
     const html = filledEmailContent;
 
@@ -111,13 +110,13 @@ async function sendReminderEmail(daysBefore) {
       to: user.user_email_id,
       subject: 
         daysBefore === 0
-        ? content.email_sub
+        ? contentList.email_sub
         : daysBefore === 1
-        ? content.email_sub
+        ? contentList.email_sub
         : daysBefore === 2
-        ? content.email_sub
+        ? contentList.email_sub
         : daysBefore === 3
-        ? content.email_sub
+        ? contentList.email_sub
         : "Your Joining Date is Approaching",
       html: html
   };
@@ -168,10 +167,9 @@ async function sendEmail(daysBefore) {
     // const joining_date = user.joining_date;
     // const html = ejs.render(template, {name,joining_date} );
     /* dynamic email temp code start */
-    let contentList = await emailTempModel.find({ email_for_id: 0 })
-    let content = contentList[0];
+    let contentList = await emailTempModel.findOne({ email_for_id: 10 });
   
-    const filledEmailContent = content.email_content
+    const filledEmailContent = contentList.email_content
     .replace("{{user_name}}", user.user_name)
     .replace("{{user_joining_date}}", user.joining_date);
   
@@ -182,7 +180,7 @@ async function sendEmail(daysBefore) {
         from: "onboarding@creativefuel.io",
         to: user.user_email_id,
         // subject: "Welcome Onboard- Your First Day at Creativefuel!",
-        subject: content.email_sub,
+        subject: contentList.email_sub,
         html: html
     };
 

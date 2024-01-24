@@ -1731,10 +1731,9 @@ exports.sendUserMail = async (req, res) => {
             // const html = ejs.render(template, {email,password,name,login_id,text});
 
             /* dynamic email temp code start */
-            let contentList = await emailTempModel.find({ email_for_id: 6 })
-            let content = contentList[0];
+            const contentList = await emailTempModel.findOne({email_for_id:6});
 
-            const filledEmailContent = content.email_content
+            const filledEmailContent = contentList.email_content
                 .replace("{{user_name}}", name)
                 .replace("{{user_email}}", email)
                 .replace("{{user_password}}", password)
@@ -1754,7 +1753,7 @@ exports.sendUserMail = async (req, res) => {
             let mailOptions = {
                 from: "onboarding@creativefuel.io",
                 to: email,
-                subject: subject,
+                subject: contentList.email_sub,
                 html: html,
                 attachments: attachment
                     ? [
@@ -1774,10 +1773,9 @@ exports.sendUserMail = async (req, res) => {
             // const html = ejs.render(template, { name, name2 });
 
             /* dynamic email temp code start */
-            let contentList = await emailTempModel.find({ email_for_id: 7 })
-            let content = contentList[0];
+            const contentList = await emailTempModel.findOne({ email_for_id: 7 })
 
-            const filledEmailContent = content.email_content.replace("{{user_reportTo}}", name2);
+            const filledEmailContent = contentList.email_content.replace("{{user_reportTo}}", name2);
 
             const html = filledEmailContent;
             /* dynamic email temp code end */
@@ -1793,7 +1791,7 @@ exports.sendUserMail = async (req, res) => {
             let mailOptions = {
                 from: "onboarding@creativefuel.io",
                 to: email,
-                subject: subject,
+                subject: contentList.email_sub,
                 html: html,
                 attachments: attachment
                     ? [
@@ -1808,29 +1806,11 @@ exports.sendUserMail = async (req, res) => {
             await mailTransporter.sendMail(mailOptions);
             res.sendStatus(200);
         } else {
-            // const templatePath = path.join(__dirname, "template.ejs");
-            // const template = await fs.promises.readFile(templatePath, "utf-8");
-            // const html = ejs.render(template, {
-            //     email,
-            //     password,
-            //     name,
-            //     login_id,
-            //     text,
-            // });
-
-            // let mailTransporter = nodemailer.createTransport({
-            //     service: "gmail",
-            //     auth: {
-            //         user: "onboarding@creativefuel.io",
-            //         pass: "fjjmxuavwpescyat",
-            //     },
-            // });
-
+            
             /* dynamic email temp code start */
-            let contentList = await emailTempModel.find({ email_for_id: 8 })
-            let content = contentList[0];
+            let contentList = await emailTempModel.findOne({ email_for_id: 8 })
 
-            const filledEmailContent = content.email_content
+            const filledEmailContent = contentList.email_content
                 .replace("{{user_name}}", name)
                 .replace("{{user_email}}", email)
                 .replace("{{user_password}}", password)
@@ -1849,7 +1829,7 @@ exports.sendUserMail = async (req, res) => {
             let mailOptions = {
                 from: "onboarding@creativefuel.io",
                 to: email,
-                subject: subject,
+                subject: contentList.email_sub,
                 html: html,
                 attachments: attachment
                     ? [
@@ -2393,19 +2373,16 @@ exports.forgotPass = async (req, res) => {
         // });
 
         /* dynamic email temp code start */
-        let contentList = await emailTempModel.find({ email_for_id: 9 })
-        let content = contentList[0];
+        let contentList = await emailTempModel.findOne({ email_for_id: 9 })
 
-        const filledEmailContent = content.email_content
+        const filledEmailContent = contentList.email_content
             .replace("{{user_email}}", email)
             .replace("{{user_password}}", getRandomPassword);
 
         var html;
         html = filledEmailContent;
         /* dynamic email temp code end */
-        if (updatePass) {
-            // sendMail("Forgot password", html, email);
-            /* dynamic email temp code start */
+
             var transport = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
@@ -2414,23 +2391,19 @@ exports.forgotPass = async (req, res) => {
                 },
             });
 
-            const mail = (subject, html, email) => {
-                let mailOptions = {
-                    from: "onboarding@creativefuel.io",
-                    to: email,
-                    // subject: "Forgot password",
-                    subject: content.email_sub,
-                    html: html,
-                };
-                transport.sendMail(mailOptions, function (error, info) {
-                    if (error) console.log(error);
-                    return info;
-                });
+            let mailOptions = {
+                from: "onboarding@creativefuel.io",
+                to: email,
+                // subject: "Forgot password",
+                subject: contentList.email_sub,
+                html: html,
             };
-            /* dynamic email temp code end */
-        } else {
-            return res.status(500).send({ sms: 'email couldn not send' });
-        }
+
+            transport.sendMail(mailOptions, function (error, info) {
+                if (error) console.log(error);
+                return info;
+            });
+
         return res.status(200).send({ message: 'Successfully Sent email.' })
 
     } catch (err) {

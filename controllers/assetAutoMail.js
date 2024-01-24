@@ -81,10 +81,9 @@ const hrAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
 async function sendReminderAssetEmail(simModel) {
   
   /* dynamic email temp code start */
-  let contentList = await emailTempModel.find({ email_for_id: 4 })
-  let content = contentList[0];
+  let contentList = await emailTempModel.findOne({ email_for_id: 4 })
 
-  const filledEmailContent = content.email_content.replace("{{asset_name}}", simModel.assetsName);
+  const filledEmailContent = contentList.email_content.replace("{{asset_name}}", simModel.assetsName);
 
   const html = filledEmailContent;
   /* dynamic email temp code end */
@@ -93,7 +92,7 @@ async function sendReminderAssetEmail(simModel) {
     from: "onboarding@creativefuel.io",
     to: "aditi@creativefuel.io",
     // subject: "It's time to verify our asset",
-    subject: content.email_sub,
+    subject: contentList.email_sub,
     html: html,
   };
 
@@ -192,10 +191,9 @@ const selfAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
 async function sendReminderAssetEmail1(simModel) {
 
   /* dynamic email temp code start */
-  let contentList = await emailTempModel.find({ email_for_id: 4 })
-  let content = contentList[0];
+  let contentList = await emailTempModel.findOne({ email_for_id: 4 })
   
-  const filledEmailContent = content.email_content.replace("{{asset_name}}", simModel.assetsName);
+  const filledEmailContent = contentList.email_content.replace("{{asset_name}}", simModel.assetsName);
 
   const html = filledEmailContent;
   /* dynamic email temp code end */
@@ -204,7 +202,7 @@ async function sendReminderAssetEmail1(simModel) {
     from: "onboarding@creativefuel.io",
     to: simModel.user_email_id,
     // subject: "It's time to verify our asset",
-    subject: content.email_sub,
+    subject: contentList.email_sub,
     html: html,
   };
 

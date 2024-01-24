@@ -532,10 +532,9 @@ exports.addOrderReq = async (req, res) => {
     // sendMail("Pantry New Order", html, email);
 
     /* dynamic email temp code */
-    let contentList = await emailTempModel.find({ email_for_id: 5 })
-    let content = contentList[0];
+    let contentList = await emailTempModel.findOne({ email_for_id: 5 })
       
-      const filledEmailContent = content.email_content
+      const filledEmailContent = contentList.email_content
       .replace("{{user_name}}", userDetails.user_name)
       .replace("{{sitting_ref}}", sittingDetails.sitting_ref_no)
       .replace("{{sitting_area}}", sittingDetails.sitting_area);
@@ -556,7 +555,7 @@ exports.addOrderReq = async (req, res) => {
           from: "onboarding@creativefuel.io",
           to: email,
           // subject: "Pantry New Order",
-          subject: content.email_sub,
+          subject: contentList.email_sub,
           html: html,
       };
       transport.sendMail(mailOptions, function (error, info) {
