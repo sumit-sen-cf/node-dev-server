@@ -4,19 +4,31 @@ const AssignmentCommitModel=require('../../models/operationExecution/assignmentC
 const AssignmentModel=require('../../models/operationExecution/assignmentModel')
 
 exports.createAssComm=catchAsync(async (req,res,next)=>{
-    const {ass_id,likes,comments,reach,engagement,link,snapshot,campaignId,phase_id} = req.body
+    const {ass_id,likes,comments,reach,engagement,link,snapshot,campaignId,phase_id,execute} = req.body
 
     const data={
         ass_id,likes,comments,reach,engagement,campaignId,phase_id,link,snapshot
     }
 
-    const result=await AssignmentCommitModel.create(data)
-    const result2=await AssignmentModel.findOneAndUpdate({ass_id},{ass_status:'pending'},{new:true})
+    let result
+    let result2
+    if(execute){
+
+         result2=await AssignmentModel.findOneAndUpdate({ass_id},{ass_status:'executed'},{new:true})
+    }else{
+        result=await AssignmentCommitModel.create(data)
+         result2=await AssignmentModel.findOneAndUpdate({ass_id},{ass_status:'pending'},{new:true})
+        
+    }
+
+
 
     res.status(200).json({
         data: {result,result2}
     })
 })
+
+
 
 exports.getAssCommitAssId=catchAsync(async (req,res,next) => {
     const assid=req.params.id
