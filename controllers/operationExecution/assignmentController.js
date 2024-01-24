@@ -32,52 +32,52 @@ exports.createAssignment = catchAsync(async (req, res, next) => {
     })
 })
 
-// exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
-//     const { pages } = req.body
-//     const results = await Promise.all(
-//         pages.map(async page => {
-//             let { _id, ...rest } = page
-//             let status = page.ass_to ? ass_status : "unassigned"
-//             const data = {
-                
-//                 ass_status: status,
-//                 ...rest
-//             }
-//             let result;
-//             if (!page.ass_id) {
-//                 const assignment = await AssignmentModel.findOne({}, {}, { sort: { 'ass_id': 0 } });
-//                 const lastAssId = assignment ? assignment.ass_id : 0;
-//                 data.ass_id = lastAssId + 1;
-//                 result = await AssignmentModel.create(data);
-//                 return {...result}
-//             } else {
-//                 result = await AssignmentModel.findOneAndUpdate({ ass_id:page.ass_id }, data, {
-//                     upsert: true,
-//                     new: true
-//                 });
-//                 return {...result}
-//             }
-//         })
-//     )
-
-//     res.status(200).json({
-//         data:results
-//     })
-// })
 exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
-    const { pages } = req.body;
+    const { pages } = req.body
+    const results = await Promise.all(
+        pages.map(async page => {
+            let { _id, ...rest } = page
+            let status = page.ass_to ? page.ass_status : "unassigned"
+            const data = {
+                
+                ass_status: status,
+                ...rest
+            }
+            let result;
+            if (!page.ass_id) {
+                const assignment = await AssignmentModel.findOne({}, {}, { sort: { 'ass_id': 0 } });
+                const lastAssId = assignment ? assignment.ass_id : 0;
+                data.ass_id = lastAssId + 1;
+                result = await AssignmentModel.create(data);
+                return {...result}
+            } else {
+                result = await AssignmentModel.findOneAndUpdate({ ass_id:page.ass_id }, data, {
+                    upsert: true,
+                    new: true
+                });
+                return {...result}
+            }
+        })
+    )
+
+    res.status(200).json({
+        data:results
+    })
+})
+// exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
+//     const { pages } = req.body;
     
 
-    const results = await Promise.all(pages.map(async (page) => {
+//     const results = await Promise.all(pages.map(async (page) => {
        
-    }));
+//     }));
 
-    res.status(200).json({  });
-});
-exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
-    const { pages } = req.body;
+//     res.status(200).json({  });
+// });
+// exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
+//     const { pages } = req.body;
    
-});
+// });
 
 exports.getAllAssignmentToExpertee = catchAsync(async (req, res, next) => {
     const id = req.params.id
