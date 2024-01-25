@@ -31,15 +31,18 @@ app.use(
   }),
 );
 
-// app.use(cors());
-// const allowedOrigin = vari.ALLOWED_URL;
-const corsOptions = {
-  origin: '*',
+app.use(cors({
+  origin: [vari.ALLOWED_URL, vari.ALLOWED_URL],
   methods: 'GET,HEAD,PUT,POST,DELETE',
   credentials: true,
-  optionsSuccessStatus: 204
-};
-app.use(cors(corsOptions));
+}));
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", vari.ALLOWED_URL);
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,PATCH,DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type");
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  next();
+});
 
 app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use("/api", routes);

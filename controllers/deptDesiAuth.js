@@ -1,5 +1,6 @@
 const deptDesiAuthModel = require('../models/deptDesiAuthModel.js');
-
+const userAuthModel = require('../models/userAuthModel.js');
+const userModel = require('../models/userModel.js');
 
 exports.addDeptDesiAuth = async (req, res) => {
     try {
@@ -117,6 +118,24 @@ exports.updateDeptDesiAuth = async (req, res) => {
             Last_updated_date: req.body.Last_updated_date,
             Last_updated_by: req.body.Last_updated_by
         }, { new: true })
+        if(editsim) {
+            const getDeptUsers = await userModel.find({dept_id: req.body.dept_id});
+            for(let eachUser of getDeptUsers){
+                await userAuthModel.updateMany(
+                    {   
+                        Juser_id: eachUser.user_id,
+                        obj_id: req.body.obj_id
+                    },{
+                        $set:{
+                            insert: req.body.insert,
+                            view: req.body.view,
+                            update: req.body.update,
+                            delete_flag: req.body.delete_flag
+                        }
+                    }
+                )
+            }
+        }
         if (!editsim) {
             return res.status(500).send({ success: false })
         }
