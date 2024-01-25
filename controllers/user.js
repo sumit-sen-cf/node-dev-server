@@ -30,6 +30,12 @@ const deptDesiAuthModel = require("../models/deptDesiAuthModel.js");
 const emailTempModel = require("../models/emailTempModel");
 const vari = require("../variables.js");
 const { storage } = require('../common/uploadFile.js');
+const documentHisModel = require("../models/documentHisModel.js")
+const educationModel = require("../models/educationModel.js");
+const familyModel = require('../models/familyModel.js');
+const guardianModel = require('../models/guardianModel.js');
+const orderReqModel = require('../models/orderReqModel.js');
+const simAlloModel = require('../models/simAlloModel.js');
 
 // const upload = multer({ dest: "uploads/" }).fields([
 //     { name: "image", maxCount: 1 },
@@ -1192,15 +1198,36 @@ exports.getSingleUser = async (req, res) => {
 }
 
 exports.deleteUser = async (req, res) => {
-    userModel.deleteOne({ user_id: req.params.id }).then(item => {
-        if (item) {
-            return res.status(200).json({ success: true, message: 'user deleted' })
-        } else {
-            return res.status(404).json({ success: false, message: 'user not found' })
+    // userModel.deleteOne({ user_id: req.params.id }).then(item => {
+    //     if (item) {
+    //         return res.status(200).json({ success: true, message: 'user deleted' })
+    //     } else {
+    //         return res.status(404).json({ success: false, message: 'user not found' })
+    //     }
+    // }).catch(err => {
+    //     return res.status(400).json({ success: false, message: err })
+    // })
+    try{
+        const deleteuser = await userModel.deleteOne({ user_id: req.params.id });
+        if(deleteuser){
+            await attendanceModel.deleteMany({user_id: req.params.id});
+            await documentHisModel.deleteMany({user_id: req.params.id});
+            await educationModel.deleteMany({user_id: req.params.id});
+            await familyModel.deleteMany({user_id: req.params.id});
+            await guardianModel.deleteMany({user_id: req.params.id});
+            await jobResponsibilityModel.deleteMany({user_id: req.params.id});
+            await notificationModel.deleteOne({user_id: req.params.id});
+            await orderReqModel.deleteMany({user_id: req.params.id});
+            await separationModel.deleteOne({user_id: req.params.id});
+            await simAlloModel.deleteMany({user_id: req.params.id});
+            await userAuthModel.deleteMany({user_id: req.params.id});
+            await userDocManagmentModel.deleteMany({user_id: req.params.id});
+            await userLoginHisModel.deleteMany({user_id: req.params.id});
+            await userOtherFieldModel.deleteMany({user_id: req.params.id});
         }
-    }).catch(err => {
-        return res.status(400).json({ success: false, message: err })
-    })
+    }catch(err){
+        return res.status(500).json({success: false, sms:err.message})
+    }
 };
 
 exports.loginUser = async (req, res) => {
