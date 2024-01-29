@@ -75,7 +75,7 @@ const operationDasboard = require('./controllers/operationExecution/dashboard.co
 const pageReplacementController = require('./controllers/operationExecution/pageReplacementController.js')
 const preAssignmentController = require('./controllers/operationExecution/preAssignmentController.js')
 const agencyController = require('./controllers/operationExecution/campaignMasterController/agencyController.js')
-const goalController=require('./controllers/operationExecution/campaignMasterController/goalController.js')
+const goalController = require('./controllers/operationExecution/campaignMasterController/goalController.js')
 const serviceController = require('./controllers/operationExecution/campaignMasterController/serviceController.js')
 const industryController = require('./controllers/operationExecution/campaignMasterController/industryController.js')
 //opertaion + execution imports ends here`
@@ -177,29 +177,29 @@ router.get('/replacement/plan', pageReplacementController.getAllRecord)
 router.get('/replacement/:id', pageReplacementController.getSingleRecord)
 router.post('/replacement/status', pageReplacementController.replacementStatus)
 
-router.post('/agency',agencyController.createAgency)
-router.get('/agency',agencyController.getAllAgency)
-router.put('/agency/:id',agencyController.updateAgency)
-router.get('/agency/:id',agencyController.getSingleAgency)
-router.delete('/agency/:id',agencyController.deleteAgency)
+router.post('/agency', agencyController.createAgency)
+router.get('/agency', agencyController.getAllAgency)
+router.put('/agency/:id', agencyController.updateAgency)
+router.get('/agency/:id', agencyController.getSingleAgency)
+router.delete('/agency/:id', agencyController.deleteAgency)
 
 router.post('/goal', goalController.createGoal)
-router.get('/goal',goalController.getAllGoal)
-router.put('/goal/:id',goalController.updateGoal)
-router.get('/goal/:id',goalController.getSingleGoal)
-router.delete('/goal/:id',goalController.deleteGoal)
+router.get('/goal', goalController.getAllGoal)
+router.put('/goal/:id', goalController.updateGoal)
+router.get('/goal/:id', goalController.getSingleGoal)
+router.delete('/goal/:id', goalController.deleteGoal)
 
 router.post('/industry', industryController.createIndustry)
-router.get('/industry',industryController.getAllIndustry)
-router.put('/industry/:id',industryController.updateIndustry)
-router.get('/industry/:id',industryController.getSingleIndustry)
-router.delete('/industry/:id',industryController.deleteIndustry)
+router.get('/industry', industryController.getAllIndustry)
+router.put('/industry/:id', industryController.updateIndustry)
+router.get('/industry/:id', industryController.getSingleIndustry)
+router.delete('/industry/:id', industryController.deleteIndustry)
 
 router.post('/services', serviceController.createService)
-router.get('/services',serviceController.getAllService)
-router.put('/services/:id',serviceController.updateService)
-router.get('/services/:id',serviceController.getSingleService)
-router.delete('/services/:id',serviceController.deleteService)
+router.get('/services', serviceController.getAllService)
+router.put('/services/:id', serviceController.updateService)
+router.get('/services/:id', serviceController.getSingleService)
+router.delete('/services/:id', serviceController.deleteService)
 
 
 
@@ -794,6 +794,7 @@ router.get("/get_all_percentage", user.getFilledPercentage);
 // router.post("/get_users_by_departments",user.getUsersByDepartment);
 // router.get("/get_first_time_login_users", user.getAllFirstLoginUsers)
 router.post("/get_user_graph_data", user.getUserGraphData)
+router.get("/get_users_with_status", user.getUsersWithStatus);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 

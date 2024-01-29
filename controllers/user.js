@@ -36,6 +36,7 @@ const familyModel = require('../models/familyModel.js');
 const guardianModel = require('../models/guardianModel.js');
 const orderReqModel = require('../models/orderReqModel.js');
 const simAlloModel = require('../models/simAlloModel.js');
+const objectModel = require("../models/objModel.js");
 
 // const upload = multer({ dest: "uploads/" }).fields([
 //     { name: "image", maxCount: 1 },
@@ -221,7 +222,7 @@ exports.addUser = [upload, async (req, res) => {
         const blob = bucket.file(req.files.image[0].originalname);
         simc.image = blob.name;
         const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { 
+        blobStream.on("finish", () => {
             // res.status(200).send("Success") 
         });
         blobStream.end(req.files.image[0].buffer);
@@ -260,9 +261,9 @@ exports.addUser = [upload, async (req, res) => {
 
         const checkIfAttendanceExist = await attendanceModel.findOne({
             month: req.body.month,
-            year: req.body.year  
+            year: req.body.year
         })
-        if(checkIfAttendanceExist){
+        if (checkIfAttendanceExist) {
             const lastInserted = new attendanceModel({
                 dept: simv.dept_id,
                 user_id: simv.user_id,
@@ -1198,36 +1199,36 @@ exports.getSingleUser = async (req, res) => {
 }
 
 exports.deleteUser = async (req, res) => {
-    // userModel.deleteOne({ user_id: req.params.id }).then(item => {
-    //     if (item) {
-    //         return res.status(200).json({ success: true, message: 'user deleted' })
-    //     } else {
-    //         return res.status(404).json({ success: false, message: 'user not found' })
-    //     }
-    // }).catch(err => {
-    //     return res.status(400).json({ success: false, message: err })
-    // })
-    try{
-        const deleteuser = await userModel.deleteOne({ user_id: req.params.id });
-        if(deleteuser){
-            await attendanceModel.deleteMany({user_id: req.params.id});
-            await documentHisModel.deleteMany({user_id: req.params.id});
-            await educationModel.deleteMany({user_id: req.params.id});
-            await familyModel.deleteMany({user_id: req.params.id});
-            await guardianModel.deleteMany({user_id: req.params.id});
-            await jobResponsibilityModel.deleteMany({user_id: req.params.id});
-            await notificationModel.deleteOne({user_id: req.params.id});
-            await orderReqModel.deleteMany({user_id: req.params.id});
-            await separationModel.deleteOne({user_id: req.params.id});
-            await simAlloModel.deleteMany({user_id: req.params.id});
-            await userAuthModel.deleteMany({user_id: req.params.id});
-            await userDocManagmentModel.deleteMany({user_id: req.params.id});
-            await userLoginHisModel.deleteMany({user_id: req.params.id});
-            await userOtherFieldModel.deleteMany({user_id: req.params.id});
+    userModel.deleteOne({ user_id: req.params.id }).then(item => {
+        if (item) {
+            return res.status(200).json({ success: true, message: 'user deleted' })
+        } else {
+            return res.status(404).json({ success: false, message: 'user not found' })
         }
-    }catch(err){
-        return res.status(500).json({success: false, sms:err.message})
-    }
+    }).catch(err => {
+        return res.status(400).json({ success: false, message: err })
+    })
+    // try{
+    //     const deleteuser = await userModel.deleteOne({ user_id: req.params.id });
+    //     if(deleteuser){
+    //         await attendanceModel.deleteMany({user_id: req.params.id});
+    //         await documentHisModel.deleteMany({user_id: req.params.id});
+    //         await educationModel.deleteMany({user_id: req.params.id});
+    //         await familyModel.deleteMany({user_id: req.params.id});
+    //         await guardianModel.deleteMany({user_id: req.params.id});
+    //         await jobResponsibilityModel.deleteMany({user_id: req.params.id});
+    //         await notificationModel.deleteOne({user_id: req.params.id});
+    //         await orderReqModel.deleteMany({user_id: req.params.id});
+    //         await separationModel.deleteOne({user_id: req.params.id});
+    //         await simAlloModel.deleteMany({user_id: req.params.id});
+    //         await userAuthModel.deleteMany({user_id: req.params.id});
+    //         await userDocManagmentModel.deleteMany({user_id: req.params.id});
+    //         await userLoginHisModel.deleteMany({user_id: req.params.id});
+    //         await userOtherFieldModel.deleteMany({user_id: req.params.id});
+    //     }
+    // }catch(err){
+    //     return res.status(500).json({success: false, sms:err.message})
+    // }
 };
 
 exports.loginUser = async (req, res) => {
@@ -1758,7 +1759,7 @@ exports.sendUserMail = async (req, res) => {
             // const html = ejs.render(template, {email,password,name,login_id,text});
 
             /* dynamic email temp code start */
-            const contentList = await emailTempModel.findOne({email_for_id:6});
+            const contentList = await emailTempModel.findOne({ email_for_id: 6 });
 
             const filledEmailContent = contentList.email_content
                 .replace("{{user_name}}", name)
@@ -1833,7 +1834,7 @@ exports.sendUserMail = async (req, res) => {
             await mailTransporter.sendMail(mailOptions);
             res.sendStatus(200);
         } else {
-            
+
             /* dynamic email temp code start */
             let contentList = await emailTempModel.findOne({ email_for_id: 8 })
 
@@ -2330,7 +2331,18 @@ exports.getAllWfhUsers = async (req, res) => {
             res.status(500).send({ success: false, message: "No record found" })
         }
 
+        const fieldsToCheck = [
+            'user_name', 'PersonalEmail', 'PersonalNumber', 'fatherName', 'Gender', 'motherName',
+            'Hobbies', 'BloodGroup', 'SpokenLanguage', 'DO', 'Nationality', 'guardian_name',
+            'guardian_contact', 'emergency_contact', 'guardian_address', 'relation_with_guardian',
+            'current_address', 'current_city', 'current_state', 'current_pin_code',
+            'permanent_address', 'permanent_city', 'permanent_state', 'permanent_pin_code',
+        ];
+
         const modifiedUsers = simc.map(user => {
+            const filledFields = fieldsToCheck.filter(field => user[field] !== null && user[field] !== undefined && user[field] !== '').length;
+            const percentageFilled = (filledFields / fieldsToCheck.length) * 100;
+            const percentage = percentageFilled.toFixed(2);
 
             if (user.hasOwnProperty('lastupdated')) {
                 user.last_updated = user.lastupdated;
@@ -2340,6 +2352,8 @@ exports.getAllWfhUsers = async (req, res) => {
                 user.tbs_applicable = user.tds_applicable;
                 delete user.tds_applicable;
             }
+
+            user.profile_status = percentage;
             return user;
         });
         res.status(200).send({ data: modifiedUsers })
@@ -2410,26 +2424,26 @@ exports.forgotPass = async (req, res) => {
         html = filledEmailContent;
         /* dynamic email temp code end */
 
-            var transport = nodemailer.createTransport({
-                service: "gmail",
-                auth: {
-                    user: "onboarding@creativefuel.io",
-                    pass: "fjjmxuavwpescyat",
-                },
-            });
+        var transport = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: "onboarding@creativefuel.io",
+                pass: "fjjmxuavwpescyat",
+            },
+        });
 
-            let mailOptions = {
-                from: "onboarding@creativefuel.io",
-                to: email,
-                // subject: "Forgot password",
-                subject: contentList.email_sub,
-                html: html,
-            };
+        let mailOptions = {
+            from: "onboarding@creativefuel.io",
+            to: email,
+            // subject: "Forgot password",
+            subject: contentList.email_sub,
+            html: html,
+        };
 
-            transport.sendMail(mailOptions, function (error, info) {
-                if (error) console.log(error);
-                return info;
-            });
+        transport.sendMail(mailOptions, function (error, info) {
+            if (error) console.log(error);
+            return info;
+        });
 
         return res.status(200).send({ message: 'Successfully Sent email.' })
 
@@ -2992,3 +3006,58 @@ exports.getUserGraphData = async (req, res) => {
         res.status(500).send({ error: err.message, sms: "Error creating user graph" });
     }
 };
+
+exports.getUsersWithStatus = async (req, res) => {
+    try {
+        const WFOUsers = await userModel.find({ job_type: "WFO" });
+        const CountWFOUsers = WFOUsers.length;
+
+        const responseData = {
+            count: CountWFOUsers,
+            users: WFOUsers
+        };
+
+        res.status(200).json(responseData);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message, sms: 'Error getting users from last month' });
+    }
+}
+
+exports.getAllUsersWithObj = async (req, res) => {
+    try {
+        const users = await userModel.find({});
+        const objects = await objectModel.find({});
+
+        const maxAuthIdUserAuth = await userAuthModel.findOne({}, { auth_id: 1 }).sort({ auth_id: -1 });
+        const maxAuthId = maxAuthIdUserAuth ? maxAuthIdUserAuth.auth_id + 1 : 1;
+
+        const insertedObjects = [];
+
+        for (const object of objects) {
+            const insertedObject = await userAuthModel.create({
+                Juser_id: object.user_id,
+                obj_id: object.obj_id,
+                insert: 0,
+                view: 0,
+                update: 0,
+                delete_flag: 0,
+                creation_date: "2024-01-29T12:23:18.931+00:00",
+                created_by: 229,
+                Last_updated_by: 0,
+                Last_updated_date: "2024-01-29T12:23:18.931+00:00",
+                auth_id: maxAuthId
+            });
+            insertedObjects.push(insertedObject);
+        }
+
+        const responseData = {
+            insertedObjects: insertedObjects
+        };
+
+        res.status(200).json(responseData);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message, sms: 'Error getting users from last month' });
+    }
+}

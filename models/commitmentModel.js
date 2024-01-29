@@ -4,7 +4,7 @@ const { default: mongoose } = require("mongoose");
 const commitmentSchema = new mongoose.Schema({
   cmtId: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   cmtName: {

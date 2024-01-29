@@ -305,6 +305,7 @@ exports.addAttendance = async (req, res) => {
       attendence_status_flow,
       salary_status,
     } = req.body;
+
     const attendanceData = await userModel.aggregate([
       {
         $lookup: {
@@ -317,7 +318,7 @@ exports.addAttendance = async (req, res) => {
       {
         $unwind: {
           path: "$separation",
-          // preserveNullAndEmptyArrays: true,
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -518,7 +519,7 @@ exports.addAttendance = async (req, res) => {
           const convertDate = new Date(joining);
           const extractDate = convertDate.getDate();
 
-          const workingDays = 31-extractDate-noOfabsent;
+          const workingDays = 31 - extractDate - noOfabsent;
           const perdaysal = results4[0].salary / 30;
           const totalSalary = perdaysal * (30 - noOfabsent);
           const Bonus = bonus || 0;
@@ -1038,7 +1039,7 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
       ])
       .exec();
     if (getcreators?.length === 0) {
-      return res.status(500).send({ success: false });
+      return res.status(200).send({ message: "No Attendance Data Found" });
     }
     return res.status(200).send({ data: getcreators });
   } catch (err) {
