@@ -5,7 +5,7 @@ const userModel = require("../models/userModel.js");
 exports.addFamily = async (req, res) => {
   try {
     const latestUser = await userModel.findOne({}, { user_id: 1 }).sort({ user_id: -1 });
-    const incrementedUser = latestUser.user_id;
+    const incrementedUser = latestUser ? latestUser.user_id + 1 : 1;
     const family = new familyModel({
       user_id: incrementedUser,
       name: req.body.name,
@@ -31,6 +31,10 @@ exports.addFamily = async (req, res) => {
 exports.getFamilys = async (req, res) => {
   try {
     const families = await familyModel.find();
+    const latestUser = await userModel.findOne({}, { user_id: 1 }).sort({ user_id: -1 });
+    console.log("ddddddddddddddddd", latestUser);
+    const incrementedUser = latestUser ? latestUser.user_id + 1 : 1;
+    console.log("ffffffffffff", incrementedUser);
     if (!families) {
       return response.returnFalse(200, req, res, "No Reord Found...", []);
     }

@@ -5,7 +5,7 @@ const userModel = require("../models/userModel.js");
 exports.addEducation = async (req, res) => {
   try {
     const latestUser = await userModel.findOne({}, { user_id: 1 }).sort({ user_id: -1 });
-    const incrementedUser = latestUser.user_id;
+    const incrementedUser = latestUser ? latestUser.user_id + 1 : 1;
     const education = new educationModel({
       user_id: incrementedUser,
       institute_name: req.body.institute_name,
