@@ -1039,7 +1039,7 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
       ])
       .exec();
     if (getcreators?.length === 0) {
-      return res.status(200).send({ message: "No Attendance Data Found" });
+      return res.status(500).send({ success: false });
     }
     return res.status(200).send({ data: getcreators });
   } catch (err) {

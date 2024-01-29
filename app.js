@@ -8,8 +8,8 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerDocumantion = require("./doc/swaggerDoc.js");
 const OpenAI = require("openai");
 const { swaggerConfig } = require("./doc/swaggerConfig.js");
-const errorController=require('./controllers/errorController.js')
-const swaggerAccessManagement=require('./doc/customization_src/controller/swaggerAccessManagement.js');
+const errorController = require('./controllers/errorController.js')
+const swaggerAccessManagement = require('./doc/customization_src/controller/swaggerAccessManagement.js');
 const { checkDevAuthentication } = require("./doc/customization_src/middleware/swaggerMiddleware.js");
 const path = require("path");
 // const axios = require("axios");
@@ -21,28 +21,30 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'doc/customization_src/doc_templates/pages'));
 
-app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.json({ limit: '500mb' }));
 
 app.use(
   bodyParser.urlencoded({
     extended: true,
-    limit: '50mb',
+    limit: '500mb',
     parameterLimit: 50000,
   }),
 );
 
-app.use(cors({
-  origin: [vari.ALLOWED_URL, vari.ALLOWED_URL],
-  methods: 'GET,HEAD,PUT,POST,DELETE',
-  credentials: true,
-}));
-app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", vari.ALLOWED_URL);
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,PATCH,DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type");
-  res.setHeader("Access-Control-Allow-Credentials", true);
-  next();
-});
+app.use(cors());
+
+// app.use(cors({
+//   origin: [vari.ALLOWED_URL, vari.ALLOWED_URL],
+//   methods: 'GET,HEAD,PUT,POST,DELETE',
+//   credentials: true,
+// }));
+// app.use(function (req, res, next) {
+//   res.setHeader("Access-Control-Allow-Origin", vari.ALLOWED_URL);
+//   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,PATCH,DELETE");
+//   res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type");
+//   res.setHeader("Access-Control-Allow-Credentials", true);
+//   next();
+// });
 
 app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use("/api", routes);
@@ -90,5 +92,5 @@ mongoose
 
 app.listen(vari.PORT, () => {
   console.log("server is running at " + vari.API_URL);
-  
+
 });
