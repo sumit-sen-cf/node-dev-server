@@ -15,7 +15,10 @@ const storage = new Storage({
 exports.storage = storage;
 
 const upload1 = multer({
-  storage: multer.memoryStorage()
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 500 * 1024 * 1024,
+  },
 });
 
 exports.upload1 = upload1;
