@@ -39,7 +39,7 @@ exports.createPhase = catchAsync(async (req, res, next) => {
     //now we have to update in the plan and udate with the remaining pages
 
     pages.forEach(async page => {
-        const result = await campaignPlanModel.findOneAndUpdate({ plan_id: page.plan_id }, { postRemaining: page.postRemaining }, { new: true })
+        const result = await campaignPlanModel.findOneAndUpdate({ plan_id: page.plan_id }, { postRemaining: page.postRemaining ,storyRemaining:page.storyRemaining}, { new: true })
 
     })
 
