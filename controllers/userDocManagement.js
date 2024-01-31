@@ -3,6 +3,8 @@ const response = require("../common/response.js");
 const constant = require("../common/constant.js");
 const { default: mongoose } = require("mongoose");
 const helper = require("../helper/helper.js");
+const vari = require("../variables.js");
+const { storage } = require('../common/uploadFile.js')
 
 exports.addUserDoc = async (req, res) => {
   try {
@@ -117,7 +119,7 @@ exports.editDoc = async (req, res) => {
       approval_date,
       approval_by,
     } = req.body;
-    let doc_image = req.file?.filename;
+    let doc_image = req.file?.originalname;
     const editDocObj = await userDocManagmentModel.findByIdAndUpdate(_id, {
       $set: {
         reject_reason,
@@ -131,6 +133,20 @@ exports.editDoc = async (req, res) => {
         doc_image,
       },
     });
+
+    if (req.file) {
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      editDocObj.doc_image = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => {
+        editDocObj.save();
+        // res.status(200).send("Success") 
+      });
+      blobStream.end(req.file.buffer);
+    }
+
     if (doc_image) {
       const result = helper.fileRemove(
         editDocObj?.doc_image,

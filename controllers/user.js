@@ -228,6 +228,7 @@ exports.addUser = [upload, async (req, res) => {
         blobStream.end(req.files.image[0].buffer);
 
         const simv = await simc.save();
+        res.send({ simv, status: 200 });
 
         // Genreate a pdf file for offer later
         if (simv?.offer_letter_send) {
@@ -245,78 +246,78 @@ exports.addUser = [upload, async (req, res) => {
         }
         //End Generate documents for respective user id
 
-        const joining = simv.joining_date;
-        const convertDate = new Date(joining);
-        const extractDate = convertDate.getDate();
-        const joiningMonth = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(convertDate);
-        const joiningYear = String(convertDate.getUTCFullYear());
-        const work_days = 31 - extractDate;
-        const bonus = 0;
-        const presentDays = work_days - 0;
-        const perdaysal = simv.salary / 30;
-        const totalSalary = perdaysal * presentDays;
-        const netSalary = totalSalary + bonus;
-        const tdsDeduction = netSalary * (simv.tds_per) / 100;
-        const ToPay = netSalary - tdsDeduction;
+        if (simv) {
+            const joining = simv.joining_date;
+            const convertDate = new Date(joining);
+            const extractDate = convertDate.getDate();
+            const joiningMonth = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(convertDate);
+            const joiningYear = String(convertDate.getUTCFullYear());
+            const work_days = 31 - extractDate;
+            const bonus = 0;
+            const presentDays = work_days - 0;
+            const perdaysal = simv.salary / 30;
+            const totalSalary = perdaysal * presentDays;
+            const netSalary = totalSalary + bonus;
+            const tdsDeduction = netSalary * (simv.tds_per) / 100;
+            const ToPay = netSalary - tdsDeduction;
 
-        const checkIfAttendanceExist = await attendanceModel.findOne({
-            month: req.body.month,
-            year: req.body.year
-        })
-        if (checkIfAttendanceExist) {
-            const lastInserted = new attendanceModel({
-                dept: simv.dept_id,
-                user_id: simv.user_id,
-                user_name: req.body.user_name,
-                noOfabsent: 0,
-                month: joiningMonth,
-                year: joiningYear,
-                bonus: 0,
-                total_salary: simv.salary && simv.salary.toFixed(2),
-                tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-                net_salary: netSalary && netSalary.toFixed(2),
-                toPay: ToPay && ToPay.toFixed(2),
-                remark: "",
-                created_by: 99
+            const checkIfAttendanceExist = await attendanceModel.findOne({
+                month: req.body.month,
+                year: req.body.year
             })
-            await lastInserted.save();
-        }
-
-        const objectData = await objModel.find();
-        const objects = objectData;
-
-        for (const object of objects) {
-            const objectId = object.obj_id;
-            let insert = 0;
-            let view = 0;
-            let update = 0;
-            let delete_flag = 0;
-
-            if (simv.role_id === 1) {
-                insert = 1;
-                view = 1;
-                update = 1;
-                delete_flag = 1;
+            if (checkIfAttendanceExist) {
+                const lastInserted = new attendanceModel({
+                    dept: simv.dept_id,
+                    user_id: simv.user_id,
+                    user_name: req.body.user_name,
+                    noOfabsent: 0,
+                    month: joiningMonth,
+                    year: joiningYear,
+                    bonus: 0,
+                    total_salary: simv.salary && simv.salary.toFixed(2),
+                    tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
+                    net_salary: netSalary && netSalary.toFixed(2),
+                    toPay: ToPay && ToPay.toFixed(2),
+                    remark: "",
+                    created_by: 99
+                })
+                await lastInserted.save();
             }
 
-            const userAuthDocument = {
-                Juser_id: simv.user_id,
-                obj_id: objectId,
-                insert: insert,
-                view: view,
-                update: update,
-                delete_flag: delete_flag,
-                creation_date: new Date(),
-                created_by: simv.created_by || 0,
-                last_updated_by: simv.created_by || 0,
-                last_updated_date: new Date(),
-            };
+            const objectData = await objModel.find();
+            const objects = objectData;
 
-            await userAuthModel.create(userAuthDocument);
+            for (const object of objects) {
+                const objectId = object.obj_id;
+                let insert = 0;
+                let view = 0;
+                let update = 0;
+                let delete_flag = 0;
+
+                if (simv.role_id === 1) {
+                    insert = 1;
+                    view = 1;
+                    update = 1;
+                    delete_flag = 1;
+                }
+
+                const userAuthDocument = {
+                    Juser_id: simv.user_id,
+                    obj_id: objectId,
+                    insert: insert,
+                    view: view,
+                    update: update,
+                    delete_flag: delete_flag,
+                    creation_date: new Date(),
+                    created_by: simv.created_by || 0,
+                    last_updated_by: simv.created_by || 0,
+                    last_updated_date: new Date(),
+                };
+
+                await userAuthModel.create(userAuthDocument);
+            }
         }
-
         const deptDesiData = await deptDesiAuthModel.find({});
-
         await Promise.all(deptDesiData.map(async (deptDesi) => {
             if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
                 const updatedData = await userAuthModel.updateMany(
@@ -333,7 +334,7 @@ exports.addUser = [upload, async (req, res) => {
                 );
             }
         }));
-        res.send({ simv, status: 200 });
+        // res.send({ simv, status: 200 });
     } catch (err) {
         res.status(500).send({ error: err.message, sms: 'This user cannot be created' })
     }
