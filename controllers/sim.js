@@ -321,13 +321,13 @@ exports.getSims = async (req, res) => {
                 {
                   $and: [
                     { $eq: ["$status", "Allocated"] },
-                    { $eq: ["$simallocation.submitted_at", null] },
+                    { $eq: ["$simallocation.submitted_at", 0] },
                   ],
                 },
                 {
                   $subtract: [new Date(), "$Last_updated_date"],
                 },
-                null,
+                0,
               ],
             },
           },
@@ -2028,19 +2028,19 @@ exports.showAssetDataToUserReport = async (req, res) => {
           from: "assetrequestmodels",
           localField: "sub_category_id",
           foreignField: "sub_category_id",
-          as: "repair",
+          as: "assetRequest",
         },
       },
       {
         $unwind: {
-          path: "$repair",
+          path: "$assetRequest",
           preserveNullAndEmptyArrays: true,
         },
       },
       {
         $lookup: {
           from: "usermodels",
-          localField: "repair.request_by",
+          localField: "assetRequest.request_by",
           foreignField: "user_id",
           as: "userdata",
         },
@@ -2124,7 +2124,7 @@ exports.showAssetDataToUserReport = async (req, res) => {
       {
         $lookup: {
           from: "usermodels",
-          localField: "repair.multi_tag",
+          localField: "assetRequest.multi_tag",
           foreignField: "user_id",
           as: "userMulti",
         },
@@ -2158,20 +2158,20 @@ exports.showAssetDataToUserReport = async (req, res) => {
           vendor_name: "$vendor.vendor_name",
           vendor_contact_no: "$vendor.vendor_contact_no",
           vendor_email_id: "$vendor.vendor_email_id",
-          multi_tag: "$repair.multi_tag",
+          multi_tag: "$assetRequest.multi_tag",
           asset_brand_id: "$brand.asset_brand_id",
           asset_brand_name: "$brand.asset_brand_name",
           asset_modal_id: "$modal.asset_modal_id",
           asset_modal_name: "$modal.asset_modal_name",
-          priority: "$repair.priority",
-          req_by: "$repair.request_by",
+          priority: "$assetRequest.priority",
+          req_by: "$assetRequest.request_by",
           req_by_name: "$userdata.user_name",
-          req_date: "$repair.date_and_time_of_asset_request",
+          req_date: "$assetRequest.date_and_time_of_asset_request",
           asset_request_by_name: "$userRequest.user_name",
           asset_request_multi_tag_name: "$userMulti.user_name",
-          asset_new_request_status: "$repair.asset_request_status",
+          asset_new_request_status: "$assetRequest.asset_request_status",
           users_manager: "$userMulti.Report_L1",
-          asset_request_id: "$repair._id"
+          asset_request_id: "$assetRequest._id"
         },
       },
     ]).exec();
