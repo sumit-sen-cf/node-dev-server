@@ -86,9 +86,7 @@ exports.exeSumPost = async (req, res) => {
 
         )
         const responseData = response.data.body;
-
         for (const data of responseData) {
-
             const existingData = await checkIfDataExists(data.sale_booking_execution_id)
 
             if (!existingData) {
@@ -96,45 +94,54 @@ exports.exeSumPost = async (req, res) => {
                 const creators = new exeSum({
                     sale_booking_execution_id: data.sale_booking_execution_id,
                     sale_booking_id: data.sale_booking_id,
-                    start_date_: data.start_date_,
+                    invoice_id: data.invoice_id,
+                    start_date: data.start_date,
                     end_date: data.end_date,
+                    execution_status: data.execution_status,
+                    execution_time: data.execution_time,
+                    execution_date_time: data.execution_date_time,
+                    execution_excel: data.execution_excel,
+                    execution_done_by: data.execution_done_by,
+                    execution_remark: data.execution_remark,
                     summary: data.summary,
                     remarks: data.remarks,
                     created_by: data.created_by,
                     last_updated_by: data.last_updated_by,
+                    execution_sent_date: data.execution_sent_date,
                     creation_date: data.creation_date,
                     last_updated_date: data.last_updated_date,
                     sale_booking_date: data.sale_booking_date,
                     campaign_amount: data.campaign_amount,
-                    execution_date: data?.execution_date === "0000-00-00" ? Date.now() : data?.execution_date,
-                    execution_remark: data.execution_remark,
-                    execution_done_by: data.execution_done_by,
+                    execution_date: data.execution_date,
+                    execution_pause: data.execution_pause,
                     cust_name: data.cust_name,
-                    loggedin_user_id: data.loggedin_user_id,
-                    execution_status: 0,
-                    // execution_status: data.execution_status,
-                    payment_update_id: data.payment_update_id,
-                    payment_type: data.payment_type,
+                    customer_created_date: data.customer_created_date,
                     status_desc: data.status_desc,
                     invoice_creation_status: data.invoice_creation_status,
                     manager_approval: data.manager_approval,
                     invoice_particular: data.invoice_particular,
-                    payment_status_show: data.payment_status_show,
+                    gst_status: data.gst_status,
+                    booking_created_date: data.booking_created_date,
+                    booking_last_updated_date: data.booking_last_updated_date,
+                    record_service_amount: data.record_service_amount,
+                    record_service_created_date: data.record_service_created_date,
                     sales_executive_name: data.sales_executive_name,
                     page_ids: data.page_ids,
                     service_id: data.service_id,
                     service_name: data.service_name,
-                    execution_excel: data.execution_excel,
+                    payment_type: data.payment_type,
+                    last_payment_date: data.last_payment_date,
                     total_paid_amount: data.total_paid_amount,
-                    credit_approval_amount: data.credit_approval_amount,
-                    credit_approval_date: data.credit_approval_date,
-                    credit_approval_by: data.credit_approval_by,
+                    manager_name: data.manager_name,
                     campaign_amount_without_gst: data.campaign_amount_without_gst,
-                    start_date: data.start_date
+                    credit_approval_amount: data.credit_approval_amount,
+                    payment_status_show: data.payment_status_show,
+                    credit_approval_date: data.credit_approval_date,
+                    credit_approval_by: data.credit_approval_by
                 })
                 const instav = await creators.save();
 
-                return res.send({ instav, status: 200 })
+                // res.send({  status: 200 })
             } else {
                 return res.status(200).json({ msg: "Data already insterted there is no new data available to insert." })
             }

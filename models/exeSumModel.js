@@ -8,101 +8,101 @@ const exeSumModel = new mongoose.Schema({
     //     type: Number,
     //     required: true
     // },
-    id: { 
+    id: {
         type: Number,
         required: false,
         unique: true,
     },
     sale_booking_execution_id: {
-        type: Number,
+        type: String,
         required: false,
-        default: 0
+        default: ""
     },
     sale_booking_id: {
-        type: Number,
+        type: String,
         required: false,
-        default: 0
+        default: ""
     },
-    start_date_: {
-        type: Date,
-        default: Date.now
+    start_date: {
+        type: String,
+        default: ""
     },
     end_date: {
-        type: Date,
-        default: Date.now
+        type: String,
+        default: ""
     },
-    summary:{
+    summary: {
         type: String,
         required: false,
         default: ""
     },
-    remarks:{
+    remarks: {
         type: String,
         required: false,
         default: ""
     },
-    created_by:{
-        type: Number,
+    created_by: {
+        type: String,
         required: false,
-        default: 0
+        default: ""
     },
-    last_updated_by:{
-        type: Number,
+    last_updated_by: {
+        type: String,
         required: false,
-        default: 0
+        default: ""
     },
-    creation_date:{
-        type: Date,
-        default: Date.now
+    creation_date: {
+        type: String,
+        default: ""
     },
-    last_updated_date:{
-        type: Date,
-        default: Date.now
+    last_updated_date: {
+        type: String,
+        default: ""
     },
-    sale_booking_date:{
-        type: Date,
-        default: Date.now
+    sale_booking_date: {
+        type: String,
+        default: ""
     },
     campaign_amount: {
-        type: Number,
-        required: false,
-        default: Date.now
-    },
-    execution_date:{
-        type: Date,
-        default: Date.now
-    },
-    execution_remark:{
         type: String,
         required: false,
         default: ""
     },
-    execution_done_by:{
-        type: Number,
+    execution_date: {
+        type: String,
+        default: ""
+    },
+    execution_remark: {
+        type: String,
         required: false,
-        default: 0
+        default: ""
+    },
+    execution_done_by: {
+        type: String,
+        required: false,
+        default: ""
     },
     cust_name: {
         type: String,
         required: false,
         default: ""
     },
-    loggedin_user_id:{
+    loggedin_user_id: {
         type: Number,
         required: false,
         default: 0
     },
-    execution_status:{
-        type: Number,
+    execution_status: {
+        type: String,
         required: false,
-        default: 0
+        default: ""
     },
     payment_update_id: {
         type: Number,
         required: false,
         default: 0
     },
-    payment_type:{
+    payment_type: {
         type: String,
         required: false,
         default: ""
@@ -112,7 +112,7 @@ const exeSumModel = new mongoose.Schema({
         required: false,
         default: ""
     },
-    invoice_creation_status:{
+    invoice_creation_status: {
         type: String,
         required: false,
         default: ""
@@ -122,7 +122,7 @@ const exeSumModel = new mongoose.Schema({
         required: false,
         default: ""
     },
-    invoice_particular:{
+    invoice_particular: {
         type: String,
         required: false,
         default: ""
@@ -165,7 +165,8 @@ const exeSumModel = new mongoose.Schema({
         default: 0
     },
     credit_approval_date: {
-        type: Date
+        type: String,
+        default: ""
     },
     credit_approval_by: {
         type: String,
@@ -175,21 +176,69 @@ const exeSumModel = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    start_date:{
+    execution_time: {
+        type: String,
+        default: ""
+    },
+    execution_date_time: {
+        type: String,
+        default: ""
+    },
+    execution_sent_date: {
+        type: String,
+        default: ""
+    },
+    execution_pause: {
+        type: String,
+        default: ""
+    },
+    customer_created_date: {
+        type: String,
+        default: ""
+    },
+    gst_status: {
+        type: String,
+        default: ""
+    },
+    booking_created_date: {
+        type: String,
+        default: ""
+    },
+    booking_last_updated_date: {
+        type: String,
+        default: ""
+    },
+    record_service_amount: {
+        type: String,
+        default: ""
+    },
+    record_service_created_date: {
+        type: String,
+        default: ""
+    },
+    last_payment_date: {
+        type: String,
+        default: ""
+    },
+    manager_name: {
+        type: String,
+        default: ""
+    },
+    start_date: {
         type: Date,
-        default:""
+        default: ""
     }
 });
 
 exeSumModel.pre('save', async function (next) {
     if (!this.id) {
-      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'id': -1 } });
-  
-      if (lastAgency && lastAgency.id) {
-        this.id = lastAgency.id + 1;
-      } else {
-        this.id = 1;
-      }
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'id': -1 } });
+
+        if (lastAgency && lastAgency.id) {
+            this.id = lastAgency.id + 1;
+        } else {
+            this.id = 1;
+        }
     }
     next();
 });
