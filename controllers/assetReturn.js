@@ -1,7 +1,9 @@
 const assetReturnModel = require("../models/assetReturnModel.js");
+const userModel = require("../models/userModel.js");
 const multer = require("multer");
 const mongoose = require("mongoose");
-const vari = require("../variables.js")
+const vari = require("../variables.js");
+
 
 const upload = multer({ dest: "uploads/assets" }).fields([
     { name: "return_asset_image_1", maxCount: 1 },
@@ -252,4 +254,26 @@ exports.deleteAssetReturnRequest = async (req, res) => {
             message: err.message
         });
     })
+};
+
+exports.showReturnAssetDataToUserReport = async (req, res) => {
+    try {
+        const { user_id } = req.params;
+        const assetReturnRequests = await assetReturnModel.find({});
+
+        const processedAssetReturnRequests = await Promise.all(assetReturnRequests.map(async (assetReturnRequest) => {
+            const { asset_return_by } = assetReturnRequest;
+
+            const reportL1 = await userModel.findOne({ user_id: asset_return_by });
+
+            if (reportL1.Report_L1 == user_id) {
+                return res.status(200).send({
+                    succes: true,
+                    data: assetReturnRequest
+                });
+            }
+        }));
+    } catch (err) {
+        return res.status(500).send({ error: err.message, sms: "Error getting Asset Return Request Data " });
+    }
 };

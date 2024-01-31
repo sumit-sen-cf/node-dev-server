@@ -617,13 +617,13 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
         {
           $unwind: {
             path: "$sim",
-            preserveNullAndEmptyArrays: true,
+            // preserveNullAndEmptyArrays: true,
           },
         },
         {
           $lookup: {
             from: "assetscategorymodels",
-            localField: "category_id",
+            localField: "sim.category_id",
             foreignField: "category_id",
             as: "category",
           },
@@ -637,7 +637,7 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
         {
           $lookup: {
             from: "assetssubcategorymodels",
-            localField: "sub_category_id",
+            localField: "sim.sub_category_id",
             foreignField: "sub_category_id",
             as: "subcategory",
           },
@@ -665,7 +665,7 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
         {
           $lookup: {
             from: "assetrequestmodels",
-            localField: "sub_category_id",
+            localField: "sim.sub_category_id",
             foreignField: "sub_category_id",
             as: "assetrequest",
           },
@@ -725,12 +725,13 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
             submitted_at: "$submitted_at",
             submitted_by: "$submitted_by",
             submitted_by_name: "$user.user_name",
+            asset_request_multi_tag: "$assetrequest.multi_tag",
             asset_request_detail: "$assetrequest.detail",
             asset_request_priority: "$assetrequest.priority",
             asset_request_asset_request_status: "$assetrequest.asset_request_status",
             asset_request_request_by: "$assetrequest.request_by",
             asset_request_request_by_name: "$userRequest.user_name",
-            asset_request_multi_tag_name: "$userMulti.user_name"
+            asset_request_multi_tag_names: "$userMulti.user_name"
           },
         },
       ])
@@ -745,6 +746,158 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
       .send({ error: err.message, sms: "Error getting all sim allocatinos" });
   }
 };
+
+// exports.getAllocatedAssestByUserId = async (req, res) => {
+//   try {
+//     const assetData = await simAlloModel
+//       .aggregate([
+//         {
+//           $match: { user_id: parseInt(req.params.id) },
+//         },
+//         {
+//           $lookup: {
+//             from: "simmodels",
+//             localField: "sim_id",
+//             foreignField: "sim_id",
+//             as: "sim",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$sim",
+//             // preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "assetscategorymodels",
+//             localField: "sim.category_id",
+//             foreignField: "category_id",
+//             as: "category",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$category",
+//             preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "assetssubcategorymodels",
+//             localField: "sim.sub_category_id",
+//             foreignField: "sub_category_id",
+//             as: "subcategory",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$subcategory",
+//             preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "usermodels",
+//             localField: "submitted_by",
+//             foreignField: "user_id",
+//             as: "user",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$user",
+//             preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "assetrequestmodels",
+//             localField: "sim.sub_category_id",
+//             foreignField: "sub_category_id",
+//             as: "assetrequest",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$assetrequest",
+//             preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "usermodels",
+//             localField: "assetrequest.request_by",
+//             foreignField: "user_id",
+//             as: "userRequest",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$userRequest",
+//             preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "usermodels",
+//             localField: "assetrequest.multi_tag",
+//             foreignField: "user_id",
+//             as: "multiTagUsers"
+//           }
+//         },
+//         {
+//           $unwind: {
+//             path: "$multiTagUsers",
+//             preserveNullAndEmptyArrays: true
+//           }
+//         },
+//         {
+//           $group: {
+//             _id: "$_id",
+//             user_id: { $first: "$user_id" },
+//             assetsName: { $first: "$sim.assetsName" },
+//             Remarks: { $first: "$Remarks" },
+//             sub_category_name: { $first: "$subcategory.sub_category_name" },
+//             category_name: { $first: "$category.category_name" },
+//             created_by: { $first: "$created_by" },
+//             status: { $first: "$status" },
+//             sim_id: { $first: "$sim_id" },
+//             allo_id: { $first: "$allo_id" },
+//             submitted_at: { $first: "$submitted_at" },
+//             asset_request_multi_tag_names: { $push: "$multiTagUsers.user_name" }
+//           }
+//         },
+//         {
+//           $project: {
+//             _id: 1,
+//             user_id: 1,
+//             assetsName: 1,
+//             Remarks: 1,
+//             sub_category_name: 1,
+//             category_name: 1,
+//             created_by: 1,
+//             status: 1,
+//             sim_id: 1,
+//             allo_id: 1,
+//             submitted_at: 1,
+//             asset_request_multi_tag_names: 1
+//           }
+//         }
+//       ])
+//       .exec();
+
+//     if (assetData && assetData.length <= 0) {
+//       return res.status(500).send({ success: false, message: "No Record Found" });
+//     }
+//     return res.status(200).send({ data: assetData });
+//   } catch (err) {
+//     return res
+//       .status(500)
+//       .send({ error: err.message, sms: "Error getting all sim allocations" });
+//   }
+// };
+
 
 exports.getAllocationDataByAlloId = async (req, res) => {
   try {

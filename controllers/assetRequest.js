@@ -185,18 +185,42 @@ exports.getAssetRequestById = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "usermodels",
+                    let: { multiTagIds: "$multi_tag" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $in: ["$user_id", "$$multiTagIds"] }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                user_id: 1,
+                                user_name: 1
+                            }
+                        }
+                    ],
+                    as: "multi_tag_users"
+                }
+            },
+            {
+                $addFields: {
+                    multi_tag_names: "$multi_tag_users.user_name"
+                }
+            },
+            {
                 $project: {
-                    sim_id: "sim_id",
-                    asset_name: "$Sim.assetsName",
-                    sub_category_id: "$sub_cat_id",
+                    sub_category_id: 1,
+                    detail: 1,
+                    priority: 1,
+                    date_and_time_of_asset_request: 1,
+                    request_by: 1,
+                    multi_tag: 1,
+                    multi_tag_names: 1,
                     sub_category_name: "$SubCategory.sub_category_name",
-                    detail: "$detail",
-                    priority: "$priority",
-                    date_and_time_of_asset_request: "$date_and_time_of_asset_request",
-                    request_by: "$request_by",
                     request_by_name: "$user.user_name",
-                    multi_tag: "$multi_tag",
-                    multi_tag_name: "$userMulti.user_name",
                     asset_request_status: "$asset_request_status"
                 },
             },
