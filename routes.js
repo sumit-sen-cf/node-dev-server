@@ -859,6 +859,7 @@ router.get("/get_salary_calculation_data", attendance.getSalarycalculationData);
 router.post("/get_users_count_by_dept", attendance.getUsersCountByDept);
 router.put("/update_attendance", attendance.updateAttendance);
 router.get("/get_all_disputes", attendance.allAttendanceDisputeDatas);
+router.get("/get_user_disputes/:user_id", attendance.getUserAttendanceDisputeDatas);
 
 /* commitement */
 router.post("/add_commitment", cmtController.addCmt);

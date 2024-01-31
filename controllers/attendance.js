@@ -418,7 +418,7 @@ exports.addAttendance = async (req, res) => {
                 remark: "",
                 Created_by: req.body.user_id,
                 salary,
-                attendence_status_flow: "Payout generated",
+                attendence_status_flow: "Payout Generated",
                 disputed_reason: req.body.disputed_reason,
                 disputed_date: req.body.disputed_date
               });
@@ -497,7 +497,7 @@ exports.addAttendance = async (req, res) => {
                 remark: "",
                 Created_by: req.body.user_id,
                 salary,
-                attendence_status_flow: "Payout generated",
+                attendence_status_flow: "Payout Generated",
                 disputed_reason: req.body.disputed_reason,
                 disputed_date: req.body.disputed_date
               });
@@ -2527,7 +2527,9 @@ exports.updateAttendance = async (req, res) => {
       {
         attendence_status_flow: req.body.attendence_status_flow,
         disputed_reason: req.body.disputed_reason,
-        disputed_date: req.body.disputed_date
+        disputed_date: req.body.disputed_date,
+        disputed_status:req.body.disputed_status,
+        resolved_date:req.body.resolved_date
       },
       { new: true }
     );
@@ -2605,6 +2607,8 @@ exports.allAttendanceDisputeDatas = async (req, res) => {
           attendence_status_flow: { $first: "$attendence_status_flow" },
           disputed_reason: { $first: "$disputed_reason" },
           disputed_date: { $first: "$disputed_date" },
+          disputed_status:{$first:"disputed_status"},
+          resolved_date: { $first: "$resolved_date" },
         },
       },
       {
@@ -2637,9 +2641,126 @@ exports.allAttendanceDisputeDatas = async (req, res) => {
           attendence_status_flow: 1,
           disputed_reason: 1,
           disputed_date: 1,
+          disputed_status:1,
+          resolved_date:1,
         },
       },
     ]);
+    res.status(200).json(results);
+  } catch (error) {
+    console.error("Error querying MongoDB:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getUserAttendanceDisputeDatas = async (req, res) => {
+  try {
+    const results = await attendanceModel.find({
+      user_id: req.params.user_id,
+      attendence_status_flow: "Disputed"
+    })
+
+    // const resultss = await attendanceModel.aggregate([
+    //   {
+    //     $match: {
+    //       user_id: req.params.user_id,
+    //       attendence_status_flow: "Disputed"
+    //     }
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "departmentmodels",
+    //       localField: "dept_id",
+    //       foreignField: "dept",
+    //       as: "dept_data",
+    //     },
+    //   },
+    //   {
+    //     $unwind: "$dept_data",
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "usermodels",
+    //       localField: "user_id",
+    //       foreignField: "user_id",
+    //       as: "user_data",
+    //     },
+    //   },
+    //   {
+    //     $unwind: "$user_data",
+    //   },
+    //   {
+    //     $group: {
+    //       _id: "$attendence_id",
+    //       attendence_id: { $first: "$attendence_id" },
+    //       user_id: { $first: "$user_id" },
+    //       dept_data: { $first: "$dept_data" },
+    //       user_data: { $first: "$user_data" },
+    //       noOfabsent: { $first: "$noOfabsent" },
+    //       year: { $first: "$year" },
+    //       remark: { $first: "$remark" },
+    //       Creation_date: { $first: "$Creation_date" },
+    //       Created_by: { $first: "$Created_by" },
+    //       Last_updated_by: { $first: "$Last_updated_by" },
+    //       Last_updated_date: { $first: "$Last_updated_date" },
+    //       month: { $first: "$month" },
+    //       bonus: { $first: "$bonus" },
+    //       total_salary: { $first: "$total_salary" },
+    //       net_salary: { $first: "$net_salary" },
+    //       tds_deduction: { $first: "$tds_deduction" },
+    //       user_name: { $first: "$user_data.user_name" },
+    //       toPay: { $first: "$toPay" },
+    //       sendToFinance: { $first: "$sendToFinance" },
+    //       attendence_generated: { $first: "$attendence_generated" },
+    //       attendence_status: { $first: "$attendence_status" },
+    //       salary_status: { $first: "$salary_status" },
+    //       salary_deduction: { $first: "$salary_deduction" },
+    //       salary: { $first: "$salary" },
+    //       dept_name: { $first: "$dept_data.dept_name" },
+    //       Report_L1Name: { $first: "$user_data.Report_L1N" },
+    //       Report_L2Name: { $first: "$user_data.Report_L2N" },
+    //       attendence_status_flow: { $first: "$attendence_status_flow" },
+    //       disputed_reason: { $first: "$disputed_reason" },
+    //       disputed_date: { $first: "$disputed_date" },
+    //       disputed_status:{$first:"disputed_status"},
+    //       resolved_date: { $first: "$resolved_date" },
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       attendence_id: 1,
+    //       dept: 1,
+    //       noOfabsent: 1,
+    //       year: 1,
+    //       remark: 1,
+    //       Creation_date: 1,
+    //       Created_by: 1,
+    //       Last_updated_by: 1,
+    //       Last_updated_date: 1,
+    //       month: 1,
+    //       bonus: 1,
+    //       total_salary: 1,
+    //       net_salary: 1,
+    //       tds_deduction: 1,
+    //       user_name: 1,
+    //       toPay: 1,
+    //       sendToFinance: 1,
+    //       attendence_generated: 1,
+    //       attendence_status: 1,
+    //       salary_status: 1,
+    //       salary_deduction: 1,
+    //       salary: 1,
+    //       dept_name: 1,
+    //       Report_L1Name: 1,
+    //       Report_L2Name: 1,
+    //       attendence_status_flow: 1,
+    //       disputed_reason: 1,
+    //       disputed_date: 1,
+    //       disputed_status:1,
+    //       resolved_date:1,
+    //     },
+    //   },
+    // ]);
     res.status(200).json(results);
   } catch (error) {
     console.error("Error querying MongoDB:", error.message);
