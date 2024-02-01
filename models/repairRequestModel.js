@@ -26,9 +26,9 @@ const repairRequestModel = new mongoose.Schema({
         default: ""
     },
     multi_tag: {
-        type: [String],
+        type: Array,
         required: false,
-        default: ""
+        default: []
     },
     img1: {
         type: String,
@@ -141,13 +141,13 @@ const repairRequestModel = new mongoose.Schema({
 
 repairRequestModel.pre('save', async function (next) {
     if (!this.repair_id) {
-      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'repair_id': -1 } });
-  
-      if (lastAgency && lastAgency.repair_id) {
-        this.repair_id = lastAgency.repair_id + 1;
-      } else {
-        this.repair_id = 1;
-      }
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'repair_id': -1 } });
+
+        if (lastAgency && lastAgency.repair_id) {
+            this.repair_id = lastAgency.repair_id + 1;
+        } else {
+            this.repair_id = 1;
+        }
     }
     next();
 });

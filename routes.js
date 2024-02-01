@@ -1168,6 +1168,7 @@ router.get("/get_all_repair_request", repairRequest.getAllRepairRequests);
 router.get("/get_single_repair_request/:id", repairRequest.getSingleRepairRequests);
 router.get("/get_all_repair_request_by_asset_reasonId/:id", repairRequest.getAllRepairRequestsByAssetReasonId);
 router.delete("/delete_repair_request/:id", repairRequest.deleteRepairRequest);
+router.get("/show_repair_request_asset_data_to_reportL1/:user_id", repairRequest.showRepairRequestAssetDataToUserReport);
 
 /* Assets Images master */
 router.post("/add_assets_images", assetsImage.addAssetImage);

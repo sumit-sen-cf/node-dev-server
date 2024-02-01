@@ -4,8 +4,7 @@ const { default: mongoose } = require("mongoose");
 const assetRequestModel = new mongoose.Schema({
     sub_category_id: {
         type: Number,
-        required: true,
-        unique: true
+        required: true
     },
     sim_id: {
         type: Number,
