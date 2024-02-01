@@ -175,7 +175,7 @@ exports.getSims = async (req, res) => {
         {
           $unwind: {
             path: "$category",
-            preserveNullAndEmptyArrays: true,
+            // preserveNullAndEmptyArrays: true,
           },
         },
         {
@@ -189,7 +189,7 @@ exports.getSims = async (req, res) => {
         {
           $unwind: {
             path: "$subcategory",
-            preserveNullAndEmptyArrays: true,
+            // preserveNullAndEmptyArrays: true,
           },
         },
         {
@@ -203,7 +203,7 @@ exports.getSims = async (req, res) => {
         {
           $unwind: {
             path: "$vendor",
-            preserveNullAndEmptyArrays: true,
+            // preserveNullAndEmptyArrays: true,
           },
         },
         {
@@ -335,29 +335,22 @@ exports.getSims = async (req, res) => {
       ])
       .exec();
 
-    // const uniqueIds = new Set();
-    // const uniqueData = simc.filter((item) => {
-    //   const id = item._id.toString();
-    //   if (!uniqueIds.has(id)) {
-    //     uniqueIds.add(id);
-    //     return true;
-    //   }
-    //   return false;
-    // });
-
-    // if (!simc) {
-    //   res.status(500).send({ success: false });
-    // }
-    // res.status(200).send({ data: uniqueData });
     if (!simc) {
       return res.status(500).json({ success: false, message: "No data found" });
     }
 
-    const uniqueData = Array.from(new Set(simc.map((item) => item._id))).map(
-      (sim_id) => simc.find((item) => item._id === sim_id)
-    );
+    const uniqueData = simc.reduce((acc, cur) => {
+      const key = cur._id.toString() + '-' + cur.status;
+      if (!acc[key]) {
+        acc[key] = cur;
+      }
+      return acc;
+    }, {});
+    // const uniqueData = Array.from(new Set(simc.map((item) => item._id))).map(
+    //   (sim_id) => simc.find((item) => item._id === sim_id)
+    // );
 
-    res.status(200).json({ data: uniqueData });
+    res.status(200).json({ data: Object.values(uniqueData) });
   } catch (err) {
     res
       .status(500)
@@ -604,7 +597,10 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
     const assetData = await simAlloModel
       .aggregate([
         {
-          $match: { user_id: parseInt(req.params.id) },
+          $match: {
+            user_id: parseInt(req.params.id),
+            status: "Allocated"
+          },
         },
         {
           $lookup: {
@@ -678,6 +674,20 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
         },
         {
           $lookup: {
+            from: "repairrequestmodels",
+            localField: "sim_id",
+            foreignField: "sim_id",
+            as: "repairRequest",
+          },
+        },
+        {
+          $unwind: {
+            path: "$repairRequest",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
             from: "usermodels",
             localField: "assetrequest.request_by",
             foreignField: "user_id",
@@ -731,7 +741,8 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
             asset_request_asset_request_status: "$assetrequest.asset_request_status",
             asset_request_request_by: "$assetrequest.request_by",
             asset_request_request_by_name: "$userRequest.user_name",
-            asset_request_multi_tag_names: "$userMulti.user_name"
+            asset_request_multi_tag_names: "$userMulti.user_name",
+            asset_repair_request_status: "$repairRequest.status"
           },
         },
       ])

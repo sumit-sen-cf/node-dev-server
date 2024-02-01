@@ -120,126 +120,6 @@ exports.getAssetRequests = async (req, res) => {
     }
 };
 
-// exports.getAssetRequestById = async (req, res) => {
-//     try {
-//         const singleAssetRequest = await assetRequestModel.aggregate([
-//             {
-//                 $match: {
-//                     request_by: parseInt(req.params.id),
-//                 }
-//             },
-//             {
-//                 $lookup: {
-//                     from: "assetssubcategorymodels",
-//                     localField: "sub_category_id",
-//                     foreignField: "sub_category_id",
-//                     as: "SubCategory",
-//                 },
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$SubCategory",
-//                     preserveNullAndEmptyArrays: true,
-//                 },
-//             },
-//             {
-//                 $lookup: {
-//                     from: "simmodels",
-//                     localField: "sim_id",
-//                     foreignField: "sim_id",
-//                     as: "Sim",
-//                 },
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$Sim",
-//                     preserveNullAndEmptyArrays: true,
-//                 },
-//             },
-//             {
-//                 $lookup: {
-//                     from: "usermodels",
-//                     localField: "request_by",
-//                     foreignField: "user_id",
-//                     as: "user",
-//                 },
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$user",
-//                     preserveNullAndEmptyArrays: true,
-//                 },
-//             },
-//             {
-//                 $lookup: {
-//                     from: "usermodels",
-//                     localField: "multi_tag",
-//                     foreignField: "user_id",
-//                     as: "userMulti",
-//                 },
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$userMulti",
-//                     preserveNullAndEmptyArrays: true,
-//                 },
-//             },
-//             {
-//                 $lookup: {
-//                     from: "usermodels",
-//                     let: { multiTagIds: "$multi_tag" },
-//                     pipeline: [
-//                         {
-//                             $match: {
-//                                 $expr: { $in: ["$user_id", "$$multiTagIds"] }
-//                             }
-//                         },
-//                         {
-//                             $project: {
-//                                 _id: 0,
-//                                 user_id: 1,
-//                                 user_name: 1
-//                             }
-//                         }
-//                     ],
-//                     as: "multi_tag_users"
-//                 }
-//             },
-//             {
-//                 $addFields: {
-//                     multi_tag_names: "$multi_tag_users.user_name"
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     sub_category_id: 1,
-//                     detail: 1,
-//                     priority: 1,
-//                     date_and_time_of_asset_request: 1,
-//                     request_by: 1,
-//                     multi_tag: 1,
-//                     multi_tag_names: 1,
-//                     sub_category_name: "$SubCategory.sub_category_name",
-//                     request_by_name: "$user.user_name",
-//                     asset_request_status: "$asset_request_status"
-//                 },
-//             },
-//         ]);
-
-//         if (!singleAssetRequest || singleAssetRequest.length === 0) {
-//             res.status(500).send({ success: false });
-//             return;
-//         }
-
-//         res.status(200).send(singleAssetRequest);
-//     } catch (err) {
-//         res.status(500).send({
-//             error: err.message,
-//             message: "Error getting assetBrand details",
-//         });
-//     }
-// };
-
 exports.getAssetRequestById = async (req, res) => {
     try {
         const singleAssetRequest = await assetRequestModel.aggregate([
@@ -293,6 +173,20 @@ exports.getAssetRequestById = async (req, res) => {
             {
                 $lookup: {
                     from: "usermodels",
+                    localField: "multi_tag",
+                    foreignField: "user_id",
+                    as: "userMulti",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$userMulti",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
                     let: { multiTagIds: "$multi_tag" },
                     pipeline: [
                         {
@@ -330,33 +224,139 @@ exports.getAssetRequestById = async (req, res) => {
                     asset_request_status: "$asset_request_status"
                 },
             },
-            {
-                $group: {
-                    _id: "$_id",
-                    sub_category_id: { $first: "$sub_category_id" },
-                    detail: { $first: "$detail" },
-                    priority: { $first: "$priority" },
-                    date_and_time_of_asset_request: { $first: "$date_and_time_of_asset_request" },
-                    request_by: { $first: "$request_by" },
-                    multi_tag: { $first: "$multi_tag" },
-                    multi_tag_names: { $first: "$multi_tag_names" },
-                    sub_category_name: { $first: "$sub_category_name" },
-                    request_by_name: { $first: "$request_by_name" },
-                    asset_request_status: { $first: "$asset_request_status" }
-                }
-            }
         ]);
 
         if (!singleAssetRequest || singleAssetRequest.length === 0) {
-            res.status(404).json({ success: false, message: "Asset request not found." });
+            res.status(500).send({ success: false });
             return;
         }
 
-        res.status(200).json(singleAssetRequest);
+        res.status(200).send(singleAssetRequest);
     } catch (err) {
-        res.status(500).json({ success: false, error: err.message, message: "Error getting asset request details." });
+        res.status(500).send({
+            error: err.message,
+            message: "Error getting assetBrand details",
+        });
     }
 };
+
+// exports.getAssetRequestById = async (req, res) => {
+//     try {
+//         const singleAssetRequest = await assetRequestModel.aggregate([
+//             {
+//                 $match: {
+//                     request_by: parseInt(req.params.id),
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "assetssubcategorymodels",
+//                     localField: "sub_category_id",
+//                     foreignField: "sub_category_id",
+//                     as: "SubCategory",
+//                 },
+//             },
+//             {
+//                 $unwind: {
+//                     path: "$SubCategory",
+//                     preserveNullAndEmptyArrays: true,
+//                 },
+//             },
+//             {
+//                 $lookup: {
+//                     from: "simmodels",
+//                     localField: "sim_id",
+//                     foreignField: "sim_id",
+//                     as: "Sim",
+//                 },
+//             },
+//             {
+//                 $unwind: {
+//                     path: "$Sim",
+//                     preserveNullAndEmptyArrays: true,
+//                 },
+//             },
+//             {
+//                 $lookup: {
+//                     from: "usermodels",
+//                     localField: "request_by",
+//                     foreignField: "user_id",
+//                     as: "user",
+//                 },
+//             },
+//             {
+//                 $unwind: {
+//                     path: "$user",
+//                     preserveNullAndEmptyArrays: true,
+//                 },
+//             },
+//             {
+//                 $lookup: {
+//                     from: "usermodels",
+//                     let: { multiTagIds: "$multi_tag" },
+//                     pipeline: [
+//                         {
+//                             $match: {
+//                                 $expr: { $in: ["$user_id", "$$multiTagIds"] }
+//                             }
+//                         },
+//                         {
+//                             $project: {
+//                                 _id: 0,
+//                                 user_id: 1,
+//                                 user_name: 1
+//                             }
+//                         }
+//                     ],
+//                     as: "multi_tag_users"
+//                 }
+//             },
+//             {
+//                 $addFields: {
+//                     multi_tag_names: "$multi_tag_users.user_name"
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     sub_category_id: 1,
+//                     detail: 1,
+//                     priority: 1,
+//                     date_and_time_of_asset_request: 1,
+//                     request_by: 1,
+//                     multi_tag: 1,
+//                     multi_tag_names: 1,
+//                     sub_category_name: "$SubCategory.sub_category_name",
+//                     request_by_name: "$user.user_name",
+//                     asset_request_status: "$asset_request_status"
+//                 },
+//             },
+//             {
+//                 $group: {
+//                     _id: "$sub_category_id",
+//                     sub_category_id: { $first: "$sub_category_id" },
+//                     detail: { $first: "$detail" },
+//                     priority: { $first: "$priority" },
+//                     date_and_time_of_asset_request: { $first: "$date_and_time_of_asset_request" },
+//                     request_by: { $first: "$request_by" },
+//                     multi_tag: { $first: "$multi_tag" },
+//                     multi_tag_names: { $first: "$multi_tag_names" },
+//                     sub_category_name: { $first: "$sub_category_name" },
+//                     request_by_name: { $first: "$request_by_name" },
+//                     asset_request_status: { $first: "$asset_request_status" }
+//                 }
+//             }
+//         ]);
+
+//         if (!singleAssetRequest || singleAssetRequest.length === 0) {
+//             res.status(404).json({ success: false, message: "Asset request not found." });
+//             return;
+//         }
+
+//         res.status(200).json(singleAssetRequest);
+//     } catch (err) {
+//         res.status(500).json({ success: false, error: err.message, message: "Error getting asset request details." });
+//     }
+// };
 
 exports.editAssetRequest = async (req, res) => {
     try {
@@ -517,6 +517,13 @@ exports.showAssetWithStatus = async (req, res) => {
                         assetName: "$assetsName"
                     },
                 },
+                {
+                    $group: {
+                        _id: "$_id",
+                        sim_id: { $first: "$sim_id" },
+                        assetName: { $first: "$assetName" }
+                    }
+                }
             ])
             .exec();
         if (assetRequestData && assetRequestData.length <= 0) {

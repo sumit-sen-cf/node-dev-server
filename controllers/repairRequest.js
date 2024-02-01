@@ -1,4 +1,5 @@
 const repairRequestModel = require("../models/repairRequestModel.js");
+const simModel = require("../models/simModel.js");
 const simAlloModel = require("../models/simAlloModel.js");
 const replacementModel = require("../models/requestReplacementModel.js");
 const multer = require("multer");
@@ -506,4 +507,96 @@ exports.deleteRepairRequest = async (req, res) => {
     }).catch(err => {
         return res.status(400).json({ success: false, message: err })
     })
+};
+
+exports.showRepairRequestAssetDataToUserReport = async (req, res) => {
+    try {
+        const { user_id } = req.params;
+
+        const userData = await simModel.aggregate([
+            {
+                $lookup: {
+                    from: "repairrequestmodels",
+                    localField: "sim_id",
+                    foreignField: "sim_id",
+                    as: "assetRepair",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$assetRepair",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "assetRepair.req_by",
+                    foreignField: "user_id",
+                    as: "userdata",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$userdata",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "assetRepair.multi_tag",
+                    foreignField: "user_id",
+                    as: "userMulti",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$userMulti",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $match: {
+                    "userMulti.Report_L1": parseInt(user_id),
+                },
+            },
+            {
+                $project: {
+                    _id: "$_id",
+                    sim_id: "$sim_id",
+                    asset_id: "$sim_no",
+                    asset_name: "$assetsName",
+                    repair_id: "$assetRepair.repair_id",
+                    req_by: "$assetRepair.req_by",
+                    req_by_name: "$userdata.user_name",
+                    acknowledge_date: "$assetRepair.acknowledge_date",
+                    acknowledge_remark: "$assetRepair.acknowledge_remark",
+                    submission_date: "$assetRepair.submission_date",
+                    submission_remark: "$assetRepair.submission_remark",
+                    resolved_date: "$assetRepair.resolved_date",
+                    resolved_remark: "$assetRepair.resolved_remark",
+                    asset_reason_id: "$assetRepair.asset_reason_id",
+                    priority: "$assetRepair.priority",
+                    repair_request_date_time: "$assetRepair.repair_request_date_time",
+                    problem_detailing: "$assetRepair.problem_detailing",
+                    multi_tag: "$assetRepair.multi_tag",
+                    multi_tag_names: "$userMulti.user_name",
+                    asset_repair_request_status: "$assetRepair.status"
+                },
+            }
+        ]).exec();
+
+        if (!userData) {
+            return res.status(500).json({ success: false, message: "No data found" });
+        }
+
+        if (userData.length === 0) {
+            return res.status(404).json({ success: false, message: "No data found for the user_id" });
+        }
+
+        res.status(200).json({ data: userData });
+    } catch (err) {
+        res.status(500).send({ error: err.message, sms: "Error getting user details" });
+    }
 };
