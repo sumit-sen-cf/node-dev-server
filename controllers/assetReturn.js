@@ -1,13 +1,19 @@
 const assetReturnModel = require("../models/assetReturnModel.js");
+const simModel = require("../models/simModel.js");
 const userModel = require("../models/userModel.js");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const vari = require("../variables.js");
+const { storage } = require('../common/uploadFile.js')
 
 
-const upload = multer({ dest: "uploads/assets" }).fields([
+const upload = multer({
+    storage: multer.memoryStorage()
+}).fields([
     { name: "return_asset_image_1", maxCount: 1 },
     { name: "return_asset_image_2", maxCount: 1 },
+    { name: "recover_asset_image_1", maxCount: 1 },
+    { name: "recover_asset_image_2", maxCount: 1 }
 ]);
 
 exports.addAssetReturnRequest = [
@@ -17,10 +23,55 @@ exports.addAssetReturnRequest = [
             const returndata = new assetReturnModel({
                 sim_id: req.body.sim_id,
                 asset_return_remark: req.body.asset_return_remark,
-                return_asset_image_1: req.files.return_asset_image_1 ? req.files.return_asset_image_1[0].filename : "",
-                return_asset_image_2: req.files.return_asset_image_2 ? req.files.return_asset_image_2[0].filename : "",
-                asset_return_by: req.body.asset_return_by
+                asset_return_status: req.body.asset_return_status,
+                // return_asset_image_1: req.files.return_asset_image_1 ? req.files.return_asset_image_1[0].filename : "",
+                // return_asset_image_2: req.files.return_asset_image_2 ? req.files.return_asset_image_2[0].filename : "",
+                asset_return_by: req.body.asset_return_by,
+                asset_return_recover_by: req.body.asset_return_recover_by,
+                // recover_asset_image_1: req.files.recover_asset_image_1 ? req.files.recover_asset_image_1[0].filename : "",
+                // recover_asset_image_2: req.files.recover_asset_image_2 ? req.files.recover_asset_image_2[0].filename : "",
+                asset_return_recover_by_remark: req.body.asset_return_recover_by_remark,
             });
+
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+
+            if (req.files.return_asset_image_1 && req.files.return_asset_image_1[0].originalname) {
+                const blob1 = bucket.file(req.files.return_asset_image_1[0].originalname);
+                returndata.return_asset_image_1 = blob1.name;
+                const blobStream1 = blob1.createWriteStream();
+                blobStream1.on("finish", () => {
+                    // res.status(200).send("Success")
+                });
+                blobStream1.end(req.files.return_asset_image_1[0].buffer);
+            }
+            if (req.files.return_asset_image_2 && req.files.return_asset_image_2[0].originalname) {
+                const blob2 = bucket.file(req.files.return_asset_image_2[0].originalname);
+                returndata.return_asset_image_2 = blob2.name;
+                const blobStream2 = blob2.createWriteStream();
+                blobStream2.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream2.end(req.files.return_asset_image_2[0].buffer);
+            }
+            if (req.files.recover_asset_image_1 && req.files.recover_asset_image_1[0].originalname) {
+                const blob3 = bucket.file(req.files.recover_asset_image_1[0].originalname);
+                returndata.recover_asset_image_1 = blob3.name;
+                const blobStream3 = blob3.createWriteStream();
+                blobStream3.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream3.end(req.files.recover_asset_image_1[0].buffer);
+            }
+            if (req.files.recover_asset_image_2 && req.files.recover_asset_image_2[0].originalname) {
+                const blob4 = bucket.file(req.files.recover_asset_image_2[0].originalname);
+                returndata.recover_asset_image_2 = blob4.name;
+                const blobStream4 = blob4.createWriteStream();
+                blobStream4.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream4.end(req.files.recover_asset_image_2[0].buffer);
+            }
 
             const returnedAsset = await returndata.save();
 
@@ -78,6 +129,10 @@ exports.getAssetReturnRequests = async (req, res) => {
                     asset_return_remark: 1,
                     return_asset_data_time: 1,
                     asset_return_by: 1,
+                    asset_return_status: 1,
+                    asset_return_recover_by: 1,
+                    asset_return_recover_by_remark: 1,
+                    asset_return_recovered_date_time: 1,
                     assetName: "$sim.assetsName",
                     asset_return_by_name: "$user.user_name",
                     return_asset_image_1: {
@@ -85,6 +140,12 @@ exports.getAssetReturnRequests = async (req, res) => {
                     },
                     return_asset_image_2: {
                         $concat: [imageUrl, "$return_asset_image_2"],
+                    },
+                    recover_asset_image_1: {
+                        $concat: [imageUrl, "$recover_asset_image_1"],
+                    },
+                    recover_asset_image_2: {
+                        $concat: [imageUrl, "$recover_asset_image_2"],
                     },
                 },
             },
@@ -154,6 +215,10 @@ exports.getAssetReturnRequestById = async (req, res) => {
                     asset_return_remark: 1,
                     return_asset_data_time: 1,
                     asset_return_by: 1,
+                    asset_return_status: 1,
+                    asset_return_recover_by: 1,
+                    asset_return_recover_by_remark: 1,
+                    asset_return_recovered_date_time: 1,
                     assetName: "$sim.assetsName",
                     asset_return_by_name: "$user.user_name",
                     return_asset_image_1: {
@@ -161,6 +226,12 @@ exports.getAssetReturnRequestById = async (req, res) => {
                     },
                     return_asset_image_2: {
                         $concat: [imageUrl, "$return_asset_image_2"],
+                    },
+                    recover_asset_image_1: {
+                        $concat: [imageUrl, "$recover_asset_image_1"],
+                    },
+                    recover_asset_image_2: {
+                        $concat: [imageUrl, "$recover_asset_image_2"],
                     },
                 },
             },
@@ -186,54 +257,98 @@ exports.getAssetReturnRequestById = async (req, res) => {
     }
 };
 
-const upload1 = multer({ dest: "uploads/assets" }).fields([
-    { name: "return_asset_image_1", maxCount: 1 },
-    { name: "return_asset_image_2", maxCount: 1 },
-]);
-
 exports.editAssetReturnRequest = [
-    upload1,
+    upload,
     async (req, res) => {
         try {
             const assetReturnRequest = await assetReturnModel.findOne({
-                _id: parseInt(req.body._id),
+                _id: req.body._id,
             });
+
+            if (!assetReturnRequest) {
+                return res.status(404).send({ success: false, message: "Asset return request not found" });
+            }
 
             const updateFields = {
                 sim_id: req.body.sim_id,
                 asset_return_remark: req.body.asset_return_remark,
+                asset_return_status: req.body.asset_return_status,
                 asset_return_by: req.body.return_by,
-                return_asset_data_time: req.body.return_asset_data_time
+                return_asset_data_time: req.body.return_asset_data_time,
+                asset_return_recovered_date_time: req.body.asset_return_recovered_date_time,
+                asset_return_recover_by: req.body.asset_return_recover_by,
+                asset_return_recover_by_remark: req.body.asset_return_recover_by_remark,
             };
 
             if (req.files) {
                 updateFields.return_asset_image_1 = req.files["return_asset_image_1"] ? req.files["return_asset_image_1"][0].filename : assetReturnRequest.return_asset_image_1;
                 updateFields.return_asset_image_2 = req.files["return_asset_image_2"] ? req.files["return_asset_image_2"][0].filename : assetReturnRequest.return_asset_image_2;
+                updateFields.recover_asset_image_1 = req.files["recover_asset_image_1"] ? req.files["recover_asset_image_1"][0].filename : assetReturnRequest.recover_asset_image_1;
+                updateFields.recover_asset_image_2 = req.files["recover_asset_image_2"] ? req.files["recover_asset_image_2"][0].filename : assetReturnRequest.recover_asset_image_2;
             }
 
-            const editAssetReturn = await repairRequestModel.findOneAndUpdate(
-                { _id: parseInt(req.body._id) },
+            const editAssetReturn = await assetReturnModel.findOneAndUpdate(
+                { _id: req.body._id },
                 updateFields,
                 { new: true }
             );
 
             if (!editAssetReturn) {
-                return res.status(500).send({ success: false });
+                return res.status(404).send({ success: false, message: "Failed to update asset return request" });
             }
+
+            if (req.files.return_asset_image_1 && req.files.return_asset_image_1[0].originalname) {
+                const blob1 = bucket.file(req.files.return_asset_image_1[0].originalname);
+                returndata.return_asset_image_1 = blob1.name;
+                const blobStream1 = blob1.createWriteStream();
+                blobStream1.on("finish", () => {
+                    // res.status(200).send("Success")
+                });
+                blobStream1.end(req.files.return_asset_image_1[0].buffer);
+            }
+            if (req.files.return_asset_image_2 && req.files.return_asset_image_2[0].originalname) {
+                const blob2 = bucket.file(req.files.return_asset_image_2[0].originalname);
+                returndata.return_asset_image_2 = blob2.name;
+                const blobStream2 = blob2.createWriteStream();
+                blobStream2.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream2.end(req.files.return_asset_image_2[0].buffer);
+            }
+            if (req.files.recover_asset_image_1 && req.files.recover_asset_image_1[0].originalname) {
+                const blob3 = bucket.file(req.files.recover_asset_image_1[0].originalname);
+                returndata.recover_asset_image_1 = blob3.name;
+                const blobStream3 = blob3.createWriteStream();
+                blobStream3.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream3.end(req.files.recover_asset_image_1[0].buffer);
+            }
+            if (req.files.recover_asset_image_2 && req.files.recover_asset_image_2[0].originalname) {
+                const blob4 = bucket.file(req.files.recover_asset_image_2[0].originalname);
+                returndata.recover_asset_image_2 = blob4.name;
+                const blobStream4 = blob4.createWriteStream();
+                blobStream4.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream4.end(req.files.recover_asset_image_2[0].buffer);
+            }
+
             res.status(200).send({
-                succes: true,
+                success: true,
                 message: "Edit Asset Return Request Successfully",
                 editAssetReturn
             });
         } catch (err) {
+            console.error("Error updating asset return request:", err);
             res.status(500).send({
-                succes: true,
-                message: "Error updating asset return request data details",
-                editAssetReturn
+                success: false,
+                message: "Error updating asset return request data details"
             });
         }
     },
 ];
+
 
 exports.deleteAssetReturnRequest = async (req, res) => {
     assetReturnModel.findByIdAndDelete(req.params._id).then(item => {
@@ -258,22 +373,95 @@ exports.deleteAssetReturnRequest = async (req, res) => {
 
 exports.showReturnAssetDataToUserReport = async (req, res) => {
     try {
+        const imageUrl = vari.IMAGE_URL;
         const { user_id } = req.params;
-        const assetReturnRequests = await assetReturnModel.find({});
-
-        const processedAssetReturnRequests = await Promise.all(assetReturnRequests.map(async (assetReturnRequest) => {
-            const { asset_return_by } = assetReturnRequest;
-
-            const reportL1 = await userModel.findOne({ user_id: asset_return_by });
-
-            if (reportL1.Report_L1 == user_id) {
-                return res.status(200).send({
-                    succes: true,
-                    data: assetReturnRequest
-                });
+        const userData = await simModel.aggregate([
+            {
+                $lookup: {
+                    from: "assetreturnmodels",
+                    localField: "sim_id",
+                    foreignField: "sim_id",
+                    as: "assetReturn",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$assetReturn",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "assetReturn.asset_return_by",
+                    foreignField: "user_id",
+                    as: "userdata",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$userdata",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "assetReturn.asset_return_recover_by",
+                    foreignField: "user_id",
+                    as: "userdata1",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$userdata1",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $match: {
+                    "userdata.Report_L1": parseInt(user_id),
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    sim_id: 1,
+                    asset_return_remark: "$assetReturn.asset_return_remark",
+                    return_asset_data_time: "$assetReturn.return_asset_data_time",
+                    asset_return_status: "$assetReturn.asset_return_status",
+                    asset_return_recover_by: "$assetReturn.asset_return_recover_by",
+                    asset_return_recover_by_remark: "$assetReturn.asset_return_recover_by_remark",
+                    asset_return_recovered_date_time: "$assetReturn.asset_return_recovered_date_time",
+                    assetName: "$assetsName",
+                    asset_return_by_name: "$userdata.user_name",
+                    asset_return_recover_by_name: "$userdata1.user_name",
+                    return_asset_image_1: {
+                        $concat: [imageUrl, "$return_asset_image_1"],
+                    },
+                    return_asset_image_2: {
+                        $concat: [imageUrl, "$return_asset_image_2"],
+                    },
+                    recover_asset_image_1: {
+                        $concat: [imageUrl, "$recover_asset_image_1"],
+                    },
+                    recover_asset_image_2: {
+                        $concat: [imageUrl, "$recover_asset_image_2"],
+                    },
+                },
             }
-        }));
+        ]);
+
+        if (!userData) {
+            return res.status(500).json({ success: false, message: "No data found" });
+        }
+
+        if (userData.length === 0) {
+            return res.status(404).json({ success: false, message: "No data found for the user_id" });
+        }
+
+        res.status(200).json({ data: userData });
     } catch (err) {
-        return res.status(500).send({ error: err.message, sms: "Error getting Asset Return Request Data " });
+        return res.status(500).send({ error: err.message, sms: "Error getting Asset Return Request Data" });
     }
 };

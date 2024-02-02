@@ -217,15 +217,15 @@ exports.addUser = [upload, async (req, res) => {
             document_percentage: req.body.document_percentage
         })
 
-        const bucketName = vari.BUCKET_NAME;
-        const bucket = storage.bucket(bucketName);
-        const blob = bucket.file(req.files.image[0].originalname);
-        simc.image = blob.name;
-        const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => {
-            // res.status(200).send("Success") 
-        });
-        blobStream.end(req.files.image[0].buffer);
+        if (req.files.image && req.files.image[0].originalname) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob1 = bucket.file(req.files.image[0].originalname);
+            simc.image = blob1.name;
+            const blobStream1 = blob1.createWriteStream();
+            blobStream1.on("finish", () => { });
+            blobStream1.end(req.files.image[0].buffer);
+        }
 
         const simv = await simc.save();
         res.send({ simv, status: 200 });
@@ -316,24 +316,24 @@ exports.addUser = [upload, async (req, res) => {
 
                 await userAuthModel.create(userAuthDocument);
             }
+            const deptDesiData = await deptDesiAuthModel.find({});
+            await Promise.all(deptDesiData.map(async (deptDesi) => {
+                if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
+                    const updatedData = await userAuthModel.updateMany(
+                        { obj_id: deptDesi.obj_id },
+                        {
+                            $set: {
+                                insert: deptDesi.insert,
+                                view: deptDesi.view,
+                                update: deptDesi.update,
+                                delete_flag: deptDesi.delete_flag
+                            }
+                        },
+                        { new: true }
+                    );
+                }
+            }));
         }
-        const deptDesiData = await deptDesiAuthModel.find({});
-        await Promise.all(deptDesiData.map(async (deptDesi) => {
-            if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
-                const updatedData = await userAuthModel.updateMany(
-                    { obj_id: deptDesi.obj_id },
-                    {
-                        $set: {
-                            insert: deptDesi.insert,
-                            view: deptDesi.view,
-                            update: deptDesi.update,
-                            delete_flag: deptDesi.delete_flag
-                        }
-                    },
-                    { new: true }
-                );
-            }
-        }));
         // res.send({ simv, status: 200 });
     } catch (err) {
         res.status(500).send({ error: err.message, sms: 'This user cannot be created' })
@@ -505,7 +505,8 @@ exports.updateUser = [upload, async (req, res) => {
             emergency_contact_relation2: req.body.emergency_contact_relation2,
             document_percentage_mandatory: req.body.document_percentage_mandatory,
             document_percentage_non_mandatory: req.body.document_percentage_non_mandatory,
-            document_percentage: req.body.document_percentage
+            document_percentage: req.body.document_percentage,
+            show_rocket: req.body.show_rocket
         }, { new: true });
         if (!editsim) {
             return res.status(500).send({ success: false })
@@ -515,7 +516,7 @@ exports.updateUser = [upload, async (req, res) => {
             helper.generateOfferLaterPdf(editsim)
         }
 
-        if (req.files.image && req.files.image[0].originalname) {
+        if (req.files && req.files?.image[0]?.originalname) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
             const blob = bucket.file(req.files.image[0].originalname);
@@ -527,7 +528,7 @@ exports.updateUser = [upload, async (req, res) => {
             });
             blobStream.end(req.files.image[0].buffer);
         }
-        if (req.files.digital_signature_image && req.files.digital_signature_image[0].originalname) {
+        if (req.files && req.files?.digital_signature_image[0]?.originalname) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
             const blob = bucket.file(req.files.digital_signature_image[0].originalname);
@@ -1019,6 +1020,7 @@ exports.getSingleUser = async (req, res) => {
             },
             {
                 $project: {
+                    show_rocket: "$show_rocket",
                     offer_later_pdf_url: "$offer_later_pdf_url",
                     offer_later_acceptance_date: "$offer_later_acceptance_date",
                     offer_later_status: "$offer_later_status",

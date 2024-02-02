@@ -97,7 +97,7 @@ exports.exeSumPost = async (req, res) => {
                     invoice_id: data.invoice_id,
                     start_date: data.start_date,
                     end_date: data.end_date,
-                    execution_status: data.execution_status,
+                    execution_status: "0",
                     execution_time: data.execution_time,
                     execution_date_time: data.execution_date_time,
                     execution_excel: data.execution_excel,

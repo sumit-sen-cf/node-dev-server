@@ -2528,8 +2528,8 @@ exports.updateAttendance = async (req, res) => {
         attendence_status_flow: req.body.attendence_status_flow,
         disputed_reason: req.body.disputed_reason,
         disputed_date: req.body.disputed_date,
-        disputed_status:req.body.disputed_status,
-        resolved_date:req.body.resolved_date
+        disputed_status: req.body.disputed_status,
+        resolved_date: req.body.resolved_date
       },
       { new: true }
     );
@@ -2555,8 +2555,8 @@ exports.allAttendanceDisputeDatas = async (req, res) => {
       {
         $lookup: {
           from: "departmentmodels",
-          localField: "dept_id",
-          foreignField: "dept",
+          localField: "dept",
+          foreignField: "dept_id",
           as: "dept_data",
         },
       },
@@ -2578,6 +2578,7 @@ exports.allAttendanceDisputeDatas = async (req, res) => {
         $group: {
           _id: "$attendence_id",
           attendence_id: { $first: "$attendence_id" },
+          dept: { $first: "$dept" },
           user_id: { $first: "$user_id" },
           dept_data: { $first: "$dept_data" },
           user_data: { $first: "$user_data" },
@@ -2607,7 +2608,7 @@ exports.allAttendanceDisputeDatas = async (req, res) => {
           attendence_status_flow: { $first: "$attendence_status_flow" },
           disputed_reason: { $first: "$disputed_reason" },
           disputed_date: { $first: "$disputed_date" },
-          disputed_status:{$first:"disputed_status"},
+          disputed_status: { $first: "disputed_status" },
           resolved_date: { $first: "$resolved_date" },
         },
       },
@@ -2641,8 +2642,8 @@ exports.allAttendanceDisputeDatas = async (req, res) => {
           attendence_status_flow: 1,
           disputed_reason: 1,
           disputed_date: 1,
-          disputed_status:1,
-          resolved_date:1,
+          disputed_status: 1,
+          resolved_date: 1,
         },
       },
     ]);
