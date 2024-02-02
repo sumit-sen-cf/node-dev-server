@@ -64,7 +64,7 @@ exports.addPhpVendorPaymentRequestSet = async (req, res) => {
     try {
         
         const response = await axios.get(
-            'https://production.we-fit.in/webservices/RestController.php?view=getpaymentrequest'
+            'https://sales.creativefuel.io/webservices/RestController.php?view=getpaymentrequest'
         )
         const responseData = response.data.body;
 

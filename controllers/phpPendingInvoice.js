@@ -12,7 +12,7 @@ exports.savePhpPaymentPendingInvoiceDataInNode = async (req, res) => {
         const sendData = new FormData();
         sendData.append("loggedin_user_id", 36);
         const response = await axios.post(
-            'https://salesdev.we-fit.in/webservices/RestController.php?view=sales-pending_invoice_creation_list', sendData,
+            'https://sales.creativefuel.io/webservices/RestController.php?view=sales-pending_invoice_creation_list', sendData,
             {
                 headers: {
                     ...sendData.getHeaders(),
