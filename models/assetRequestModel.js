@@ -27,7 +27,7 @@ const assetRequestModel = new mongoose.Schema({
         required: false,
     },
     multi_tag: {
-        type: Array,
+        type: [Number],
         required: false,
         default: []
     },

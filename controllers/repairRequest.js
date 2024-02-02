@@ -545,21 +545,29 @@ exports.showRepairRequestAssetDataToUserReport = async (req, res) => {
             {
                 $lookup: {
                     from: "usermodels",
-                    localField: "assetRepair.multi_tag",
-                    foreignField: "user_id",
-                    as: "userMulti",
-                },
+                    let: { multiTagArray: "$assetRepair.multi_tag" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $in: ["$user_id", "$$multiTagArray"]
+                                }
+                            }
+                        },
+                        {
+                            $match: {
+                                "Report_L1": parseInt(user_id)
+                            }
+                        }
+                    ],
+                    as: "userMulti"
+                }
             },
             {
                 $unwind: {
                     path: "$userMulti",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $match: {
-                    "userMulti.Report_L1": parseInt(user_id),
-                },
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $project: {
@@ -585,7 +593,7 @@ exports.showRepairRequestAssetDataToUserReport = async (req, res) => {
                     asset_repair_request_status: "$assetRepair.status"
                 },
             }
-        ]).exec();
+        ]);
 
         if (!userData) {
             return res.status(500).json({ success: false, message: "No data found" });

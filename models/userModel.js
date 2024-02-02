@@ -684,18 +684,23 @@ const userModel = new mongoose.Schema({
         type: String,
         required: false,
         default: ""
+    },
+    show_rocket: {
+        type: Boolean,
+        required: true,
+        default: true
     }
 });
 
 userModel.pre('save', async function (next) {
     if (!this.user_id) {
-      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'user_id': -1 } });
-  
-      if (lastAgency && lastAgency.user_id) {
-        this.user_id = lastAgency.user_id + 1;
-      } else {
-        this.user_id = 1;
-      }
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'user_id': -1 } });
+
+        if (lastAgency && lastAgency.user_id) {
+            this.user_id = lastAgency.user_id + 1;
+        } else {
+            this.user_id = 1;
+        }
     }
     next();
 });

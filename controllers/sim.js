@@ -725,6 +725,7 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
             Remarks: "$Remarks",
             sub_category_name: "$subcategory.sub_category_name",
             category_name: "$category.category_name",
+            submitted_at: 1,
             created_by: "$created_by",
             status: "$status",
             user_name: "$user.user_name",
@@ -2016,13 +2017,23 @@ exports.showNewAssetDataToUser = async (req, res) => {
     if (!userData) {
       return res.status(500).json({ success: false, message: "No data found" });
     }
+    // const filteredData = userData.filter((item) => {
+    //   const multiTagArray = item.multi_tag.join(',');
+    //   return multiTagArray.includes(user_id);
+    // });
+    // if (filteredData.length === 0) {
+    //   return res.status(404).json({ success: false, message: "No data found for the user_id" });
+    // }
+    // res.status(200).json({ data: filteredData });
     const filteredData = userData.filter((item) => {
-      const multiTagArray = item.multi_tag.join(',');
+      const multiTagArray = item.multi_tag ? item.multi_tag.join(',') : '';
       return multiTagArray.includes(user_id);
     });
+
     if (filteredData.length === 0) {
       return res.status(404).json({ success: false, message: "No data found for the user_id" });
     }
+
     res.status(200).json({ data: filteredData });
   } catch (err) {
     res.status(500).send({ error: err.message, sms: "Error getting user details" });

@@ -26,7 +26,7 @@ const repairRequestModel = new mongoose.Schema({
         default: ""
     },
     multi_tag: {
-        type: Array,
+        type: [Number],
         required: false,
         default: []
     },
