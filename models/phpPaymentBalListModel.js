@@ -318,6 +318,18 @@ const phpPaymentBalListModel = new mongoose.Schema({
     sales_person_username: {
         type: String,
         required: false
+    },
+    invoice_mnj_number: {
+        type: String,
+        required: false
+    },
+    invoice_mnj_date: {
+        type: String,
+        required: false
+    },
+    party_mnj_name: {
+        type: String,
+        required: false
     }
 });
 

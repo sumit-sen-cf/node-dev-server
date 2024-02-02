@@ -64,7 +64,10 @@ exports.savePhpPaymentPendingInvoiceDataInNode = async (req, res) => {
                         last_updated_date: data.last_updated_date,
                         invoice_particular_id: data.invoice_particular_id,
                         invoice_particular_name: data.invoice_particular_name,
-                        sales_person_username: data.sales_person_username
+                        sales_person_username: data.sales_person_username,
+                        invoice_mnj_number: data.invoice_mnj_number,
+                        invoice_mnj_date: data.invoice_mnj_date,
+                        party_mnj_name: data.party_mnj_name
                     }
                 },
                 { new: true }
@@ -131,7 +134,10 @@ exports.getAllphpPaymentPendingInvoiceData = async (req, res) => {
                 cust_name: 1,
                 invoice_particular_id: 1,
                 invoice_particular_name: 1,
-                sno: 1
+                sno: 1,
+                invoice_mnj_number: 1,
+                invoice_mnj_date: 1,
+                party_mnj_name: 1
             });
 
         res.status(200).send({ data: getData })
@@ -147,7 +153,10 @@ exports.pendingInvoiceUpdate = async (req, res) => {
             {
                 invoice: req.file?.originalname,
                 loggedin_user_id: req.body.loggedin_user_id,
-                status: req.body.status
+                status: req.body.status,
+                invoice_mnj_number: invoice_mnj_number,
+                invoice_mnj_date: invoice_mnj_date,
+                party_mnj_name: party_mnj_name
             },
             { new: true }
         );

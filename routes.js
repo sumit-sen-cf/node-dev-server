@@ -1302,6 +1302,11 @@ router.put("/update_email_content", emailContent.editEmailContent);
 router.get("/get_all_email_contents", emailContent.getAllEmailContents);
 router.get("/get_single_email_content/:_id", emailContent.getSingleEmailContent);
 router.delete("/delete_email_content/:_id", emailContent.deleteEmailContent);
+router.post("/add_email_event", emailContent.addEmailEvent);
+router.put("/update_email_event", emailContent.editEmailEvent);
+router.get("/get_all_email_events", emailContent.getAllEmailEvents);
+router.get("/get_single_email_event/:_id", emailContent.getSingleEmailEvent);
+
 // Hobbies  Routes 
 router.post("/add_hobby", hobby.addHobby);
 router.put("/update_hobby", hobby.editHobby);

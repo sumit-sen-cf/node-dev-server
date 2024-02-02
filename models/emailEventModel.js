@@ -1,25 +1,8 @@
 const mongoose = require("mongoose");
 // const AutoIncrement = require('mongoose-sequence')(mongoose);
 
-const emailTempModel = new mongoose.Schema({
-  email_for:{
-    type: String,
-    required: false
-  },
-  email_for_id:{
-    type: Number,
-    required: false
-  },
-  send_email:{
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  email_content: {
-    type: String,
-    required: true
-  },
-  email_sub:{
+const emailEventModel = new mongoose.Schema({
+  event_name:{
     type: String,
     required: false
   },
@@ -48,4 +31,4 @@ const emailTempModel = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model("emailTempModel", emailTempModel);
+module.exports = mongoose.model("emailEventModel", emailEventModel);
