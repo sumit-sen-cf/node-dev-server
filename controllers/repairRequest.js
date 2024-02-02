@@ -18,6 +18,7 @@ exports.addRepairRequest = [
     upload,
     async (req, res) => {
         try {
+            console.log("ddddddddddddddd", req.body)
             const repairdata = new repairRequestModel({
                 sim_id: req.body.sim_id,
                 acknowledge_date: req.body.acknowledge_date,
@@ -30,7 +31,8 @@ exports.addRepairRequest = [
                 priority: req.body.priority,
                 repair_request_date_time: req.body.repair_request_date_time,
                 problem_detailing: req.body.problem_detailing,
-                multi_tag: req.body.multi_tag,
+                // multi_tag: req.body.multi_tag,
+                multi_tag: req.body.multi_tag.split(',').map(Number),
                 status: "Requested",
                 // status: req.body.status,
                 req_by: req.body.req_by,
@@ -509,6 +511,7 @@ exports.deleteRepairRequest = async (req, res) => {
     })
 };
 
+
 exports.showRepairRequestAssetDataToUserReport = async (req, res) => {
     try {
         const { user_id } = req.params;
@@ -545,29 +548,24 @@ exports.showRepairRequestAssetDataToUserReport = async (req, res) => {
             {
                 $lookup: {
                     from: "usermodels",
-                    let: { multiTagArray: "$assetRepair.multi_tag" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $in: ["$user_id", "$$multiTagArray"]
-                                }
-                            }
-                        },
-                        {
-                            $match: {
-                                "Report_L1": parseInt(user_id)
-                            }
-                        }
-                    ],
-                    as: "userMulti"
-                }
+                    localField: "assetRepair.multi_tag",
+                    foreignField: "user_id",
+                    as: "userdata1",
+                },
             },
             {
                 $unwind: {
-                    path: "$userMulti",
-                    preserveNullAndEmptyArrays: true
-                }
+                    path: "$userdata1",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $match: {
+                    $or: [
+                        { "userdata1.Report_L1": parseInt(user_id) },
+                        { "userdata.user_id": parseInt(user_id) }
+                    ]
+                },
             },
             {
                 $project: {
@@ -589,19 +587,96 @@ exports.showRepairRequestAssetDataToUserReport = async (req, res) => {
                     repair_request_date_time: "$assetRepair.repair_request_date_time",
                     problem_detailing: "$assetRepair.problem_detailing",
                     multi_tag: "$assetRepair.multi_tag",
-                    multi_tag_names: "$userMulti.user_name",
+                    multi_tag_names: "$userdata1.user_name",
                     asset_repair_request_status: "$assetRepair.status"
                 },
             }
         ]);
 
-        if (!userData) {
-            return res.status(500).json({ success: false, message: "No data found" });
-        }
-
-        if (userData.length === 0) {
+        if (!userData || userData.length === 0) {
             return res.status(404).json({ success: false, message: "No data found for the user_id" });
         }
+
+        res.status(200).json({ data: userData });
+    } catch (err) {
+        res.status(500).send({ error: err.message, sms: "Error getting user details" });
+    }
+};
+
+//Tagged Person api for repair request
+
+exports.showAssetRepairRequestDataToUser = async (req, res) => {
+    try {
+        const { user_id } = req.params;
+        const userData = await simModel.aggregate([
+            {
+                $lookup: {
+                    from: "repairrequestmodels",
+                    localField: "sim_id",
+                    foreignField: "sim_id",
+                    as: "repair",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$repair",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "repair.req_by",
+                    foreignField: "user_id",
+                    as: "userdata",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$userdata",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "repair.multi_tag",
+                    foreignField: "user_id",
+                    as: "userMulti",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$userMulti",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: "$_id",
+                    sim_id: "$sim_id",
+                    asset_id: "$sim_no",
+                    asset_name: "$assetsName",
+                    repair_id: "$repair_id",
+                    multi_tag: "$repair.multi_tag",
+                    multi_tag_names: "$userMulti.user_names",
+                },
+            },
+        ]).exec();
+
+        if (!userData || userData.length === 0) {
+            return res.status(404).json({ success: false, message: "No data found" });
+        }
+
+        // const filteredData = userData.filter((item) => {
+        //     if (!item.multi_tag || !item.multi_tag_names) return false; // Ensure multi_tag exists
+        //     const multiTagArray = item.multi_tag.split(',');
+        //     return multiTagArray.includes(user_id);
+        // });
+
+        // if (filteredData.length === 0) {
+        //     return res.status(404).json({ success: false, message: "No data found for the user_id" });
+        // }
 
         res.status(200).json({ data: userData });
     } catch (err) {

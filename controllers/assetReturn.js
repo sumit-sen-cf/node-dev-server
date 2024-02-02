@@ -110,6 +110,20 @@ exports.getAssetReturnRequests = async (req, res) => {
             },
             {
                 $lookup: {
+                    from: "simallomodels",
+                    localField: "sim_id",
+                    foreignField: "sim_id",
+                    as: "simallo",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$simallo",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
                     from: "usermodels",
                     localField: "asset_return_by",
                     foreignField: "user_id",
@@ -133,6 +147,7 @@ exports.getAssetReturnRequests = async (req, res) => {
                     asset_return_recover_by: 1,
                     asset_return_recover_by_remark: 1,
                     asset_return_recovered_date_time: 1,
+                    allo_id: "$simallo.allo_id",
                     assetName: "$sim.assetsName",
                     asset_return_by_name: "$user.user_name",
                     return_asset_image_1: {
