@@ -13,7 +13,7 @@ const PageDeleteRecordModel = require('../../models/operationExecution/pageDelet
 const pageReplacementRecordModel = require('../../models/operationExecution/pageReplacementRecordModel.js')
 const PhaseCommitmentModel = require('../../models/operationExecution/phaseCommitmentModel.js')
 const CampaignPhaseModel=require('../../models/operationExecution/campaignPhaseModel.js')
-
+const preAssignmentModel=require('../../models/operationExecution/preAssignmentModel.js')
 
 
 
@@ -171,6 +171,7 @@ exports.deleteSinglePlan=catchAsync(async (req,res,next) => {
     const updatePlan=await CampaignPlanModel.findOneAndUpdate({campaignId:page.campaignId,plan_id:page.plan_id,p_id:page.p_id},data,option)
     const updateAssignment=await AssignmentModel.findOneAndUpdate({campaignId:page.campaignId,plan_id:page.plan_id,p_id:page.p_id},data,option)
     const updatePhasePage=await PhasePageModel.findOneAndUpdate({campaignId:page.campaignId,plan_id:page.plan_id,p_id:page.p_id},data,option)
+    const deletePreAssignment=await preAssignmentModel.deleteMany({campaignId:page.campaignId})
     res.status(200).json({
         updatePlan,
         
