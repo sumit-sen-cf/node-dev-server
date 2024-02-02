@@ -139,7 +139,7 @@ exports.deleteRegisterCmp = catchAsync(async (req, res) => {
   await pageReplacementRecordModel.deleteMany({ campaignId })
   await PhaseCommitmentModel.deleteMany({ campaignId })
   await PhasePageModel.deleteMany({ campaignId })
-  // await PreAssignmentModel.deleteMany({ campaignId })
+  await PreAssignmentModel.deleteMany({ campaignId })
   const campaignDelete = await registerCamapign.findByIdAndDelete(campaignId)
 
 

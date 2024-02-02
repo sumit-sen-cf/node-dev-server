@@ -29,13 +29,15 @@ exports.createPreAssignment = catchAsync(async (req, res, next) => {
             const x = await PreAssignmentModel.create({
                 ass_page: page._id,
                 
-                phase_id
+                phase_id,
+                campaignId:page.campaignId,
             });
             const data = {
                 ass_by,
                 ass_status: 'unassigned',
                 ...rest,
-                preAssignedTo: []
+                preAssignedTo: [],
+               
             };
             await AssignmentModel.create(data);
             
@@ -44,16 +46,18 @@ exports.createPreAssignment = catchAsync(async (req, res, next) => {
             const x = await PreAssignmentModel.create({
                 ass_page: page._id,
                 pre_ass_to: expert._id,
-                phase_id
+                phase_id,
+                campaignId:page.campaignId,
             });
 
             const assignExpert = await PreAssignmentModel.findOne({ pre_ass_id: x.pre_ass_id });
-            console.log(assignExpert)
+         
            
             const data = {
                 ass_by,
                 ass_status: 'unassigned',
                 ...rest,
+                
                 preAssignedTo: [assignExpert.pre_ass_to?.exp_name]
             };
 
@@ -137,6 +141,10 @@ exports.preAssignmentUpdate=catchAsync(async (req,res,next) => {
         preAssignment:updatePreAss,
         assignment:ass
     })
+})
+
+exports.acceptAllPreAssignments=catchAsync(async (req,res,next) => {
+
 })
 
 exports.getPreAssignmentForExpertee=catchAsync(async (req,res,next) => {

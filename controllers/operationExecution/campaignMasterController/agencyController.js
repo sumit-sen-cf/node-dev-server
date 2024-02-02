@@ -7,7 +7,7 @@ const AgencyMaster=require('../../../models/operationExecution/campaignMasters/a
 exports.createAgency=catchAsync(async (req,res,next) => {
     let {name,mobile,alternateMobile,email,city,instagram,remark}=req.body
 
-    name=name?.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    name=name?.charAt(0).toUpperCase() + name?.slice(1).toLowerCase();
 
     const exist=await AgencyMaster.findOne({name})
     if(exist){
@@ -33,7 +33,7 @@ exports.updateAgency=catchAsync(async (req,res,next)=>{
     const id=req.params.id
     let {name,mobile,alternateMobile,email,city,instagram,remark}=req.body
 
-    name=name?.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    name=name?.charAt(0).toUpperCase() + name?.slice(1).toLowerCase();
 
     const exist=await AgencyMaster.findOne({name})
     if(exist){
