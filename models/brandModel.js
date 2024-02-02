@@ -14,12 +14,12 @@ const brandSchema = new mongoose.Schema({
   },
   category_id: {
     type: Number,
-    required: true,
+    // required: true,
     default: 0,
   },
   sub_category_id: {
     type: Number,
-    required: true,
+    // required: true,
   },
   igusername: {
     type: String,

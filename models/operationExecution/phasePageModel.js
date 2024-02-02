@@ -34,8 +34,8 @@ const phasePageSchema = new mongoose.Schema({
     type: String,
     default: this.postPerPage
   },
-  storyPerPage:{
-    type:Number,
+  storyPerPage: {
+    type: Number,
     required: [true, "story per page is required`"]
   },
   storyRemaining: {
@@ -81,7 +81,11 @@ const phasePageSchema = new mongoose.Schema({
   replacement_status: {
     type: String,
     default: 'inactive',
-    enum: ['active', 'inactive', 'replaced', 'replacement', 'pending','rejected']
+    enum: ['active', 'inactive', 'replaced', 'replacement', 'pending', 'rejected']
+  },
+  delete_id: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: 'pageDeleteRecordModel',
   },
   delete_status: {
     type: String,
@@ -96,17 +100,26 @@ const phasePageSchema = new mongoose.Schema({
     type: String,
     default: 'N/A',
   },
-  replacement_id:{
-    type:mongoose.SchemaTypes.ObjectId,
-   ref:'pageReplacementRecordModel',
+  replacement_id: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: 'pageReplacementRecordModel',
 
-}
+  },
+  isExecuted: {
+    type: Boolean,
+    default: false,
+  }
 });
 
-phasePageSchema.pre(/^find/,async function(next){
+phasePageSchema.pre(/^find/, async function (next) {
   this.populate({
-    path:'replacement_id'
+    path: 'replacement_id'
   })
+
+  this.populate({
+    path: 'delete_id'
+  })
+  next()
 })
 
 
