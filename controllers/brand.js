@@ -47,54 +47,14 @@ exports.addBrand = async (req, res) => {
 
 exports.getBrands = async (req, res) => {
   try {
-    const brands = await brandSchema.aggregate([
-      {
-        $lookup: {
-          from: "projectxcategorymodels",
-          localField: "category_id",
-          foreignField: "category_id",
-          as: "data1",
-        },
-      },
-      {
-        $lookup: {
-          from: "projectxsubcategorymodels",
-          localField: "sub_category_id",
-          foreignField: "sub_category_id",
-          as: "data2",
-        },
-      },
-      {
-        $unwind: "$data1",
-      },
-      {
-        $unwind: "$data2",
-      },
-      {
-        $project: {
-          _id: 1,
-          brand_id: 1,
-          brand_name: 1,
-          category_id: 1,
-          sub_category_id: 1,
-          igusername: 1,
-          website: 1,
-          whatsapp: 1,
-          major_category: 1,
-          user_id: 1,
-          updated_at: 1,
-          created_at: 1,
-          projectx_category_name: "$data1.category_name",
-          projectx_subcategory_name: "$data2.sub_category_name",
-        },
-      },
-    ]);
+    const brands = await brandSchema.find()
+   
     if (brands.length === 0) {
       res
         .status(200)
         .send({ success: true, data: [], message: "No Record found" });
     } else {
-      res.status(200).send({ data: brands });
+      res.status(200).json({ data: brands });
     }
   } catch (err) {
     res.status(500).send({ error: err.message, message: "Error getting all brands" });

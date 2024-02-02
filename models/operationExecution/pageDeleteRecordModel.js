@@ -3,40 +3,50 @@ const { default: mongoose } = require("mongoose");
 
 const pageDeleteRecordSchema = new mongoose.Schema({
   plan_id:{
-    type:'String',
+    type:String,
     required: [true,'plan_id is required'],
   },
+  phase_id:{
+    type:String,
+  },
+  ass_id:{
+    type:String,
+  },
   plan_name:{
-    type:'String',
+    type:String,
     // required: [true,'plan_name is required'],
   },
   campaignId:{
-    type:'String',
+    type:String,
     required: [true,'campaign_id is required'],
   },
   campaignName:{
-    type:'String',
+    type:String,
     // required: [true,'campaign_name is required'],
   },
   deletion_request_by:{
-    type:'String',
+    type:String,
   },
   deleted_page:{
-    type:'String',
-    required: [true,'newpage_id is required'],
+    type:Number,
+    required: [true,'page_id is required'],
+  },
+  page_name:{
+    type:String,
+    required: [true,'page_name is required'],
   },
  
-  deletion_status:{
-    type:'String',
-    default:'pending',
-    enum:['pending', 'approved', 'disapproved']
-  },
+  // deletion_status:{
+  //   type:String,
+  //   default:'pending',
+  //   enum:['pending', 'approved', 'disapproved']
+  // },
   deletion_stage:{
-    type:'String',
+    type:String,
     enum:['plan','phase','execution']
   },
   approved_by:{
-    type:'String'
+    type:String
   },
   deletion_requested_at:{
     type:Date,

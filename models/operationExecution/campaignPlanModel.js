@@ -78,6 +78,10 @@ const campaignPlanSchema = new mongoose.Schema({
         default: 'inactive',
         enum: ['active', 'inactive', 'replaced', 'replacement', 'pending', 'rejected']
     },
+    delete_id:{
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: 'pageDeleteRecordModel',
+    },
     delete_status: {
         type: String,
         default: 'inactive',
@@ -95,6 +99,10 @@ const campaignPlanSchema = new mongoose.Schema({
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'pageReplacementRecordModel',
 
+    },
+    isExecuted:{
+        type:Boolean,
+        default: false,
     }
 
 });
@@ -116,6 +124,10 @@ campaignPlanSchema.pre(/^find/, async function (next) {
     this.populate({
         path: 'replacement_id',
 
+    })
+
+    this.populate({
+        path:'delete_id'
     })
 
     next()

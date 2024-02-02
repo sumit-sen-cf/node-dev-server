@@ -134,6 +134,8 @@ router.put("/campaignplan", campaignPlanController.updateBulk);
 router.get("/campaignplan/:id", campaignPlanController.getPlan);
 router.get('/campaignplan/singleplan/:id', campaignPlanController.getSinglePlan)
 router.put('/campaignplan/singleplan/:id', campaignPlanController.singlePlanUpdate)
+router.post('/campaignplan/singleplan', campaignPlanController.deleteSinglePlan)
+router.delete('/campaignplan/bulk/:id', campaignPlanController.deleteEntirePlan)
 router.put('/updatePlan', campaignPlanController.updatePlan)
 router.put('/updatePhase', campaignPhaseController.updatePhase)
 router.put('/updateAssignment', assignmentController.updateAssignment)
@@ -142,6 +144,8 @@ router.put('/updateAssignment', assignmentController.updateAssignment)
 router.post('/campaignphase', campaignPhaseController.createPhase)
 router.get('/campaignphase/:id', campaignPhaseController.getAllPhase)
 router.get('/campaignphase/singlephase/:id', campaignPhaseController.getSinglePhase)
+router.post('/campaignphase/singlephase', campaignPhaseController.deleteSinglePage)
+router.delete('/campaignphase/bulk/:id', campaignPhaseController.deleteEntirePhase)
 
 router.post('/expertise', expertiseController.createExpert)
 router.get('/expertise', expertiseController.getAllExpert)

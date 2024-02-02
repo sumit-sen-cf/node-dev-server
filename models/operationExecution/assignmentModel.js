@@ -50,8 +50,8 @@ const assignmentSchema = new mongoose.Schema({
     type: String,
     default: this.postPerPage
   },
-  storyPerPage:{
-    type:Number,
+  storyPerPage: {
+    type: Number,
     // required: [true, "story per page is required`"]
   },
   storyRemaining: {
@@ -98,6 +98,10 @@ const assignmentSchema = new mongoose.Schema({
     default: 'inactive',
     enum: ['active', 'inactive', 'replaced', 'replacement', 'pending', 'rejected']
   },
+  delete_id: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: 'pageDeleteRecordModel',
+  },
   delete_status: {
     type: String,
     default: 'inactive',
@@ -117,7 +121,7 @@ const assignmentSchema = new mongoose.Schema({
   },
   ass_status: {
     type: String,
-    default:'unassigned',
+    default: 'unassigned',
     enum: ['assigned', 'unassigned', 'pending', 'executed', 'verified', 'rejected']
   },
   executed_at: {
@@ -144,10 +148,14 @@ const assignmentSchema = new mongoose.Schema({
     type: Array,
     default: []
   },
-  rejected_by:{
-    type:Array,
+  rejected_by: {
+    type: Array,
     default: []
-  }
+  },
+  isExecuted:{
+    type:Boolean,
+    default: false,
+}
 
 });
 
@@ -164,11 +172,24 @@ assignmentSchema.pre('save', async function (next) {
   next();
 });
 
-assignmentSchema.pre(/^find/,async function (next){
+assignmentSchema.pre(/^find/, async function (next) {
   this.populate({
-    path:'ass_to'
+    path: 'ass_to'
   })
+
+  this.populate({
+    path: 'replacement_id',
+
+  })
+
+  this.populate({
+    path: 'delete_id'
+  })
+
+  next()
 })
+
+
 
 module.exports = mongoose.model(
   "assignmentModel",
