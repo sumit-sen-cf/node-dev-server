@@ -614,19 +614,19 @@ exports.showAssetRepairRequestDataToUser = async (req, res) => {
                     from: "repairrequestmodels",
                     localField: "sim_id",
                     foreignField: "sim_id",
-                    as: "repair",
+                    as: "assetRepair",
                 },
             },
             {
                 $unwind: {
-                    path: "$repair",
+                    path: "$assetRepair",
                     preserveNullAndEmptyArrays: true,
                 },
             },
             {
                 $lookup: {
                     from: "usermodels",
-                    localField: "repair.req_by",
+                    localField: "assetRepair.req_by",
                     foreignField: "user_id",
                     as: "userdata",
                 },
@@ -639,15 +639,41 @@ exports.showAssetRepairRequestDataToUser = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "usermodels",
-                    localField: "repair.multi_tag",
-                    foreignField: "user_id",
-                    as: "userMulti",
+                    from: "repairrequestmodels",
+                    let: { sim_id: "$sim_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$sim_id", "$$sim_id"] },
+                            },
+                        },
+                        {
+                            $lookup: {
+                                from: "usermodels",
+                                localField: "multi_tag",
+                                foreignField: "user_id",
+                                as: "userMulti",
+                            },
+                        },
+                        {
+                            $unwind: {
+                                path: "$userMulti",
+                                preserveNullAndEmptyArrays: true,
+                            },
+                        },
+                        {
+                            $group: {
+                                _id: null,
+                                multi_tag_names: { $push: "$userMulti.user_name" },
+                            },
+                        },
+                    ],
+                    as: "multiTags",
                 },
             },
             {
                 $unwind: {
-                    path: "$userMulti",
+                    path: "$multiTags",
                     preserveNullAndEmptyArrays: true,
                 },
             },
@@ -657,9 +683,22 @@ exports.showAssetRepairRequestDataToUser = async (req, res) => {
                     sim_id: "$sim_id",
                     asset_id: "$sim_no",
                     asset_name: "$assetsName",
-                    repair_id: "$repair_id",
-                    multi_tag: "$repair.multi_tag",
-                    multi_tag_names: "$userMulti.user_names",
+                    repair_id: "$assetRepair.repair_id",
+                    req_by: "$assetRepair.req_by",
+                    req_by_name: "$userdata.user_name",
+                    acknowledge_date: "$assetRepair.acknowledge_date",
+                    acknowledge_remark: "$assetRepair.acknowledge_remark",
+                    submission_date: "$assetRepair.submission_date",
+                    submission_remark: "$assetRepair.submission_remark",
+                    resolved_date: "$assetRepair.resolved_date",
+                    resolved_remark: "$assetRepair.resolved_remark",
+                    asset_reason_id: "$assetRepair.asset_reason_id",
+                    priority: "$assetRepair.priority",
+                    repair_request_date_time: "$assetRepair.repair_request_date_time",
+                    problem_detailing: "$assetRepair.problem_detailing",
+                    multi_tag: "$assetRepair.multi_tag",
+                    multi_tag_names: "$multiTags.multi_tag_names",
+                    asset_repair_request_status: "$assetRepair.status"
                 },
             },
         ]).exec();
@@ -668,18 +707,9 @@ exports.showAssetRepairRequestDataToUser = async (req, res) => {
             return res.status(404).json({ success: false, message: "No data found" });
         }
 
-        // const filteredData = userData.filter((item) => {
-        //     if (!item.multi_tag || !item.multi_tag_names) return false; // Ensure multi_tag exists
-        //     const multiTagArray = item.multi_tag.split(',');
-        //     return multiTagArray.includes(user_id);
-        // });
-
-        // if (filteredData.length === 0) {
-        //     return res.status(404).json({ success: false, message: "No data found for the user_id" });
-        // }
-
         res.status(200).json({ data: userData });
     } catch (err) {
         res.status(500).send({ error: err.message, sms: "Error getting user details" });
     }
 };
+

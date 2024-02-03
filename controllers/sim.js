@@ -2044,6 +2044,182 @@ exports.showAssetDataToUser = async (req, res) => {
   }
 };
 
+// exports.showNewAssetDataToUser = async (req, res) => {
+//   try {
+//     const { user_id } = req.params;
+//     const userData = await simModel.aggregate([
+//       {
+//         $lookup: {
+//           from: "assetrequestmodels",
+//           localField: "sub_category_id",
+//           foreignField: "sub_category_id",
+//           as: "repair",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$repair",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "usermodels",
+//           localField: "repair.request_by",
+//           foreignField: "user_id",
+//           as: "userdata",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$userdata",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "assetscategorymodels",
+//           localField: "category_id",
+//           foreignField: "category_id",
+//           as: "category",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$category",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "assetssubcategorymodels",
+//           localField: "sub_category_id",
+//           foreignField: "sub_category_id",
+//           as: "subcategory",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$subcategory",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "vendormodels",
+//           localField: "vendor_id",
+//           foreignField: "vendor_id",
+//           as: "vendor",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$vendor",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "assetbrandmodels",
+//           localField: "asset_brand_id",
+//           foreignField: "asset_brand_id",
+//           as: "brand",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$brand",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "assetmodalmodels",
+//           localField: "asset_modal_id",
+//           foreignField: "asset_modal_id",
+//           as: "modal",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$modal",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "usermodels",
+//           localField: "repair.multi_tag",
+//           foreignField: "user_id",
+//           as: "userMulti",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$userMulti",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: "$_id",
+//           sim_id: "$sim_id",
+//           asset_id: "$sim_no",
+//           asset_name: "$assetsName",
+//           status: "$status",
+//           category_id: "$category_id",
+//           sub_category_id: "$sub_category_id",
+//           vendor_id: "$vendor_id",
+//           inWarranty: "$inWarranty",
+//           warrantyDate: "$warrantyDate",
+//           dateOfPurchase: "$dateOfPurchase",
+//           category_name: "$category.category_name",
+//           sub_category_name: "$subcategory.sub_category_name",
+//           vendor_name: "$vendor.vendor_name",
+//           vendor_contact_no: "$vendor.vendor_contact_no",
+//           vendor_email_id: "$vendor.vendor_email_id",
+//           multi_tag: "$repair.multi_tag",
+//           asset_brand_id: "$brand.asset_brand_id",
+//           asset_brand_name: "$brand.asset_brand_name",
+//           asset_modal_id: "$modal.asset_modal_id",
+//           asset_modal_name: "$modal.asset_modal_name",
+//           priority: "$repair.priority",
+//           req_by: "$repair.request_by",
+//           req_by_name: "$userdata.user_name",
+//           req_date: "$repair.date_and_time_of_asset_request",
+//           asset_request_by_name: "$userRequest.user_name",
+//           asset_request_multi_tag_name: "$userMulti.user_name",
+//           asset_new_request_status: "$repair.asset_request_status"
+//         },
+//       },
+//     ]).exec();
+//     if (!userData) {
+//       return res.status(500).json({ success: false, message: "No data found" });
+//     }
+//     // const filteredData = userData.filter((item) => {
+//     //   const multiTagArray = item.multi_tag.join(',');
+//     //   return multiTagArray.includes(user_id);
+//     // });
+//     // if (filteredData.length === 0) {
+//     //   return res.status(404).json({ success: false, message: "No data found for the user_id" });
+//     // }
+//     // res.status(200).json({ data: filteredData });
+//     const filteredData = userData.filter((item) => {
+//       const multiTagArray = item.multi_tag ? item.multi_tag.join(',') : '';
+//       return multiTagArray.includes(user_id);
+//     });
+
+//     if (filteredData.length === 0) {
+//       return res.status(404).json({ success: false, message: "No data found for the user_id" });
+//     }
+
+//     res.status(200).json({ data: filteredData });
+//   } catch (err) {
+//     res.status(500).send({ error: err.message, sms: "Error getting user details" });
+//   }
+// };
+
+
 exports.showNewAssetDataToUser = async (req, res) => {
   try {
     const { user_id } = req.params;
@@ -2067,12 +2243,12 @@ exports.showNewAssetDataToUser = async (req, res) => {
           from: "usermodels",
           localField: "repair.request_by",
           foreignField: "user_id",
-          as: "userdata",
+          as: "requestingUser",
         },
       },
       {
         $unwind: {
-          path: "$userdata",
+          path: "$requestingUser",
           preserveNullAndEmptyArrays: true,
         },
       },
@@ -2179,31 +2355,44 @@ exports.showNewAssetDataToUser = async (req, res) => {
           vendor_contact_no: "$vendor.vendor_contact_no",
           vendor_email_id: "$vendor.vendor_email_id",
           multi_tag: "$repair.multi_tag",
+          multi_tag_names: "$userMulti.user_name",
           asset_brand_id: "$brand.asset_brand_id",
           asset_brand_name: "$brand.asset_brand_name",
           asset_modal_id: "$modal.asset_modal_id",
           asset_modal_name: "$modal.asset_modal_name",
           priority: "$repair.priority",
           req_by: "$repair.request_by",
-          req_by_name: "$userdata.user_name",
+          req_by_name: "$requestingUser.user_name",
           req_date: "$repair.date_and_time_of_asset_request",
-          asset_request_by_name: "$userRequest.user_name",
-          asset_request_multi_tag_name: "$userMulti.user_name",
+          asset_request_by_name: "$userMulti.user_name",
           asset_new_request_status: "$repair.asset_request_status"
         },
       },
+      {
+        $group: {
+          _id: "$_id",
+          data: { $first: "$$ROOT" },
+          multiTagNames: { $addToSet: "$userMulti.user_name" }
+        }
+      },
+      {
+        $addFields: {
+          multi_tag_names: {
+            $reduce: {
+              input: "$multiTagNames",
+              initialValue: "",
+              in: { $concat: ["$$value", { $cond: [{ $eq: ["$$value", ""] }, "", ", "] }, "$$this"] }
+            }
+          }
+        }
+      },
+      { $replaceRoot: { newRoot: "$data" } }
     ]).exec();
-    if (!userData) {
-      return res.status(500).json({ success: false, message: "No data found" });
+
+    if (!userData || userData.length === 0) {
+      return res.status(404).json({ success: false, message: "No data found" });
     }
-    // const filteredData = userData.filter((item) => {
-    //   const multiTagArray = item.multi_tag.join(',');
-    //   return multiTagArray.includes(user_id);
-    // });
-    // if (filteredData.length === 0) {
-    //   return res.status(404).json({ success: false, message: "No data found for the user_id" });
-    // }
-    // res.status(200).json({ data: filteredData });
+
     const filteredData = userData.filter((item) => {
       const multiTagArray = item.multi_tag ? item.multi_tag.join(',') : '';
       return multiTagArray.includes(user_id);
@@ -2215,13 +2404,207 @@ exports.showNewAssetDataToUser = async (req, res) => {
 
     res.status(200).json({ data: filteredData });
   } catch (err) {
+    console.error(err);
     res.status(500).send({ error: err.message, sms: "Error getting user details" });
   }
 };
 
+
+// Asset Request to Report L1
+// exports.showAssetDataToUserReport = async (req, res) => {
+//   try {
+//     const { user_id } = req.params;
+
+//     const userData = await simModel.aggregate([
+//       {
+//         $lookup: {
+//           from: "assetrequestmodels",
+//           localField: "sub_category_id",
+//           foreignField: "sub_category_id",
+//           as: "assetRequest",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$assetRequest",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "usermodels",
+//           localField: "assetRequest.request_by",
+//           foreignField: "user_id",
+//           as: "userdata",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$userdata",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "assetscategorymodels",
+//           localField: "category_id",
+//           foreignField: "category_id",
+//           as: "category",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$category",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "assetssubcategorymodels",
+//           localField: "sub_category_id",
+//           foreignField: "sub_category_id",
+//           as: "subcategory",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$subcategory",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "vendormodels",
+//           localField: "vendor_id",
+//           foreignField: "vendor_id",
+//           as: "vendor",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$vendor",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "assetbrandmodels",
+//           localField: "asset_brand_id",
+//           foreignField: "asset_brand_id",
+//           as: "brand",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$brand",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "assetmodalmodels",
+//           localField: "asset_modal_id",
+//           foreignField: "asset_modal_id",
+//           as: "modal",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$modal",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       // {
+//       //   $lookup: {
+//       //     from: "usermodels",
+//       //     localField: "assetRequest.multi_tag",
+//       //     foreignField: "user_id",
+//       //     as: "userMulti",
+//       //   },
+//       // },
+//       // {
+//       //   $unwind: {
+//       //     path: "$userMulti",
+//       //     preserveNullAndEmptyArrays: true,
+//       //   },
+//       // },
+//       // {
+//       //   $match: {
+//       //     "userMulti.Report_L1": parseInt(user_id),
+//       //   },
+//       // },
+//       {
+//         $lookup: {
+//           from: "usermodels",
+//           localField: "assetRequest.multi_tag",
+//           foreignField: "user_id",
+//           as: "userdata",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$userdata",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $match: {
+//           "userdata.Report_L1": parseInt(user_id),
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: "$_id",
+//           sim_id: "$sim_id",
+//           asset_id: "$sim_no",
+//           asset_name: "$assetsName",
+//           status: "$status",
+//           category_id: "$category_id",
+//           sub_category_id: "$sub_category_id",
+//           vendor_id: "$vendor_id",
+//           inWarranty: "$inWarranty",
+//           warrantyDate: "$warrantyDate",
+//           dateOfPurchase: "$dateOfPurchase",
+//           category_name: "$category.category_name",
+//           sub_category_name: "$subcategory.sub_category_name",
+//           vendor_name: "$vendor.vendor_name",
+//           vendor_contact_no: "$vendor.vendor_contact_no",
+//           vendor_email_id: "$vendor.vendor_email_id",
+//           multi_tag: "$assetRequest.multi_tag",
+//           asset_brand_id: "$brand.asset_brand_id",
+//           asset_brand_name: "$brand.asset_brand_name",
+//           asset_modal_id: "$modal.asset_modal_id",
+//           asset_modal_name: "$modal.asset_modal_name",
+//           priority: "$assetRequest.priority",
+//           req_by: "$assetRequest.request_by",
+//           req_by_name: "$userdata.user_name",
+//           req_date: "$assetRequest.date_and_time_of_asset_request",
+//           asset_request_by_name: "$userRequest.user_name",
+//           asset_request_multi_tag_name: "$userMulti.user_name",
+//           asset_new_request_status: "$assetRequest.asset_request_status",
+//           users_manager: "$userMulti.Report_L1",
+//           asset_request_id: "$assetRequest._id"
+//         },
+//       },
+//     ]).exec();
+
+//     if (!userData) {
+//       return res.status(500).json({ success: false, message: "No data found" });
+//     }
+
+//     if (userData.length === 0) {
+//       return res.status(404).json({ success: false, message: "No data found for the user_id" });
+//     }
+
+//     res.status(200).json({ data: userData });
+//   } catch (err) {
+//     res.status(500).send({ error: err.message, sms: "Error getting user details" });
+//   }
+// };
+
 exports.showAssetDataToUserReport = async (req, res) => {
   try {
-    const { user_id } = req.params;
+    const { user_id } = req.body;
 
     const userData = await simModel.aggregate([
       {
@@ -2243,82 +2626,12 @@ exports.showAssetDataToUserReport = async (req, res) => {
           from: "usermodels",
           localField: "assetRequest.request_by",
           foreignField: "user_id",
-          as: "userdata",
+          as: "reqByUser",
         },
       },
       {
         $unwind: {
-          path: "$userdata",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "assetscategorymodels",
-          localField: "category_id",
-          foreignField: "category_id",
-          as: "category",
-        },
-      },
-      {
-        $unwind: {
-          path: "$category",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "assetssubcategorymodels",
-          localField: "sub_category_id",
-          foreignField: "sub_category_id",
-          as: "subcategory",
-        },
-      },
-      {
-        $unwind: {
-          path: "$subcategory",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "vendormodels",
-          localField: "vendor_id",
-          foreignField: "vendor_id",
-          as: "vendor",
-        },
-      },
-      {
-        $unwind: {
-          path: "$vendor",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "assetbrandmodels",
-          localField: "asset_brand_id",
-          foreignField: "asset_brand_id",
-          as: "brand",
-        },
-      },
-      {
-        $unwind: {
-          path: "$brand",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "assetmodalmodels",
-          localField: "asset_modal_id",
-          foreignField: "asset_modal_id",
-          as: "modal",
-        },
-      },
-      {
-        $unwind: {
-          path: "$modal",
+          path: "$reqByUser",
           preserveNullAndEmptyArrays: true,
         },
       },
@@ -2327,18 +2640,18 @@ exports.showAssetDataToUserReport = async (req, res) => {
           from: "usermodels",
           localField: "assetRequest.multi_tag",
           foreignField: "user_id",
-          as: "userMulti",
+          as: "multiTagUsers",
         },
       },
       {
         $unwind: {
-          path: "$userMulti",
+          path: "$multiTagUsers",
           preserveNullAndEmptyArrays: true,
         },
       },
       {
         $match: {
-          "userMulti.Report_L1": parseInt(user_id),
+          "multiTagUsers.reportL1": user_id,
         },
       },
       {
@@ -2366,22 +2679,25 @@ exports.showAssetDataToUserReport = async (req, res) => {
           asset_modal_name: "$modal.asset_modal_name",
           priority: "$assetRequest.priority",
           req_by: "$assetRequest.request_by",
-          req_by_name: "$userdata.user_name",
+          req_by_name: "$reqByUser.user_name",
           req_date: "$assetRequest.date_and_time_of_asset_request",
-          asset_request_by_name: "$userRequest.user_name",
-          asset_request_multi_tag_name: "$userMulti.user_name",
+          asset_request_multi_tag_name: "$multiTagUsers.user_name",
           asset_new_request_status: "$assetRequest.asset_request_status",
-          users_manager: "$userMulti.Report_L1",
-          asset_request_id: "$assetRequest._id"
+          users_manager: "$multiTagUsers.reportL1"
         },
       },
-    ]).exec();
+      {
+        $group: {
+          _id: "$sim_id",
+          data: { $first: "$$ROOT" }
+        }
+      },
+      {
+        $replaceRoot: { newRoot: "$data" }
+      }
+    ]);
 
-    if (!userData) {
-      return res.status(500).json({ success: false, message: "No data found" });
-    }
-
-    if (userData.length === 0) {
+    if (!userData || userData.length === 0) {
       return res.status(404).json({ success: false, message: "No data found for the user_id" });
     }
 
