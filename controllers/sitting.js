@@ -8,6 +8,13 @@ const {storage} = require('../common/uploadFile.js')
 
 exports.addSitting = async (req, res) => {
   try {
+    const checkDuplicacy = await sittingModel.findOne({sitting_ref_no: req.body.sitting_ref_no})
+    if(checkDuplicacy){
+      return res.status(409).send({
+        data: [],
+        message: "Sitting ref no already exist",
+      });
+    }
     const sittingc = new sittingModel({
       sitting_ref_no: req.body.sitting_ref_no,
       sitting_area: req.body.sitting_area,
@@ -19,7 +26,7 @@ exports.addSitting = async (req, res) => {
     const sittingv = await sittingc.save();
     res.send({ sittingv, status: 200 });
   } catch (err) {
-    res.status(500).send({ error: err, sms: "This sitting cannot be created" });
+    res.status(500).send({ error: err.message, sms: "This sitting cannot be created" });
   }
 };
 
@@ -138,6 +145,13 @@ exports.addRoom = async (req, res) => {
   try {
     const { sitting_ref_no, remarks, created_by } = req.body;
     let roomImage;
+    const checkDuplicacy = await roomModel.findOne({sitting_ref_no: req.body.sitting_ref_no})
+    if(checkDuplicacy){
+      return res.status(409).send({
+        data: [],
+        message: "Sitting ref no already exist",
+      });
+    }
     const roomObj = new roomModel({
       sitting_ref_no,
       remarks,

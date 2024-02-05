@@ -66,6 +66,13 @@ exports.getHobbyById = async (req, res) => {
 
 exports.editHobby = async (req, res) => {
   try {
+    const checkDuplicacy = await hobbyModel.findOne({hobby_name: req.body.hobby_name})
+    if(checkDuplicacy){
+      return res.status(409).send({
+        data: [],
+        message: "Hobby name already exist",
+      });
+    }
       const editHobby = await hobbyModel.findOneAndUpdate({ hobby_id: req.body.hobby_id }, {
         hobby_name : req.body.hobby_name,
         remark : req.body.remark,

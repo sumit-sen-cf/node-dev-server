@@ -61,6 +61,13 @@ exports.getRoles = async (req, res) => {
 
 exports.editRole = async (req, res) => {
     try{
+        const checkDuplicacy = await roleModel.findOne({Role_name: req.body.role_name})
+        if(checkDuplicacy){
+            return res.status(409).send({
+                data: [],
+                message: "Role name already exist",
+            });
+        }
         const editsim = await roleModel.findOneAndUpdate({role_id:req.body.role_id},{
             Role_name: req.body.role_name,
             Remarks: req.body.remark
@@ -70,13 +77,7 @@ exports.editRole = async (req, res) => {
         }
         res.status(200).send({success:true,data:editsim})
     } catch(error){
-        if (error.code === 11000) {
-            // The error code 11000 indicates a duplicate key error (unique constraint violation)
-         return   res.status(500).send({error:error.message,sms:'Role name must be unique. Another role with the same name already exists.'})
-          } else {
-            return  res.status(500).send({error:error.message,sms:'Error when updating role'})
-           
-          }
+        return  res.status(500).send({error:error.message,sms:'Error when updating role'})
     }
 };
 
