@@ -164,34 +164,34 @@ exports.getDatas = async (req, res) => {
                     preserveNullAndEmptyArrays: true,
                 },
             },
-            {
-                $lookup: {
-                    from: "brandcategorymodels",
-                    localField: "brandCategory_id",
-                    foreignField: "brand_category_id",
-                    as: "brandCategory",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$brandCategory",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "brandsubcategorymodels",
-                    localField: "brandSubCategory_id",
-                    foreignField: "brand_sub_category_id",
-                    as: "brandSubCategory",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$brandSubCategory",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
+            // {
+            //     $lookup: {
+            //         from: "brandcategorymodels",
+            //         localField: "brandCategory_id",
+            //         foreignField: "brand_category_id",
+            //         as: "brandCategory",
+            //     },
+            // },
+            // {
+            //     $unwind: {
+            //         path: "$brandCategory",
+            //         preserveNullAndEmptyArrays: true,
+            //     },
+            // },
+            // {
+            //     $lookup: {
+            //         from: "brandsubcategorymodels",
+            //         localField: "brandSubCategory_id",
+            //         foreignField: "brand_sub_category_id",
+            //         as: "brandSubCategory",
+            //     },
+            // },
+            // {
+            //     $unwind: {
+            //         path: "$brandSubCategory",
+            //         preserveNullAndEmptyArrays: true,
+            //     },
+            // },
             {
                 $project: {
                     _id: 1,
@@ -219,8 +219,8 @@ exports.getDatas = async (req, res) => {
                     number_of_story_views: 1,
                     operation_remark: 1,
                     // data_upload: 1,
-                    brand_category_name: "$brandCategory.brandCategory_name",
-                    brand_sub_category_name: "$brandSubCategory.brandSubCategory_name",
+                    // brand_category_name: "$brandCategory.brandCategory_name",
+                    // brand_sub_category_name: "$brandSubCategory.brandSubCategory_name",
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
                     designed_by_name: "$userDataName.user_name",
@@ -361,34 +361,34 @@ exports.getSingleData = async (req, res) => {
                     preserveNullAndEmptyArrays: true,
                 },
             },
-            {
-                $lookup: {
-                    from: "brandcategorymodels",
-                    localField: "brand_category_id",
-                    foreignField: "brandCategory_id",
-                    as: "brandCategory",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$brandCategory",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "brandsubcategorymodels",
-                    localField: "brand_sub_category_id",
-                    foreignField: "brandSubCategory_id",
-                    as: "brandSubCategory",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$brandSubCategory",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
+            // {
+            //     $lookup: {
+            //         from: "brandcategorymodels",
+            //         localField: "brand_category_id",
+            //         foreignField: "brandCategory_id",
+            //         as: "brandCategory",
+            //     },
+            // },
+            // {
+            //     $unwind: {
+            //         path: "$brandCategory",
+            //         preserveNullAndEmptyArrays: true,
+            //     },
+            // },
+            // {
+            //     $lookup: {
+            //         from: "brandsubcategorymodels",
+            //         localField: "brand_sub_category_id",
+            //         foreignField: "brandSubCategory_id",
+            //         as: "brandSubCategory",
+            //     },
+            // },
+            // {
+            //     $unwind: {
+            //         path: "$brandSubCategory",
+            //         preserveNullAndEmptyArrays: true,
+            //     },
+            // },
             {
                 $project: {
                     _id: 1,
@@ -414,8 +414,8 @@ exports.getSingleData = async (req, res) => {
                     number_of_views: 1,
                     number_of_story_views: 1,
                     operation_remark: 1,
-                    brand_category_name: "$brandCategory.brandCategory_name",
-                    brand_sub_category_name: "$brandSubCategory.brandSubCategory_name",
+                    // brand_category_name: "$brandCategory.brandCategory_name",
+                    // brand_sub_category_name: "$brandSubCategory.brandSubCategory_name",
                     designed_by_name: "$userDataName.user_name",
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
