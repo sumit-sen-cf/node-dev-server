@@ -78,7 +78,55 @@ const dataModel = new mongoose.Schema({
         type: Number,
         required: false,
         default: 0
-    }
+    },
+    date_of_completion: {
+        type: String,
+        default: ""
+    },
+    date_of_report: {
+        type: String,
+        default: ""
+    },
+    brand_category_id: {
+        type: Number,
+        default: 0
+    },
+    brand_sub_category_id: {
+        type: Number,
+        default: 0
+    },
+    campaign_purpose: {
+        type: String,
+        default: ""
+    },
+    number_of_post: {
+        type: Number,
+        default: 0
+    },
+    number_of_reach: {
+        type: String,
+        default: "NA"
+    },
+    number_of_impression: {
+        type: String,
+        default: "NA"
+    },
+    number_of_engagement: {
+        type: String,
+        default: "NA"
+    },
+    number_of_views: {
+        type: String,
+        default: "NA"
+    },
+    number_of_story_views: {
+        type: String,
+        default: "NA"
+    },
+    operation_remark: {
+        type: String,
+        default: ""
+    },
 });
 
 dataModel.pre('save', async function (next) {

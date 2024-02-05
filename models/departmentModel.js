@@ -9,13 +9,13 @@ const departmentModel = new mongoose.Schema({
   dept_name: {
     type: String,
     required: false,
-    unique:true,
+    unique: true,
     default: "",
   },
   short_name: {
     type: String,
     required: false,
-    unique:true,
+    unique: true,
     default: "",
   },
   Remarks: {
@@ -34,11 +34,11 @@ const departmentModel = new mongoose.Schema({
   },
   Last_updated_by: {
     type: Number,
-    default:0
+    default: 0
   },
   Last_updated_date: {
     type: Date,
-    default:0
+    default: 0
   },
 });
 

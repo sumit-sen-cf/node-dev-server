@@ -5,20 +5,21 @@ const replacementModel = require("../models/requestReplacementModel.js");
 const multer = require("multer");
 const vari = require("../variables.js");
 
-const upload = multer({ dest: "uploads/assets" }).fields([
+const upload = multer({
+    storage: multer.memoryStorage()
+}).fields([
     { name: "img1", maxCount: 1 },
     { name: "img2", maxCount: 1 },
     { name: "img3", maxCount: 1 },
     { name: "img4", maxCount: 1 },
-    { name: "recovery_image_upload1", maxCount: 1 },
-    { name: "recovery_image_upload2", maxCount: 1 },
+    { name: 'recovery_image_upload1', maxCount: 1 },
+    { name: 'recovery_image_upload2', maxCount: 1 },
 ]);
 
 exports.addRepairRequest = [
     upload,
     async (req, res) => {
         try {
-            console.log("ddddddddddddddd", req.body)
             const repairdata = new repairRequestModel({
                 sim_id: req.body.sim_id,
                 acknowledge_date: req.body.acknowledge_date,
@@ -33,22 +34,93 @@ exports.addRepairRequest = [
                 problem_detailing: req.body.problem_detailing,
                 // multi_tag: req.body.multi_tag,
                 multi_tag: req.body.multi_tag.split(',').map(Number),
-                status: "Requested",
+                status: req.body.status,
                 // status: req.body.status,
                 req_by: req.body.req_by,
                 req_date: req.body.req_date,
-                img1: req.files.img1 ? req.files.img1[0].filename : "",
-                img2: req.files.img2 ? req.files.img2[0].filename : "",
-                img3: req.files.img3 ? req.files.img3[0].filename : "",
-                img4: req.files.img4 ? req.files.img4[0].filename : "",
+                // img1: req.files.img1 ? req.files.img1[0].filename : "",
+                // img2: req.files.img2 ? req.files.img2[0].filename : "",
+                // img3: req.files.img3 ? req.files.img3[0].filename : "",
+                // img4: req.files.img4 ? req.files.img4[0].filename : "",
                 recovery_remark: req.body.recovery_remark,
-                recovery_image_upload1: req.files.recovery_image_upload1 ? req.files.recovery_image_upload1[0].filename : "",
-                recovery_image_upload2: req.files.recovery_image_upload2 ? req.files.recovery_image_upload2[0].filename : "",
+                // recovery_image_upload1: req.files.recovery_image_upload1 ? req.files.recovery_image_upload1[0].filename : "",
+                // recovery_image_upload2: req.files.recovery_image_upload2 ? req.files.recovery_image_upload2[0].filename : "",
                 recovery_by: req.body.recovery_by,
                 scrap_remark: req.body.scrap_remark,
                 accept_by: req.body.accept_by
             });
+
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+
+            if (req.files.img1 && req.files.img1[0].originalname) {
+                const blob1 = bucket.file(req.files.img1[0].originalname);
+                returndata.img1 = blob1.name;
+                const blobStream1 = blob1.createWriteStream();
+                blobStream1.on("finish", () => {
+                    // res.status(200).send("Success")
+                });
+                blobStream1.end(req.files.img1[0].buffer);
+            }
+            if (req.files.img2 && req.files.img2[0].originalname) {
+                const blob2 = bucket.file(req.files.img2[0].originalname);
+                returndata.img2 = blob2.name;
+                const blobStream2 = blob2.createWriteStream();
+                blobStream2.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream2.end(req.files.img2[0].buffer);
+            }
+            if (req.files.img3 && req.files.img3[0].originalname) {
+                const blob3 = bucket.file(req.files.img3[0].originalname);
+                returndata.img3 = blob3.name;
+                const blobStream3 = blob3.createWriteStream();
+                blobStream3.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream3.end(req.files.img3[0].buffer);
+            }
+            if (req.files.img4 && req.files.img4[0].originalname) {
+                const blob4 = bucket.file(req.files.img4[0].originalname);
+                returndata.img4 = blob4.name;
+                const blobStream4 = blob4.createWriteStream();
+                blobStream4.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream4.end(req.files.img4[0].buffer);
+            }
+            if (req.files.recovery_image_upload1 && req.files.recovery_image_upload1[0].originalname) {
+                const blob4 = bucket.file(req.files.recovery_image_upload1[0].originalname);
+                returndata.recovery_image_upload1 = blob4.name;
+                const blobStream4 = blob4.createWriteStream();
+                blobStream4.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream4.end(req.files.recovery_image_upload1[0].buffer);
+            }
+            if (req.files.recovery_image_upload2 && req.files.recovery_image_upload2[0].originalname) {
+                const blob4 = bucket.file(req.files.recovery_image_upload2[0].originalname);
+                returndata.recovery_image_upload2 = blob4.name;
+                const blobStream4 = blob4.createWriteStream();
+                blobStream4.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream4.end(req.files.recovery_image_upload2[0].buffer);
+            }
+
             const repairedAssets = await repairdata.save();
+            // Added the Data in AssetHistoryModel 
+            // const assetHistoryData = {
+            //     sim_id: simv.sim_id,
+            //     action_date_time: simv.Creation_date,
+            //     action_by: simv.created_by,
+            //     asset_detail: "",
+            //     action_to: 0,
+            //     asset_remark: simv.Remarks
+            // };
+
+            // const newAssetHistory = await assetHistoryModel.create(assetHistoryData);
+
 
 
             // Commented part is underworking because their is need for complete clarification for each field while working with model i have not clear understanding for fields that's why i commented this code 
@@ -90,6 +162,7 @@ exports.addRepairRequest = [
 
 exports.getAllRepairRequests = async (req, res) => {
     try {
+        const imageUrl = vari.IMAGE_URL;
         const assetsdata = await repairRequestModel
             .aggregate([
                 {
@@ -135,18 +208,30 @@ exports.getAllRepairRequests = async (req, res) => {
                         problem_detailing: "$problem_detailing",
                         multi_tag: "$multi_tag",
                         status: "$status",
-                        img1: "$img1",
-                        img2: "$img2",
-                        img3: "$img3",
-                        img4: "$img4",
+                        img1: {
+                            $concat: [imageUrl, "$img1"],
+                        },
+                        img2: {
+                            $concat: [imageUrl, "$img2"],
+                        },
+                        img3: {
+                            $concat: [imageUrl, "$img3"],
+                        },
+                        img4: {
+                            $concat: [imageUrl, "$img4"],
+                        },
+                        recovery_image_upload1: {
+                            $concat: [imageUrl, "$recovery_image_upload1"],
+                        },
+                        recovery_image_upload2: {
+                            $concat: [imageUrl, "$recovery_image_upload2"],
+                        },
                         created_at: "$created_at",
                         updated_at: "$updated_at",
                         repair_request_date_time: "$repair_request_date_time",
                         req_by: "$req_by",
                         req_date: "$req_date",
                         recovery_remark: "$recovery_remark",
-                        recovery_image_upload1: "$recovery_image_upload1",
-                        recovery_image_upload2: "$recovery_image_upload2",
                         recovery_by: "$recovery_by",
                         recovery_date_time: "$recovery_date_time"
                     },
@@ -428,17 +513,9 @@ exports.getSingleRepairRequests = async (req, res) => {
     }
 };
 
-const upload1 = multer({ dest: "uploads/assets" }).fields([
-    { name: "img1", maxCount: 1 },
-    { name: "img2", maxCount: 1 },
-    { name: "img3", maxCount: 1 },
-    { name: "img4", maxCount: 1 },
-    { name: "recovery_image_upload1", maxCount: 1 },
-    { name: "recovery_image_upload2", maxCount: 1 },
-]);
 
 exports.editRepairRequest = [
-    upload1,
+    upload,
     async (req, res) => {
         try {
             const existingRepairRequest = await repairRequestModel.findOne({
@@ -490,6 +567,64 @@ exports.editRepairRequest = [
                 return res.status(500).send({ success: false });
             }
 
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+
+            if (req.files.img1 && req.files.img1[0].originalname) {
+                const blob1 = bucket.file(req.files.img1[0].originalname);
+                returndata.img1 = blob1.name;
+                const blobStream1 = blob1.createWriteStream();
+                blobStream1.on("finish", () => {
+                    // res.status(200).send("Success")
+                });
+                blobStream1.end(req.files.img1[0].buffer);
+            }
+            if (req.files.img2 && req.files.img2[0].originalname) {
+                const blob2 = bucket.file(req.files.img2[0].originalname);
+                returndata.img2 = blob2.name;
+                const blobStream2 = blob2.createWriteStream();
+                blobStream2.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream2.end(req.files.img2[0].buffer);
+            }
+            if (req.files.img3 && req.files.img3[0].originalname) {
+                const blob3 = bucket.file(req.files.img3[0].originalname);
+                returndata.img3 = blob3.name;
+                const blobStream3 = blob3.createWriteStream();
+                blobStream3.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream3.end(req.files.img3[0].buffer);
+            }
+            if (req.files.img4 && req.files.img4[0].originalname) {
+                const blob4 = bucket.file(req.files.img4[0].originalname);
+                returndata.img4 = blob4.name;
+                const blobStream4 = blob4.createWriteStream();
+                blobStream4.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream4.end(req.files.img4[0].buffer);
+            }
+            if (req.files.recovery_image_upload1 && req.files.recovery_image_upload1[0].originalname) {
+                const blob4 = bucket.file(req.files.recovery_image_upload1[0].originalname);
+                returndata.recovery_image_upload1 = blob4.name;
+                const blobStream4 = blob4.createWriteStream();
+                blobStream4.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream4.end(req.files.recovery_image_upload1[0].buffer);
+            }
+            if (req.files.recovery_image_upload2 && req.files.recovery_image_upload2[0].originalname) {
+                const blob4 = bucket.file(req.files.recovery_image_upload2[0].originalname);
+                returndata.recovery_image_upload2 = blob4.name;
+                const blobStream4 = blob4.createWriteStream();
+                blobStream4.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream4.end(req.files.recovery_image_upload2[0].buffer);
+            }
+
             return res.status(200).send({ success: true, data: editrepairdata });
         } catch (err) {
             return res
@@ -512,6 +647,7 @@ exports.deleteRepairRequest = async (req, res) => {
 };
 
 
+// Asset Repair Request To ReportL1
 exports.showRepairRequestAssetDataToUserReport = async (req, res) => {
     try {
         const { user_id } = req.params;
@@ -546,25 +682,8 @@ exports.showRepairRequestAssetDataToUserReport = async (req, res) => {
                 },
             },
             {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "assetRepair.multi_tag",
-                    foreignField: "user_id",
-                    as: "userdata1",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$userdata1",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
                 $match: {
-                    $or: [
-                        { "userdata1.Report_L1": parseInt(user_id) },
-                        { "userdata.user_id": parseInt(user_id) }
-                    ]
+                    "userdata.Report_L1": parseInt(user_id),
                 },
             },
             {
@@ -587,7 +706,7 @@ exports.showRepairRequestAssetDataToUserReport = async (req, res) => {
                     repair_request_date_time: "$assetRepair.repair_request_date_time",
                     problem_detailing: "$assetRepair.problem_detailing",
                     multi_tag: "$assetRepair.multi_tag",
-                    multi_tag_names: "$userdata1.user_name",
+                    multi_tag_names: "$userdata.user_name",
                     asset_repair_request_status: "$assetRepair.status"
                 },
             }
@@ -639,6 +758,34 @@ exports.showAssetRepairRequestDataToUser = async (req, res) => {
             },
             {
                 $lookup: {
+                    from: "assetssubcategorymodels",
+                    localField: "sub_category_id",
+                    foreignField: "sub_category_id",
+                    as: "subcategory",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$subcategory",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "assetscategorymodels",
+                    localField: "category_id",
+                    foreignField: "category_id",
+                    as: "category",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$category",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
                     from: "repairrequestmodels",
                     let: { sim_id: "$sim_id" },
                     pipeline: [
@@ -683,8 +830,13 @@ exports.showAssetRepairRequestDataToUser = async (req, res) => {
                     sim_id: "$sim_id",
                     asset_id: "$sim_no",
                     asset_name: "$assetsName",
+                    asset_category_id: "$asset_category_id",
+                    asset_category_name: "$category.category_name",
+                    asset_sub_category_id: "$asset_sub_category_id",
+                    asset_sub_category_name: "$subcategory.sub_category_name",
                     repair_id: "$assetRepair.repair_id",
                     req_by: "$assetRepair.req_by",
+                    asset_repair_req_date: "$assetRepair.req_date",
                     req_by_name: "$userdata.user_name",
                     acknowledge_date: "$assetRepair.acknowledge_date",
                     acknowledge_remark: "$assetRepair.acknowledge_remark",
@@ -712,4 +864,3 @@ exports.showAssetRepairRequestDataToUser = async (req, res) => {
         res.status(500).send({ error: err.message, sms: "Error getting user details" });
     }
 };
-

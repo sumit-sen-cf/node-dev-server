@@ -24,7 +24,19 @@ exports.addData = async (req, res) => {
             // data_upload: req.file.filename,
             created_by: req.body.created_by,
             updated_by: req.body.updated_by,
-            designed_by: req.body.designed_by
+            designed_by: req.body.designed_by,
+            date_of_completion: req.body.date_of_completion,
+            date_of_report: req.body.date_of_report,
+            brand_category_id: req.body.brand_category_id,
+            brand_sub_category_id: req.body.brand_sub_category_id,
+            campaign_purpose: req.body.campaign_purpose,
+            number_of_post: req.body.number_of_post,
+            number_of_reach: req.body.number_of_reach,
+            number_of_impression: req.body.number_of_impression,
+            number_of_engagement: req.body.number_of_engagement,
+            number_of_views: req.body.number_of_views,
+            number_of_story_views: req.body.number_of_story_views,
+            operation_remark: req.body.operation_remark
         });
 
         const bucketName = vari.BUCKET_NAME;
@@ -32,7 +44,7 @@ exports.addData = async (req, res) => {
         const blob = bucket.file(req.file.originalname);
         data.data_upload = blob.name;
         const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { 
+        blobStream.on("finish", () => {
             // res.status(200).send("Success") 
         });
         blobStream.end(req.file.buffer);
@@ -153,6 +165,34 @@ exports.getDatas = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "brandcategorymodels",
+                    localField: "brandCategory_id",
+                    foreignField: "brand_category_id",
+                    as: "brandCategory",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$brandCategory",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "brandsubcategorymodels",
+                    localField: "brandSubCategory_id",
+                    foreignField: "brand_sub_category_id",
+                    as: "brandSubCategory",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$brandSubCategory",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     _id: 1,
                     data_id: 1,
@@ -166,7 +206,21 @@ exports.getDatas = async (req, res) => {
                     created_by: 1,
                     updated_by: 1,
                     designed_by: 1,
+                    date_of_completion: 1,
+                    date_of_report: 1,
+                    brand_category_id: 1,
+                    brand_sub_category_id: 1,
+                    campaign_purpose: 1,
+                    number_of_post: 1,
+                    number_of_reach: 1,
+                    number_of_impression: 1,
+                    number_of_engagement: 1,
+                    number_of_views: 1,
+                    number_of_story_views: 1,
+                    operation_remark: 1,
                     // data_upload: 1,
+                    brand_category_name: "$brandCategory.brandCategory_name",
+                    brand_sub_category_name: "$brandSubCategory.brandSubCategory_name",
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
                     designed_by_name: "$userDataName.user_name",
@@ -308,6 +362,34 @@ exports.getSingleData = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "brandcategorymodels",
+                    localField: "brand_category_id",
+                    foreignField: "brandCategory_id",
+                    as: "brandCategory",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$brandCategory",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "brandsubcategorymodels",
+                    localField: "brand_sub_category_id",
+                    foreignField: "brandSubCategory_id",
+                    as: "brandSubCategory",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$brandSubCategory",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     _id: 1,
                     data_id: 1,
@@ -320,6 +402,20 @@ exports.getSingleData = async (req, res) => {
                     created_by: 1,
                     updated_by: 1,
                     designed_by: 1,
+                    date_of_completion: 1,
+                    date_of_report: 1,
+                    brand_category_id: 1,
+                    brand_sub_category_id: 1,
+                    campaign_purpose: 1,
+                    number_of_post: 1,
+                    number_of_reach: 1,
+                    number_of_impression: 1,
+                    number_of_engagement: 1,
+                    number_of_views: 1,
+                    number_of_story_views: 1,
+                    operation_remark: 1,
+                    brand_category_name: "$brandCategory.brandCategory_name",
+                    brand_sub_category_name: "$brandSubCategory.brandSubCategory_name",
                     designed_by_name: "$userDataName.user_name",
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
@@ -500,6 +596,18 @@ exports.getDataBasedDataName = async (req, res) => {
                     data_type: "$data_type",
                     size_in_mb: "$size_in_mb",
                     remark: "$remark",
+                    date_of_completion: "$date_of_completion",
+                    date_of_report: "$date_of_report",
+                    brand_category_id: "$brand_category_id",
+                    brand_sub_category_id: "$brand_sub_category_id",
+                    campaign_purpose: "$campaign_purpose",
+                    number_of_post: "$number_of_post",
+                    number_of_reach: "$number_of_reach",
+                    number_of_impression: "$number_of_impression",
+                    number_of_engagement: "$number_of_engagement",
+                    number_of_views: "$number_of_views",
+                    number_of_story_views: "$number_of_story_views",
+                    operation_remark: "$operation_remark",
                     data_image: {
                         $cond: {
                             if: { $ne: ['$data_upload', null] },
@@ -667,6 +775,18 @@ exports.getDataBasedDataNameNew = async (req, res) => {
                     data_type: "$data_type",
                     size_in_mb: "$size_in_mb",
                     remark: "$remark",
+                    date_of_completion: "$date_of_completion",
+                    date_of_report: "$date_of_report",
+                    brand_category_id: "$brand_category_id",
+                    brand_sub_category_id: "$brand_sub_category_id",
+                    campaign_purpose: "$campaign_purpose",
+                    number_of_post: "$number_of_post",
+                    number_of_reach: "$number_of_reach",
+                    number_of_impression: "$number_of_impression",
+                    number_of_engagement: "$number_of_engagement",
+                    number_of_views: "$number_of_views",
+                    number_of_story_views: "$number_of_story_views",
+                    operation_remark: "$operation_remark",
                     data_image: {
                         $cond: {
                             if: { $ne: ['$data_upload', null] },
@@ -719,7 +839,19 @@ exports.editData = async (req, res) => {
             created_by: req.body.created_by,
             updated_at: req.body.updated_at,
             updated_by: req.body.updated_by,
-            designed_by: req.body.designed_by
+            designed_by: req.body.designed_by,
+            date_of_completion: req.body.date_of_completion,
+            date_of_report: req.body.date_of_report,
+            brand_category_id: req.body.brand_category_id,
+            brand_sub_category_id: req.body.brand_sub_category_id,
+            campaign_purpose: req.body.campaign_purpose,
+            number_of_post: req.body.number_of_post,
+            number_of_reach: req.body.number_of_reach,
+            number_of_impression: req.body.number_of_impression,
+            number_of_engagement: req.body.number_of_engagement,
+            number_of_views: req.body.number_of_views,
+            number_of_story_views: req.body.number_of_story_views,
+            operation_remark: req.body.operation_remark
         }, { new: true })
 
         res.status(200).send({ success: true, data: editsim })

@@ -58,11 +58,11 @@ const simModel = new mongoose.Schema({
     default: "",
   },
   warrantyDate: {
-    type: Date,
+    type: String,
     default: "",
   },
   dateOfPurchase: {
-    type: Date,
+    type: String,
     default: "",
   },
   selfAuditPeriod: {
