@@ -1007,6 +1007,20 @@ exports.getSingleUser = async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: 'subdepartmentmodels',
+                    localField: 'department.dept_id',
+                    foreignField: 'dept_id',
+                    as: 'subDepartment'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$subDepartment",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
                 $project: {
                     show_rocket: "$show_rocket",
                     offer_later_pdf_url: "$offer_later_pdf_url",
@@ -1015,6 +1029,8 @@ exports.getSingleUser = async (req, res) => {
                     offer_later_reject_reason: "$offer_later_reject_reason",
                     user_id: "$user_id",
                     user_name: "$user_name",
+                    sub_dept_id:"$subDepartment.sub_dept_id",
+                    sub_dept_name:"$subDepartment.sub_dept_name",
                     user_designation: "$user_designation",
                     user_email_id: "$user_email_id",
                     user_login_id: "$user_login_id",

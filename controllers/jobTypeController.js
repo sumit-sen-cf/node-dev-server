@@ -7,7 +7,7 @@ exports.addJobType = async (req, res) => {
         if(checkDuplicacy){
             return res.status(409).send({
                 data: [],
-                message: "Role name already exist",
+                message: "Job type already exist",
             });
         }
         const jobtypeObj = new jobTypeModel({
