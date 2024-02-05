@@ -318,8 +318,10 @@ exports.addUser = [upload, async (req, res) => {
             const deptDesiData = await deptDesiAuthModel.find({});
             await Promise.all(deptDesiData.map(async (deptDesi) => {
                 if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
-                    const updatedData = await userAuthModel.updateMany(
-                        { obj_id: deptDesi.obj_id },
+                    const updatedData = await userAuthModel.updateOne(
+                        { obj_id: deptDesi.obj_id,
+                          Juser_id: simv.user_id
+                        },
                         {
                             $set: {
                                 insert: deptDesi.insert,
@@ -514,30 +516,17 @@ exports.updateUser = [upload, async (req, res) => {
         if (editsim?.offer_later_status == true || (editsim?.joining_date_extend || (editsim?.digital_signature_image && editsim?.digital_signature_image !== ""))) {
             helper.generateOfferLaterPdf(editsim)
         }
-
-        if (req.files && req.files?.image[0]?.originalname) {
+        
+        if (req.files && req.files.digital_signature_image && req.files.digital_signature_image[0]?.originalname) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
-            const blob = bucket.file(req.files.image[0].originalname);
-            editsim.image = blob.name;
-            const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => {
-                editsim.save();
-                // res.status(200).send("Success") 
-            });
-            blobStream.end(req.files.image[0].buffer);
-        }
-        if (req.files && req.files?.digital_signature_image[0]?.originalname) {
-            const bucketName = vari.BUCKET_NAME;
-            const bucket = storage.bucket(bucketName);
-            const blob = bucket.file(req.files.digital_signature_image[0].originalname);
+            const blob = bucket.file(req.files?.digital_signature_image[0]?.originalname);
             editsim.digital_signature_image = blob.name;
             const blobStream = blob.createWriteStream();
             blobStream.on("finish", () => {
                 editsim.save();
-                // res.status(200).send("Success") 
             });
-            blobStream.end(req.files.digital_signature_image[0].buffer);
+            blobStream.end(req.files.digital_signature_image[0]?.buffer);
         }
 
         return res.status(200).send({ success: true, data: editsim })
