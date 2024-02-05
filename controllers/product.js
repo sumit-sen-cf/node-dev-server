@@ -532,7 +532,7 @@ exports.addOrderReq = async (req, res) => {
     // sendMail("Pantry New Order", html, email);
 
     /* dynamic email temp code */
-    let contentList = await emailTempModel.findOne({ email_for_id: 5 })
+    let contentList = await emailTempModel.findOne({ email_for_id: '65bde71ead52cfd11fa27e4e', send_email:true })
       
       const filledEmailContent = contentList.email_content
       .replace("{{user_name}}", userDetails.user_name)

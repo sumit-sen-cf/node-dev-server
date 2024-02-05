@@ -99,7 +99,7 @@ async function sendReminderEmail(daysBefore) {
     // const html = ejs.render(template, {name} );
 
     /* dynamic email temp code start */
-    let contentList = await emailTempModel.findOne({ email_for_id: daysBefore })
+    let contentList = await emailTempModel.findOne({ email_for_id: '65be340cad52cfd11fa27e50', send_email:true })
   
     const filledEmailContent = contentList.email_content.replace("{{user_name}}", user.user_name);
   
@@ -167,7 +167,7 @@ async function sendEmail(daysBefore) {
     // const joining_date = user.joining_date;
     // const html = ejs.render(template, {name,joining_date} );
     /* dynamic email temp code start */
-    let contentList = await emailTempModel.findOne({ email_for_id: 10 });
+    let contentList = await emailTempModel.findOne({ email_for_id: '65be340cad52cfd11fa27e50', send_email:true });
   
     const filledEmailContent = contentList.email_content
     .replace("{{user_name}}", user.user_name)
