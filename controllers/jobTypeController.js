@@ -3,7 +3,13 @@ const jobTypeModel = require("../models/jobTypeModel");
 exports.addJobType = async (req, res) => {
     try {
         const { job_type, job_type_description, created_by, created_at } = req.body;
-
+        const checkDuplicacy = await jobTypeModel.findOne({job_type: req.body.job_type})
+        if(checkDuplicacy){
+            return res.status(409).send({
+                data: [],
+                message: "Role name already exist",
+            });
+        }
         const jobtypeObj = new jobTypeModel({
             job_type, job_type_description, created_by, created_at
         });

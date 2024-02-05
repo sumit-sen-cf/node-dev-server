@@ -37,7 +37,9 @@ exports.getJobResposibilities = async (req, res) => {
                     user_name: '$user.user_name',
                     description: '$description',
                     sjob_responsibility: '$sjob_responsibility',
-                    user_id: '$user_id'
+                    user_id: '$user_id',
+                    user_email_id:"$user.user_email_id",
+                    user_contact_no:"$user.user_contact_no"
                 }
             }
         ]).exec();
@@ -117,6 +119,13 @@ exports.deleteJobResponsibility = async (req, res) =>{
 
 exports.addResponsibility = async (req, res) =>{
     try{
+        const checkDuplicacy = await responsibilityModel.findOne({respo_name: req.body.respo_name})
+        if(checkDuplicacy){
+            return res.status(409).send({
+                data: [],
+                message: "Responsibility already exist",
+            });
+        }
         const simc = new responsibilityModel({
             respo_name: req.body.respo_name,
             remark: req.body.remark,

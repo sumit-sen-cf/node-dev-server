@@ -3,17 +3,24 @@ const hobbyModel = require("../models/hobbyModel.js");
 exports.addHobby = async (req, res) => {
   const { hobby_name,remark } = req.body;
   try {
+    const checkDuplicacy = await hobbyModel.findOne({hobby_name: req.body.hobby_name})
+    if(checkDuplicacy){
+      return res.status(409).send({
+        data: [],
+        message: "Hobby name already exist",
+      });
+    }
     const hobbydata = new hobbyModel({
       hobby_name,
       remark
     });
     const savedhobbydata = await hobbydata.save();
-    res.status(200).send({
-        data: savedhobbydata,
-        message: "hobbydata created success",
-      });
+    return res.status(200).send({
+      data: savedhobbydata,
+      message: "hobbydata created success",
+    });
   } catch (err) {
-    res.status(500).send({
+    return res.status(500).send({
       error: err,
       message: "Error adding hobbydata to database",
     });
