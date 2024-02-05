@@ -103,6 +103,15 @@ exports.getAssetRequests = async (req, res) => {
                         multi_tag_name: "$userMulti.user_name",
                     },
                 },
+                {
+                    $group: {
+                        _id: "$sub_category_id",
+                        data: { $first: "$$ROOT" }
+                    }
+                },
+                {
+                    $replaceRoot: { newRoot: "$data" }
+                }
             ])
             .exec();
 
@@ -119,6 +128,7 @@ exports.getAssetRequests = async (req, res) => {
             .send({ error: err.message, message: "Error getting all assetRequestData" });
     }
 };
+
 
 // exports.getAssetRequestById = async (req, res) => {
 //     try {

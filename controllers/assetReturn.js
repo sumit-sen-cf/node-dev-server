@@ -148,7 +148,7 @@ exports.getAssetReturnRequests = async (req, res) => {
                     asset_return_recover_by_remark: 1,
                     asset_return_recovered_date_time: 1,
                     allo_id: "$simallo.allo_id",
-                    assetName: "$sim.assetsName",
+                    asset_name: "$sim.assetsName",
                     asset_return_by_name: "$user.user_name",
                     return_asset_image_1: {
                         $concat: [imageUrl, "$return_asset_image_1"],
@@ -164,6 +164,15 @@ exports.getAssetReturnRequests = async (req, res) => {
                     },
                 },
             },
+            {
+                $group: {
+                    _id: "$_id",
+                    doc: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$doc" }
+            }
         ]).exec();
 
         if (!singleAssetReturnRequest) {
@@ -234,7 +243,7 @@ exports.getAssetReturnRequestById = async (req, res) => {
                     asset_return_recover_by: 1,
                     asset_return_recover_by_remark: 1,
                     asset_return_recovered_date_time: 1,
-                    assetName: "$sim.assetsName",
+                    asset_name: "$sim.assetsName",
                     asset_return_by_name: "$user.user_name",
                     return_asset_image_1: {
                         $concat: [imageUrl, "$return_asset_image_1"],
@@ -311,6 +320,9 @@ exports.editAssetReturnRequest = [
             if (!editAssetReturn) {
                 return res.status(404).send({ success: false, message: "Failed to update asset return request" });
             }
+
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
 
             if (req.files.return_asset_image_1 && req.files.return_asset_image_1[0].originalname) {
                 const blob1 = bucket.file(req.files.return_asset_image_1[0].originalname);
@@ -440,7 +452,7 @@ exports.showReturnAssetDataToUserReport = async (req, res) => {
             },
             {
                 $project: {
-                    _id: 1,
+                    _id: "$assetReturn._id",
                     sim_id: 1,
                     asset_return_remark: "$assetReturn.asset_return_remark",
                     return_asset_data_time: "$assetReturn.return_asset_data_time",
