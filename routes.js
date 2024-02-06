@@ -1404,7 +1404,7 @@ router.put("/update_data_platform", dataPlatform.editDataPlatform);
 router.delete("/delete_data_platform/:_id", dataPlatform.deleteDataPlatform);
 
 //Data Routes
-router.post("/add_data", upload1.single('data_upload'), dataController.addData);
+router.post("/add_data", dataController.addData);
 router.get("/get_all_datas", dataController.getDatas);
 router.get("/get_data_based_data_name/:data_id", dataController.getDataBasedDataName);
 router.get("/get_data_based_data_name_new/:data_name", dataController.getDataBasedDataNameNew);

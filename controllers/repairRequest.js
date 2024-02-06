@@ -1,5 +1,6 @@
 const repairRequestModel = require("../models/repairRequestModel.js");
 const simModel = require("../models/simModel.js");
+const assetHistoryModel = require("../models/assetHistoryModel.js");
 const simAlloModel = require("../models/simAlloModel.js");
 const replacementModel = require("../models/requestReplacementModel.js");
 const multer = require("multer");
@@ -110,16 +111,16 @@ exports.addRepairRequest = [
 
             const repairedAssets = await repairdata.save();
             // Added the Data in AssetHistoryModel 
-            // const assetHistoryData = {
-            //     sim_id: simv.sim_id,
-            //     action_date_time: simv.Creation_date,
-            //     action_by: simv.created_by,
-            //     asset_detail: "",
-            //     action_to: 0,
-            //     asset_remark: simv.Remarks
-            // };
+            const assetHistoryData = {
+                sim_id: repairedAssets.sim_id,
+                action_date_time: repairedAssets.repair_request_date_time,
+                action_by: repairedAssets.req_by,
+                asset_detail: repairedAssets.problem_detailing,
+                action_to: 0,
+                asset_remark: ""
+            };
 
-            // const newAssetHistory = await assetHistoryModel.create(assetHistoryData);
+            const newAssetHistory = await assetHistoryModel.create(assetHistoryData);
 
 
 

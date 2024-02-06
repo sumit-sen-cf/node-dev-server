@@ -6,61 +6,104 @@ const constant = require('../common/constant.js');
 const helper = require('../helper/helper.js');
 const mongoose = require('mongoose');
 const { storage } = require("../common/uploadFile.js")
-const vari = require("../variables.js")
+const vari = require("../variables.js");
+const multer = require("multer");
 
-exports.addData = async (req, res) => {
-    try {
-        // const subCatIds = req.body.sub_cat_id.split(',').map(id => mongoose.Types.ObjectId(id.trim()));
-        const data = new dataModel({
-            data_name: req.body.data_name,
-            remark: req.body.remark,
-            data_type: req.body.data_type,
-            size_in_mb: req.body.size_in_mb,
-            cat_id: req.body.cat_id,
-            sub_cat_id: req.body.sub_cat_id,
-            platform_id: req.body.platform_id,
-            brand_id: req.body.brand_id,
-            content_type_id: req.body.content_type_id,
-            // data_upload: req.file.filename,
-            created_by: req.body.created_by,
-            updated_by: req.body.updated_by,
-            designed_by: req.body.designed_by,
-            date_of_completion: req.body.date_of_completion,
-            date_of_report: req.body.date_of_report,
-            brand_category_id: req.body.brand_category_id,
-            brand_sub_category_id: req.body.brand_sub_category_id,
-            campaign_purpose: req.body.campaign_purpose,
-            number_of_post: req.body.number_of_post,
-            number_of_reach: req.body.number_of_reach,
-            number_of_impression: req.body.number_of_impression,
-            number_of_engagement: req.body.number_of_engagement,
-            number_of_views: req.body.number_of_views,
-            number_of_story_views: req.body.number_of_story_views,
-            operation_remark: req.body.operation_remark
-        });
 
-        const bucketName = vari.BUCKET_NAME;
-        const bucket = storage.bucket(bucketName);
-        const blob = bucket.file(req.file.originalname);
-        data.data_upload = blob.name;
-        const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => {
-            // res.status(200).send("Success") 
-        });
-        blobStream.end(req.file.buffer);
+const upload = multer({
+    storage: multer.memoryStorage()
+}).fields([
+    { name: "data_upload", maxCount: 1 },
+    { name: "mmc", maxCount: 1 },
+    { name: "sarcasm", maxCount: 1 },
+    { name: "no_logo", maxCount: 1 }
+]);
+exports.addData = [
+    upload,
+    async (req, res) => {
+        try {
+            const data = new dataModel({
+                data_name: req.body.data_name,
+                remark: req.body.remark,
+                data_type: req.body.data_type,
+                size_in_mb: req.body.size_in_mb,
+                cat_id: req.body.cat_id,
+                sub_cat_id: req.body.sub_cat_id,
+                platform_id: req.body.platform_id,
+                brand_id: req.body.brand_id,
+                content_type_id: req.body.content_type_id,
+                created_by: req.body.created_by,
+                updated_by: req.body.updated_by,
+                designed_by: req.body.designed_by,
+                date_of_completion: req.body.date_of_completion,
+                date_of_report: req.body.date_of_report,
+                brand_category_id: req.body.brand_category_id,
+                brand_sub_category_id: req.body.brand_sub_category_id,
+                campaign_purpose: req.body.campaign_purpose,
+                number_of_post: req.body.number_of_post,
+                number_of_reach: req.body.number_of_reach,
+                number_of_impression: req.body.number_of_impression,
+                number_of_engagement: req.body.number_of_engagement,
+                number_of_views: req.body.number_of_views,
+                number_of_story_views: req.body.number_of_story_views,
+                operation_remark: req.body.operation_remark
+            });
 
-        const simv = await data.save();
-        return response.returnTrue(
-            200,
-            req,
-            res,
-            "Data Created Successfully",
-            simv
-        );
-    } catch (err) {
-        return response.returnFalse(500, req, res, err.message, {});
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+
+            if (req.files.data_upload && req.files.data_upload[0].originalname) {
+                const blob1 = bucket.file(req.files.data_upload[0].originalname);
+                data.data_upload = blob1.name;
+                const blobStream1 = blob1.createWriteStream();
+                blobStream1.on("finish", () => {
+                    // res.status(200).send("Success")
+                });
+                blobStream1.end(req.files.data_upload[0].buffer);
+            }
+            if (req.files.mmc && req.files.mmc[0].originalname) {
+                const blob2 = bucket.file(req.files.mmc[0].originalname);
+                data.mmc = blob2.name;
+                const blobStream2 = blob2.createWriteStream();
+                blobStream2.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream2.end(req.files.mmc[0].buffer);
+            }
+            if (req.files.sarcasm && req.files.sarcasm[0].originalname) {
+                const blob3 = bucket.file(req.files.sarcasm[0].originalname); // Corrected field name
+                data.sarcasm = blob3.name; // Corrected field name
+                const blobStream3 = blob3.createWriteStream();
+                blobStream3.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream3.end(req.files.sarcasm[0].buffer); // Corrected field name
+            }
+            if (req.files.no_logo && req.files.no_logo[0].originalname) {
+                const blob4 = bucket.file(req.files.no_logo[0].originalname);
+                data.no_logo = blob4.name;
+                const blobStream4 = blob4.createWriteStream();
+                blobStream4.on("finish", () => {
+                    // res.status(200).send("Success") 
+                });
+                blobStream4.end(req.files.no_logo[0].buffer);
+            }
+
+            const simv = await data.save();
+            return response.returnTrue(
+                200,
+                req,
+                res,
+                "Data Created Successfully",
+                simv
+            );
+        } catch (err) {
+            return response.returnFalse(500, req, res, err.message, {});
+        }
+
     }
-};
+];
+
 
 exports.getDatas = async (req, res) => {
     try {
@@ -243,6 +286,42 @@ exports.getDatas = async (req, res) => {
                             else: null
                         }
                     },
+                    mmc_image: {
+                        $cond: {
+                            if: { $ne: ['$mmc', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$mmc'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    sarcasm_image: {
+                        $cond: {
+                            if: { $ne: ['$sarcasm', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$sarcasm'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    no_logo_image: {
+                        $cond: {
+                            if: { $ne: ['$no_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$no_logo'
+                                ]
+                            },
+                            else: null
+                        }
+                    }
                 },
             },
         ]);
@@ -449,6 +528,42 @@ exports.getSingleData = async (req, res) => {
                             },
                             else: null
                         }
+                    },
+                    mmc_image: {
+                        $cond: {
+                            if: { $ne: ['$mmc', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$mmc'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    sarcasm_image: {
+                        $cond: {
+                            if: { $ne: ['$sarcasm', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$sarcasm'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    no_logo_image: {
+                        $cond: {
+                            if: { $ne: ['$no_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$no_logo'
+                                ]
+                            },
+                            else: null
+                        }
                     }
                 }
             },
@@ -631,6 +746,42 @@ exports.getDataBasedDataName = async (req, res) => {
                             },
                             else: null
                         }
+                    },
+                    mmc_image: {
+                        $cond: {
+                            if: { $ne: ['$mmc', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$mmc'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    sarcasm_image: {
+                        $cond: {
+                            if: { $ne: ['$sarcasm', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$sarcasm'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    no_logo_image: {
+                        $cond: {
+                            if: { $ne: ['$no_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$no_logo'
+                                ]
+                            },
+                            else: null
+                        }
                     }
                 },
             },
@@ -806,6 +957,42 @@ exports.getDataBasedDataNameNew = async (req, res) => {
                                 $concat: [
                                     `${constant.base_url}`,
                                     '$data_upload'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    mmc_image: {
+                        $cond: {
+                            if: { $ne: ['$mmc', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$mmc'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    sarcasm_image: {
+                        $cond: {
+                            if: { $ne: ['$sarcasm', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$sarcasm'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    no_logo_image: {
+                        $cond: {
+                            if: { $ne: ['$no_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$no_logo'
                                 ]
                             },
                             else: null
@@ -1005,6 +1192,42 @@ exports.ImagesWithDataName = async (req, res) => {
                                 $concat: [
                                     constant.base_url,
                                     '$data_upload'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    mmc_image: {
+                        $cond: {
+                            if: { $ne: ['$mmc', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$mmc'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    sarcasam_image: {
+                        $cond: {
+                            if: { $ne: ['$sarcasam', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$sarcasam'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    no_logo_image: {
+                        $cond: {
+                            if: { $ne: ['$no_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$no_logo'
                                 ]
                             },
                             else: null

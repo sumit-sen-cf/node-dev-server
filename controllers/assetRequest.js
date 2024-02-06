@@ -1,6 +1,7 @@
 const response = require("../common/response.js");
 const assetRequestModel = require("../models/assetRequestModel.js");
 const simModel = require("../models/simModel.js");
+const assetHistoryModel = require("../models/assetHistoryModel.js");
 const mongoose = require('mongoose');
 
 exports.addAssetRequest = async (req, res) => {
@@ -14,6 +15,17 @@ exports.addAssetRequest = async (req, res) => {
             multi_tag: req.body.multi_tag
         });
         const savedassetrequestdata = await assetRequestData.save();
+
+        const assetHistoryData = {
+            sim_id: savedassetrequestdata.sim_id,
+            action_date_time: savedassetrequestdata.date_and_time_of_asset_request,
+            action_by: savedassetrequestdata.request_by,
+            asset_detail: savedassetrequestdata.detail,
+            action_to: 0,
+            asset_remark: ""
+        };
+
+        const newAssetHistory = await assetHistoryModel.create(assetHistoryData);
         res.status(200).send({
             data: savedassetrequestdata,
             message: "assetRequsetData created success",

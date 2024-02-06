@@ -75,6 +75,17 @@ exports.addAssetReturnRequest = [
 
             const returnedAsset = await returndata.save();
 
+            const assetHistoryData = {
+                sim_id: returnedAsset.sim_id,
+                action_date_time: returnedAsset.return_asset_data_time,
+                action_by: returnedAsset.asset_return_by,
+                asset_detail: "",
+                action_to: 0,
+                asset_remark: returnedAsset.asset_return_remark
+            };
+
+            const newAssetHistory = await assetHistoryModel.create(assetHistoryData);
+
             res.status(200).send({
                 succes: true,
                 message: "Asset Return Successfully",

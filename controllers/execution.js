@@ -86,6 +86,7 @@ exports.exeSumPost = async (req, res) => {
 
         )
         const responseData = response.data.body;
+
         for (const data of responseData) {
             const existingData = await checkIfDataExists(data.sale_booking_execution_id)
 
@@ -97,7 +98,7 @@ exports.exeSumPost = async (req, res) => {
                     invoice_id: data.invoice_id,
                     start_date: data.start_date,
                     end_date: data.end_date,
-                    execution_status: "0",
+                    execution_status: data.execution_status,
                     execution_time: data.execution_time,
                     execution_date_time: data.execution_date_time,
                     execution_excel: data.execution_excel,
