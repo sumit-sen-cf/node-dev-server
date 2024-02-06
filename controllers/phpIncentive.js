@@ -41,12 +41,7 @@ exports.savePhpIncentiveInNode = async (req, res) => {
                     creation_date: data.creation_date,
                     last_updated_date: data.last_updated_date,
                     name: data.name,
-                    sno: data.sno,
-                    requested_amount: req.body.requested_amount,
-                    payment_type: req.body.payment_type,
-                    reason: req.body.reason,
-                    requested_date: req.body.requested_date,
-                    paid_amount: req.body.paid_amount,
+                    sno: data.sno
                 })
                 const instav = await creators.save();
 
@@ -66,12 +61,7 @@ exports.savePhpIncentiveInNode = async (req, res) => {
                                 creation_date: data.creation_date,
                                 last_updated_date: data.last_updated_date,
                                 name: data.name,
-                                sno: 1,
-                                requested_amount: req.body.requested_amount,
-                                payment_type: req.body.payment_type,
-                                reason: req.body.reason,
-                                requested_date: req.body.requested_date,
-                                paid_amount: req.body.paid_amount,
+                                sno: 1
                             }
                         }
                     )
@@ -95,3 +85,31 @@ exports.getAllphpIncentiveData = async (req, res) => {
         res.status(500).send({ error: error.message, sms: "error getting php incentive refund data" })
     }
 }
+
+exports.editPhpIncentiveData = async (req, res) => {
+    try {
+        const editIncentive = await phpIncentiveModel.findOneAndUpdate(
+            { incentive_request_id: req.body.incentive_request_id },
+            {
+                requested_amount: req.body.requested_amount,
+                payment_type: req.body.payment_type,
+                reason: req.body.reason,
+                requested_date: req.body.requested_date,
+                paid_amount: req.body.paid_amount
+            },
+            { new: true }
+        );
+        if (!editIncentive) {
+            return response.returnFalse(
+                200,
+                req,
+                res,
+                "No Reord Found With This Incentive Id",
+                {}
+            );
+        }
+        return response.returnTrue(200, req, res, "Updation Successfully", editIncentive);
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
