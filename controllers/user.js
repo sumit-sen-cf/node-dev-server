@@ -119,7 +119,7 @@ exports.addUser = [upload, async (req, res) => {
             Age: req.body.Age,
             fatherName: req.body.FatherName,
             motherName: req.body.MotherName,
-            Hobbies: req.body.Hobbies.split(',').map(Number),
+            Hobbies: req.body?.Hobbies?.split(',').map(Number),
             BloodGroup: req.body.BloodGroup,
             MartialStatus: req.body.MartialStatus,
             DateofMarriage: req.body.DateofMarriage,

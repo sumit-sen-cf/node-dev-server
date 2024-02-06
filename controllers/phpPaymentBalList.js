@@ -46,8 +46,7 @@ exports.savePhpPaymentBalDataInNode = async (req, res) => {
                     payment_type: data.payment_type,
                     cust_name: data.cust_name,
                     total_paid_amount: data.total_paid_amount,
-                    sno: data.sno,
-                    payment_date: req.body.payment_date
+                    sno: data.sno
                 })
                 const instav = await creators.save();
             } else {
@@ -69,8 +68,7 @@ exports.savePhpPaymentBalDataInNode = async (req, res) => {
                                 payment_type: data.payment_type,
                                 cust_name: data.cust_name,
                                 total_paid_amount: data.total_paid_amount,
-                                sno: data.sno,
-                                payment_date: req.body.payment_date
+                                sno: data.sno
                             }
                         }
                     )

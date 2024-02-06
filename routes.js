@@ -1285,6 +1285,7 @@ router.get("/get_all_php_payment_refund_data_pending", phpRefund.getAllphpPaymen
 router.put("/pending_approval_refund_update", upload1.single("payment_screenshot"), phpRefund.pendingApprovalRefundUpdate);
 router.post("/add_php_payment_incentive_data_in_node", phpIncentive.savePhpIncentiveInNode);
 router.get("/get_all_php_payment_incentive_data", phpIncentive.getAllphpIncentiveData);
+router.put("/edit_php_payment_incentive_data", phpIncentive.editPhpIncentiveData);
 router.post("/add_php_payment_bal_data_in_node", phpPaymentBal.savePhpPaymentBalDataInNode);
 router.get("/get_all_php_payment_bal_data", phpPaymentBal.getAllphpPaymentBalData);
 router.put("/balance_payment_list_update", phpPaymentBal.balancePaymentListUpdate);
