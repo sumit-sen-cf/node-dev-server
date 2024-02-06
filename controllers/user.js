@@ -457,7 +457,7 @@ exports.updateUser = [upload, async (req, res) => {
             joining_extend_document: req.files && req.files['joining_extend_document'] && req.files['joining_extend_document'][0] ? req.files['joining_extend_document'][0].filename : (existingUser && existingUser.joining_extend_document) || '',
             userSalaryStatus: req.body.userSalaryStatus,
             // digital_signature_image: req.files && req.files['digital_signature_image'] && req.files['digital_signature_image'][0] ? req.files['digital_signature_image'][0].filename : (existingUser && existingUser.digital_signature_image) || '',
-            digital_signature_image: req.files && req.files?.digital_signature_image && req.files?.digital_signature_image[0] ? req.files?.digital_signature_image[0].originalname : '',
+            digital_signature_image: req.files && req.files?.digital_signature_image && req.files?.digital_signature_image[0] ? req.files?.digital_signature_image[0].originalname : existingUser.digital_signature_image,
             bank_name: req.body.bank_name,
             ifsc_code: req.body.ifsc_code,
             account_no: req.body.account_no,

@@ -330,6 +330,11 @@ const phpPaymentBalListModel = new mongoose.Schema({
     party_mnj_name: {
         type: String,
         required: false
+    },
+    payment_date: {
+        type: String,
+        required: false,
+        default: ""
     }
 });
 
