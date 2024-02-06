@@ -1,4 +1,5 @@
 const phpIncentiveModel = require("../models/phpIncentiveModel.js");
+const response = require("../common/response.js");
 const axios = require('axios');
 const FormData = require('form-data');
 
@@ -22,7 +23,7 @@ exports.savePhpIncentiveInNode = async (req, res) => {
             }
         )
         const responseData = response.data.body;
-      
+
         for (const data of responseData) {
 
             const existingData = await checkIfDataExists(data.incentive_request_id)
@@ -40,7 +41,12 @@ exports.savePhpIncentiveInNode = async (req, res) => {
                     creation_date: data.creation_date,
                     last_updated_date: data.last_updated_date,
                     name: data.name,
-                    sno: data.sno
+                    sno: data.sno,
+                    requested_amount: req.body.requested_amount,
+                    payment_type: req.body.payment_type,
+                    reason: req.body.reason,
+                    requested_date: req.body.requested_date,
+                    paid_amount: req.body.paid_amount,
                 })
                 const instav = await creators.save();
 
@@ -60,7 +66,12 @@ exports.savePhpIncentiveInNode = async (req, res) => {
                                 creation_date: data.creation_date,
                                 last_updated_date: data.last_updated_date,
                                 name: data.name,
-                                sno: 1
+                                sno: 1,
+                                requested_amount: req.body.requested_amount,
+                                payment_type: req.body.payment_type,
+                                reason: req.body.reason,
+                                requested_date: req.body.requested_date,
+                                paid_amount: req.body.paid_amount,
                             }
                         }
                     )

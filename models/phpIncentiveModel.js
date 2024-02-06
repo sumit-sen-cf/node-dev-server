@@ -46,6 +46,31 @@ const phpIncentiveModel = new mongoose.Schema({
     sno: {
         type: Number,
         required: false
+    },
+    requested_amount: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    payment_type: {
+        type: Number,
+        required: false,
+        default: ""
+    },
+    reason: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    requested_date: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    paid_amount: {
+        type: Number,
+        required: false,
+        default: 0
     }
 });
 

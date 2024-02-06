@@ -46,7 +46,8 @@ exports.savePhpPaymentBalDataInNode = async (req, res) => {
                     payment_type: data.payment_type,
                     cust_name: data.cust_name,
                     total_paid_amount: data.total_paid_amount,
-                    sno: data.sno
+                    sno: data.sno,
+                    payment_date: req.body.payment_date
                 })
                 const instav = await creators.save();
             } else {
@@ -68,7 +69,8 @@ exports.savePhpPaymentBalDataInNode = async (req, res) => {
                                 payment_type: data.payment_type,
                                 cust_name: data.cust_name,
                                 total_paid_amount: data.total_paid_amount,
-                                sno: data.sno
+                                sno: data.sno,
+                                payment_date: req.body.payment_date
                             }
                         }
                     )
@@ -109,7 +111,8 @@ exports.balancePaymentListUpdate = async (req, res) => {
                 payment_mode: req.body.payment_mode,
                 status: req.body.status,
                 payment_screenshot: req.file?.originalname,
-                paid_amount: req.body.paid_amount
+                paid_amount: req.body.paid_amount,
+                payment_date: req.body.payment_date
             },
             { new: true }
         );
@@ -120,7 +123,7 @@ exports.balancePaymentListUpdate = async (req, res) => {
             const blob = bucket.file(req.file.originalname);
             editPendingApprovalRefundData.payment_screenshot = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => { 
+            blobStream.on("finish", () => {
                 // res.status(200).send("Success") 
             });
             blobStream.end(req.file.buffer);

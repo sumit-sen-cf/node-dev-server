@@ -1116,7 +1116,8 @@ exports.getAssetUsersDepartment = async (req, res) => {
       },
       {
         $unwind: {
-          path: '$categoryDetails'
+          path: '$categoryDetails',
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -1129,7 +1130,8 @@ exports.getAssetUsersDepartment = async (req, res) => {
       },
       {
         $unwind: {
-          path: '$subcategoryDetails'
+          path: '$subcategoryDetails',
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
