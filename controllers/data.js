@@ -71,7 +71,7 @@ exports.addData = [
                 blobStream2.end(req.files.mmc[0].buffer);
             }
             if (req.files.sarcasm && req.files.sarcasm[0].originalname) {
-                const blob3 = bucket.file(req.files.sarcasm[0].originalname); // Corrected field name
+                const blob3 = bucket.file(req.files.sarcasm[0].originalname);
                 data.sarcasm = blob3.name; // Corrected field name
                 const blobStream3 = blob3.createWriteStream();
                 blobStream3.on("finish", () => {

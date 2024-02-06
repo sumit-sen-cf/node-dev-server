@@ -131,7 +131,7 @@ const dataModel = new mongoose.Schema({
         type: String,
         required: false
     },
-    sarcasam: {
+    sarcasm: {
         type: String,
         required: false
     },

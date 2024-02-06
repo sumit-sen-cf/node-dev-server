@@ -160,9 +160,9 @@ const userModel = new mongoose.Schema({
         default: ""
     },
     Hobbies: {
-        type: String,
+        type: [Number],
         required: false,
-        default: ""
+        default: []
     },
     BloodGroup: {
         type: String,
