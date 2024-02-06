@@ -1413,7 +1413,7 @@ router.get(
   dataController.getSingleData
 );
 router.put("/update_data", dataController.editData);
-router.delete("/delete_data/:data_id", dataController.deleteData);
+router.delete("/delete_data/:_id", dataController.deleteData);
 router.delete("/delete_data_based_data/:data_name", dataController.deleteDataBasedData);
 router.put("/edit_data_new", dataController.editDataNew);
 router.get("/distinct_created_by", dataController.DistinctCreatedByWithUserName);

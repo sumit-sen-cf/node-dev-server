@@ -119,7 +119,7 @@ exports.addUser = [upload, async (req, res) => {
             Age: req.body.Age,
             fatherName: req.body.FatherName,
             motherName: req.body.MotherName,
-            Hobbies: req.body.Hobbies,
+            Hobbies: req.body.Hobbies.split(',').map(Number),
             BloodGroup: req.body.BloodGroup,
             MartialStatus: req.body.MartialStatus,
             DateofMarriage: req.body.DateofMarriage,
@@ -319,8 +319,9 @@ exports.addUser = [upload, async (req, res) => {
             await Promise.all(deptDesiData.map(async (deptDesi) => {
                 if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
                     const updatedData = await userAuthModel.updateOne(
-                        { obj_id: deptDesi.obj_id,
-                          Juser_id: simv.user_id
+                        {
+                            obj_id: deptDesi.obj_id,
+                            Juser_id: simv.user_id
                         },
                         {
                             $set: {
@@ -341,26 +342,6 @@ exports.addUser = [upload, async (req, res) => {
     }
 }];
 
-// const upload1 = multer({
-//     storage: multer.memoryStorage()
-// }).fields([
-//     { name: "image", maxCount: 1 },
-//     { name: "UID", maxCount: 1 },
-//     { name: "pan", maxCount: 1 },
-//     { name: "highest_upload", maxCount: 1 },
-//     { name: "other_upload", maxCount: 1 },
-//     { name: "tenth_marksheet", maxCount: 1 },
-//     { name: "twelveth_marksheet", maxCount: 1 },
-//     { name: "UG_Marksheet", maxCount: 1 },
-//     { name: "passport", maxCount: 1 },
-//     { name: "pre_off_letter", maxCount: 1 },
-//     { name: "pre_expe_letter", maxCount: 1 },
-//     { name: "pre_relieving_letter", maxCount: 1 },
-//     { name: "bankPassBook_Cheque", maxCount: 1 },
-//     { name: "joining_extend_document", maxCount: 1 },
-//     { name: "digital_signature_image", maxCount: 1 },
-//     { name: "annexure_pdf", maxCount: 1 }
-// ]);
 
 exports.updateUser = [upload, async (req, res) => {
     try {
@@ -406,7 +387,8 @@ exports.updateUser = [upload, async (req, res) => {
             Age: req.body.Age,
             fatherName: req.body.fatherName,
             motherName: req.body.motherName,
-            Hobbies: req.body.Hobbies,
+            // Hobbies: req.body.Hobbies,
+            Hobbies: req.body?.Hobbies?.split(',').map(Number),
             BloodGroup: req.body.BloodGroup,
             MartialStatus: req.body.MartialStatus,
             DateofMarriage: req.body.DateofMarriage,
@@ -509,6 +491,7 @@ exports.updateUser = [upload, async (req, res) => {
             document_percentage: req.body.document_percentage,
             show_rocket: req.body.show_rocket
         }, { new: true });
+
         if (!editsim) {
             return res.status(500).send({ success: false })
         }
@@ -516,7 +499,7 @@ exports.updateUser = [upload, async (req, res) => {
         if (editsim?.offer_later_status == true || (editsim?.joining_date_extend || (editsim?.digital_signature_image && editsim?.digital_signature_image !== ""))) {
             helper.generateOfferLaterPdf(editsim)
         }
-        
+
         if (req.files && req.files.digital_signature_image && req.files.digital_signature_image[0]?.originalname) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
@@ -1029,8 +1012,8 @@ exports.getSingleUser = async (req, res) => {
                     offer_later_reject_reason: "$offer_later_reject_reason",
                     user_id: "$user_id",
                     user_name: "$user_name",
-                    sub_dept_id:"$subDepartment.sub_dept_id",
-                    sub_dept_name:"$subDepartment.sub_dept_name",
+                    sub_dept_id: "$subDepartment.sub_dept_id",
+                    sub_dept_name: "$subDepartment.sub_dept_name",
                     user_designation: "$user_designation",
                     user_email_id: "$user_email_id",
                     user_login_id: "$user_login_id",
@@ -1303,7 +1286,8 @@ exports.loginUser = async (req, res) => {
                     onboard_status: simc[0]?.onboard_status,
                     user_status: simc[0]?.user_status,
                     invoice_template_no: simc[0].invoice_template_no,
-                    digital_signature_image: simc[0].digital_signature_image
+                    digital_signature_image: simc[0].digital_signature_image,
+                    job_type: simc[0].job_type
                 },
                 constant.SECRET_KEY_LOGIN,
                 { expiresIn: constant.CONST_VALIDATE_SESSION_EXPIRE }
@@ -1762,7 +1746,7 @@ exports.sendUserMail = async (req, res) => {
         const attachment = req.file;
         if (status == "onboarded") {
             /* dynamic email temp code start */
-            const contentList = await emailTempModel.findOne({ email_for_id: '65be3457ad52cfd11fa27e53', send_email:true});
+            const contentList = await emailTempModel.findOne({ email_for_id: '65be3457ad52cfd11fa27e53', send_email: true });
 
             const filledEmailContent = contentList.email_content
                 .replace("{{user_name}}", name)
@@ -1804,7 +1788,7 @@ exports.sendUserMail = async (req, res) => {
             // const html = ejs.render(template, { name, name2 });
 
             /* dynamic email temp code start */
-            const contentList = await emailTempModel.findOne({ email_for_id: '65be343aad52cfd11fa27e52', send_email:true })
+            const contentList = await emailTempModel.findOne({ email_for_id: '65be343aad52cfd11fa27e52', send_email: true })
 
             const filledEmailContent = contentList.email_content.replace("{{user_reportTo}}", name2);
 
@@ -2291,7 +2275,183 @@ exports.sendMailAllWfoUser = async (req, res) => {
 
 exports.getAllWfhUsers = async (req, res) => {
     try {
-        const simc = await userModel.find({ job_type: 'WFHD' }).lean();
+        // const simc = await userModel.find({ job_type: 'WFHD' }).lean();
+        const simc = await userModel.aggregate([
+            {
+                $match: { job_type: 'WFHD' }
+            },
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'designationmodels',
+                    localField: 'user_designation',
+                    foreignField: 'desi_id',
+                    as: 'designation'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$designation",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    user_id: "$user_id",
+                    user_name: "$user_name",
+                    offer_later_status: "$offer_later_status",
+                    user_designation: "$user_designation",
+                    desi_name: "$designation.desi_name",
+                    user_email_id: "$user_email_id",
+                    user_login_id: "$user_login_id",
+                    user_login_password: "$user_login_password",
+                    user_report_to_id: "$user_report_to_id",
+                    created_At: "$created_At",
+                    last_updated: "$lastupdated",
+                    created_by: "$created_by",
+                    user_contact_no: "$user_contact_no",
+                    dept_id: "$dept_id",
+                    dept_name: "$department.dept_name",
+                    location_id: "$location_id",
+                    role_id: "$role_id",
+                    sitting_id: "$sitting_id",
+                    image: "$image",
+                    job_type: "$job_type",
+                    PersonalNumber: "$PersonalNumber",
+                    Report_L1: "$Report_L1",
+                    Report_L2: "$Report_L2",
+                    Report_L3: "$Report_L3",
+                    PersonalEmail: "$PersonalEmail",
+                    level: "$level",
+                    joining_date: "$joining_date",
+                    releaving_date: "$releaving_date",
+                    room_id: "$room_id",
+                    UID: "$UID",
+                    pan: "$pan",
+                    highest_upload: "$highest_upload",
+                    other_upload: "$other_upload",
+                    salary: "$salary",
+                    SpokenLanguages: "$SpokenLanguages",
+                    Gender: "$Gender",
+                    Nationality: "$Nationality",
+                    DOB: "$DOB",
+                    Age: "$Age",
+                    fatherName: "$fatherName",
+                    motherName: "$motherName",
+                    Hobbies: "$Hobbies",
+                    BloodGroup: "$BloodGroup",
+                    MartialStatus: "$MartialStatus",
+                    DateOfMarriage: "$DateOfMarriage",
+                    onboard_status: "$onboard_status",
+                    tbs_applicable: "$tds_applicable",
+                    tds_per: "$tds_per",
+                    image_remark: "$image_remark",
+                    image_validate: "$image_validate",
+                    uid_remark: "$uid_remark",
+                    uid_validate: "$uid_validate",
+                    pan_remark: "$pan_remark",
+                    pan_validate: "$pan_validate",
+                    highest_upload_remark: "$highest_upload_remark",
+                    highest_upload_validate: "$highest_upload_validate",
+                    other_upload_remark: "$other_upload_remark",
+                    other_upload_validate: "$other_upload_validate",
+                    user_status: "$user_status",
+                    sub_dept_id: "$sub_dept_id",
+                    pan_no: "$pan_no",
+                    uid_no: "$uid_no",
+                    spouse_name: "$spouse_name",
+                    highest_qualification_name: "$highest_qualification_name",
+                    tenth_marksheet: "$tenth_marksheet",
+                    twelveth_marksheet: "$twelveth_marksheet",
+                    UG_Marksheet: "$UG_Marksheet",
+                    passport: "$passport",
+                    pre_off_letter: "$pre_off_letter",
+                    pre_expe_letter: "$pre_expe_letter",
+                    pre_relieving_letter: "$pre_relieving_letter",
+                    bankPassBook_Cheque: "$bankPassBook_Cheque",
+                    tenth_marksheet_validate: "$tenth_marksheet_validate",
+                    twelveth_marksheet_validate: "$twelveth_marksheet_validate",
+                    UG_Marksheet_validate: "$UG_Marksheet_validate",
+                    passport_validate: "$passport_validate",
+                    pre_off_letter_validate: "$pre_off_letter_validate",
+                    pre_expe_letter_validate: "$pre_expe_letter_validate",
+                    pre_relieving_letter_validate: "$pre_relieving_letter_validate",
+                    bankPassBook_Cheque_validate: "$bankPassBook_Cheque_validate",
+                    tenth_marksheet_validate_remark: "$tenth_marksheet_validate_remark",
+                    twelveth_marksheet_validate_remark: "$twelveth_marksheet_validate_remark",
+                    UG_Marksheet_validate_remark: "$UG_Marksheet_validate_remark",
+                    passport_validate_remark: "$passport_validate_remark",
+                    pre_off_letter_validate_remark: "$pre_off_letter_validate_remark",
+                    pre_expe_letter_validate_remark: "$pre_expe_letter_validate_remark",
+                    pre_relieving_letter_validate_remark: "$pre_relieving_letter_validate_remark",
+                    bankPassBook_Cheque_validate_remark: "$bankPassBook_Cheque_validate_remark",
+                    current_address: "$current_address",
+                    current_city: "$current_city",
+                    current_state: "$current_state",
+                    current_pin_code: "$current_pin_code",
+                    permanent_address: "$permanent_address",
+                    permanent_city: "$permanent_city",
+                    permanent_state: "$permanent_state",
+                    permanent_pin_code: "$permanent_pin_code",
+                    joining_date_extend: "$joining_date_extend",
+                    joining_date_extend_status: "$joining_date_extend_status",
+                    joining_date_extend_reason: "$joining_date_extend_reason",
+                    joining_date_reject_reason: "$joining_date_reject_reason",
+                    joining_extend_document: "$joining_extend_document",
+                    invoice_template_no: "$invoice_template_no",
+                    userSalaryStatus: "$userSalaryStatus",
+                    digital_signature_image: "$digital_signature_image",
+                    department_name: "$department.dept_name",
+                    Role_name: "$role.Role_name",
+                    report: "$reportTo.user_name",
+                    designation_name: "$designation.desi_name",
+                    userSalaryStatus: '$userSalaryStatus',
+                    digital_signature_image: "$digital_signature_image",
+                    bank_name: "$bank_name",
+                    ifsc_code: "$ifsc_code",
+                    account_no: "$account_no",
+                    guardian_name: "$guardian_name",
+                    guardian_address: "$guardian_address",
+                    relation_with_guardian: "$relation_with_guardian",
+                    gaurdian_number: "$gaurdian_number",
+                    emergency_contact1: "$emergency_contact1",
+                    emergency_contact2: "$emergency_contact2",
+                    ctc: "$ctc",
+                    offer_letter_send: "$offer_letter_send",
+                    annexure_pdf: "$annexure_pdf",
+                    profileflag: "$profileflag",
+                    nick_name: "$nick_name",
+                    showOnboardingModal: "$showOnboardingModal",
+                    coc_flag: "$coc_flag",
+                    latitude: "$latitude",
+                    longitude: "$longitude",
+                    beneficiary: "$beneficiary",
+                    emp_id: "$emp_id",
+                    alternate_contact: "$alternate_contact",
+                    cast_type: "$cast_type",
+                    emergency_contact_person_name1: "$emergency_contact_person_name1",
+                    emergency_contact_person_name2: "$emergency_contact_person_name2",
+                    emergency_contact_relation1: "$emergency_contact_relation1",
+                    emergency_contact_relation2: "$emergency_contact_relation2",
+                    document_percentage_mandatory: "$document_percentage_mandatory",
+                    document_percentage_non_mandatory: "$document_percentage_non_mandatory"
+                }
+            }
+        ]).exec();
+
         if (simc.length === 0) {
             res.status(500).send({ success: false, message: "No record found" })
         }
@@ -2379,7 +2539,7 @@ exports.forgotPass = async (req, res) => {
         // });
 
         /* dynamic email temp code start */
-        let contentList = await emailTempModel.findOne({ email_for_id: '65be3461ad52cfd11fa27e54', send_email:true })
+        let contentList = await emailTempModel.findOne({ email_for_id: '65be3461ad52cfd11fa27e54', send_email: true })
 
         const filledEmailContent = contentList.email_content
             .replace("{{user_email}}", email)

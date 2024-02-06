@@ -424,7 +424,7 @@ exports.addAttendance = async (req, res) => {
               });
               const instav = await creators.save();
             }
-            res.send({ status: 200 });
+            return res.send({ status: 200 });
           });
       } else {
         const Dept = dept || "";
@@ -503,7 +503,7 @@ exports.addAttendance = async (req, res) => {
               });
               const instav = await creators.save();
             }
-            res.send({ status: 200 });
+            return res.send({ status: 200 });
           });
         } else if (
           req.body.user_id == check1[0].user_id &&
@@ -561,7 +561,7 @@ exports.addAttendance = async (req, res) => {
             },
             { new: true }
           ).sort({ attendence_id: 1 });
-          res.send({ status: 200 });
+          return res.send({ status: 200 });
         }
       }
     }
