@@ -127,6 +127,18 @@ const dataModel = new mongoose.Schema({
         type: String,
         default: ""
     },
+    mmc: {
+        type: String,
+        required: false
+    },
+    sarcasam: {
+        type: String,
+        required: false
+    },
+    no_logo: {
+        type: String,
+        required: false
+    }
 });
 
 dataModel.pre('save', async function (next) {
