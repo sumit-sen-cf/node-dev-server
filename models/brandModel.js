@@ -21,14 +21,10 @@ const brandSchema = new mongoose.Schema({
     type: Number,
     // required: true,
   },
-  igusername: {
-    type: String,
-    default: "",
-  },
-  whatsapp: {
-    type: String,
-    default: "",
-  },
+ platform:{
+  type: mongoose.Schema.Types.Mixed,
+  required: true
+ },
   website: {
     type: String,
     default: "",

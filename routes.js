@@ -78,6 +78,8 @@ const agencyController = require('./controllers/operationExecution/campaignMaste
 const goalController = require('./controllers/operationExecution/campaignMasterController/goalController.js')
 const serviceController = require('./controllers/operationExecution/campaignMasterController/serviceController.js')
 const industryController = require('./controllers/operationExecution/campaignMasterController/industryController.js')
+
+const directPlanCreationController=require('./controllers/operationExecution/directPlanCreationController.js')
 //opertaion + execution imports ends here`
 
 const city = require("./controllers/cityController.js");
@@ -173,6 +175,7 @@ router.post('/preassignment', preAssignmentController.createPreAssignment)
 router.get('/preassignment/:id', preAssignmentController.getPreAssignmentForExpertee)
 router.post('/preassignment/phase', preAssignmentController.getPreAssignmnetOnPhaseId)
 router.post('/preassignment/phase/update', preAssignmentController.preAssignmentUpdate)
+router.post('/preassignment/acceptall', preAssignmentController.acceptAllPreAssignments)
 router.post('/operation_phase_dashboard', operationDasboard.phaseDashboard)
 router.post('/operation_plan_dashboard', operationDasboard.planDashboard)
 
@@ -205,6 +208,12 @@ router.put('/services/:id', serviceController.updateService)
 router.get('/services/:id', serviceController.getSingleService)
 router.delete('/services/:id', serviceController.deleteService)
 
+
+router.post('/directplan',directPlanCreationController.createX)
+router.get('/directplan',directPlanCreationController.getAllPlans)
+router.get('/directplan/:id',directPlanCreationController.getSinglePlan)
+router.put('/directplan/:id',directPlanCreationController.updateSinglePlan)
+router.delete('/directplan/:id',directPlanCreationController.deleteSinglePlan)
 
 
 /*operation+execution api ends*/

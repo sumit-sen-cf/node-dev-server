@@ -36,7 +36,7 @@ const assignmentSchema = new mongoose.Schema({
   },
   vendor_id: {
     type: String,
-    required: [true, "vendor is required"]
+    // required: [true, "vendor is required"]
   },
   p_id: {
     type: String,
