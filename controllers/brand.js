@@ -7,8 +7,7 @@ exports.addBrand = async (req, res) => {
       brand_name,
       category_id,
       sub_category_id,
-      igusername,
-      whatsapp,
+      platform,
       user_id,
       major_category,
       website,
@@ -29,8 +28,8 @@ exports.addBrand = async (req, res) => {
       brand_name,
       category_id,
       sub_category_id,
-      igusername,
-      whatsapp,
+     
+      platform,
       user_id,
       major_category,
       website,
@@ -48,7 +47,7 @@ exports.addBrand = async (req, res) => {
 exports.getBrands = async (req, res) => {
   try {
     const brands = await brandSchema.find()
-   
+
     if (brands.length === 0) {
       res
         .status(200)
@@ -102,8 +101,7 @@ exports.getBrandById = async (req, res) => {
           brand_name: 1,
           category_id: 1,
           sub_category_id: 1,
-          igusername: 1,
-          whatsapp: 1,
+          platform: 1,
           website: 1,
           major_category: 1,
           user_id: 1,
@@ -135,8 +133,7 @@ exports.editBrand = async (req, res) => {
       brand_name,
       category_id,
       sub_category_id,
-      igusername,
-      whatsapp,
+      platform,
       user_id,
       major_category,
       website,
@@ -161,8 +158,7 @@ exports.editBrand = async (req, res) => {
           brand_name,
           category_id,
           sub_category_id,
-          igusername,
-          whatsapp,
+         platform,
           user_id,
           major_category,
           website,
