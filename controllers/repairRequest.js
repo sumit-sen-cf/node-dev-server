@@ -5,6 +5,7 @@ const simAlloModel = require("../models/simAlloModel.js");
 const replacementModel = require("../models/requestReplacementModel.js");
 const multer = require("multer");
 const vari = require("../variables.js");
+const { storage } = require('../common/uploadFile.js');
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -56,7 +57,7 @@ exports.addRepairRequest = [
 
             if (req.files.img1 && req.files.img1[0].originalname) {
                 const blob1 = bucket.file(req.files.img1[0].originalname);
-                returndata.img1 = blob1.name;
+                repairdata.img1 = blob1.name;
                 const blobStream1 = blob1.createWriteStream();
                 blobStream1.on("finish", () => {
                     // res.status(200).send("Success")
@@ -65,7 +66,7 @@ exports.addRepairRequest = [
             }
             if (req.files.img2 && req.files.img2[0].originalname) {
                 const blob2 = bucket.file(req.files.img2[0].originalname);
-                returndata.img2 = blob2.name;
+                repairdata.img2 = blob2.name;
                 const blobStream2 = blob2.createWriteStream();
                 blobStream2.on("finish", () => {
                     // res.status(200).send("Success") 
@@ -74,7 +75,7 @@ exports.addRepairRequest = [
             }
             if (req.files.img3 && req.files.img3[0].originalname) {
                 const blob3 = bucket.file(req.files.img3[0].originalname);
-                returndata.img3 = blob3.name;
+                repairdata.img3 = blob3.name;
                 const blobStream3 = blob3.createWriteStream();
                 blobStream3.on("finish", () => {
                     // res.status(200).send("Success") 
@@ -83,7 +84,7 @@ exports.addRepairRequest = [
             }
             if (req.files.img4 && req.files.img4[0].originalname) {
                 const blob4 = bucket.file(req.files.img4[0].originalname);
-                returndata.img4 = blob4.name;
+                repairdata.img4 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
                     // res.status(200).send("Success") 
@@ -117,7 +118,8 @@ exports.addRepairRequest = [
                 action_by: repairedAssets.req_by,
                 asset_detail: repairedAssets.problem_detailing,
                 action_to: 0,
-                asset_remark: ""
+                asset_remark: "",
+                asset_action: "Asset Repair Request"
             };
 
             const newAssetHistory = await assetHistoryModel.create(assetHistoryData);
@@ -740,7 +742,7 @@ exports.showAssetRepairRequestDataToUser = async (req, res) => {
             {
                 $unwind: {
                     path: "$assetRepair",
-                    preserveNullAndEmptyArrays: true,
+                    // preserveNullAndEmptyArrays: true,
                 },
             },
             {

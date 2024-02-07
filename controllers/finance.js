@@ -2,10 +2,17 @@ const constant = require("../common/constant.js");
 const attendanceModel = require("../models/attendanceModel.js");
 const financeModel = require("../models/financeModel.js");
 const vari = require("../variables.js");
-const {storage} = require('../common/uploadFile.js')
+const { storage } = require('../common/uploadFile.js')
 
 exports.addFinance = async (req, res) => {
   try {
+    const checkDuplicacy = await financeModel.findOne({ attendence_id: req.body.attendence_id })
+    if (checkDuplicacy) {
+      return res.status(409).send({
+        data: [],
+        message: "finance already added for this attendance",
+      });
+    }
     const simc = new financeModel({
       status_: req.body.status_,
       reason: req.body.reason,
@@ -17,13 +24,13 @@ exports.addFinance = async (req, res) => {
       pay_date: req.body.pay_date,
     });
 
-    if(req.file){
+    if (req.file) {
       const bucketName = vari.BUCKET_NAME;
       const bucket = storage.bucket(bucketName);
       const blob = bucket.file(req.file.originalname);
       simc.screenshot = blob.name;
       const blobStream = blob.createWriteStream();
-      blobStream.on("finish", () => { 
+      blobStream.on("finish", () => {
         // res.status(200).send("Success") 
       });
       blobStream.end(req.file.buffer);
@@ -162,14 +169,14 @@ exports.editFinance = async (req, res) => {
       },
       { new: true }
     );
-    
-    if(req.file){
+
+    if (req.file) {
       const bucketName = vari.BUCKET_NAME;
       const bucket = storage.bucket(bucketName);
       const blob = bucket.file(req.file.originalname);
       editsim.screenshot = blob.name;
       const blobStream = blob.createWriteStream();
-      blobStream.on("finish", () => { 
+      blobStream.on("finish", () => {
         editsim.save();
         // res.status(200).send("Success") 
       });
