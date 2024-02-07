@@ -1,6 +1,7 @@
 const assetReturnModel = require("../models/assetReturnModel.js");
 const simModel = require("../models/simModel.js");
 const userModel = require("../models/userModel.js");
+const assetHistoryModel = require("../models/assetHistoryModel.js");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const vari = require("../variables.js");
@@ -81,7 +82,8 @@ exports.addAssetReturnRequest = [
                 action_by: returnedAsset.asset_return_by,
                 asset_detail: "",
                 action_to: 0,
-                asset_remark: returnedAsset.asset_return_remark
+                asset_remark: returnedAsset.asset_return_remark,
+                asset_action: "Asset Return"
             };
 
             const newAssetHistory = await assetHistoryModel.create(assetHistoryData);

@@ -53,7 +53,7 @@ const phpIncentiveModel = new mongoose.Schema({
         default: 0
     },
     payment_type: {
-        type: Number,
+        type: String,
         required: false,
         default: ""
     },

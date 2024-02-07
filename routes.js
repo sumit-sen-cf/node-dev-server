@@ -114,6 +114,7 @@ const taskSequence = require("./controllers/TMS/taskSequence.js");
 const assetReturnRequest = require("./controllers/assetReturn.js");
 const newCoc = require('./controllers/cocManagementNew.js')
 const phpVendorPaymentRequest = require("./controllers/phpVendorPaymentRequest.js");
+const assetHistory = require("./controllers/assetHistory.js");
 
 /* Task Mangement Controller Import */
 const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1201,6 +1202,10 @@ router.get("/assetreturn", assetReturnRequest.getAssetReturnRequests);
 router.get("/assetreturn/:_id", assetReturnRequest.getAssetReturnRequestById);
 router.delete("/assetreturn/:_id", assetReturnRequest.deleteAssetReturnRequest);
 router.get("/show_return_asset_to_reportL1/:user_id", assetReturnRequest.showReturnAssetDataToUserReport);
+
+//Asset History Routes
+router.get("/get_all_asset_history", assetHistory.getAllAssetsHistrory);
+router.get("/get_single_asset_history/:sim_id", assetHistory.getSingleAssetHistory);
 
 //---------------------------------------------------------------------------All Routes OF Asset Module Ends Here ---------------------------------------------------------------------------------------------------//
 

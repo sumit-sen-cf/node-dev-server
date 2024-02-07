@@ -22,7 +22,8 @@ exports.addAssetRequest = async (req, res) => {
             action_by: savedassetrequestdata.request_by,
             asset_detail: savedassetrequestdata.detail,
             action_to: 0,
-            asset_remark: ""
+            asset_remark: "",
+            asset_action: "New Asset Created"
         };
 
         const newAssetHistory = await assetHistoryModel.create(assetHistoryData);

@@ -29,6 +29,11 @@ const assetHistoryModel = new mongoose.Schema({
         type: String,
         required: false,
         default: ""
+    },
+    asset_action: {
+        type: String,
+        required: false,
+        default: ""
     }
 });
 
