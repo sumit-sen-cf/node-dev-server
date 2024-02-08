@@ -9,6 +9,14 @@ const assetsSubCategoryModel = require("../models/assetsSubCategoryModel.js");
 
 exports.addSim = async (req, res) => {
   try {
+    const checkDuplicacy = await simModel.findOne({ sim_no: req.body.sim_no })
+    if (checkDuplicacy) {
+      return res.status(409).send({
+        data: [],
+        message: "asset id already exist",
+      });
+    }
+
     const nextHrDate = new Date();
     nextHrDate.setDate(nextHrDate.getDate() + 30);
     const updatedDateString = nextHrDate.toISOString();
@@ -88,20 +96,20 @@ exports.getSims = async (req, res) => {
     const assetsImagesUrl = `${vari.IMAGE_URL}`;
     const simc = await simModel
       .aggregate([
-        {
-          $lookup: {
-            from: "usermodels",
-            localField: "user_id",
-            foreignField: "user_id",
-            as: "userdata",
-          },
-        },
-        {
-          $unwind: {
-            path: "$userdata",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+        // {
+        //   $lookup: {
+        //     from: "usermodels",
+        //     localField: "user_id",
+        //     foreignField: "user_id",
+        //     as: "userdata",
+        //   },
+        // },
+        // {
+        //   $unwind: {
+        //     path: "$userdata",
+        //     preserveNullAndEmptyArrays: true,
+        //   },
+        // },
         {
           $lookup: {
             from: "assetscategorymodels",
@@ -144,20 +152,20 @@ exports.getSims = async (req, res) => {
             // preserveNullAndEmptyArrays: true,
           },
         },
-        {
-          $lookup: {
-            from: "usermodels",
-            localField: "created_by",
-            foreignField: "user_id",
-            as: "user",
-          },
-        },
-        {
-          $unwind: {
-            path: "$user",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+        // {
+        //   $lookup: {
+        //     from: "usermodels",
+        //     localField: "created_by",
+        //     foreignField: "user_id",
+        //     as: "user",
+        //   },
+        // },
+        // {
+        //   $unwind: {
+        //     path: "$user",
+        //     preserveNullAndEmptyArrays: true,
+        //   },
+        // },
         {
           $lookup: {
             from: "simallomodels",
@@ -239,11 +247,11 @@ exports.getSims = async (req, res) => {
             created_by: "$created_by",
             assetsCurrentValue: "$assetsCurrentValue",
             Remarks: "$Remarks",
-            user_name: "$userdata.user_name",
+            // user_name: "$userdata.user_name",
             category_name: "$category.category_name",
             sub_category_name: "$subcategory.sub_category_name",
             vendor_name: "$vendor.vendor_name",
-            created_by_name: "$user.user_name",
+            // created_by_name: "$user.user_name",
             allocated_username: "$allocated_username.user_name",
             // allocated_username: {
             //   $cond: {
@@ -594,6 +602,17 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
       },
       {
         $lookup: {
+          from: "usermodels",
+          localField: "user_id",
+          foreignField: "user_id",
+          as: "userData"
+        }
+      },
+      {
+        $unwind: "$userData"
+      },
+      {
+        $lookup: {
           from: "assetscategorymodels",
           localField: "sim.category_id",
           foreignField: "category_id",
@@ -718,7 +737,7 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
           submitted_at: { $first: "$submitted_at" },
           created_by: { $first: "$created_by" },
           status: { $first: "$status" },
-          user_name: { $first: "$user.user_name" },
+          user_name: { $first: "$userData.user_name" },
           s_type: { $first: "$sim.s_type" },
           sim_id: { $first: "$sim.sim_id" },
           type: { $first: "$type" },
@@ -1916,7 +1935,7 @@ exports.showNewAssetDataToUser = async (req, res) => {
       {
         $unwind: {
           path: "$subcategory",
-          preserveNullAndEmptyArrays: true,
+          // preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -1940,7 +1959,7 @@ exports.showNewAssetDataToUser = async (req, res) => {
           asset_request_multi_tag_name: { $first: "$userdata1.user_name" },
           asset_new_request_status: { $first: "$assetRequest.asset_request_status" },
           asset_request_by: { $first: "$request_by" },
-          asset_req_by_name: { $first: "$userdataRequest.user_name" }
+          req_by_name: { $first: "$userdataRequest.user_name" }
         },
       },
       // {
@@ -1985,35 +2004,7 @@ exports.showAssetDataToUserReport = async (req, res) => {
   try {
     const { user_id } = req.params;
 
-    const userData = await simModel.aggregate([
-      {
-        $lookup: {
-          from: "assetrequestmodels",
-          localField: "sub_category_id",
-          foreignField: "sub_category_id",
-          as: "assetRequest",
-        },
-      },
-      {
-        $unwind: {
-          path: "$assetRequest",
-          // preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "assetscategorymodels",
-          localField: "category_id",
-          foreignField: "category_id",
-          as: "category",
-        },
-      },
-      {
-        $unwind: {
-          path: "$category",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
+    const userData = await assetRequestModel.aggregate([
       {
         $lookup: {
           from: "assetssubcategorymodels",
@@ -2025,56 +2016,14 @@ exports.showAssetDataToUserReport = async (req, res) => {
       {
         $unwind: {
           path: "$subcategory",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "vendormodels",
-          localField: "vendor_id",
-          foreignField: "vendor_id",
-          as: "vendor",
-        },
-      },
-      {
-        $unwind: {
-          path: "$vendor",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "assetbrandmodels",
-          localField: "asset_brand_id",
-          foreignField: "asset_brand_id",
-          as: "brand",
-        },
-      },
-      {
-        $unwind: {
-          path: "$brand",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "assetmodalmodels",
-          localField: "asset_modal_id",
-          foreignField: "asset_modal_id",
-          as: "modal",
-        },
-      },
-      {
-        $unwind: {
-          path: "$modal",
-          preserveNullAndEmptyArrays: true,
+          // preserveNullAndEmptyArrays: true,
         },
       },
       {
         $lookup: {
           from: "usermodels",
-          localField: "user_id",
-          foreignField: "assetRequest.request_by",
+          localField: "request_by",
+          foreignField: "user_id",
           as: "userdata",
         },
       },
@@ -2091,36 +2040,18 @@ exports.showAssetDataToUserReport = async (req, res) => {
       },
       {
         $project: {
-          _id: "$assetRequest._id",
-          sim_id: "$sim_id",
-          asset_id: "$sim_no",
-          asset_name: "$assetsName",
-          status: "$status",
-          category_id: "$category_id",
-          sub_category_id: "$sub_category_id",
-          vendor_id: "$vendor_id",
-          inWarranty: "$inWarranty",
-          warrantyDate: "$warrantyDate",
-          dateOfPurchase: "$dateOfPurchase",
+          _id: "$_id",
           category_name: "$category.category_name",
           sub_category_name: "$subcategory.sub_category_name",
-          vendor_name: "$vendor.vendor_name",
-          vendor_contact_no: "$vendor.vendor_contact_no",
-          vendor_email_id: "$vendor.vendor_email_id",
-          multi_tag: "$assetRequest.multi_tag",
-          asset_brand_id: "$brand.asset_brand_id",
-          asset_brand_name: "$brand.asset_brand_name",
-          asset_modal_id: "$modal.asset_modal_id",
-          asset_modal_name: "$modal.asset_modal_name",
-          priority: "$assetRequest.priority",
-          req_by: "$assetRequest.request_by",
+          multi_tag: "$multi_tag",
+          priority: "$priority",
+          req_by: "$request_by",
           req_by_name: "$userdata.user_name",
-          req_date: "$assetRequest.date_and_time_of_asset_request",
+          req_date: "$date_and_time_of_asset_request",
           asset_request_by_name: "$userRequest.user_name",
           asset_request_multi_tag_name: "$userdata.user_name",
-          asset_new_request_status: "$assetRequest.asset_request_status",
-          users_manager: "$userMulti.Report_L1",
-          asset_request_id: "$assetRequest._id"
+          asset_new_request_status: "$asset_request_status",
+          users_manager: "$userMulti.Report_L1"
         },
       },
     ]).exec();
