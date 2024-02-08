@@ -19,7 +19,7 @@ const transferReqModel = require("../models/transferReqModel.js");
 const emailTempModel = require("../models/emailTempModel.js")
 const nodemailer = require("nodemailer");
 const vari = require('../variables.js')
-const {storage} = require('../common/uploadFile.js')
+const { storage } = require('../common/uploadFile.js')
 
 //Product Related api's
 
@@ -61,7 +61,7 @@ exports.addProduct = async (req, res) => {
     const blob = bucket.file(req.file.originalname);
     productObj.Product_image = blob.name;
     const blobStream = blob.createWriteStream();
-    blobStream.on("finish", () => { 
+    blobStream.on("finish", () => {
       // res.status(200).send("Success") 
     });
     blobStream.end(req.file.buffer);
@@ -83,13 +83,13 @@ exports.editProduct = async (req, res) => {
   try {
     let pro_image = req.file?.originalname;
 
-    if(req.file){
+    if (req.file) {
       const bucketName = vari.BUCKET_NAME;
       const bucket = storage.bucket(bucketName);
       const blob = bucket.file(req.file.originalname);
       pro_image = blob.name;
       const blobStream = blob.createWriteStream();
-      blobStream.on("finish", () => { 
+      blobStream.on("finish", () => {
         // res.status(200).send("Success") 
       });
       blobStream.end(req.file.buffer);
@@ -495,7 +495,7 @@ exports.addOrderReq = async (req, res) => {
     const Request_datetime = new Date();
     Request_datetime.setHours(Request_datetime.getHours() + 5);
     Request_datetime.setMinutes(Request_datetime.getMinutes() + 30);
-    
+
     //Saved Data into Order Req Table
     const orderReqObj = new orderReqModel({
       product_id: product_id,
@@ -512,7 +512,7 @@ exports.addOrderReq = async (req, res) => {
       room_id,
       props1,
       Status: "pending",
-      Request_datetime : Request_datetime
+      Request_datetime: Request_datetime
     });
 
     const savedOrderReqObj = await orderReqObj.save();
@@ -532,37 +532,30 @@ exports.addOrderReq = async (req, res) => {
     // sendMail("Pantry New Order", html, email);
 
     /* dynamic email temp code */
-    let contentList = await emailTempModel.findOne({ email_for_id: '65bde71ead52cfd11fa27e4e', send_email:true })
-      
-      const filledEmailContent = contentList.email_content
+    let contentList = await emailTempModel.findOne({ email_for_id: '65bde71ead52cfd11fa27e4e', send_email: true })
+    const filledEmailContent = contentList.email_content
       .replace("{{user_name}}", userDetails.user_name)
       .replace("{{sitting_ref}}", sittingDetails.sitting_ref_no)
       .replace("{{sitting_area}}", sittingDetails.sitting_area);
-      
-      var html;
-      html = filledEmailContent;
 
-    var transport = nodemailer.createTransport({
+    const html = filledEmailContent;
+
+    let transport = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: "onboarding@creativefuel.io",
         pass: "fjjmxuavwpescyat",
       },
     });
-      
-    const mail = (subject, html,email) => {
-      let mailOptions = {
-          from: "onboarding@creativefuel.io",
-          to: email,
-          // subject: "Pantry New Order",
-          subject: contentList.email_sub,
-          html: html,
-      };
-      transport.sendMail(mailOptions, function (error, info) {
-          if (error) console.log(error);
-          return info;
-      });
+
+    let mailOptions = {
+      from: "onboarding@creativefuel.io",
+      to: req.body.email,
+      subject: contentList.email_sub,
+      html: html,
     };
+
+    await transport.sendMail(mailOptions);
     /* dynamic email temp code */
 
     return response.returnTrue(

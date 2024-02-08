@@ -1746,7 +1746,7 @@ exports.sendUserMail = async (req, res) => {
         const attachment = req.file;
         if (status == "onboarded") {
             /* dynamic email temp code start */
-            const contentList = await emailTempModel.findOne({ email_for_id: '65be3457ad52cfd11fa27e53', send_email: true });
+            const contentList = await emailTempModel.findOne({ email_for_id: '65bde0335629ebe4e2a71ae3', send_email: true });
 
             const filledEmailContent = contentList.email_content
                 .replace("{{user_name}}", name)
@@ -2545,11 +2545,10 @@ exports.forgotPass = async (req, res) => {
             .replace("{{user_email}}", email)
             .replace("{{user_password}}", getRandomPassword);
 
-        var html;
-        html = filledEmailContent;
+        const html = filledEmailContent;
         /* dynamic email temp code end */
 
-        var transport = nodemailer.createTransport({
+        let transport = nodemailer.createTransport({
             service: "gmail",
             auth: {
                 user: "onboarding@creativefuel.io",
@@ -2560,18 +2559,12 @@ exports.forgotPass = async (req, res) => {
         let mailOptions = {
             from: "onboarding@creativefuel.io",
             to: email,
-            // subject: "Forgot password",
             subject: contentList.email_sub,
             html: html,
         };
 
-        transport.sendMail(mailOptions, function (error, info) {
-            if (error) console.log(error);
-            return info;
-        });
-
+        await transport.sendMail(mailOptions);
         return res.status(200).send({ message: 'Successfully Sent email.' })
-
     } catch (err) {
         return res.status(500).send({ error: err.message, message: 'Error Sending Mail' })
     }
