@@ -39,7 +39,7 @@ exports.getAssetCategorys = async (req, res) => {
     const assetCategories = await assetsCategoryModel.find().exec();
 
     if (!assetCategories || assetCategories.length === 0) {
-      return response.returnFalse(200, req, res, "No Record Found...", []);
+      return response.returnFalse(404, req, res, "No Record Found...", []);
     }
 
     const result = [];

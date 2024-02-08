@@ -70,8 +70,8 @@ exports.getAssetBrands = async (req, res) => {
 
     if (assetBrandData.length === 0) {
       res
-        .status(200)
-        .send({ success: true, data: [], message: "No Record found" });
+        .status(404)
+        .send({ success: false, data: [], message: "No Record found" });
     } else {
       res.status(200).send({ data: assetBrandData });
     }

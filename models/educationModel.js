@@ -13,7 +13,7 @@ const educationModel = new mongoose.Schema({
   institute_name: {
     type: String,
     required: true,
-    unique: true,
+    unique: false,
   },
   from_year: {
     type: Date,

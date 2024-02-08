@@ -573,44 +573,44 @@ exports.editRepairRequest = [
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
 
-            if (req.files.img1 && req.files.img1[0].originalname) {
-                const blob1 = bucket.file(req.files.img1[0].originalname);
-                returndata.img1 = blob1.name;
+            if (req.files?.img1 && req.files?.img1[0].originalname) {
+                const blob1 = bucket.file(req.files?.img1[0].originalname);
+                editrepairdata.img1 = blob1.name;
                 const blobStream1 = blob1.createWriteStream();
                 blobStream1.on("finish", () => {
                     // res.status(200).send("Success")
                 });
                 blobStream1.end(req.files.img1[0].buffer);
             }
-            if (req.files.img2 && req.files.img2[0].originalname) {
-                const blob2 = bucket.file(req.files.img2[0].originalname);
-                returndata.img2 = blob2.name;
+            if (req.files?.img2 && req.files?.img2[0].originalname) {
+                const blob2 = bucket.file(req.files?.img2[0].originalname);
+                editrepairdata.img2 = blob2.name;
                 const blobStream2 = blob2.createWriteStream();
                 blobStream2.on("finish", () => {
                     // res.status(200).send("Success") 
                 });
                 blobStream2.end(req.files.img2[0].buffer);
             }
-            if (req.files.img3 && req.files.img3[0].originalname) {
-                const blob3 = bucket.file(req.files.img3[0].originalname);
-                returndata.img3 = blob3.name;
+            if (req.files?.img3 && req.files?.img3[0].originalname) {
+                const blob3 = bucket.file(req.files?.img3[0].originalname);
+                editrepairdata.img3 = blob3.name;
                 const blobStream3 = blob3.createWriteStream();
                 blobStream3.on("finish", () => {
                     // res.status(200).send("Success") 
                 });
                 blobStream3.end(req.files.img3[0].buffer);
             }
-            if (req.files.img4 && req.files.img4[0].originalname) {
-                const blob4 = bucket.file(req.files.img4[0].originalname);
-                returndata.img4 = blob4.name;
+            if (req.files?.img4 && req.files?.img4[0].originalname) {
+                const blob4 = bucket.file(req.files?.img4[0].originalname);
+                editrepairdata.img4 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
                     // res.status(200).send("Success") 
                 });
                 blobStream4.end(req.files.img4[0].buffer);
             }
-            if (req.files.recovery_image_upload1 && req.files.recovery_image_upload1[0].originalname) {
-                const blob4 = bucket.file(req.files.recovery_image_upload1[0].originalname);
+            if (req.files?.recovery_image_upload1 && req.files?.recovery_image_upload1[0].originalname) {
+                const blob4 = bucket.file(req.files?.recovery_image_upload1[0].originalname);
                 returndata.recovery_image_upload1 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
@@ -618,7 +618,7 @@ exports.editRepairRequest = [
                 });
                 blobStream4.end(req.files.recovery_image_upload1[0].buffer);
             }
-            if (req.files.recovery_image_upload2 && req.files.recovery_image_upload2[0].originalname) {
+            if (req.files?.recovery_image_upload2 && req.files?.recovery_image_upload2[0].originalname) {
                 const blob4 = bucket.file(req.files.recovery_image_upload2[0].originalname);
                 returndata.recovery_image_upload2 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();

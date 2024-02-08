@@ -79,7 +79,7 @@ const goalController = require('./controllers/operationExecution/campaignMasterC
 const serviceController = require('./controllers/operationExecution/campaignMasterController/serviceController.js')
 const industryController = require('./controllers/operationExecution/campaignMasterController/industryController.js')
 
-const directPlanCreationController=require('./controllers/operationExecution/directPlanCreationController.js')
+const directPlanCreationController = require('./controllers/operationExecution/directPlanCreationController.js')
 //opertaion + execution imports ends here`
 
 const city = require("./controllers/cityController.js");
@@ -210,11 +210,11 @@ router.get('/services/:id', serviceController.getSingleService)
 router.delete('/services/:id', serviceController.deleteService)
 
 
-router.post('/directplan',directPlanCreationController.createX)
-router.get('/directplan',directPlanCreationController.getAllPlans)
-router.get('/directplan/:id',directPlanCreationController.getSinglePlan)
-router.put('/directplan/:id',directPlanCreationController.updateSinglePlan)
-router.delete('/directplan/:id',directPlanCreationController.deleteSinglePlan)
+router.post('/directplan', directPlanCreationController.createX)
+router.get('/directplan', directPlanCreationController.getAllPlans)
+router.get('/directplan/:id', directPlanCreationController.getSinglePlan)
+router.put('/directplan/:id', directPlanCreationController.updateSinglePlan)
+router.delete('/directplan/:id', directPlanCreationController.deleteSinglePlan)
 
 
 /*operation+execution api ends*/

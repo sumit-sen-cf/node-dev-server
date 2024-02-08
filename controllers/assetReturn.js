@@ -337,36 +337,36 @@ exports.editAssetReturnRequest = [
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
 
-            if (req.files.return_asset_image_1 && req.files.return_asset_image_1[0].originalname) {
+            if (req.files?.return_asset_image_1 && req.files?.return_asset_image_1[0].originalname) {
                 const blob1 = bucket.file(req.files.return_asset_image_1[0].originalname);
-                returndata.return_asset_image_1 = blob1.name;
+                editAssetReturn.return_asset_image_1 = blob1.name;
                 const blobStream1 = blob1.createWriteStream();
                 blobStream1.on("finish", () => {
                     // res.status(200).send("Success")
                 });
                 blobStream1.end(req.files.return_asset_image_1[0].buffer);
             }
-            if (req.files.return_asset_image_2 && req.files.return_asset_image_2[0].originalname) {
+            if (req.files?.return_asset_image_2 && req.files?.return_asset_image_2[0].originalname) {
                 const blob2 = bucket.file(req.files.return_asset_image_2[0].originalname);
-                returndata.return_asset_image_2 = blob2.name;
+                editAssetReturn.return_asset_image_2 = blob2.name;
                 const blobStream2 = blob2.createWriteStream();
                 blobStream2.on("finish", () => {
                     // res.status(200).send("Success") 
                 });
                 blobStream2.end(req.files.return_asset_image_2[0].buffer);
             }
-            if (req.files.recover_asset_image_1 && req.files.recover_asset_image_1[0].originalname) {
+            if (req.files?.recover_asset_image_1 && req.files?.recover_asset_image_1[0].originalname) {
                 const blob3 = bucket.file(req.files.recover_asset_image_1[0].originalname);
-                returndata.recover_asset_image_1 = blob3.name;
+                editAssetReturn.recover_asset_image_1 = blob3.name;
                 const blobStream3 = blob3.createWriteStream();
                 blobStream3.on("finish", () => {
                     // res.status(200).send("Success") 
                 });
                 blobStream3.end(req.files.recover_asset_image_1[0].buffer);
             }
-            if (req.files.recover_asset_image_2 && req.files.recover_asset_image_2[0].originalname) {
+            if (req.files?.recover_asset_image_2 && req.files?.recover_asset_image_2[0].originalname) {
                 const blob4 = bucket.file(req.files.recover_asset_image_2[0].originalname);
-                returndata.recover_asset_image_2 = blob4.name;
+                editAssetReturn.recover_asset_image_2 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
                     // res.status(200).send("Success") 
