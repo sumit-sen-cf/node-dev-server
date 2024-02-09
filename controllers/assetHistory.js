@@ -15,7 +15,7 @@ exports.getAllAssetsHistrory = async (req, res) => {
             {
                 $unwind: {
                     path: "$sim",
-                    // preserveNullAndEmptyArrays: true
+                    preserveNullAndEmptyArrays: true
                 }
             },
             {
@@ -29,7 +29,7 @@ exports.getAllAssetsHistrory = async (req, res) => {
             {
                 $unwind: {
                     path: "$userAsset",
-                    // preserveNullAndEmptyArrays: true
+                    preserveNullAndEmptyArrays: true
                 }
             },
             {
