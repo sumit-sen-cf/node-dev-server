@@ -113,7 +113,8 @@ exports.getAssetSubCategorys = async (req, res) => {
                 category_name: category ? category?.category_name : '',
                 sub_category_count: subCategoryCount,
                 allocated_assets_count: totalAllocatedAssets,
-                available_assets_count: totalAvailableAssets
+                available_assets_count: totalAvailableAssets,
+                inWarranty: subcategory.inWarranty
             });
         }
 

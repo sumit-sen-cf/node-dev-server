@@ -40,10 +40,10 @@ exports.addSim = async (req, res) => {
       inWarranty: req.body.inWarranty,
       warrantyDate: req.body.warrantyDate,
       dateOfPurchase: req.body.dateOfPurchase,
-      selfAuditPeriod: req.body.selfAuditPeriod || 0,
-      hrAuditPeriod: req.body.hrAuditPeriod || 0,
-      selfAuditUnit: req.body.selfAuditUnit || 0,
-      hrAuditUnit: req.body.hrAuditUnit || 0,
+      selfAuditPeriod: req.body.selfAuditPeriod,
+      hrAuditPeriod: req.body.hrAuditPeriod,
+      selfAuditUnit: req.body.selfAuditUnit,
+      hrAuditUnit: req.body.hrAuditUnit,
       // invoiceCopy: req.file?.filename,
       assetsValue: req.body.assetsValue,
       assetsCurrentValue: req.body.assetsCurrentValue,
@@ -321,13 +321,92 @@ exports.getSims = async (req, res) => {
 
 exports.getSingleSim = async (req, res) => {
   try {
-    const singlesim = await simModel.findOne({
-      sim_id: parseInt(req.params.id),
-    });
+    const singlesim = await simModel
+      .aggregate([
+        {
+          $match: { sim_id: parseInt(req.params.id) }
+        },
+        {
+          $lookup: {
+            from: "assetscategorymodels",
+            localField: "category_id",
+            foreignField: "category_id",
+            as: "category",
+          },
+        },
+        {
+          $unwind: {
+            path: "$category",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "assetssubcategorymodels",
+            localField: "sub_category_id",
+            foreignField: "sub_category_id",
+            as: "subcategory",
+          },
+        },
+        {
+          $unwind: {
+            path: "$subcategory",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "vendormodels",
+            localField: "vendor_id",
+            foreignField: "vendor_id",
+            as: "vendor",
+          },
+        },
+        {
+          $unwind: {
+            path: "$vendor",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: "$_id",
+            sim_id: "$sim_id",
+            user_id: "$user_id",
+            asset_id: "$sim_no",
+            status: "$status",
+            asset_type: "$s_type",
+            assetsName: "$assetsName",
+            assetsOtherID: "$assetsOtherID",
+            category_id: "$category_id",
+            sub_category_id: "$sub_category_id",
+            vendor_id: "$vendor_id",
+            inWarranty: "$inWarranty",
+            warrantyDate: "$warrantyDate",
+            dateOfPurchase: "$dateOfPurchase",
+            hrAuditPeriod: "$hrAuditPeriod",
+            hrAuditUnit: "$hrAuditUnit",
+            selfAuditPeriod: "$selfAuditPeriod",
+            selfAuditUnit: "$selfAuditUnit",
+            invoiceCopy: "$invoiceCopy",
+            assetsValue: "$assetsValue",
+            created_by: "$created_by",
+            asset_financial_type: "$asset_financial_type",
+            assetsCurrentValue: "$assetsCurrentValue",
+            Remarks: "$Remarks",
+            category_name: "$category.category_name",
+            sub_category_name: "$subcategory.sub_category_name",
+            vendor_name: "$vendor.vendor_name"
+          },
+        },
+      ])
+      .exec();
     if (!singlesim) {
       return res.status(500).send({ success: false });
     }
-    res.status(200).send({ data: singlesim });
+
+    const result = singlesim[0];
+    res.status(200).send({ data: result });
   } catch (err) {
     res.status(500).send({ error: err, sms: "Error getting sim details" });
   }
@@ -392,43 +471,21 @@ exports.editSim = async (req, res) => {
   }
 };
 
-// exports.deleteSim = async (req, res) => {
-//   simModel
-//     .deleteOne({ sim_id: req.params.id })
-//     .then((item) => {
-//       if (item) {
-//         return res.status(200).json({ success: true, message: "sim deleted" });
-//       } else {
-//         return res
-//           .status(404)
-//           .json({ success: false, message: "sim not found" });
-//       }
-//     })
-//     .catch((err) => {
-//       return res.status(400).json({ success: false, message: err });
-//     });
-// };
-
 exports.deleteSim = async (req, res) => {
-  try {
-    const simDoc = await simModel.findOne({ sim_id: req.params.id });
-    if (!simDoc) {
-      return res.status(404).json({ success: false, message: "sim not found" });
-    }
-
-    const assetSubCategoryId = simDoc.sub_category_id;
-    const simDeleteResult = await simModel.deleteOne({ sim_id: req.params.id });
-
-    const assetSubCategoryDeleteResult = await assetsSubCategoryModel.deleteMany({ asset_sub_category_id: assetSubCategoryId });
-
-    if (simDeleteResult.deletedCount > 0 || assetSubCategoryDeleteResult.deletedCount > 0) {
-      return res.status(200).json({ success: true, message: "sim and related assetssubctegorymodel data deleted" });
-    } else {
-      return res.status(404).json({ success: false, message: "sim not found" });
-    }
-  } catch (err) {
-    return res.status(400).json({ success: false, message: err.message });
-  }
+  simModel
+    .deleteOne({ sim_id: req.params.id })
+    .then((item) => {
+      if (item) {
+        return res.status(200).json({ success: true, message: "sim deleted" });
+      } else {
+        return res
+          .status(404)
+          .json({ success: false, message: "sim not found" });
+      }
+    })
+    .catch((err) => {
+      return res.status(400).json({ success: false, message: err });
+    });
 };
 
 exports.addAllocation = async (req, res) => {
@@ -844,82 +901,65 @@ exports.getAllocationDataByAlloId = async (req, res) => {
 
 exports.editAllocation = async (req, res) => {
   try {
-    // const editsim = await simAlloModel.findOneAndUpdate(
-    //   { allo_id: req.body.allo_id },
-    //   {
-    //     user_id: req.body.user_id,
-    //     sim_id: req.body.sim_id,
-    //     Remarks: req.body.Remarks,
-    //     // dept_id: req.body.dept_id,
-    //     created_by: req.body.created_by,
-    //     submitted_by: req.body.submitted_by,
-    //     reason: req.body.reason,
-    //     status: req.body.status,
-    //     deleted_status: req.body.deleted_status,
-    //     submitted_at: req.body.submitted_at,
-    //   },
-    //   { new: true }
-    // );
-    // if (!editsim) {
-    //   return res.status(500).send({ success: false });
-    // }
-    // return res.status(200).send({ success: true, data: editsim });
+    const findSimId = await simAlloModel.findOne({ sim_id: req.body.sim_id });
 
-    if (!req.body.allo_id) {
-      const newSim = new simAlloModel({
-        user_id: req.body.user_id,
-        sim_id: req.body.sim_id,
-        Remarks: req.body?.Remarks,
-        // dept_id: req.body.dept_id,
-        created_by: req.body.created_by,
-        submitted_by: req.body?.submitted_by,
-        reason: req.body?.reason,
-        status: req.body.status,
-        deleted_status: req.body?.deleted_status,
-        submitted_at: req.body?.submitted_at,
+    if (findSimId) {
+      const updateFields = {};
+      const allowedFields = ['user_id', 'sim_id', 'Remarks', 'created_by', 'submitted_by', 'reason', 'status', 'deleted_status', 'submitted_at'];
+
+      allowedFields.forEach((field) => {
+        if (req.body[field] !== undefined) {
+          updateFields[field] = req.body[field];
+        }
       });
-
-      const savedSim = await newSim.save();
+      const editSim = await simAlloModel.findOneAndUpdate(
+        { sim_id: parseInt(req.body.sim_id) },
+        updateFields,
+        { new: true }
+      );
 
       const assetHistoryData = {
-        sim_id: savedSim.sim_id,
-        action_date_time: savedSim.Creation_date,
-        action_by: savedSim.created_by,
+        sim_id: editSim.sim_id,
+        action_date_time: editSim.Creation_date,
+        action_by: editSim.created_by,
         asset_detail: "",
-        action_to: savedSim.submitted_by,
-        asset_remark: savedSim.Remarks,
+        action_to: editSim.submitted_by,
+        asset_remark: editSim.Remarks,
+        asset_action: "Asset Allocated Updated"
+      };
+
+      const newAssetHistory = await assetHistoryModel.create(assetHistoryData);
+      return response.returnTrue(200, req, res, "Asset allocation Update Successfully", editSim);
+    } else {
+      const simc = new simAlloModel({
+        user_id: req.body.user_id,
+        sim_id: req.body.sim_id,
+        category_id: req.body.category_id,
+        sub_category_id: req.body.sub_category_id,
+        Remarks: req.body.Remarks,
+        // dept_id: req.body.dept_id,
+        created_by: req.body.created_by,
+        submitted_by: req.body.submitted_by,
+        reason: req.body.reason,
+        status: req.body.status,
+        deleted_status: req.body.deleted_status,
+        submitted_at: req.body.submitted_at,
+      });
+      const simv = await simc.save();
+
+      const assetHistoryData = {
+        sim_id: simv.sim_id,
+        action_date_time: simv.Creation_date,
+        action_by: simv.created_by,
+        asset_detail: "",
+        action_to: simv.submitted_by,
+        asset_remark: simv.Remarks,
         asset_action: "Asset Allocated"
       };
 
       const newAssetHistory = await assetHistoryModel.create(assetHistoryData);
-      return response.returnTrue(200, req, res, "Asset allocation Added Successfully", savedSim);
+      return response.returnTrue(200, req, res, "Asset allocation added Successfully", simv);
     }
-
-    const updateFields = {};
-    const allowedFields = ['user_id', 'sim_id', 'Remarks', 'created_by', 'submitted_by', 'reason', 'status', 'deleted_status', 'submitted_at'];
-
-    allowedFields.forEach((field) => {
-      if (req.body[field] !== undefined) {
-        updateFields[field] = req.body[field];
-      }
-    });
-    const editSim = await simAlloModel.findOneAndUpdate(
-      { allo_id: parseInt(req.body.allo_id) },
-      updateFields,
-      { new: true }
-    );
-
-    // if (!editSim) {
-    //   return response.returnFalse(
-    //     200,
-    //     req,
-    //     res,
-    //     "No Record Found With This Sim Id",
-    //     {}
-    //   );
-    // }
-
-    return response.returnTrue(200, req, res, "Updation Successfully", editSim);
   } catch (err) {
     return res
       .status(500)
@@ -1110,6 +1150,74 @@ exports.alldataofsimallocment = async (req, res) => {
   }
 };
 
+// exports.getAssetDepartmentCount = async (req, res) => {
+//   try {
+//     const simc = await simAlloModel.aggregate([
+//       {
+//         $lookup: {
+//           from: "usermodels",
+//           localField: "user_id",
+//           foreignField: "user_id",
+//           as: "user",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$user",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "departmentmodels",
+//           localField: "user.dept_id",
+//           foreignField: "dept_id",
+//           as: "department",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$department",
+//           // preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: "$_id",
+//           user_id: "$user_id",
+//           user_name: "$user.user_name",
+//           dept_id: "$user.dept_id",
+//           dept_name: "$department.dept_name"
+//         }
+//       },
+//       {
+//         $group: {
+//           _id: "$user_id",
+//           dept_name: { $first: "$dept_name" },
+//           count: { $sum: 1 },
+//           user_id: { $first: "$user_id" },
+//           user_name: { $first: "$user_name" },
+//           dept_id: { $first: "$dept_id" },
+//           // category_id: { $first: "$category_id" },
+//           // category_name: { $first: "$category_name" },
+//           // sub_category_id: { $first: "$sub_category_id" },
+//           // sub_category_name: { $first: "$sub_category_name" }
+//         },
+//       }
+//     ]);
+
+//     if (!simc || simc.length === 0) {
+//       res.status(404).send({ success: false, message: "No data found" });
+//     } else {
+//       res.status(200).send({ data: simc });
+//     }
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .send({ error: err.message, message: "Error getting user count of department" });
+//   }
+// };
+
 exports.getAssetDepartmentCount = async (req, res) => {
   try {
     const simc = await simAlloModel.aggregate([
@@ -1138,7 +1246,6 @@ exports.getAssetDepartmentCount = async (req, res) => {
       {
         $unwind: {
           path: "$department",
-          // preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -1147,23 +1254,28 @@ exports.getAssetDepartmentCount = async (req, res) => {
           user_id: "$user_id",
           user_name: "$user.user_name",
           dept_id: "$user.dept_id",
-          dept_name: "$department.dept_name"
+          dept_name: "$department.dept_name",
         }
       },
-      // {
-      //   $group: {
-      //     _id: "$dept_id",
-      //     dept_name: { $first: "$dept_name" },
-      //     count: { $sum: 1 },
-      //     user_id: { $first: "$user_id" },
-      //     user_name: { $first: "$user_name" },
-      //     dept_id: { $first: "$dept_id" },
-      //     // category_id: { $first: "$category_id" },
-      //     // category_name: { $first: "$category_name" },
-      //     // sub_category_id: { $first: "$sub_category_id" },
-      //     // sub_category_name: { $first: "$sub_category_name" }
-      //   },
-      // }
+      {
+        $group: {
+          _id: "$user_id",
+          dept_name: { $first: "$dept_name" },
+          count: { $addToSet: "$dept_id" },
+          user_name: { $first: "$user_name" },
+          dept_id: { $first: "$dept_id" }
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          user_id: "$_id",
+          dept_id: 1,
+          user_name: 1,
+          dept_name: 1,
+          count: { $size: "$count" },
+        },
+      },
     ]);
 
     if (!simc || simc.length === 0) {
@@ -1172,11 +1284,128 @@ exports.getAssetDepartmentCount = async (req, res) => {
       res.status(200).send({ data: simc });
     }
   } catch (err) {
-    res
-      .status(500)
-      .send({ error: err.message, message: "Error getting user count of department" });
+    res.status(500).send({ error: err.message, message: "Error getting user count of department" });
   }
 };
+
+
+// exports.getAssetUsersDepartment = async (req, res) => {
+//   try {
+//     const dept_id = parseInt(req.params.dept_id);
+//     const userDetails = await simAlloModel.aggregate([
+//       {
+//         $lookup: {
+//           from: 'simmodels',
+//           localField: 'sim_id',
+//           foreignField: 'sim_id',
+//           as: 'simDetails',
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$simDetails',
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: 'assetscategorymodels',
+//           localField: 'simDetails.category_id',
+//           foreignField: 'category_id',
+//           as: 'categoryDetails',
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$categoryDetails',
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: 'assetssubcategorymodels',
+//           localField: 'simDetails.sub_category_id',
+//           foreignField: 'sub_category_id',
+//           as: 'subcategoryDetails',
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$subcategoryDetails',
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: 'usermodels',
+//           localField: 'user_id',
+//           foreignField: 'user_id',
+//           as: 'userDetails',
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$userDetails',
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: 'departmentmodels',
+//           localField: 'userDetails.dept_id',
+//           foreignField: 'dept_id',
+//           as: 'department',
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$department',
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $match: {
+//           "userDetails.dept_id": parseInt(dept_id),
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: '$user_id',
+//           dept_id: { $first: '$userDetails.dept_id' },
+//           user_id: { $first: '$user_id' },
+//           user_name: { $first: '$userDetails.user_name' },
+//           sim_id: { $first: '$sim_id' },
+//           asset_name: { $first: '$simDetails.assetsName' },
+//           dept_name: { $first: '$department.dept_name' },
+//           category_id: { $first: '$simDetails.category_id' },
+//           sub_category_id: { $first: '$simDetails.sub_category_id' },
+//           category_name: { $first: '$categoryDetails.category_name' },
+//           sub_category_name: { $first: '$subcategoryDetails.sub_category_name' },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           dept_id: 1,
+//           user_id: 1,
+//           sim_id: 1,
+//           asset_name: 1,
+//           user_name: 1,
+//           dept_name: 1,
+//           category_id: 1,
+//           sub_category_id: 1,
+//           category_name: 1,
+//           sub_category_name: 1,
+//         },
+//       },
+//     ]);
+
+//     res.status(200).send({ data: userDetails });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: error.message, sms: 'Internal Server Error' });
+//   }
+// };
 
 
 exports.getAssetUsersDepartment = async (req, res) => {
@@ -1186,7 +1415,7 @@ exports.getAssetUsersDepartment = async (req, res) => {
       {
         $lookup: {
           from: 'simmodels',
-          localField: 'sim_id',
+          localField: 'sim_id', // Adjust this field if necessary
           foreignField: 'sim_id',
           as: 'simDetails',
         },
@@ -1255,7 +1484,7 @@ exports.getAssetUsersDepartment = async (req, res) => {
       },
       {
         $match: {
-          "userDetails.dept_id": parseInt(dept_id),
+          "userDetails.dept_id": dept_id, // No need to parse again if it's already a number
         },
       },
       {
@@ -1265,7 +1494,7 @@ exports.getAssetUsersDepartment = async (req, res) => {
           user_id: { $first: '$user_id' },
           user_name: { $first: '$userDetails.user_name' },
           sim_id: { $first: '$sim_id' },
-          asset_name: { $first: '$simDetails.assetsName' },
+          asset_name: { $first: '$simDetails.asset_name' },
           dept_name: { $first: '$department.dept_name' },
           category_id: { $first: '$simDetails.category_id' },
           sub_category_id: { $first: '$simDetails.sub_category_id' },
@@ -1296,6 +1525,243 @@ exports.getAssetUsersDepartment = async (req, res) => {
     res.status(500).json({ error: error.message, sms: 'Internal Server Error' });
   }
 };
+
+// exports.getAssetUsersDepartment = async (req, res) => {
+//   try {
+//     const dept_id = parseInt(req.params.dept_id);
+//     const userDetails = await simAlloModel.aggregate([
+//       {
+//         $lookup: {
+//           from: 'simmodels',
+//           localField: 'sim_id',
+//           foreignField: 'sim_id',
+//           as: 'sim',
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$sim',
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: 'assetscategorymodels',
+//           localField: 'simDetails.category_id',
+//           foreignField: 'category_id',
+//           as: 'categoryDetails',
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$categoryDetails',
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: 'assetssubcategorymodels',
+//           localField: 'simDetails.sub_category_id',
+//           foreignField: 'sub_category_id',
+//           as: 'subcategoryDetails',
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$subcategoryDetails',
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: 'usermodels',
+//           localField: 'user_id',
+//           foreignField: 'user_id',
+//           as: 'userDetails',
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$userDetails',
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: 'departmentmodels',
+//           localField: 'userDetails.dept_id',
+//           foreignField: 'dept_id',
+//           as: 'department',
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$department',
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $match: {
+//           "userDetails.dept_id": dept_id,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: '$user_id',
+//           dept_id: { $first: '$userDetails.dept_id' },
+//           user_id: { $first: '$user_id' },
+//           user_name: { $first: '$userDetails.user_name' },
+//           sim_id: { $first: '$sim_id' },
+//           asset_name: { $first: '$sim.asset_name' },
+//           dept_name: { $first: '$department.dept_name' },
+//           category_id: { $first: '$sim.category_id' },
+//           sub_category_id: { $first: '$sim.sub_category_id' },
+//           category_name: { $first: '$categoryDetails.category_name' },
+//           sub_category_name: { $first: '$subcategoryDetails.sub_category_name' },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           dept_id: 1,
+//           user_id: 1,
+//           sim_id: 1,
+//           asset_name: 1,
+//           user_name: 1,
+//           dept_name: 1,
+//           category_id: 1,
+//           sub_category_id: 1,
+//           category_name: 1,
+//           sub_category_name: 1,
+//         },
+//       },
+//     ]);
+
+//     res.status(200).send({ data: userDetails });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: error.message, sms: 'Internal Server Error' });
+//   }
+// };
+
+exports.getAssetUsersDepartment = async (req, res) => {
+  try {
+    const dept_id = parseInt(req.params.dept_id);
+    const userDetails = await simAlloModel.aggregate([
+      {
+        $lookup: {
+          from: 'simmodels',
+          localField: 'sim_id',
+          foreignField: 'sim_id',
+          as: 'sim',
+        },
+      },
+      {
+        $unwind: {
+          path: '$sim',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'assetscategorymodels',
+          localField: 'sim.category_id',
+          foreignField: 'category_id',
+          as: 'categoryDetails',
+        },
+      },
+      {
+        $unwind: {
+          path: '$categoryDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'assetssubcategorymodels',
+          localField: 'sim.sub_category_id',
+          foreignField: 'sub_category_id',
+          as: 'subcategoryDetails',
+        },
+      },
+      {
+        $unwind: {
+          path: '$subcategoryDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'usermodels',
+          localField: 'user_id',
+          foreignField: 'user_id',
+          as: 'userDetails',
+        },
+      },
+      {
+        $unwind: {
+          path: '$userDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'departmentmodels',
+          localField: 'userDetails.dept_id',
+          foreignField: 'dept_id',
+          as: 'department',
+        },
+      },
+      {
+        $unwind: {
+          path: '$department',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $match: {
+          "userDetails.dept_id": dept_id,
+        },
+      },
+      {
+        $group: {
+          _id: '$user_id',
+          dept_id: { $first: '$userDetails.dept_id' },
+          user_id: { $first: '$user_id' },
+          user_name: { $first: '$userDetails.user_name' },
+          sim_id: { $first: '$sim_id' },
+          asset_name: { $first: '$sim.assetsName' },
+          dept_name: { $first: '$department.dept_name' },
+          category_id: { $first: '$sim.category_id' },
+          sub_category_id: { $first: '$sim.sub_category_id' },
+          category_name: { $first: '$categoryDetails.category_name' },
+          sub_category_name: { $first: '$subcategoryDetails.sub_category_name' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          dept_id: 1,
+          user_id: 1,
+          sim_id: 1,
+          asset_name: 1,
+          user_name: 1,
+          dept_name: 1,
+          category_id: 1,
+          sub_category_id: 1,
+          category_name: 1,
+          sub_category_name: 1,
+        },
+      },
+    ]);
+
+    res.status(200).send({ data: userDetails });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message, sms: 'Internal Server Error' });
+  }
+};
+
 
 exports.getTotalAssetInCategory = async (req, res) => {
   try {

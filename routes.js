@@ -115,6 +115,7 @@ const assetReturnRequest = require("./controllers/assetReturn.js");
 const newCoc = require('./controllers/cocManagementNew.js')
 const phpVendorPaymentRequest = require("./controllers/phpVendorPaymentRequest.js");
 const assetHistory = require("./controllers/assetHistory.js");
+const dataOperation = require("./controllers/dataOperation.js");
 
 /* Task Mangement Controller Import */
 const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1473,5 +1474,12 @@ router.get("/phpvendor_insert_data_node", phpVendorPaymentRequest.addPhpVendorPa
 router.get("/phpvendorpaymentrequest", phpVendorPaymentRequest.getPhpVendorPaymentRequests);
 router.get("/phpvendorpaymentrequest/:request_id", phpVendorPaymentRequest.getSinglePhpVendorPaymentRequest)
 router.put("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaymentRequest.updatePhpVendorPaymentRequest)
+
+//Data Operation Routes
+router.post("/dataoperation", dataOperation.addOperationData);
+router.get("/dataoperation", dataOperation.getOprationDatas);
+router.get("/dataoperation/:data_id", dataOperation.getSingleOprationData);
+router.put("dataoperation", dataOperation.editOperationData);
+router.delete("/dataoperation", dataOperation.deleteOperationData);
 
 module.exports = router;
