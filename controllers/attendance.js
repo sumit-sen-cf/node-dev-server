@@ -2232,7 +2232,7 @@ exports.addAttendanceAllDepartments = async (req, res) => {
       const tdsDeduction = netSalary > 0 ? (netSalary * item.tds_per) / 100 : 0;
       const ToPay = netSalary - tdsDeduction;
 
-      const existingData = await checkIfAttendanceExist(item.dept_id, item.user_id, item.salary)
+      const existingData = await checkIfAttendanceExist(item.user_id, month, year)
 
       if (!existingData) {
         const saveData = new attendanceModel({
