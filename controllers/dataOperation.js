@@ -615,6 +615,200 @@ exports.deleteDataBasedData = async (req, res) => {
     })
 };
 
+exports.getOperationDataBasedDataNameNew = async (req, res) => {
+    try {
+        const productData = await dataOperationModel.aggregate([
+            {
+                $match: {
+                    data_name: req.params.data_name
+                }
+            },
+            {
+                $lookup: {
+                    from: "dataplatformmodels",
+                    localField: "platform_ids",
+                    foreignField: "_id",
+                    as: "platforms",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$platforms",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "datacontenttypemodels",
+                    localField: "content_type_id",
+                    foreignField: "_id",
+                    as: "contenttype",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$contenttype",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "databrandmodels",
+                    localField: "brand_id",
+                    foreignField: "_id",
+                    as: "brand",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$brand",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: 'created_by',
+                    foreignField: 'user_id',
+                    as: 'userData'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: 'designed_by',
+                    foreignField: 'user_id',
+                    as: 'userDataName'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userDataName",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    data_id: "$data_id",
+                    data_name: "$data_name",
+                    platform_id: "$platform_id",
+                    brand_id: "$brand_id",
+                    content_type_id: "$content_type_id",
+                    created_by: "$created_by",
+                    updated_by: "$updated_by",
+                    created_at: "$created_at",
+                    designed_by: "$designed_by",
+                    designed_by_name: "$userDataName.user_name",
+                    created_by_name: "$userData.user_name",
+                    updated_by_name: "$userData.user_name",
+                    platform_name: "$platforms.platform_name",
+                    brand_name: "$brand.brand_name",
+                    content_type_name: "$contenttype.content_name",
+                    data_type: "$data_type",
+                    size_in_mb: "$size_in_mb",
+                    remark: "$remark",
+                    date_of_completion: "$date_of_completion",
+                    date_of_report: "$date_of_report",
+                    brand_category_id: "$brand_category_id",
+                    brand_sub_category_id: "$brand_sub_category_id",
+                    campaign_purpose: "$campaign_purpose",
+                    number_of_post: "$number_of_post",
+                    number_of_reach: "$number_of_reach",
+                    number_of_impression: "$number_of_impression",
+                    number_of_engagement: "$number_of_engagement",
+                    number_of_views: "$number_of_views",
+                    number_of_story_views: "$number_of_story_views",
+                    operation_remark: "$operation_remark",
+                    data_image: {
+                        $cond: {
+                            if: { $ne: ['$data_upload', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$data_upload'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    data_image_download: {
+                        $cond: {
+                            if: { $ne: ['$data_upload', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$data_upload'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    mmc_image: {
+                        $cond: {
+                            if: { $ne: ['$mmc', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$mmc'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    sarcasm_image: {
+                        $cond: {
+                            if: { $ne: ['$sarcasm', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$sarcasm'
+                                ]
+                            },
+                            else: null
+                        }
+                    },
+                    no_logo_image: {
+                        $cond: {
+                            if: { $ne: ['$no_logo', null] },
+                            then: {
+                                $concat: [
+                                    `${constant.base_url}`,
+                                    '$no_logo'
+                                ]
+                            },
+                            else: null
+                        }
+                    }
+                },
+            },
+            // {
+            //     $group: {
+            //         _id: "$data_name",
+            //         products: { $push: "$$ROOT" }
+            //     }
+            // }
+        ]);
+
+        // const productData = await dataOperationModel.find({});
+
+        if (productData && productData.length > 0) {
+            return res.status(200).json(productData);
+        } else {
+            return res.status(404).json({ message: "No Record Found" });
+        }
+    } catch (error) {
+        return res.status(500).json({ error: error.message, sms: 'error while adding logo brand data' });
+    }
+};
+
+
 exports.editDataNew = async (req, res) => {
     try {
         const getName = await dataModel.findOne({ _id: req.body._id }).select({ data_name: 1 });
