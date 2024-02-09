@@ -194,6 +194,7 @@ exports.deleteEntirePlan = catchAsync(async (req, res, next) => {
     await pageReplacementRecordModel.deleteMany({ campaignId })
     await PhaseCommitmentModel.deleteMany({ campaignId })
     await PhasePageModel.deleteMany({ campaignId })
+    await PreAssignmentModel.deleteMany({ campaignId })
 
 
     res.status(200).json({
