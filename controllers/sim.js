@@ -788,6 +788,7 @@ exports.getAllocatedAssestByUserId = async (req, res) => {
           preserveNullAndEmptyArrays: true
         }
       },
+      { $sort: { "repairrequest.req_date": -1 } },
       {
         $group: {
           _id: "$_id",
