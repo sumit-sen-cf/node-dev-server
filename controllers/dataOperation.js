@@ -597,7 +597,7 @@ exports.deleteOperationData = async (req, res) => {
 };
 
 exports.deleteDataBasedData = async (req, res) => {
-    dataModel.deleteMany({ data_name: req.params.data_name }).then(item => {
+    dataOperationModel.deleteMany({ data_name: req.params.data_name }).then(item => {
         if (item) {
             const result = helper.fileRemove(
                 item?.data_upload,

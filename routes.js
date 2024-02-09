@@ -1481,5 +1481,6 @@ router.get("/dataoperation", dataOperation.getOprationDatas);
 router.get("/dataoperation/:data_id", dataOperation.getSingleOprationData);
 router.put("dataoperation", dataOperation.editOperationData);
 router.delete("/dataoperation", dataOperation.deleteOperationData);
+router.delete("/delete_data_based_data/:data_name", dataOperation.deleteDataBasedData);
 
 module.exports = router;
