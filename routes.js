@@ -1230,6 +1230,7 @@ router.get("/newcoc", newCoc.getAllNewCocs);
 router.get("/newcoc/:_id", newCoc.getSingleNewCoc);
 router.put("/newcoc", newCoc.editNewCoc);
 router.delete("/newcoc/:_id", newCoc.deleteNewCoc);
+router.get("/latest_newcoc", newCoc.getLatestNewCoc);
 
 /* Document master */
 router.post("/add_doc", documentController.addDocument);

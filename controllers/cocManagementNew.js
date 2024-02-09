@@ -54,3 +54,15 @@ exports.deleteNewCoc = async (req, res) => {
         return res.status(400).json({ success: false, message: err })
     })
 };
+
+exports.getLatestNewCoc = async (req, res) => {
+    try{
+        const getData = await cocNewModel.find({}).sort({ creation_date: -1 }).limit(1);
+        if (!latestData) {
+            return res.status(404).json({ success: false, message: "No data found" });
+        }
+        return res.send({status:200, data:getData, success: true})
+    }catch(err){
+        return res.status(500).json({ success:false, message: err.message})
+    }
+}
