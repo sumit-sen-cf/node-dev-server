@@ -6,6 +6,7 @@ const { storage } = require('../common/uploadFile.js');
 const assetHistoryModel = require("../models/assetHistoryModel.js");
 const assetRequestModel = require("../models/assetRequestModel.js");
 const assetsSubCategoryModel = require("../models/assetsSubCategoryModel.js");
+const response = require("../common/response.js");
 
 exports.addSim = async (req, res) => {
   try {
@@ -252,7 +253,7 @@ exports.getSims = async (req, res) => {
             sub_category_name: "$subcategory.sub_category_name",
             vendor_name: "$vendor.vendor_name",
             // created_by_name: "$user.user_name",
-            allocated_username: "$allocated_username.user_name",
+            // allocated_username: "$allocated_username.user_name",
             // allocated_username: {
             //   $cond: {
             //     if: { $ne: ["$simallocation.user_id", 0] },
@@ -269,6 +270,13 @@ exports.getSims = async (req, res) => {
             asset_modal_id: "$asset_modal_id",
             asset_brand_name: "$assetBrand.asset_brand_name",
             asset_modal_name: "$assetModal.asset_modal_name",
+            allocated_username: {
+              $cond: {
+                if: { $eq: ["$status", "Allocated"] },
+                then: "$allocated_username.user_name",
+                else: ""
+              }
+            },
             date_difference: {
               $cond: [
                 {
@@ -836,26 +844,82 @@ exports.getAllocationDataByAlloId = async (req, res) => {
 
 exports.editAllocation = async (req, res) => {
   try {
-    const editsim = await simAlloModel.findOneAndUpdate(
-      { allo_id: req.body.allo_id },
-      {
+    // const editsim = await simAlloModel.findOneAndUpdate(
+    //   { allo_id: req.body.allo_id },
+    //   {
+    //     user_id: req.body.user_id,
+    //     sim_id: req.body.sim_id,
+    //     Remarks: req.body.Remarks,
+    //     // dept_id: req.body.dept_id,
+    //     created_by: req.body.created_by,
+    //     submitted_by: req.body.submitted_by,
+    //     reason: req.body.reason,
+    //     status: req.body.status,
+    //     deleted_status: req.body.deleted_status,
+    //     submitted_at: req.body.submitted_at,
+    //   },
+    //   { new: true }
+    // );
+    // if (!editsim) {
+    //   return res.status(500).send({ success: false });
+    // }
+    // return res.status(200).send({ success: true, data: editsim });
+
+    if (!req.body.allo_id) {
+      const newSim = new simAlloModel({
         user_id: req.body.user_id,
         sim_id: req.body.sim_id,
-        Remarks: req.body.Remarks,
+        Remarks: req.body?.Remarks,
         // dept_id: req.body.dept_id,
         created_by: req.body.created_by,
-        submitted_by: req.body.submitted_by,
-        reason: req.body.reason,
+        submitted_by: req.body?.submitted_by,
+        reason: req.body?.reason,
         status: req.body.status,
-        deleted_status: req.body.deleted_status,
-        submitted_at: req.body.submitted_at,
-      },
+        deleted_status: req.body?.deleted_status,
+        submitted_at: req.body?.submitted_at,
+      });
+
+      const savedSim = await newSim.save();
+
+      const assetHistoryData = {
+        sim_id: savedSim.sim_id,
+        action_date_time: savedSim.Creation_date,
+        action_by: savedSim.created_by,
+        asset_detail: "",
+        action_to: savedSim.submitted_by,
+        asset_remark: savedSim.Remarks,
+        asset_action: "Asset Allocated"
+      };
+
+      const newAssetHistory = await assetHistoryModel.create(assetHistoryData);
+      return response.returnTrue(200, req, res, "Asset allocation Added Successfully", savedSim);
+    }
+
+    const updateFields = {};
+    const allowedFields = ['user_id', 'sim_id', 'Remarks', 'created_by', 'submitted_by', 'reason', 'status', 'deleted_status', 'submitted_at'];
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updateFields[field] = req.body[field];
+      }
+    });
+    const editSim = await simAlloModel.findOneAndUpdate(
+      { allo_id: parseInt(req.body.allo_id) },
+      updateFields,
       { new: true }
     );
-    if (!editsim) {
-      return res.status(500).send({ success: false });
-    }
-    return res.status(200).send({ success: true, data: editsim });
+
+    // if (!editSim) {
+    //   return response.returnFalse(
+    //     200,
+    //     req,
+    //     res,
+    //     "No Record Found With This Sim Id",
+    //     {}
+    //   );
+    // }
+
+    return response.returnTrue(200, req, res, "Updation Successfully", editSim);
   } catch (err) {
     return res
       .status(500)
@@ -1074,35 +1138,7 @@ exports.getAssetDepartmentCount = async (req, res) => {
       {
         $unwind: {
           path: "$department",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "assetscategorymodels",
-          localField: "category_id",
-          foreignField: "category_id",
-          as: "category",
-        },
-      },
-      {
-        $unwind: {
-          path: "$category",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "assetssubcategorymodels",
-          localField: "sub_category_id",
-          foreignField: "sub_category_id",
-          as: "subcategory",
-        },
-      },
-      {
-        $unwind: {
-          path: "$subcategory",
-          preserveNullAndEmptyArrays: true,
+          // preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -1111,29 +1147,23 @@ exports.getAssetDepartmentCount = async (req, res) => {
           user_id: "$user_id",
           user_name: "$user.user_name",
           dept_id: "$user.dept_id",
-          dept_name: "$department.dept_name",
-          category_id: "$category.category_id",
-          category_name: "$category.category_name",
-          sub_category_id: "$subcategory.sub_category_id",
-          sub_category_name: "$subcategory.sub_category_name"
+          dept_name: "$department.dept_name"
         }
       },
-      {
-        $group: {
-          _id: "$dept_id",
-          dept_name: { $first: "$dept_name" },
-          count: { $sum: 1 },
-          user_id: { $first: "$user_id" },
-          user_name: { $first: "$user_name" },
-          dept_id: { $first: "$dept_id" },
-          category_id: { $first: "$category_id" },
-          category_name: { $first: "$category_name" },
-          sub_category_id: { $first: "$sub_category_id" },
-          sub_category_name: { $first: "$sub_category_name" },
-
-          // user_id : { $first: "$user_id" }
-        },
-      }
+      // {
+      //   $group: {
+      //     _id: "$dept_id",
+      //     dept_name: { $first: "$dept_name" },
+      //     count: { $sum: 1 },
+      //     user_id: { $first: "$user_id" },
+      //     user_name: { $first: "$user_name" },
+      //     dept_id: { $first: "$dept_id" },
+      //     // category_id: { $first: "$category_id" },
+      //     // category_name: { $first: "$category_name" },
+      //     // sub_category_id: { $first: "$sub_category_id" },
+      //     // sub_category_name: { $first: "$sub_category_name" }
+      //   },
+      // }
     ]);
 
     if (!simc || simc.length === 0) {
@@ -1148,105 +1178,6 @@ exports.getAssetDepartmentCount = async (req, res) => {
   }
 };
 
-// exports.getAssetUsersDepartment = async (req, res) => {
-//   try {
-//     const dept_id = parseInt(req.params.dept_id);
-//     const userDetails = await userModel.aggregate([
-//       {
-//         $match: {
-//           dept_id: dept_id
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: 'simallomodels',
-//           localField: 'user_id',
-//           foreignField: 'user_id',
-//           as: 'simAlloDetails',
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: '$simAlloDetails',
-//           preserveNullAndEmptyArrays: true,
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: 'assetscategorymodels',
-//           localField: 'category_id',
-//           foreignField: 'simAlloDetails.category_id',
-//           as: 'categoryDetails',
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: '$categoryDetails',
-//           preserveNullAndEmptyArrays: true,
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: 'assetssubcategorymodels',
-//           localField: 'sub_category_id',
-//           foreignField: 'simAlloDetails.sub_category_id',
-//           as: 'subcategoryDetails',
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: '$subcategoryDetails',
-//           preserveNullAndEmptyArrays: true,
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: 'departmentmodels',
-//           localField: 'dept_id',
-//           foreignField: 'dept_id',
-//           as: 'department',
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: '$department',
-//           preserveNullAndEmptyArrays: true,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: '$user_id',
-//           dept_id: { $first: '$dept_id' },
-//           user_id: { $first: '$user_id' },
-//           user_name: { $first: '$user_name' },
-//           dept_name: { $first: '$department.dept_name' },
-//           category_id: { $first: '$categoryDetails.category_id' },
-//           sub_category_id: { $first: '$subcategoryDetails.sub_category_id' },
-//           category_name: { $first: '$categoryDetails.category_name' },
-//           sub_category_name: { $first: '$subcategoryDetails.sub_category_name' },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 1,
-//           dept_id: 1,
-//           user_id: 1,
-//           user_name: 1,
-//           dept_name: 1,
-//           category_id: 1,
-//           sub_category_id: 1,
-//           category_name: 1,
-//           sub_category_name: 1,
-//         },
-//       },
-//     ]);
-
-//     res.status(200).send({ data: userDetails });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: error.message, sms: 'Internal Server Error' });
-//   }
-// };
 
 exports.getAssetUsersDepartment = async (req, res) => {
   try {
@@ -1269,7 +1200,7 @@ exports.getAssetUsersDepartment = async (req, res) => {
       {
         $lookup: {
           from: 'assetscategorymodels',
-          localField: 'category_id',
+          localField: 'simDetails.category_id',
           foreignField: 'category_id',
           as: 'categoryDetails',
         },
@@ -1283,7 +1214,7 @@ exports.getAssetUsersDepartment = async (req, res) => {
       {
         $lookup: {
           from: 'assetssubcategorymodels',
-          localField: 'sub_category_id',
+          localField: 'simDetails.sub_category_id',
           foreignField: 'sub_category_id',
           as: 'subcategoryDetails',
         },
@@ -1336,8 +1267,8 @@ exports.getAssetUsersDepartment = async (req, res) => {
           sim_id: { $first: '$sim_id' },
           asset_name: { $first: '$simDetails.assetsName' },
           dept_name: { $first: '$department.dept_name' },
-          category_id: { $first: '$categoryDetails.category_id' },
-          sub_category_id: { $first: '$subcategoryDetails.sub_category_id' },
+          category_id: { $first: '$simDetails.category_id' },
+          sub_category_id: { $first: '$simDetails.sub_category_id' },
           category_name: { $first: '$categoryDetails.category_name' },
           sub_category_name: { $first: '$subcategoryDetails.sub_category_name' },
         },
