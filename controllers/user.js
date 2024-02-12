@@ -3179,3 +3179,15 @@ exports.getAllUsersWithObj = async (req, res) => {
         res.status(500).json({ error: err.message, sms: 'Error getting users from last month' });
     }
 }
+
+exports.getAllSalesUsers = async (req, res) => {
+    try {
+        const salesUsers = await userModel.find({ dept_id: 36 });
+        if (!salesUsers) {
+            return response.returnFalse(200, req, res, "No Reord Found...", []);
+        }
+        res.status(200).send(salesUsers)
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};

@@ -810,6 +810,7 @@ router.get("/get_all_percentage", user.getFilledPercentage);
 // router.get("/get_first_time_login_users", user.getAllFirstLoginUsers)
 router.post("/get_user_graph_data", user.getUserGraphData)
 router.get("/get_users_with_status", user.getUsersWithStatus);
+router.get("/get_all_sales_users", user.getAllSalesUsers);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 
@@ -1479,9 +1480,10 @@ router.put("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaym
 router.post("/dataoperation", dataOperation.addOperationData);
 router.get("/dataoperation", dataOperation.getOprationDatas);
 router.get("/dataoperation/:data_id", dataOperation.getSingleOprationData);
-router.put("dataoperation", dataOperation.editOperationData);
-router.delete("/dataoperation", dataOperation.deleteOperationData);
-router.delete("/dataoperation/:data_name", dataOperation.deleteDataBasedData);
+router.put("/dataoperation", dataOperation.editOperationData);
+router.delete("/dataoperation/:_id", dataOperation.deleteOperationData);
+router.delete("/dataoperationwithdataname/:data_name", dataOperation.deleteDataBasedData);
 router.get("/get_data_operation_based_data_name_new/:data_name", dataOperation.getOperationDataBasedDataNameNew);
+router.put("/editdataoperationname", dataOperation.editOperationDataName);
 
 module.exports = router;

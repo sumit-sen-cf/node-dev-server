@@ -28,7 +28,7 @@ exports.addOperationData = [
                 size_in_mb: req.body.size_in_mb,
                 // cat_id: req.body.cat_id,
                 // sub_cat_id: req.body.sub_cat_id,
-                platform_ids: req.body.platform_ids,
+                platform_ids: req.body?.platform_ids?.split(',').map(id => mongoose.Types.ObjectId(id)),
                 brand_id: req.body.brand_id,
                 content_type_id: req.body.content_type_id,
                 created_by: req.body.created_by,
@@ -76,7 +76,7 @@ exports.addOperationData = [
                 blobStream3.on("finish", () => {
                     // res.status(200).send("Success") 
                 });
-                blobStream3.end(req.files.sarcasm[0].buffer); // Corrected field name
+                blobStream3.end(req.files.sarcasm[0].buffer);
             }
             if (req.files.no_logo && req.files.no_logo[0].originalname) {
                 const blob4 = bucket.file(req.files.no_logo[0].originalname);
@@ -178,40 +178,12 @@ exports.getOprationDatas = async (req, res) => {
                     preserveNullAndEmptyArrays: true,
                 },
             },
-            // {
-            //     $lookup: {
-            //         from: "brandcategorymodels",
-            //         localField: "brandCategory_id",
-            //         foreignField: "brand_category_id",
-            //         as: "brandCategory",
-            //     },
-            // },
-            // {
-            //     $unwind: {
-            //         path: "$brandCategory",
-            //         preserveNullAndEmptyArrays: true,
-            //     },
-            // },
-            // {
-            //     $lookup: {
-            //         from: "brandsubcategorymodels",
-            //         localField: "brandSubCategory_id",
-            //         foreignField: "brand_sub_category_id",
-            //         as: "brandSubCategory",
-            //     },
-            // },
-            // {
-            //     $unwind: {
-            //         path: "$brandSubCategory",
-            //         preserveNullAndEmptyArrays: true,
-            //     },
-            // },
             {
                 $project: {
                     _id: 1,
                     data_name: 1,
                     data_id: 1,
-                    platform_id: 1,
+                    platform_ids: 1,
                     brand_id: 1,
                     content_type_id: 1,
                     created_at: 1,
@@ -230,9 +202,6 @@ exports.getOprationDatas = async (req, res) => {
                     number_of_views: 1,
                     number_of_story_views: 1,
                     operation_remark: 1,
-                    // data_upload: 1,
-                    // brand_category_name: "$brandCategory.brandCategory_name",
-                    // brand_sub_category_name: "$brandSubCategory.brandSubCategory_name",
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
                     designed_by_name: "$userDataName.user_name",
@@ -293,7 +262,16 @@ exports.getOprationDatas = async (req, res) => {
                     }
                 },
             },
-        ]);
+            {
+                $group: {
+                    _id: "$_id",
+                    data: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$data" }
+            }
+        ]).sort({ data_id: -1 });
         if (!simc) {
             res.status(500).send({ success: false })
         }
@@ -342,7 +320,7 @@ exports.getSingleOprationData = async (req, res) => {
             {
                 $lookup: {
                     from: "dataplatformmodels",
-                    localField: "platform_id",
+                    localField: "platform_ids",
                     foreignField: "_id",
                     as: "platform",
                 },
@@ -409,34 +387,6 @@ exports.getSingleOprationData = async (req, res) => {
                     preserveNullAndEmptyArrays: true,
                 },
             },
-            // {
-            //     $lookup: {
-            //         from: "brandcategorymodels",
-            //         localField: "brand_category_id",
-            //         foreignField: "brandCategory_id",
-            //         as: "brandCategory",
-            //     },
-            // },
-            // {
-            //     $unwind: {
-            //         path: "$brandCategory",
-            //         preserveNullAndEmptyArrays: true,
-            //     },
-            // },
-            // {
-            //     $lookup: {
-            //         from: "brandsubcategorymodels",
-            //         localField: "brand_sub_category_id",
-            //         foreignField: "brandSubCategory_id",
-            //         as: "brandSubCategory",
-            //     },
-            // },
-            // {
-            //     $unwind: {
-            //         path: "$brandSubCategory",
-            //         preserveNullAndEmptyArrays: true,
-            //     },
-            // },
             {
                 $project: {
                     _id: 1,
@@ -444,7 +394,7 @@ exports.getSingleOprationData = async (req, res) => {
                     data_name: 1,
                     cat_id: 1,
                     sub_cat_id: 1,
-                    platform_id: 1,
+                    platform_ids: 1,
                     brand_id: 1,
                     content_type_id: 1,
                     created_by: 1,
@@ -556,7 +506,8 @@ exports.editOperationData = async (req, res) => {
             remark: req.body.remark,
             data_type: req.body.data_type,
             size_in_mb: req.body.size_in_mb,
-            platform_id: req.body.platform_id,
+            platform_ids: req.body.platform_ids,
+            // platform_ids: req.body?.platform_ids?.split(',').map(id => mongoose.Types.ObjectId(id)),
             brand_id: req.body.brand_id,
             content_type_id: req.body.content_type_id,
             // data_upload: req.file?.originalname,
@@ -698,7 +649,7 @@ exports.getOperationDataBasedDataNameNew = async (req, res) => {
                     _id: 1,
                     data_id: "$data_id",
                     data_name: "$data_name",
-                    platform_id: "$platform_id",
+                    platform_ids: "$platform_ids",
                     brand_id: "$brand_id",
                     content_type_id: "$content_type_id",
                     created_by: "$created_by",
@@ -788,12 +739,15 @@ exports.getOperationDataBasedDataNameNew = async (req, res) => {
                     }
                 },
             },
-            // {
-            //     $group: {
-            //         _id: "$data_name",
-            //         products: { $push: "$$ROOT" }
-            //     }
-            // }
+            {
+                $group: {
+                    _id: "$_id",
+                    data: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$data" }
+            }
         ]);
 
         // const productData = await dataOperationModel.find({});
@@ -808,190 +762,41 @@ exports.getOperationDataBasedDataNameNew = async (req, res) => {
     }
 };
 
-
-exports.editDataNew = async (req, res) => {
+exports.editOperationDataName = async (req, res) => {
     try {
-        const getName = await dataModel.findOne({ _id: req.body._id }).select({ data_name: 1 });
-        const getAllNames = await dataModel.find({ data_name: getName.data_name }).select({ _id: 1 });
-        const groupIds = getAllNames.map((item) => item._id);
-        const editdataname = await dataModel.updateMany({ _id: { $in: groupIds } }, {
-            $set: {
-                data_name: req.body.data_name,
+        const editsim = await dataOperationModel.updateMany(
+            { data_name: req.body.data_name },
+            {
+                remark: req.body.remark,
+                data_type: req.body.data_type,
+                size_in_mb: req.body.size_in_mb,
+                platform_ids: req.body.platform_ids,
+                // platform_ids: req.body?.platform_ids?.split(',').map(id => mongoose.Types.ObjectId(id)),
+                brand_id: req.body.brand_id,
+                content_type_id: req.body.content_type_id,
+                // data_upload: req.file?.originalname,
+                created_by: req.body.created_by,
                 updated_at: req.body.updated_at,
-                remark: req.body.remark
-            }
-        })
-        res.status(200).send({ data: editdataname, sms: 'Data updated successfully' })
+                updated_by: req.body.updated_by,
+                designed_by: req.body.designed_by,
+                date_of_completion: req.body.date_of_completion,
+                date_of_report: req.body.date_of_report,
+                brand_category_id: req.body.brand_category_id,
+                brand_sub_category_id: req.body.brand_sub_category_id,
+                campaign_purpose: req.body.campaign_purpose,
+                number_of_post: req.body.number_of_post,
+                number_of_reach: req.body.number_of_reach,
+                number_of_impression: req.body.number_of_impression,
+                number_of_engagement: req.body.number_of_engagement,
+                number_of_views: req.body.number_of_views,
+                number_of_story_views: req.body.number_of_story_views,
+                operation_remark: req.body.operation_remark
+            },
+            { new: true }
+        );
+
+        res.status(200).send({ success: true, data: editsim });
     } catch (err) {
-        res.status(500).send({ error: err.message, sms: 'error udpdating data details' })
-    }
-}
-
-exports.DistinctCreatedByWithUserName = async (req, res) => {
-    try {
-        const distinctCreatedByValues = await dataModel.aggregate([
-            {
-                $group: {
-                    _id: "$created_by"
-                }
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "_id",
-                    foreignField: "user_id",
-                    as: "userDetails"
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    user_name: { $arrayElemAt: ["$userDetails.user_name", 0] }
-                }
-            }
-        ]);
-
-        return res.status(200).json({ success: true, data: distinctCreatedByValues });
-    } catch (err) {
-        return res.status(500).json({ success: false, message: err.message });
-    }
-};
-
-exports.DistinctDesignedByWithUserName = async (req, res) => {
-    try {
-        const distinctCreatedByValues = await dataModel.aggregate([
-            {
-                $group: {
-                    _id: "$designed_by"
-                }
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "_id",
-                    foreignField: "user_id",
-                    as: "userDetails"
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    user_name: { $arrayElemAt: ["$userDetails.user_name", 0] }
-                }
-            }
-        ]);
-
-        return res.status(200).json({ success: true, data: distinctCreatedByValues });
-    } catch (err) {
-        return res.status(500).json({ success: false, message: err.message });
-    }
-};
-
-exports.ImagesWithDataName = async (req, res) => {
-    try {
-        const { data_name } = req.params;
-
-        const productData = await dataModel.aggregate([
-            {
-                $match: {
-                    data_name: data_name
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    data_name: 1,
-                    data_type: 1,
-                    size_in_mb: 1,
-                    remark: 1,
-                    data_image: {
-                        $cond: {
-                            if: { $ne: ['$data_upload', null] },
-                            then: {
-                                $concat: [
-                                    constant.base_url,
-                                    '$data_upload'
-                                ]
-                            },
-                            else: null
-                        }
-                    },
-                    data_image_download: {
-                        $cond: {
-                            if: { $ne: ['$data_upload', null] },
-                            then: {
-                                $concat: [
-                                    constant.base_url,
-                                    '$data_upload'
-                                ]
-                            },
-                            else: null
-                        }
-                    },
-                    mmc_image: {
-                        $cond: {
-                            if: { $ne: ['$mmc', null] },
-                            then: {
-                                $concat: [
-                                    `${constant.base_url}`,
-                                    '$mmc'
-                                ]
-                            },
-                            else: null
-                        }
-                    },
-                    sarcasam_image: {
-                        $cond: {
-                            if: { $ne: ['$sarcasam', null] },
-                            then: {
-                                $concat: [
-                                    `${constant.base_url}`,
-                                    '$sarcasam'
-                                ]
-                            },
-                            else: null
-                        }
-                    },
-                    no_logo_image: {
-                        $cond: {
-                            if: { $ne: ['$no_logo', null] },
-                            then: {
-                                $concat: [
-                                    `${constant.base_url}`,
-                                    '$no_logo'
-                                ]
-                            },
-                            else: null
-                        }
-                    }
-                },
-            },
-        ]);
-
-        if (productData.length === 0) {
-            return res.status(404).json({ message: "No Record Found" });
-        }
-
-        res.status(200).json(productData);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message, message: 'Error getting data details' });
-    }
-};
-
-exports.totalCountOfData = async (req, res) => {
-    try {
-        const distinctDataNames = await dataModel.distinct('data_name');
-        const distinctDataNamesCount = distinctDataNames.length;
-
-        return res.status(200).send({
-            success: true,
-            message: "Distinct data names count retrieved successfully",
-            distinctDataNamesCount,
-            distinctDataNames
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message, message: 'Error getting data details' });
+        res.status(500).send({ error: err.message, sms: 'Error updating data details' });
     }
 };
