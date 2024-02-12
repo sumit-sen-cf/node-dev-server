@@ -8,9 +8,9 @@ const simModel = new mongoose.Schema({
     unique: true,
   },
   sim_no: {
-    type: Number,
-    required: true,
-    unique: true,
+    type: String,
+    required: false,
+    default: ""
   },
   Remarks: {
     type: String,
@@ -36,9 +36,9 @@ const simModel = new mongoose.Schema({
     default: "",
   },
   assetsOtherID: {
-    type: Number,
+    type: String,
     required: false,
-    default: 0,
+    default: "",
   },
   category_id: {
     type: Number,
