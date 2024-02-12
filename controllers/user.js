@@ -441,7 +441,7 @@ exports.updateUser = [upload, async (req, res) => {
             joining_date_extend_reason: req.body.joining_date_extend_reason,
             joining_date_reject_reason: req.body.joining_date_reject_reason,
             invoice_template_no: req.body.invoice_template_no,
-            image: req.files && req.files?.image && req.files?.image[0] ? req.files?.image[0].originalname : '',
+            image: req.files && req.files?.image && req.files?.image[0] ? req.files?.image[0].originalname : existingUser.image,
             UID: req.files && req.files['UID'] && req.files['UID'][0] ? req.files['UID'][0].filename : (existingUser && existingUser.UID) || '',
             pan: req.files && req.files['pan'] && req.files['pan'][0] ? req.files['pan'][0].filename : (existingUser && existingUser.pan) || '',
             tenth_marksheet: req.files && req.files['tenth_marksheet'] && req.files['tenth_marksheet'][0] ? req.files['tenth_marksheet'][0].filename : (existingUser && existingUser.tenth_marksheet) || '',
@@ -499,17 +499,53 @@ exports.updateUser = [upload, async (req, res) => {
         if (editsim?.offer_later_status == true || (editsim?.joining_date_extend || (editsim?.digital_signature_image && editsim?.digital_signature_image !== ""))) {
             helper.generateOfferLaterPdf(editsim)
         }
+       
+        if (req.files && req.files.image && req.files.image[0]?.originalname) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+        
+            const currentDate = new Date();
+            const fileNamef = `${currentDate.getTime()}.jpg`;
+        
+            const blob = bucket.file(fileNamef);
+            editsim.image = blob.name;
+        
+            const saveBlobPromise = new Promise((resolve, reject) => {
+                const blobStream = blob.createWriteStream();
+                blobStream.on("finish", () => {
+                    resolve();
+                });
+                blobStream.end(req.files.image[0]?.buffer);
+            });
+        
+            try {
+                await saveBlobPromise;
+                editsim.save();
+            } catch (error) {
+                console.error("Error saving image:", error);
+            }
+        }
+        
 
         if (req.files && req.files.digital_signature_image && req.files.digital_signature_image[0]?.originalname) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
             const blob = bucket.file(req.files?.digital_signature_image[0]?.originalname);
             editsim.digital_signature_image = blob.name;
-            const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => {
+
+            const saveBlobPromise = new Promise((resolve, reject) => {
+                const blobStream = blob.createWriteStream();
+                blobStream.on("finish", () => {
+                    resolve();
+                });
+                blobStream.end(req.files.digital_signature_image[0]?.buffer);
+            })
+            try{
+                await saveBlobPromise;
                 editsim.save();
-            });
-            blobStream.end(req.files.digital_signature_image[0]?.buffer);
+            }catch(err){
+                console.log('error', err)
+            }
         }
 
         return res.status(200).send({ success: true, data: editsim })
