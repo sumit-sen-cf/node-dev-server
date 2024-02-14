@@ -1337,6 +1337,7 @@ exports.getSalaryByUserId = async (req, res) => {
             salary_deduction: "$salary_deduction",
             salary: "$salary",
             attendence_id: "$attendence_id",
+            invoiceNo: "$invoiceNo",
             screenshot: {
               $concat: [imageUrl, "$fn.screenshot"]
             },
