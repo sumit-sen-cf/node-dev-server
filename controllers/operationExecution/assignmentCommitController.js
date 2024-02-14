@@ -6,10 +6,10 @@ const PhasePageModel=require('../../models/operationExecution/phasePageModel')
 const CampaignPlanModel=require('../../models/operationExecution/campaignPlanModel')
 
 exports.createAssComm=catchAsync(async (req,res,next)=>{
-    const {ass_id,likes,comments,reach,engagement,link,snapshot,campaignId,phase_id,execute} = req.body
+    const {ass_id,likes,comments,reach,engagement,link,snapshot,campaignId,phase_id,execute,commitType} = req.body
 
     const data={
-        ass_id,likes,comments,reach,engagement,campaignId,phase_id,link,snapshot
+        ass_id,likes,comments,reach,engagement,campaignId,phase_id,link,snapshot,commitType,verification_status:"verified"
     }
 
     let result
@@ -23,9 +23,9 @@ exports.createAssComm=catchAsync(async (req,res,next)=>{
          phase=await PhasePageModel.findOneAndUpdate({campaignId:result2.campaignId,p_id:result2.p_id,phase_id:result2.phase_id},{isExecuted:true},{new:true})
     }else{
         result=await AssignmentCommitModel.create(data)
-         result2=await AssignmentModel.findOneAndUpdate({ass_id},{ass_status:'pending',isExecuted:true},{new:true})
-         camp=await CampaignPlanModel.findOneAndUpdate({campaignId:result2.campaignId,p_id:result2.p_id},{isExecuted:true},{new:true})
-         phase=await PhasePageModel.findOneAndUpdate({campaignId:result2.campaignId,p_id:result2.p_id,phase_id:result2.phase_id},{isExecuted:true},{new:true})
+         result2=await AssignmentModel.findOneAndUpdate({ass_id},{ass_status:'pending'},{new:true})
+        //  camp=await CampaignPlanModel.findOneAndUpdate({campaignId:result2.campaignId,p_id:result2.p_id},{isExecuted:true},{new:true})
+        //  phase=await PhasePageModel.findOneAndUpdate({campaignId:result2.campaignId,p_id:result2.p_id,phase_id:result2.phase_id},{isExecuted:true},{new:true})
         
     }
 

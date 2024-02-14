@@ -3,7 +3,7 @@ const { default: mongoose } = require("mongoose");
 
 const assignmentCommitSchema = new mongoose.Schema({
     comm_id:{
-        type:'String',
+        type:Number,
 
     },
     phase_id:{
@@ -18,11 +18,15 @@ const assignmentCommitSchema = new mongoose.Schema({
         type:'String',
         required: [true,'link is required']
     },
+    commitType:{
+        type:'String',
+        enum:['story','post']
+    },
     snapshot:{
         type:'String',
     },
     ass_id:{
-        type:'String',
+        type:Number,
         required:[true,'ass_id is required']
     },
     likes:{
@@ -40,6 +44,11 @@ const assignmentCommitSchema = new mongoose.Schema({
     reach:{
         type:'Number',
         default: 0,
+    },
+    verification_status:{
+        type:String,
+        default:'pending',
+        enum:['verified','rejected','pending']
     }
 });
 

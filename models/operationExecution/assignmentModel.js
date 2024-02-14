@@ -127,7 +127,7 @@ const assignmentSchema = new mongoose.Schema({
   executed_at: {
     type: Date
   },
-
+  
   verified_by: {
     // type:mongoose.SchemaTypes.ObjectId,
     // ref:'userModels',
@@ -152,10 +152,10 @@ const assignmentSchema = new mongoose.Schema({
     type: Array,
     default: []
   },
-  isExecuted:{
-    type:Boolean,
+  isExecuted: {
+    type: Boolean,
     default: false,
-}
+  }
 
 });
 
