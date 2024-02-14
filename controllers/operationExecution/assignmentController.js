@@ -37,22 +37,34 @@ exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
     const results = await Promise.all(
         pages.map(async page => {
             let { _id, ...rest } = page
-            let status = page.ass_to ? page.ass_status : "unassigned"
+            let status
+            if(page.ass_to){
+                if(page.ass_status=='unassigned'){
+                    // console.log(page.page_name)
+                    status='assigned'
+                }else{
+                    status=page.ass_status
+                }
+            }else status='unassigned'
+            console.log(status)
             const data = {
                 
+                ...rest,
                 ass_status: status,
-                ...rest
             }
+    
             let result;
             if (!page.ass_id) {
+            
                 const assignment = await AssignmentModel.findOne({}, {}, { sort: { 'ass_id': 0 } });
                 const lastAssId = assignment ? assignment.ass_id : 0;
                 data.ass_id = lastAssId + 1;
                 result = await AssignmentModel.create(data);
                 return {...result}
             } else {
+         
                 result = await AssignmentModel.findOneAndUpdate({ ass_id:page.ass_id }, data, {
-                    upsert: true,
+                    // upsert: true,
                     new: true
                 });
                 return {...result}

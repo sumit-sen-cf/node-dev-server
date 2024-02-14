@@ -71,6 +71,7 @@ const campaignPhaseController = require("./controllers/operationExecution/campai
 const expertiseController = require('./controllers/operationExecution/expertiseController.js')
 const assignmentController = require('./controllers/operationExecution/assignmentController.js')
 const assignmentCommitController = require('./controllers/operationExecution/assignmentCommitController.js')
+const assignmentDashboardController=require('./controllers/operationExecution/dashboards/assignmentDashboard.js')
 const operationDasboard = require('./controllers/operationExecution/dashboard.controller.js')
 const pageReplacementController = require('./controllers/operationExecution/pageReplacementController.js')
 const preAssignmentController = require('./controllers/operationExecution/preAssignmentController.js')
@@ -167,6 +168,7 @@ router.get('/assignment/all/:id', assignmentController.getAllAssignmentToExperte
 router.get('/assignment/phase/:id', assignmentController.getAllAssignmentInPhase)
 router.get('/assignment/campaign/:id', assignmentController.getAllAssignmentInCampaign)
 router.post('/assignment/status', assignmentController.updateAssignmentStatus)
+router.post('/assignment/campaign/dashboard', assignmentDashboardController.AssignmentDashCampaign)
 
 router.post('/assignment/commit', assignmentCommitController.createAssComm)
 router.post('/assignment/bulk', assignmentController.createAssignmentBulk)
