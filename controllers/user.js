@@ -1297,6 +1297,7 @@ exports.loginUser = async (req, res) => {
                     onboard_status: '$onboard_status',
                     user_login_id: '$user_login_id',
                     invoice_template_no: "$invoice_template_no",
+                    job_type: "$job_type",
                     // digital_signature_image: "$digital_signature_image"
                     digital_signature_image: { $concat: [vari.IMAGE_URL, "$digital_signature_image"] }
                 }
@@ -3223,6 +3224,47 @@ exports.getAllSalesUsers = async (req, res) => {
             return response.returnFalse(200, req, res, "No Reord Found...", []);
         }
         res.status(200).send(salesUsers)
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
+
+exports.assignAllObjInUserAuth = async (req, res) => {
+    try {
+        const user = await userModel.findOne({ user_id: req.params.user_id });
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        const existingObjectIds = (await userAuthModel.find({ Juser_id: user.user_id })).map(obj => obj.obj_id);
+
+        const objectData = await objModel.find();
+
+        let objectsToInsert = [];
+        for (const object of objectData) {
+            if (!existingObjectIds.includes(object.obj_id)) {
+                objectsToInsert.push(object);
+            }
+        }
+
+        for (const object of objectsToInsert) {
+            const userAuthDocument = {
+                Juser_id: user.user_id,
+                obj_id: object.obj_id,
+                insert: 0,
+                view: 0,
+                update: 0,
+                delete_flag: 0,
+                creation_date: new Date(),
+                created_by: user.created_by || 0,
+                last_updated_by: user.created_by || 0,
+                last_updated_date: new Date(),
+            };
+
+            await userAuthModel.create(userAuthDocument);
+        }
+
+        res.status(200).send("Objects inserted in userAuth Model");
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }

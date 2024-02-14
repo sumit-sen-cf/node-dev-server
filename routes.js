@@ -811,6 +811,7 @@ router.get("/get_all_percentage", user.getFilledPercentage);
 router.post("/get_user_graph_data", user.getUserGraphData)
 router.get("/get_users_with_status", user.getUsersWithStatus);
 router.get("/get_all_sales_users", user.getAllSalesUsers);
+router.get("/all_objs_in_user_auth/:user_id", user.assignAllObjInUserAuth);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 
