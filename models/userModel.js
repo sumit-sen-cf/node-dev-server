@@ -689,6 +689,11 @@ const userModel = new mongoose.Schema({
         type: Boolean,
         required: true,
         default: true
+    },
+    bank_type: {
+        type: String,
+        required: false,
+        default: ''   
     }
 });
 

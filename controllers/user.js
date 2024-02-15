@@ -215,7 +215,8 @@ exports.addUser = [upload, async (req, res) => {
             emergency_contact_relation2: req.body.emergency_contact_relation2,
             document_percentage_mandatory: req.body.document_percentage_mandatory,
             document_percentage_non_mandatory: req.body.document_percentage_non_mandatory,
-            document_percentage: req.body.document_percentage
+            document_percentage: req.body.document_percentage,
+            bank_type: req.body.bank_type
         })
 
         if (req.files.image && req.files.image[0].originalname) {
@@ -489,7 +490,8 @@ exports.updateUser = [upload, async (req, res) => {
             document_percentage_mandatory: req.body.document_percentage_mandatory,
             document_percentage_non_mandatory: req.body.document_percentage_non_mandatory,
             document_percentage: req.body.document_percentage,
-            show_rocket: req.body.show_rocket
+            show_rocket: req.body.show_rocket,
+            bank_type: req.body.bank_type
         }, { new: true });
 
         if (!editsim) {
@@ -850,6 +852,7 @@ exports.getAllUsers = async (req, res) => {
                     emp_id: "$emp_id",
                     alternate_contact: "$alternate_contact",
                     cast_type: "$cast_type",
+                    bank_type: "$bank_type",
                     emergency_contact_person_name1: "$emergency_contact_person_name1",
                     emergency_contact_person_name2: "$emergency_contact_person_name2",
                     emergency_contact_relation1: "$emergency_contact_relation1",
@@ -1184,6 +1187,7 @@ exports.getSingleUser = async (req, res) => {
                     document_percentage_mandatory: "$document_percentage_mandatory",
                     document_percentage_non_mandatory: "$document_percentage_non_mandatory",
                     document_percentage: "$document_percentage",
+                    bank_type: "$bank_type"
                 }
             }
         ]).exec();
