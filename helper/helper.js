@@ -179,13 +179,40 @@ module.exports = {
    * @param {string} userId - The ID of the user for whom the invoice number is being generated.
    * @returns {Promise<string>} - A promise that resolves to the next invoice number.
    */
-  createNextInvoiceNumber: async (userId) => {
+  // createNextInvoiceNumber: async (userId) => {
+  //   const latestEntry = await attendanceModel
+  //     .findOne()
+  //     .sort({ _id: -1 })
+  //     .exec();
+
+  //   let nextIncrement = 1; // Start with 1 if there are no entries yet
+  //   if (latestEntry && latestEntry.invoiceNo) {
+  //     const parts = latestEntry.invoiceNo.split("/");
+  //     const lastIncrement = parseInt(parts[2], 10);
+  //     if (!isNaN(lastIncrement)) {
+  //       nextIncrement = lastIncrement + 1;
+  //     }
+  //   }
+
+  //   // Construct the new invoiceNo
+  //   const date = new Date();
+  //   const year = date.getFullYear().toString().substring(2); // Get last two digits of the year
+  //   const month = date
+  //     .toLocaleString("default", { month: "short" })
+  //     .toUpperCase(); // Get the month abbreviation
+  //   const monthYear = `${month}${year}`;
+
+  //   return `${monthYear}/${userId}/${nextIncrement}`;
+  // },
+
+  createNextInvoiceNumber: async (userId, month, year) => {
     const latestEntry = await attendanceModel
       .findOne()
       .sort({ _id: -1 })
       .exec();
 
-    let nextIncrement = 1; // Start with 1 if there are no entries yet
+    // console.log("dddddddddd", latestEntry)
+    let nextIncrement = 1;
     if (latestEntry && latestEntry.invoiceNo) {
       const parts = latestEntry.invoiceNo.split("/");
       const lastIncrement = parseInt(parts[2], 10);
@@ -194,16 +221,12 @@ module.exports = {
       }
     }
 
-    // Construct the new invoiceNo
-    const date = new Date();
-    const year = date.getFullYear().toString().substring(2); // Get last two digits of the year
-    const month = date
-      .toLocaleString("default", { month: "short" })
-      .toUpperCase(); // Get the month abbreviation
-    const monthYear = `${month}${year}`;
+    const extractMonth = month.slice(0, 3);
+    const monthYear = `${extractMonth}${year}`;
 
     return `${monthYear}/${userId}/${nextIncrement}`;
   },
+
 
   /**
    * Generates a random password consisting of 6 alphanumeric characters.

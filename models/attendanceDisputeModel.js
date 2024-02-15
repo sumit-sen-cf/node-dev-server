@@ -20,9 +20,8 @@ const attendanceDisputeModel = new mongoose.Schema({
         required: false,
         default: "",
     },
-    disputed_date: {
-        type: String,
-        default: ""
+    dispute_date: {
+        type: String
     },
     creation_date: {
         type: Date,

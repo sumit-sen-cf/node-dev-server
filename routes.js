@@ -71,7 +71,7 @@ const campaignPhaseController = require("./controllers/operationExecution/campai
 const expertiseController = require('./controllers/operationExecution/expertiseController.js')
 const assignmentController = require('./controllers/operationExecution/assignmentController.js')
 const assignmentCommitController = require('./controllers/operationExecution/assignmentCommitController.js')
-const assignmentDashboardController=require('./controllers/operationExecution/dashboards/assignmentDashboard.js')
+const assignmentDashboardController = require('./controllers/operationExecution/dashboards/assignmentDashboard.js')
 const operationDasboard = require('./controllers/operationExecution/dashboard.controller.js')
 const pageReplacementController = require('./controllers/operationExecution/pageReplacementController.js')
 const preAssignmentController = require('./controllers/operationExecution/preAssignmentController.js')
@@ -118,6 +118,7 @@ const phpVendorPaymentRequest = require("./controllers/phpVendorPaymentRequest.j
 const assetHistory = require("./controllers/assetHistory.js");
 const dataOperation = require("./controllers/dataOperation.js");
 const attendanceDispute = require("./controllers/attendanceDispute.js");
+const userUpdateHistory = require("./controllers/userUpdateHistory.js");
 
 /* Task Mangement Controller Import */
 const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -878,8 +879,8 @@ router.get("/get_all_attendance_data", attendance.getAllAttendanceData);
 router.get("/get_salary_calculation_data", attendance.getSalarycalculationData);
 router.post("/get_users_count_by_dept", attendance.getUsersCountByDept);
 router.put("/update_attendance", attendance.updateAttendance);
-router.get("/get_all_disputes", attendance.allAttendanceDisputeDatas);
-router.get("/get_all_disputes/:user_id", attendance.getUserAttendanceDisputeDatas);
+// router.get("/get_all_disputes", attendance.allAttendanceDisputeDatas);
+// router.get("/get_all_disputes/:user_id", attendance.getUserAttendanceDisputeDatas);
 
 /* commitement */
 router.post("/add_commitment", cmtController.addCmt);
@@ -1499,4 +1500,6 @@ router.delete("/dataoperationwithdataname/:data_name", dataOperation.deleteDataB
 router.get("/get_data_operation_based_data_name_new/:data_name", dataOperation.getOperationDataBasedDataNameNew);
 router.put("/editdataoperationname", dataOperation.editOperationDataName);
 
+//user update history routes 
+router.post('/update_user_history', userUpdateHistory.addUserUpdateHistory);
 module.exports = router;

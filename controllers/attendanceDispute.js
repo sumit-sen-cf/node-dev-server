@@ -41,6 +41,17 @@ exports.getAttendanceDisputes = async (req, res) => {
             },
             {
                 $lookup: {
+                    from: "departmentmodels",
+                    localField: "attendence_data.dept",
+                    foreignField: "dept_id",
+                    as: "dept_data",
+                },
+            },
+            {
+                $unwind: "$dept_data",
+            },
+            {
+                $lookup: {
                     from: "usermodels",
                     localField: "user_id",
                     foreignField: "user_id",
@@ -93,6 +104,27 @@ exports.getAttendanceDisputes = async (req, res) => {
                     created_by: 1,
                     last_updated_by: 1,
                     last_updated_date: 1,
+                    noOfabsent: "$attendence_data.noOfabsent",
+                    year: "$attendence_data.year",
+                    remark: "$attendence_data.remark",
+                    Creation_date: "$attendence_data.Creation_date",
+                    Created_by: "$attendence_data.Created_by",
+                    Last_updated_by: "$attendence_data.Last_updated_by",
+                    Last_updated_date: "$attendence_data.Last_updated_date",
+                    month: "$attendence_data.month",
+                    bonus: "$attendence_data.bonus",
+                    total_salary: "$attendence_data.total_salary",
+                    net_salary: "$attendence_data.net_salary",
+                    tds_deduction: "$attendence_data.tds_deduction",
+                    toPay: "$attendence_data.toPay",
+                    sendToFinance: "$attendence_data.sendToFinance",
+                    attendence_generated: "$attendence_data.attendence_generated",
+                    attendence_status: "$attendence_data.attendence_status",
+                    salary_status: "$attendence_data.salary_status",
+                    salary_deduction: "$attendence_data.salary_deduction",
+                    salary: "$attendence_data.salary",
+                    dept_id: "$attendence_data.dept",
+                    dept_name: "$dept_data.dept_name",
                     user_name: "$user_data.user_name",
                     user_created_by_name: "$user_created_by.user_name",
                     user_last_updated_by: "$user_last_updated_by.user_name"
@@ -124,7 +156,7 @@ exports.getSingleAttendanceDispute = async (req, res) => {
         const simc = await attendanceDisputeModel.aggregate([
             {
                 $match: {
-                    user_id: req.params.user_id
+                    user_id: parseInt(req.params.user_id)
                 }
             },
             {
@@ -140,6 +172,17 @@ exports.getSingleAttendanceDispute = async (req, res) => {
                     path: "$attendence_data",
                     // preserveNullAndEmptyArrays: true,
                 },
+            },
+            {
+                $lookup: {
+                    from: "departmentmodels",
+                    localField: "attendence_data.dept",
+                    foreignField: "dept_id",
+                    as: "dept_data",
+                },
+            },
+            {
+                $unwind: "$dept_data",
             },
             {
                 $lookup: {
@@ -195,6 +238,27 @@ exports.getSingleAttendanceDispute = async (req, res) => {
                     created_by: 1,
                     last_updated_by: 1,
                     last_updated_date: 1,
+                    noOfabsent: "$attendence_data.noOfabsent",
+                    year: "$attendence_data.year",
+                    remark: "$attendence_data.remark",
+                    Creation_date: "$attendence_data.Creation_date",
+                    Created_by: "$attendence_data.Created_by",
+                    Last_updated_by: "$attendence_data.Last_updated_by",
+                    Last_updated_date: "$attendence_data.Last_updated_date",
+                    month: "$attendence_data.month",
+                    bonus: "$attendence_data.bonus",
+                    total_salary: "$attendence_data.total_salary",
+                    net_salary: "$attendence_data.net_salary",
+                    tds_deduction: "$attendence_data.tds_deduction",
+                    toPay: "$attendence_data.toPay",
+                    sendToFinance: "$attendence_data.sendToFinance",
+                    attendence_generated: "$attendence_data.attendence_generated",
+                    attendence_status: "$attendence_data.attendence_status",
+                    salary_status: "$attendence_data.salary_status",
+                    salary_deduction: "$attendence_data.salary_deduction",
+                    salary: "$attendence_data.salary",
+                    dept_id: "$attendence_data.dept",
+                    dept_name: "$dept_data.dept_name",
                     user_name: "$user_data.user_name",
                     user_created_by_name: "$user_created_by.user_name",
                     user_last_updated_by: "$user_last_updated_by.user_name"
