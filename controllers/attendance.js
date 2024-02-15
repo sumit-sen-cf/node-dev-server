@@ -424,7 +424,7 @@ exports.addAttendance = async (req, res) => {
               });
               const instav = await creators.save();
             }
-            return res.send({ status: 200 });
+            res.send({ status: 200 });
           });
       } else {
         const Dept = dept || "";

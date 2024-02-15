@@ -40,7 +40,7 @@ exports.addFinance = async (req, res) => {
 
     await attendanceModel.findOneAndUpdate(
       { attendence_id: parseInt(req.body.attendence_id) },
-      { attendence_status_flow: 'Pending For Invoice Verification' },
+      { attendence_status_flow: 'Invoice Submitted Pending For Verification' },
       { new: true }
     );
     res.send({ simv, status: 200 });
@@ -141,6 +141,15 @@ exports.getFinances = async (req, res) => {
           attendence_status_flow: "$attendence_data.attendence_status_flow"
         },
       },
+      {
+        $group: {
+          _id: "$id",
+          data: { $first: "$$ROOT" }
+        }
+      },
+      {
+        $replaceRoot: { newRoot: "$data" }
+      }
     ]);
     if (!simc) {
       res.status(500).send({ success: false });

@@ -123,6 +123,10 @@ const dataOperationModel = new mongoose.Schema({
     no_logo: {
         type: String,
         required: false
+    },
+    feedback: {
+        type: String,
+        required: false
     }
 });
 
