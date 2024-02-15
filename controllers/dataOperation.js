@@ -45,7 +45,8 @@ exports.addOperationData = [
                 number_of_engagement: req.body.number_of_engagement,
                 number_of_views: req.body.number_of_views,
                 number_of_story_views: req.body.number_of_story_views,
-                operation_remark: req.body.operation_remark
+                operation_remark: req.body.operation_remark,
+                feedback: req.body.feedback
             });
 
             const bucketName = vari.BUCKET_NAME;
@@ -202,6 +203,7 @@ exports.getOprationDatas = async (req, res) => {
                     number_of_views: 1,
                     number_of_story_views: 1,
                     operation_remark: 1,
+                    feedback: 1,
                     created_by_name: "$userData.user_name",
                     updated_by_name: "$userData.user_name",
                     designed_by_name: "$userDataName.user_name",
@@ -412,6 +414,7 @@ exports.getSingleOprationData = async (req, res) => {
                     number_of_views: 1,
                     number_of_story_views: 1,
                     operation_remark: 1,
+                    feedback: 1,
                     // brand_category_name: "$brandCategory.brandCategory_name",
                     // brand_sub_category_name: "$brandSubCategory.brandSubCategory_name",
                     designed_by_name: "$userDataName.user_name",
@@ -526,7 +529,8 @@ exports.editOperationData = async (req, res) => {
             number_of_engagement: req.body.number_of_engagement,
             number_of_views: req.body.number_of_views,
             number_of_story_views: req.body.number_of_story_views,
-            operation_remark: req.body.operation_remark
+            operation_remark: req.body.operation_remark,
+            feedback: req.body.feedback
         }, { new: true })
 
         res.status(200).send({ success: true, data: editsim })
@@ -677,6 +681,7 @@ exports.getOperationDataBasedDataNameNew = async (req, res) => {
                     number_of_views: "$number_of_views",
                     number_of_story_views: "$number_of_story_views",
                     operation_remark: "$operation_remark",
+                    feedback: "$feedback",
                     data_image: {
                         $cond: {
                             if: { $ne: ['$data_upload', null] },
@@ -790,7 +795,8 @@ exports.editOperationDataName = async (req, res) => {
                 number_of_engagement: req.body.number_of_engagement,
                 number_of_views: req.body.number_of_views,
                 number_of_story_views: req.body.number_of_story_views,
-                operation_remark: req.body.operation_remark
+                operation_remark: req.body.operation_remark,
+                feedback: req.body.feedback
             },
             { new: true }
         );

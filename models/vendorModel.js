@@ -9,20 +9,20 @@ const vendorModel = new mongoose.Schema({
   vendor_name: {
     type: String,
     required: false,
-    unique:true,
+    unique: true,
     default: "",
   },
-  vendor_contact_no:{
+  vendor_contact_no: {
     type: String,
     required: false,
     default: "",
   },
-  vendor_email_id:{
+  vendor_email_id: {
     type: String,
     required: false,
     default: "",
   },
-  vendor_address:{
+  vendor_address: {
     type: String,
     required: false,
     default: "",
@@ -43,11 +43,11 @@ const vendorModel = new mongoose.Schema({
   },
   last_updated_by: {
     type: Number,
-    default:0
+    default: 0
   },
   last_updated_date: {
     type: Date,
-    default:0
+    default: 0
   },
   vendor_type: {
     type: String,
@@ -57,12 +57,12 @@ const vendorModel = new mongoose.Schema({
     type: [String],
     required: false
   },
-  secondary_contact_no : {
+  secondary_contact_no: {
     type: String,
     required: false,
     default: "",
   },
-  secondary_person_name : {
+  secondary_person_name: {
     type: String,
     required: false,
     default: "",

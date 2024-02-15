@@ -117,6 +117,7 @@ const newCoc = require('./controllers/cocManagementNew.js')
 const phpVendorPaymentRequest = require("./controllers/phpVendorPaymentRequest.js");
 const assetHistory = require("./controllers/assetHistory.js");
 const dataOperation = require("./controllers/dataOperation.js");
+const attendanceDispute = require("./controllers/attendanceDispute.js");
 
 /* Task Mangement Controller Import */
 const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -886,6 +887,15 @@ router.put("/update_commitment", cmtController.editCmt);
 router.get("/get_all_commitments", cmtController.getCmt);
 router.get("/get_single_commitment/:id", cmtController.getCmtById);
 router.delete("/delete_commitment/:id", cmtController.deleteCmt);
+
+
+//--------------------------------------------------------------All Routes of Attendance Disputes------------------------------------------------------------------------------------------------------------------//
+
+router.post("/add_attendance_dispute", attendanceDispute.addAttendanceDispute);
+router.put("/update_attendance_dispute", attendanceDispute.editAttendanceDispute);
+router.get("/get_all_disputes", attendanceDispute.getAttendanceDisputes);
+router.get("/get_all_disputes/:user_id", attendanceDispute.getSingleAttendanceDispute);
+router.delete("/delete_attendance_dispute/:_id", attendanceDispute.deleteAttendanceDispute);
 
 //---------------------------------------------------------------------------All Routes OF Attendance Module Ends Here ---------------------------------------------------------------------------------------------------//
 
