@@ -79,6 +79,8 @@ const upload = multer({
     { name: "annexure_pdf", maxCount: 1 }
 ]);
 
+let userCounter = 0;
+let invoice_template_no = 1;
 exports.addUser = [upload, async (req, res) => {
     try {
         let encryptedPass;
@@ -86,7 +88,14 @@ exports.addUser = [upload, async (req, res) => {
             encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
         }
 
+        userCounter++;
+        console.log("usssssssssssssss", userCounter);
+
         let empId = await generateEmpId(req.body.dept_id);
+
+        if (userCounter % 5 === 1) {
+            invoice_template_no++;
+        }
 
         const simc = new userModel({
             user_name: req.body.user_name,
@@ -171,7 +180,7 @@ exports.addUser = [upload, async (req, res) => {
             joining_date_extend: req.body.joining_date_extend,
             joining_date_extend_status: req.body.joining_date_extend_status,
             joining_date_extend_reason: req.body.joining_date_extend_reason,
-            invoice_template_no: req.body.invoice_template_no,
+            invoice_template_no: invoice_template_no,
             // image: req.files.image ? req.files.image[0].filename : '',
             UID: req.files.UID ? req.files.UID[0].filename : '',
             pan: req.files.pan ? req.files.pan[0].filename : '',
@@ -810,6 +819,7 @@ exports.getAllUsers = async (req, res) => {
                     current_city: "$current_city",
                     current_state: "$current_state",
                     current_pin_code: "$current_pin_code",
+                    att_status: "$att_status",
                     permanent_address: "$permanent_address",
                     permanent_city: "$permanent_city",
                     permanent_state: "$permanent_state",
@@ -1076,6 +1086,7 @@ exports.getSingleUser = async (req, res) => {
                     Report_L2: "$Report_L2",
                     Report_L3: "$Report_L3",
                     PersonalEmail: "$PersonalEmail",
+                    att_status: "$att_status",
                     level: "$level",
                     joining_date: "$joining_date",
                     releaving_date: "$releaving_date",
@@ -2391,6 +2402,7 @@ exports.getAllWfhUsers = async (req, res) => {
                     salary: "$salary",
                     SpokenLanguages: "$SpokenLanguages",
                     Gender: "$Gender",
+                    att_status: "$att_status",
                     Nationality: "$Nationality",
                     DOB: "$DOB",
                     Age: "$Age",

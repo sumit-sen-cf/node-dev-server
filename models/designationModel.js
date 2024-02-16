@@ -8,7 +8,8 @@ const designationModel = new mongoose.Schema({
     },
     dept_id: {
         type: Number,
-        required: true
+        required: false,
+        default: 0
     },
     desi_name: {
         type: String,
@@ -43,13 +44,13 @@ const designationModel = new mongoose.Schema({
 
 designationModel.pre('save', async function (next) {
     if (!this.desi_id) {
-      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'desi_id': -1 } });
-  
-      if (lastAgency && lastAgency.desi_id) {
-        this.desi_id = lastAgency.desi_id + 1;
-      } else {
-        this.desi_id = 1;
-      }
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'desi_id': -1 } });
+
+        if (lastAgency && lastAgency.desi_id) {
+            this.desi_id = lastAgency.desi_id + 1;
+        } else {
+            this.desi_id = 1;
+        }
     }
     next();
 });
