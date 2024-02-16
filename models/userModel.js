@@ -693,7 +693,15 @@ const userModel = new mongoose.Schema({
     bank_type: {
         type: String,
         required: false,
-        default: ''   
+        default: ''
+    },
+    att_status: {
+        type: String
+    },
+    year_salary: {
+        type: Number,
+        required: false,
+        default: 0
     }
 });
 

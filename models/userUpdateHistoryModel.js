@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 // const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const userUpdateHistoryModel = new mongoose.Schema({
@@ -6,16 +7,18 @@ const userUpdateHistoryModel = new mongoose.Schema({
         type: Number,
         required: true
     },
-    previous_value: {
-        type: String,
-        required: false,
-        default: "",
-    },
-    current_value: {
-        type: String,
-        required: false,
-        default: "",
-    },
+    // previous_value: {
+    //     type: [String],
+    //     required: false,
+    //     default: "",
+    // },
+    // current_value: {
+    //     type: [String],
+    //     required: false,
+    //     default: "",
+    // },
+    previous_value: Schema.Types.Mixed,
+    current_value: Schema.Types.Mixed,
     creation_date: {
         type: Date,
         default: Date.now,

@@ -127,6 +127,9 @@ const dataOperationModel = new mongoose.Schema({
     feedback: {
         type: String,
         required: false
+    },
+    public_usage: {
+        type: String
     }
 });
 
