@@ -183,6 +183,7 @@ exports.getOprationDatas = async (req, res) => {
             {
                 $project: {
                     _id: 1,
+                    public_usage:1,
                     data_name: 1,
                     data_id: 1,
                     platform_ids: 1,
