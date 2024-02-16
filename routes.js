@@ -358,6 +358,10 @@ router.get(
   "/get_single_designation/:desi_id",
   designation.getSingleDesignation
 ); //Done
+router.get(
+  "/get_all_designations_by_deptId/:dept_id",
+  designation.getAllDesignationByDeptID
+);
 router.delete("/delete_designation/:desi_id", designation.deleteDesignation); //Done
 router.get("/get_all_designations", designation.getDesignations); //Done
 
@@ -1502,4 +1506,5 @@ router.put("/editdataoperationname", dataOperation.editOperationDataName);
 
 //user update history routes 
 router.post('/update_user_history', userUpdateHistory.addUserUpdateHistory);
+router.get("/get_single_user_update_history/:user_id", userUpdateHistory.getSingleUserUpdateHistory)
 module.exports = router;

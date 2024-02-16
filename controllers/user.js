@@ -112,6 +112,7 @@ exports.addUser = [upload, async (req, res) => {
             level: req.body.level,
             room_id: req.body.room_id,
             salary: req.body.salary,
+            year_salary: req.body.year_salary,
             SpokenLanguages: req.body.SpokenLanguages,
             Gender: req.body.Gender,
             Nationality: req.body.Nationality,
@@ -381,6 +382,7 @@ exports.updateUser = [upload, async (req, res) => {
             level: req.body.level,
             room_id: req.body.room_id,
             salary: isNaN(req.body.salary) ? 0 : req.body.salary,
+            year_salary: isNaN(req.body.year_salary) ? 0 : req.body.year_salary,
             SpokenLanguages: req.body.SpokenLanguages,
             Gender: req.body.Gender,
             Nationality: req.body.Nationality,
@@ -501,17 +503,17 @@ exports.updateUser = [upload, async (req, res) => {
         if (editsim?.offer_later_status == true || (editsim?.joining_date_extend || (editsim?.digital_signature_image && editsim?.digital_signature_image !== ""))) {
             helper.generateOfferLaterPdf(editsim)
         }
-       
+
         if (req.files && req.files.image && req.files.image[0]?.originalname) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
-        
+
             const currentDate = new Date();
             const fileNamef = `${currentDate.getTime()}.jpg`;
-        
+
             const blob = bucket.file(fileNamef);
             editsim.image = blob.name;
-        
+
             const saveBlobPromise = new Promise((resolve, reject) => {
                 const blobStream = blob.createWriteStream();
                 blobStream.on("finish", () => {
@@ -519,7 +521,7 @@ exports.updateUser = [upload, async (req, res) => {
                 });
                 blobStream.end(req.files.image[0]?.buffer);
             });
-        
+
             try {
                 await saveBlobPromise;
                 editsim.save();
@@ -527,7 +529,7 @@ exports.updateUser = [upload, async (req, res) => {
                 console.error("Error saving image:", error);
             }
         }
-        
+
 
         if (req.files && req.files.digital_signature_image && req.files.digital_signature_image[0]?.originalname) {
             const bucketName = vari.BUCKET_NAME;
@@ -542,10 +544,10 @@ exports.updateUser = [upload, async (req, res) => {
                 });
                 blobStream.end(req.files.digital_signature_image[0]?.buffer);
             })
-            try{
+            try {
                 await saveBlobPromise;
                 editsim.save();
-            }catch(err){
+            } catch (err) {
                 console.log('error', err)
             }
         }
@@ -749,6 +751,7 @@ exports.getAllUsers = async (req, res) => {
                     highest_upload: "$highest_upload",
                     other_upload: "$other_upload",
                     salary: "$salary",
+                    year_salary: "$year_salary",
                     SpokenLanguages: "$SpokenLanguages",
                     Gender: "$Gender",
                     Nationality: "$Nationality",
@@ -1082,6 +1085,7 @@ exports.getSingleUser = async (req, res) => {
                     highest_upload: "$highest_upload",
                     other_upload: "$other_upload",
                     salary: "$salary",
+                    year_salary: "$year_salary",
                     SpokenLanguages: "$SpokenLanguages",
                     Gender: "$Gender",
                     Nationality: "$Nationality",
