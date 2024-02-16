@@ -19,6 +19,15 @@ exports.AssignmentDashCampaign = catchAsync(async (req, res, next) => {
         },
         {
             $facet: {
+                all_assignments:[
+                    {
+                        $group:{
+                            _id:null,
+                            count:{$sum:1},
+                            assignments:{$push:"$$ROOT"}
+                        }
+                    }
+                ],
                 by_category_wise_page_model: [
                     {
                         $group: {
@@ -397,6 +406,7 @@ exports.AssignmentDashCampaign = catchAsync(async (req, res, next) => {
             $project: {
                 category_wise_page_model: "$by_category_wise_page_model",
                 executor_wise_PreAssignments: "$executor_wise_PreAssignments",
+                all_assignments: "$all_assignments",
                 
                 executor_wise_assignments: "$executor_wise_assignments",
                 unassigned_pages: "$unassigned_pages",
@@ -426,6 +436,7 @@ exports.AssignmentDashCampaign = catchAsync(async (req, res, next) => {
         unAssigned_assignments: result[0].pending_assignments,
         post_verified: result[0].post_verified,
         story_verified: result[0].story_verified,
+        all_assignments: result[0].all_assignments,
         
     }
     res.status(200).json({
