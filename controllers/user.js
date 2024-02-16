@@ -79,23 +79,24 @@ const upload = multer({
     { name: "annexure_pdf", maxCount: 1 }
 ]);
 
-let userCounter = 0;
-let invoice_template_no = 1;
+// let userCounter = 0;
+// let invoice_template_no = 1;
 exports.addUser = [upload, async (req, res) => {
     try {
+
+        const latestUser = await userModel.findOne({}).sort({ created_At: -1 });
+        let latestInvoiceNo = latestUser.invoice_template_no + 1;
+
+        if (latestInvoiceNo > 5) {
+            latestInvoiceNo = 1
+        }
+
         let encryptedPass;
         if (req.body.user_login_password) {
             encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
         }
 
-        userCounter++;
-        console.log("usssssssssssssss", userCounter);
-
         let empId = await generateEmpId(req.body.dept_id);
-
-        if (userCounter % 5 === 1) {
-            invoice_template_no++;
-        }
 
         const simc = new userModel({
             user_name: req.body.user_name,
@@ -122,6 +123,7 @@ exports.addUser = [upload, async (req, res) => {
             room_id: req.body.room_id,
             salary: req.body.salary,
             year_salary: req.body.year_salary,
+            att_status: req.body.att_status,
             SpokenLanguages: req.body.SpokenLanguages,
             Gender: req.body.Gender,
             Nationality: req.body.Nationality,
@@ -180,7 +182,7 @@ exports.addUser = [upload, async (req, res) => {
             joining_date_extend: req.body.joining_date_extend,
             joining_date_extend_status: req.body.joining_date_extend_status,
             joining_date_extend_reason: req.body.joining_date_extend_reason,
-            invoice_template_no: invoice_template_no,
+            invoice_template_no: latestInvoiceNo,
             // image: req.files.image ? req.files.image[0].filename : '',
             UID: req.files.UID ? req.files.UID[0].filename : '',
             pan: req.files.pan ? req.files.pan[0].filename : '',
@@ -391,6 +393,7 @@ exports.updateUser = [upload, async (req, res) => {
             level: req.body.level,
             room_id: req.body.room_id,
             salary: isNaN(req.body.salary) ? 0 : req.body.salary,
+            att_status: req.body.att_status,
             year_salary: isNaN(req.body.year_salary) ? 0 : req.body.year_salary,
             SpokenLanguages: req.body.SpokenLanguages,
             Gender: req.body.Gender,
@@ -3285,6 +3288,38 @@ exports.assignAllObjInUserAuth = async (req, res) => {
         }
 
         res.status(200).send("Objects inserted in userAuth Model");
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
+
+exports.checkLoginExist = async (req, res) => {
+    try {
+        const findData = await userModel.findOne({ user_login_id: req.body.user_login_id });
+        if (!findData) {
+            return response.returnFalse(200, req, res, "login id available", []);
+        }
+        return response.returnFalse(200, req, res, 'login id not available', [])
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
+
+exports.getAllUsersWithInvoiceNo = async (req, res) => {
+    try {
+        const findData = await userModel.aggregate([
+            {
+                $group: {
+                    _id: "$invoice_template_no",
+                    count: { $sum: 1 },
+                    users: { $push: "$$ROOT" }
+                }
+            }
+        ]);
+        if (!findData) {
+            return response.returnFalse(200, req, res, "login id available", []);
+        }
+        return response.returnTrue(200, req, res, findData)
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }

@@ -349,6 +349,7 @@ exports.addAttendance = async (req, res) => {
         const check2 = await userModel.find({
           job_type: "WFHD",
           dept_id: req.body.dept,
+          att_status: 'onboarded'
         });
 
         let resignedOrSuspendedUsers = attendanceData
@@ -445,6 +446,7 @@ exports.addAttendance = async (req, res) => {
           const check2 = await userModel.find({
             job_type: "WFHD",
             dept_id: req.body.dept,
+            att_status: 'onboarded'
           });
           check2.map(async (user) => {
             var work_days;

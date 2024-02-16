@@ -26,7 +26,9 @@ exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
             name: req.body.name,
             vendor_name: req.body.vendor_name,
             request_date: req.body.request_date,
-            payment_date: req.body.payment_date
+            payment_date: req.body.payment_date,
+            tds_deduction: req.body.tds_deduction,
+            gst_hold: req.body.gst_hold
         });
 
         if (req.file) {
@@ -62,15 +64,15 @@ async function checkIfDataExists(request_id) {
 
 exports.addPhpVendorPaymentRequestSet = async (req, res) => {
     try {
-        
+
         const response = await axios.get(
             'https://sales.creativefuel.io/webservices/RestController.php?view=getpaymentrequest'
         )
         const responseData = response.data.body;
 
-        for(const data of responseData){
+        for (const data of responseData) {
             const existingData = await checkIfDataExists(data.request_id)
-            if(!existingData){
+            if (!existingData) {
 
                 const creators = new phpVendorPaymentRequestModel({
                     request_id: data.request_id,
@@ -93,7 +95,7 @@ exports.addPhpVendorPaymentRequestSet = async (req, res) => {
                     request_date: data.request_date,
                     payment_date: data.payment_date
                 });
-        
+
                 if (req.file) {
                     const bucketName = vari.BUCKET_NAME;
                     const bucket = storage.bucket(bucketName);
@@ -106,12 +108,12 @@ exports.addPhpVendorPaymentRequestSet = async (req, res) => {
                     blobStream.end(req.file.buffer);
                 }
                 const phpVendorPaymentRequestData = await creators.save();
-            }else{
-                const updateExistingData = Object.keys(data).some(key=>existingData[key] !== data[key]);
-                if(updateExistingData){
-                    await phpVendorPaymentRequestModel.updateOne({request_id: data.request_id},
+            } else {
+                const updateExistingData = Object.keys(data).some(key => existingData[key] !== data[key]);
+                if (updateExistingData) {
+                    await phpVendorPaymentRequestModel.updateOne({ request_id: data.request_id },
                         {
-                            $set:{
+                            $set: {
                                 request_id: data.request_id,
                                 vendor_id: data.vendor_id,
                                 request_by: data.request_by,
@@ -135,7 +137,7 @@ exports.addPhpVendorPaymentRequestSet = async (req, res) => {
                         }
                     )
                 } else {
-                    return res.status(200).json({msg:'Data already inserted there is not new data available to insert'})
+                    return res.status(200).json({ msg: 'Data already inserted there is not new data available to insert' })
                 }
             }
         }
@@ -201,15 +203,17 @@ exports.getSinglePhpVendorPaymentRequest = async (req, res) => {
 };
 
 exports.updatePhpVendorPaymentRequest = async (req, res) => {
-    try{
-        const updatedData = phpVendorPaymentRequestModel.findOneAndUpdate({request_id: req.body.request_id},{
+    try {
+        const updatedData = phpVendorPaymentRequestModel.findOneAndUpdate({ request_id: req.body.request_id }, {
             status: 1,
             evidence: req.files?.evidence,
             payment_date: req.body.payment_date,
             payment_mode: req.body.payment_mode,
             payment_amount: req.body.payment_amount,
             payment_by: req.body.payment_by,
-            remark_finance: req.body.remark_finance
+            remark_finance: req.body.remark_finance,
+            tds_deduction: req.body.tds_deduction,
+            gst_hold: req.body.gst_hold
         });
         if (req.file && req.file.originalname) {
             const bucketName = vari.BUCKET_NAME;
@@ -217,17 +221,17 @@ exports.updatePhpVendorPaymentRequest = async (req, res) => {
             const blob = bucket.file(req.file.originalname);
             updatedData.evidence = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => { 
+            blobStream.on("finish", () => {
                 // res.status(200).send("Success") 
             });
             blobStream.end(req.file.buffer);
-        }else{
+        } else {
             updatedData.save();
             return response.returnTrue(
                 200, req, res, "phpVendor Payment Request data updated", updatedData
             )
         }
-    }catch (err){
+    } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
 }
