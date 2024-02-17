@@ -10,7 +10,7 @@ var transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "onboarding@creativefuel.io",
-    pass: "jinrajpukgvynmci",
+    pass: "yraixlmukhteijoa",
   },
 });
 
@@ -22,12 +22,12 @@ const hrAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
     {
       $match: {
         // hrAuditFlag: true,
-        hr_audit_status: "Done"  
+        hr_audit_status: "Done"
       }
     },
     {
       $lookup: {
-        from: "simallomodels", 
+        from: "simallomodels",
         localField: "sim_id",
         foreignField: "sim_id",
         as: "simallo"
@@ -35,14 +35,14 @@ const hrAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
     },
     {
       $lookup: {
-        from: "usermodels", 
+        from: "usermodels",
         localField: "simallo.user_id",
         foreignField: "user_id",
         as: "user"
       }
     },
     {
-      $project:{
+      $project: {
         _id: "$id",
         sim_id: "$sim_id",
         assetsName: "$assetsName",
@@ -50,26 +50,26 @@ const hrAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
         user_email_id: "$user.user_email_id",
         asset_name: "$assetName",
         next_hr_audit_date: "$next_hr_audit_date",
-        hr_audit_status: "$hr_audit_status", 
+        hr_audit_status: "$hr_audit_status",
         user_contact_no: "$user_contact_no"
       }
     }
   ]);
 
   for (const simModel of simModels) {
-    if (simModel.next_hr_audit_date == new Date() && simModel.hr_audit_status == "Done") {   
+    if (simModel.next_hr_audit_date == new Date() && simModel.hr_audit_status == "Done") {
       simModel.findOneAndUpdate(
-        { sim_id: simModel.sim_id },  
-        { hr_audit_status: "Pending" }   
+        { sim_id: simModel.sim_id },
+        { hr_audit_status: "Pending" }
       );
       await sendReminderAssetEmail(simModel)
       await sendWhatsappSms(simModel)
-      
-      for(let i=1; i<=30; i++){
-        const nextRemainderDate = new Date(simModel.next_hr_audit_date)
-        nextRemainderDate.setDate(nextRemainderDate.getDate() + i*7)
 
-        schedule.scheduleJob("0 0 */7 * *", async()=>{
+      for (let i = 1; i <= 30; i++) {
+        const nextRemainderDate = new Date(simModel.next_hr_audit_date)
+        nextRemainderDate.setDate(nextRemainderDate.getDate() + i * 7)
+
+        schedule.scheduleJob("0 0 */7 * *", async () => {
           await sendReminderAssetEmail(simModel)
           await sendWhatsappSms(simModel)
         })
@@ -79,15 +79,15 @@ const hrAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
 });
 
 async function sendReminderAssetEmail(simModel) {
-  
+
   /* dynamic email temp code start */
-  let contentList = await emailTempModel.findOne({ email_for_id: '65be3423ad52cfd11fa27e51', send_email:true })
+  let contentList = await emailTempModel.findOne({ email_for_id: '65be3423ad52cfd11fa27e51', send_email: true })
 
   const filledEmailContent = contentList.email_content.replace("{{asset_name}}", simModel.assetsName);
 
   const html = filledEmailContent;
   /* dynamic email temp code end */
-  
+
   let mailOptions = {
     from: "onboarding@creativefuel.io",
     to: "aditi@creativefuel.io",
@@ -139,7 +139,7 @@ const selfAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
     },
     {
       $lookup: {
-        from: "simallomodels", 
+        from: "simallomodels",
         localField: "sim_id",
         foreignField: "sim_id",
         as: "simallo"
@@ -147,14 +147,14 @@ const selfAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
     },
     {
       $lookup: {
-        from: "usermodels", 
+        from: "usermodels",
         localField: "simallo.user_id",
         foreignField: "user_id",
         as: "user"
       }
     },
     {
-      $project:{
+      $project: {
         _id: "$id",
         user_name: "$user.user_name",
         user_email_id: "$user.user_email_id",
@@ -174,12 +174,12 @@ const selfAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
       );
       await sendReminderAssetEmail1(simModel)
       await sendWhatsappSms1(simModel)
-      
-      for(let i=1; i<=30; i++){
-        const nextRemainderDate = new Date(simModel.next_self_audit_date)
-        nextRemainderDate.setDate(nextRemainderDate.getDate() + i*7)
 
-        schedule.scheduleJob("0 0 */7 * *", async()=>{
+      for (let i = 1; i <= 30; i++) {
+        const nextRemainderDate = new Date(simModel.next_self_audit_date)
+        nextRemainderDate.setDate(nextRemainderDate.getDate() + i * 7)
+
+        schedule.scheduleJob("0 0 */7 * *", async () => {
           await sendReminderAssetEmail1(simModel)
           await sendWhatsappSms1(simModel)
         })
@@ -191,8 +191,8 @@ const selfAssetNotification = schedule.scheduleJob("0 0 * * *", async () => {
 async function sendReminderAssetEmail1(simModel) {
 
   /* dynamic email temp code start */
-  let contentList = await emailTempModel.findOne({ email_for_id: '65be3423ad52cfd11fa27e51', send_email:true })
-  
+  let contentList = await emailTempModel.findOne({ email_for_id: '65be3423ad52cfd11fa27e51', send_email: true })
+
   const filledEmailContent = contentList.email_content.replace("{{asset_name}}", simModel.assetsName);
 
   const html = filledEmailContent;

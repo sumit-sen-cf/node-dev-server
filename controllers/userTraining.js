@@ -6,7 +6,8 @@ exports.addUserTraining = async (req, res) => {
         const userTraining = new userTrainingModel({
             user_id: req.body.user_id,
             remark: req.body.remark,
-            created_by: req.body.created_by
+            created_by: req.body.created_by,
+            training_date: req.body.training_date
         });
         const userTrainingData = await userTraining.save();
         return response.returnTrue(
@@ -42,6 +43,7 @@ exports.getUserTrainings = async (req, res) => {
                         user_id: 1,
                         remark: 1,
                         created_by: 1,
+                        training_date: 1,
                         created_by_name: "$user_data.user_name"
                     },
                 },
@@ -82,6 +84,7 @@ exports.getSingleUserTraining = async (req, res) => {
                         user_id: 1,
                         remark: 1,
                         created_by: 1,
+                        training_date: 1,
                         created_by_name: "$user_data.user_name"
                     },
                 },
@@ -111,7 +114,8 @@ exports.editUserTraining = async (req, res) => {
             {
                 user_id: req.body.user_id,
                 remark: req.body.remark,
-                created_by: req.body.created_by
+                created_by: req.body.created_by,
+                training_date: req.body.training_date
             },
             { new: true }
         );

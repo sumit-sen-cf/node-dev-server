@@ -18,6 +18,11 @@ const userTrainingModel = new mongoose.Schema({
     created_at: {
         type: Date,
         default: Date.now,
+    },
+    training_date: {
+        type: String,
+        required: false,
+        default: "",
     }
 });
 

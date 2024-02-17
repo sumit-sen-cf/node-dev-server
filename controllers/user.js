@@ -572,7 +572,7 @@ exports.updateUser = [upload, async (req, res) => {
 
 exports.getWFHUsersByDept = async (req, res) => {
     try {
-        const simc = await userModel.find({ dept_id: req.params.dept_id, job_type: 'WFHD' }).lean();
+        const simc = await userModel.find({ dept_id: req.params.dept_id, job_type: 'WFHD', att_status: "onboarded" }).lean();
         if (!simc) {
             res.status(500).send({ success: false })
         }
@@ -1112,7 +1112,7 @@ exports.getSingleUser = async (req, res) => {
                     MartialStatus: "$MartialStatus",
                     DateOfMarriage: "$DateOfMarriage",
                     onboard_status: "$onboard_status",
-                    tbs_applicable: "$tbs_applicable",
+                    tbs_applicable: "$tds_applicable",
                     tds_per: "$tds_per",
                     image_remark: "$image_remark",
                     image_validate: "$image_validate",
@@ -1802,6 +1802,7 @@ exports.userObjectAuth = async (req, res) => {
 exports.sendUserMail = async (req, res) => {
     try {
         const { email, subject, name, password, login_id, status, text, name2 } = req.body;
+
         const attachment = req.file;
         if (status == "onboarded") {
             /* dynamic email temp code start */
@@ -1820,7 +1821,7 @@ exports.sendUserMail = async (req, res) => {
                 service: "gmail",
                 auth: {
                     user: "onboarding@creativefuel.io",
-                    pass: "jinrajpukgvynmci",
+                    pass: "yraixlmukhteijoa",
                 },
             });
 
@@ -1858,7 +1859,7 @@ exports.sendUserMail = async (req, res) => {
                 service: "gmail",
                 auth: {
                     user: "onboarding@creativefuel.io",
-                    pass: "jinrajpukgvynmci",
+                    pass: "yraixlmukhteijoa",
                 },
             });
 
@@ -2300,7 +2301,7 @@ exports.sendMailAllWfoUser = async (req, res) => {
                 service: "gmail",
                 auth: {
                     user: "onboarding@creativefuel.io",
-                    pass: "jinrajpukgvynmci",
+                    pass: "yraixlmukhteijoa",
                 },
             });
 
@@ -2612,7 +2613,7 @@ exports.forgotPass = async (req, res) => {
             service: "gmail",
             auth: {
                 user: "onboarding@creativefuel.io",
-                pass: "jinrajpukgvynmci",
+                pass: "yraixlmukhteijoa",
             },
         });
 
@@ -3309,6 +3310,11 @@ exports.getAllUsersWithInvoiceNo = async (req, res) => {
     try {
         const findData = await userModel.aggregate([
             {
+                $match: {
+                    job_type: "WFHD"
+                }
+            },
+            {
                 $group: {
                     _id: "$invoice_template_no",
                     count: { $sum: 1 },
@@ -3317,7 +3323,7 @@ exports.getAllUsersWithInvoiceNo = async (req, res) => {
             }
         ]);
         if (!findData) {
-            return response.returnFalse(200, req, res, "login id available", []);
+            return response.returnFalse(200, req, res, "invoice_template_no is not available", []);
         }
         return response.returnTrue(200, req, res, findData)
     } catch (err) {
