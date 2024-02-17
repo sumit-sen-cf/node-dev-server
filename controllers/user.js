@@ -3317,7 +3317,7 @@ exports.getAllUsersWithInvoiceNo = async (req, res) => {
             }
         ]);
         if (!findData) {
-            return response.returnFalse(200, req, res, "login id available", []);
+            return response.returnFalse(200, req, res, "invoice_template_no is not available", []);
         }
         return response.returnTrue(200, req, res, findData)
     } catch (err) {
