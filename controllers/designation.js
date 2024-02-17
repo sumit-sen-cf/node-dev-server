@@ -131,7 +131,7 @@ exports.getAllDesignationByDeptID = async (req, res) => {
       dept_id: parseInt(req.params.dept_id),
     });
     if (!desiData) {
-      return response.returnFalse(200, req, res, "No Reord Found...", {});
+      return response.returnFalse(200, req, res, "No Reord Found...", []);
     }
     return response.returnTrue(
       200,

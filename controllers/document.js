@@ -2,11 +2,11 @@ const documentModel = require("../models/documentModel");
 const documentHisModel = require("../models/documentHisModel");
 const response = require("../common/response.js");
 const vari = require("../variables.js");
-const {storage} = require('../common/uploadFile.js');
+const { storage } = require('../common/uploadFile.js');
 
 exports.addDocument = async (req, res) => {
   try {
-    const { doc_type, description, priority, period,isRequired,doc_number } = req.body;
+    const { doc_type, description, priority, period, isRequired, doc_number } = req.body;
 
     const doc = new documentModel({
       doc_type,
@@ -14,7 +14,8 @@ exports.addDocument = async (req, res) => {
       priority,
       period,
       isRequired,
-      doc_number
+      doc_number,
+      job_type: req.body?.job_type?.split(',').map(String)
     });
 
     const savedDoc = await doc.save();
@@ -75,12 +76,12 @@ exports.getDoc = async (req, res) => {
 
 exports.editDoc = async (req, res) => {
   try {
-    const { doc_type, description, priority, period, isRequired, doc_number } = req.body;
+    const { doc_type, description, priority, period, isRequired, doc_number, job_type } = req.body;
 
     const editDocObj = await documentModel.findByIdAndUpdate(
       req.body._id,
       {
-        $set: { doc_type, description, priority, period, isRequired, doc_number },
+        $set: { doc_type, description, priority, period, isRequired, doc_number, job_type },
       },
       { new: true }
     );
@@ -139,7 +140,7 @@ exports.addHistoryDoc = async (req, res) => {
   try {
     const files = req.files.doc_file;
     const savedDocuments = [];
-    
+
     for (const file of files) {
       const simc = new documentHisModel({
         user_id: req.body.user_id,
@@ -149,17 +150,17 @@ exports.addHistoryDoc = async (req, res) => {
         updated_by: req.body.updated_by
       });
 
-    if(req.file){
+      if (req.file) {
         const bucketName = vari.BUCKET_NAME;
         const bucket = storage.bucket(bucketName);
         const blob = bucket.file(file.originalname);
         simc.doc_file = blob.name;
         const blobStream = blob.createWriteStream();
-        blobStream.on("finish", () => { 
+        blobStream.on("finish", () => {
           // res.status(200).send("Success") 
         });
         blobStream.end(req.file.buffer);
-    }
+      }
 
       const simv = await simc.save();
       savedDocuments.push(simv);
@@ -181,13 +182,13 @@ exports.editHistoryDoc = async (req, res) => {
       updated_by: req.body.updated_by
     }, { new: true })
 
-    if(req.file){
+    if (req.file) {
       const bucketName = vari.BUCKET_NAME;
       const bucket = storage.bucket(bucketName);
       const blob = bucket.file(req.file.originalname);
       editsim.doc_file = blob.name;
       const blobStream = blob.createWriteStream();
-      blobStream.on("finish", () => { 
+      blobStream.on("finish", () => {
         editsim.save();
         // res.status(200).send("Success") 
       });

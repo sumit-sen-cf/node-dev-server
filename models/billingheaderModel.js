@@ -8,7 +8,7 @@ const billingheaderModel = new mongoose.Schema({
   },
   billing_header_name: {
     type: String,
-    required: true
+    required: false
   },
   dept_id: {
     type: Number,

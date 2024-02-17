@@ -221,10 +221,16 @@ module.exports = {
       }
     }
 
-    const extractMonth = month.slice(0, 3);
-    const monthYear = `${extractMonth}${year}`;
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthIndex = monthNames.findIndex(name => name.toLowerCase() === month.toLowerCase());
+    const monthNumber = ("0" + (monthIndex + 1)).slice(-2);
 
-    return `${monthYear}/${userId}/${nextIncrement}`;
+    const monthYear = `${monthNumber}${year}`;
+
+    // const extractMonth = month.slice(0, 3);
+    // const monthYear = `${extractMonth}${year}`;
+
+    return `${userId}/${monthYear}/${nextIncrement}`;
   },
 
 

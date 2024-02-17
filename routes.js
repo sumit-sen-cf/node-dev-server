@@ -119,6 +119,7 @@ const assetHistory = require("./controllers/assetHistory.js");
 const dataOperation = require("./controllers/dataOperation.js");
 const attendanceDispute = require("./controllers/attendanceDispute.js");
 const userUpdateHistory = require("./controllers/userUpdateHistory.js");
+const userTraining = require("./controllers/userTraining.js");
 
 /* Task Mangement Controller Import */
 const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -820,6 +821,8 @@ router.post("/get_user_graph_data", user.getUserGraphData)
 router.get("/get_users_with_status", user.getUsersWithStatus);
 router.get("/get_all_sales_users", user.getAllSalesUsers);
 router.get("/all_objs_in_user_auth/:user_id", user.assignAllObjInUserAuth);
+router.post("/check_login_exist", user.checkLoginExist);
+router.get("/get_all_userS_with_invoiceno", user.getAllUsersWithInvoiceNo);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 
@@ -1507,4 +1510,13 @@ router.put("/editdataoperationname", dataOperation.editOperationDataName);
 //user update history routes 
 router.post('/update_user_history', userUpdateHistory.addUserUpdateHistory);
 router.get("/get_single_user_update_history/:user_id", userUpdateHistory.getSingleUserUpdateHistory)
+
+
+// user Training Routes
+router.post("/add_user_training", userTraining.addUserTraining);
+router.get("/get_user_trainings", userTraining.getUserTrainings);
+router.get("/get_single_user_training/:user_id", userTraining.getSingleUserTraining);
+router.put("/update_user_training", userTraining.editUserTraining);
+router.delete("/delete_user_training/:_id", userTraining.deleteUserTraining);
+
 module.exports = router;
