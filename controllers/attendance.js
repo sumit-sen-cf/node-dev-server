@@ -122,11 +122,6 @@ exports.addAttendance = async (req, res) => {
         );
         filteredUserData?.length > 0 &&
           filteredUserData.map(async (user) => {
-            // const currentDate = new Date();
-            // const currentMonth = String(currentDate.getUTCMonth() + 1).padStart(
-            //   2,
-            //   "0"
-            // );
             var work_days;
             const joining = user.joining_date;
             const convertDate = new Date(joining);
@@ -145,10 +140,13 @@ exports.addAttendance = async (req, res) => {
               work_days = 30;
             }
 
-            console.log("joingDate", mergeJoining);
-            console.log("bodyMonth", mergeJoining1);
+            const bodymonth = `${year}` + `${monthNumber}`;
 
-            if (mergeJoining > mergeJoining1) {
+            const joiningMonthNumber = convertDate.getUTCMonth() + 1;
+            const joiningYearNumber = convertDate.getUTCFullYear();
+            const mergeMonthYear = `${joiningYearNumber}` + `${joiningMonthNumber}`;
+
+            if (mergeMonthYear >= bodymonth) {
               const userExistsInAttendance = await doesUserExistInAttendance(
                 user.user_id,
                 req.body.month,
