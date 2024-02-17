@@ -3309,6 +3309,10 @@ exports.getAllUsersWithInvoiceNo = async (req, res) => {
     try {
         const findData = await userModel.aggregate([
             {
+                $match: {
+                    job_type: "WFHD"
+                }
+            }, {
                 $group: {
                     _id: "$invoice_template_no",
                     count: { $sum: 1 },
