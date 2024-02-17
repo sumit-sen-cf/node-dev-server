@@ -544,7 +544,7 @@ exports.addOrderReq = async (req, res) => {
       service: "gmail",
       auth: {
         user: "onboarding@creativefuel.io",
-        pass: "jinrajpukgvynmci",
+        pass: "yraixlmukhteijoa",
       },
     });
 

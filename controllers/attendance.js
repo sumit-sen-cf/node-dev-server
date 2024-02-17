@@ -37,251 +37,6 @@ function monthNameToNumber(monthName) {
   return monthIndex !== -1 ? monthIndex + 1 : null;
 }
 
-// exports.addAttendance = async (req, res) => {
-//   try {
-//     const {
-//       dept,
-//       user_id,
-//       noOfabsent,
-//       month,
-//       year,
-//       bonus,
-//       remark,
-//       created_by,
-//       salary_deduction,
-//       attendence_status,
-//       salary_status,
-//     } = req.body;
-
-//     const Dept = dept || "";
-//     const User_id = user_id || "";
-//     const No_of_absent = noOfabsent || 0;
-//     const Month = month || "";
-//     const Year = year || "";
-//     const Bonus = bonus || 0;
-//     const Remark = remark || "";
-
-//     const created_By = created_by ? parseInt(created_by) : 0;
-//     const creation_date = new Date();
-//     const check1 = await attendanceModel.find({
-//       user_id: req.body.user_id,
-//       month: req.body.month,
-//       year: req.body.year,
-//     });
-//     if (check1.length == 0) {
-//       const check2 = await userModel.find({
-//         job_type: "WFHD",
-//         dept_id: req.body.dept,
-//       });
-
-
-//       // for (const user of check2) {
-//       check2.map(async (user) => {
-//         var work_days;
-//         const joining = user.joining_date;
-//         const convertDate = new Date(joining);
-//         const extractDate = convertDate.getDate();
-//         const joiningMonth = String(convertDate.getUTCMonth() + 1).padStart(
-//           2,
-//           "0"
-//         );
-//         const joiningYear = String(convertDate.getUTCFullYear());
-//         const mergeJoining = parseInt(joiningMonth + joiningYear);
-
-//         const monthNumber = monthNameToNumber(month);
-
-//         const mergeJoining1 = `${monthNumber}` + `${year}`;
-
-//         if (mergeJoining == mergeJoining1) {
-//           work_days = 31 - extractDate;
-//         } else {
-//           work_days = 30;
-//         }
-//         const userExistsInAttendance = await doesUserExistInAttendance(
-//           user.user_id,
-//           req.body.month,
-//           req.body.year
-//         );
-//         if (!userExistsInAttendance) {
-//           const presentDays = work_days - 0;
-//           const perdaysal = user.salary / 30;
-//           const totalSalary = perdaysal * presentDays;
-//           const netSalary = totalSalary;
-//           const tdsDeduction = (netSalary * user.tds_per) / 100;
-//           const ToPay = netSalary - tdsDeduction;
-//           const salary = user.salary;
-//           let invoiceNo = await createNextInvoiceNumber(user.user_id);
-//           const creators = new attendanceModel({
-//             dept: user.dept_id,
-//             user_id: user.user_id,
-//             invoiceNo: invoiceNo,
-//             user_name: user.user_name,
-//             noOfabsent: 0,
-//             month: req.body.month,
-//             year: req.body.year,
-//             bonus: 0,
-//             total_salary: user.salary && user.salary.toFixed(2),
-//             tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-//             net_salary: netSalary && netSalary.toFixed(2),
-//             toPay: ToPay && ToPay.toFixed(2),
-//             remark: "",
-//             Created_by: req.body.user_id,
-//             salary,
-//           });
-//           // const creators = new attendanceModel({
-//           //     dept: req.body.dept,
-//           //     user_id: req.body.user_id,
-//           //     user_name: req.body.user_name,
-//           //     noOfabsent: 0,
-//           //     month: req.body.month,
-//           //     year: req.body.year,
-//           //     bonus: 0,
-//           //     total_salary: user.salary,
-//           //     tds_deduction: tdsDeduction,
-//           //     net_salary: netSalary,
-//           //     toPay: ToPay,
-//           //     remark: '',
-//           //     created_by: req.body.user_id
-//           // });
-//           const instav = await creators.save();
-//         }
-//         return res.send({ status: 200 });
-//       })
-//       //  }
-//     } else if (
-//       req.body.user_id == check1[0].user_id &&
-//       req.body.month == check1[0].month &&
-//       req.body.year == check1[0].year
-//     ) {
-//       const results4 = await userModel.find({
-//         job_type: "WFHD",
-//         user_id: parseInt(req.body.user_id),
-//       });
-
-//       const perdaysal = results4[0].salary / 30;
-
-//       const totalSalary = perdaysal * (30 - noOfabsent);
-//       const netSalary = bonus
-//         ? totalSalary + bonus - salary_deduction
-//         : totalSalary;
-//       const tdsDeduction = (netSalary * results4[0].tds_per) / 100;
-
-//       const ToPay = netSalary - tdsDeduction;
-//       const salary = results4[0].salary;
-//       const editsim = await attendanceModel.findOneAndUpdate(
-//         { attendence_id: parseInt(check1[0].attendence_id) },
-//         {
-//           dept: req.body.dept,
-//           user_id: req.body.user_id,
-//           // user_name: req.body.user_name,
-//           noOfabsent: No_of_absent,
-//           month: req.body.month,
-//           year: req.body.year,
-//           bonus: Bonus,
-//           total_salary: totalSalary && totalSalary.toFixed(2),
-//           tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-//           net_salary: netSalary && netSalary.toFixed(2),
-//           toPay: ToPay && ToPay.toFixed(2),
-//           remark: req.body.remark,
-//           salary,
-//           salary_deduction,
-//           attendence_status,
-//           salary_status,
-//         },
-//         { new: true }
-//       );
-//       return res.send({ status: 200 });
-//     } else {
-//       const check4 = await userModel.find({
-//         job_type: "WFHD",
-//         dept_id: parseInt(req.body.dept),
-//       });
-
-//       for (const user of check4) {
-//         var work_days;
-//         const joining = user.joining_date;
-//         const convertDate = new Date(joining);
-//         const extractDate = convertDate.getDate();
-//         const joiningMonth = String(convertDate.getUTCMonth() + 1).padStart(
-//           2,
-//           "0"
-//         );
-//         const joiningYear = String(convertDate.getUTCFullYear());
-//         const mergeJoining = parseInt(joiningMonth + joiningYear);
-
-//         const monthNumber = monthNameToNumber(month);
-
-//         const mergeJoining1 = `${monthNumber}` + `${year}`;
-
-//         if (mergeJoining == mergeJoining1) {
-//           work_days = 31 - extractDate;
-//         } else {
-//           work_days = 30;
-//         }
-
-//         // const userExistsInAttendance = await doesUserExistInAttendance(
-//         //     user.user_id,
-//         //     req.body.month,
-//         //     req.body.year
-//         // );
-//         // if (!userExistsInAttendance) {
-//         const presentDays = work_days - 0;
-//         const perdaysal = user.salary / 30;
-//         const totalSalary = perdaysal * presentDays;
-//         const netSalary = totalSalary;
-//         const tdsDeduction = (netSalary * user.tds_per) / 100;
-//         const ToPay = netSalary - tdsDeduction;
-//         let invoiceNo = await createNextInvoiceNumber(user.user_id);
-//         const creators = new attendanceModel({
-//           dept: user.dept_id,
-//           user_id: user.user_id,
-//           invoiceNo,
-//           user_name: user.user_name,
-//           noOfabsent: 0,
-//           month: req.body.month,
-//           year: req.body.year,
-//           bonus: 0,
-//           total_salary: totalSalary && totalSalary.toFixed(2),
-//           tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-//           net_salary: netSalary && netSalary.toFixed(2),
-//           toPay: ToPay && ToPay.toFixed(2),
-//           remark: "",
-//           created_by: req.body.user_id,
-//         });
-//         // const creators = new attendanceModel({
-//         //     dept: req.body.dept,
-//         //     user_id: req.body.user_id,
-//         //     user_name: req.body.user_name,
-//         //     noOfabsent: 0,
-//         //     month: req.body.month,
-//         //     year: req.body.year,
-//         //     bonus: 0,
-//         //     total_salary: user.salary,
-//         //     tds_deduction: tdsDeduction,
-//         //     net_salary: netSalary,
-//         //     toPay: ToPay,
-//         //     remark: '',
-//         //     created_by: req.body.user_id
-//         // });
-//         const instav = await creators.save();
-//         // }
-//         if (instav) {
-//           return res.send({ status: 200 });
-//         } else {
-//           return res.send("Something went wrong");
-//         }
-//       }
-//     }
-
-//     // res.send({ status: 200 });
-//   } catch (error) {
-//     console.log(error);
-//     res
-//       .status(500)
-//       .send({ error: error.message, sms: "error while adding data" });
-//   }
-// };
-
 let attendanceIdCounter = 1;
 const getNextAttendanceId = () => {
   return new Promise((resolve) => {
@@ -326,6 +81,7 @@ exports.addAttendance = async (req, res) => {
           _id: "$user_id",
           status: { $first: "$separation.status" },
           resignation_date: { $first: "$separation.resignation_date" },
+          joining_date: { $first: "$joining_date" }
         },
       },
       {
@@ -334,6 +90,7 @@ exports.addAttendance = async (req, res) => {
           user_id: "$_id",
           status: 1,
           resignation_date: 1,
+          joining_date: 1
         },
       },
     ]);
@@ -365,6 +122,11 @@ exports.addAttendance = async (req, res) => {
         );
         filteredUserData?.length > 0 &&
           filteredUserData.map(async (user) => {
+            // const currentDate = new Date();
+            // const currentMonth = String(currentDate.getUTCMonth() + 1).padStart(
+            //   2,
+            //   "0"
+            // );
             var work_days;
             const joining = user.joining_date;
             const convertDate = new Date(joining);
@@ -382,50 +144,100 @@ exports.addAttendance = async (req, res) => {
             } else {
               work_days = 30;
             }
-            const userExistsInAttendance = await doesUserExistInAttendance(
-              user.user_id,
-              req.body.month,
-              req.body.year
-            );
-            if (!userExistsInAttendance) {
-              // console.log("lopp inner")
-              const presentDays = work_days - 0;
-              const perdaysal = user.salary / 30;
-              const totalSalary = perdaysal * presentDays;
-              const Bonus = bonus || 0;
-              const netSalary = totalSalary + Bonus;
-              const tdsDeduction = (netSalary * user.tds_per) / 100;
-              const ToPay = netSalary - tdsDeduction;
-              const salary = user.salary;
-              let invoiceNo = await createNextInvoiceNumber(user.user_id, month, year);
 
-              const attendanceId = await getNextAttendanceId();
-              const creators = new attendanceModel({
-                attendence_id: attendanceId,
-                dept: user.dept_id,
-                user_id: user.user_id,
-                invoiceNo: invoiceNo,
-                user_name: user.user_name,
-                noOfabsent: 0,
-                present_days: presentDays,
-                month_salary: totalSalary && totalSalary.toFixed(2),
-                month: req.body.month,
-                year: req.body.year,
-                bonus: Bonus,
-                total_salary: user.salary && user.salary.toFixed(2),
-                tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-                net_salary: netSalary && netSalary.toFixed(2),
-                toPay: ToPay && ToPay.toFixed(2),
-                remark: "",
-                Created_by: req.body.user_id,
-                salary,
-                attendence_status_flow: "Payout Generated",
-                disputed_reason: req.body.disputed_reason,
-                disputed_date: req.body.disputed_date
-              });
-              const instav = await creators.save();
+            console.log("joingDate", mergeJoining);
+            console.log("bodyMonth", mergeJoining1);
+
+            if (mergeJoining > mergeJoining1) {
+              const userExistsInAttendance = await doesUserExistInAttendance(
+                user.user_id,
+                req.body.month,
+                req.body.year
+              );
+              if (!userExistsInAttendance) {
+                // console.log("lopp inner")
+                const presentDays = work_days - 0;
+                const perdaysal = user.salary / 30;
+                const totalSalary = perdaysal * presentDays;
+                const Bonus = bonus || 0;
+                const netSalary = totalSalary + Bonus;
+                const tdsDeduction = (netSalary * user.tds_per) / 100;
+                const ToPay = netSalary - tdsDeduction;
+                const salary = user.salary;
+                let invoiceNo = await createNextInvoiceNumber(user.user_id, month, year);
+
+                const attendanceId = await getNextAttendanceId();
+                const creators = new attendanceModel({
+                  attendence_id: attendanceId,
+                  dept: user.dept_id,
+                  user_id: user.user_id,
+                  invoiceNo: invoiceNo,
+                  user_name: user.user_name,
+                  noOfabsent: 0,
+                  present_days: presentDays,
+                  month_salary: totalSalary && totalSalary.toFixed(2),
+                  month: req.body.month,
+                  year: req.body.year,
+                  bonus: Bonus,
+                  total_salary: user.salary && user.salary.toFixed(2),
+                  tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
+                  net_salary: netSalary && netSalary.toFixed(2),
+                  toPay: ToPay && ToPay.toFixed(2),
+                  remark: "",
+                  Created_by: req.body.user_id,
+                  salary,
+                  attendence_status_flow: "Payout Generated",
+                  disputed_reason: req.body.disputed_reason,
+                  disputed_date: req.body.disputed_date
+                });
+                const instav = await creators.save();
+              }
+              return res.send({ status: 200 });
             }
-            return res.send({ status: 200 });
+            // const userExistsInAttendance = await doesUserExistInAttendance(
+            //   user.user_id,
+            //   req.body.month,
+            //   req.body.year
+            // );
+            // if (!userExistsInAttendance) {
+            //   // console.log("lopp inner")
+            //   const presentDays = work_days - 0;
+            //   const perdaysal = user.salary / 30;
+            //   const totalSalary = perdaysal * presentDays;
+            //   const Bonus = bonus || 0;
+            //   const netSalary = totalSalary + Bonus;
+            //   const tdsDeduction = (netSalary * user.tds_per) / 100;
+            //   const ToPay = netSalary - tdsDeduction;
+            //   const salary = user.salary;
+            //   let invoiceNo = await createNextInvoiceNumber(user.user_id, month, year);
+
+            //   const attendanceId = await getNextAttendanceId();
+            //   const creators = new attendanceModel({
+            //     attendence_id: attendanceId,
+            //     dept: user.dept_id,
+            //     user_id: user.user_id,
+            //     invoiceNo: invoiceNo,
+            //     user_name: user.user_name,
+            //     noOfabsent: 0,
+            //     present_days: presentDays,
+            //     month_salary: totalSalary && totalSalary.toFixed(2),
+            //     month: req.body.month,
+            //     year: req.body.year,
+            //     bonus: Bonus,
+            //     total_salary: user.salary && user.salary.toFixed(2),
+            //     tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
+            //     net_salary: netSalary && netSalary.toFixed(2),
+            //     toPay: ToPay && ToPay.toFixed(2),
+            //     remark: "",
+            //     Created_by: req.body.user_id,
+            //     salary,
+            //     attendence_status_flow: "Payout Generated",
+            //     disputed_reason: req.body.disputed_reason,
+            //     disputed_date: req.body.disputed_date
+            //   });
+            //   const instav = await creators.save();
+            // }
+            // return res.send({ status: 200 });
           });
       } else {
         const Dept = dept || "";
@@ -575,309 +387,7 @@ exports.addAttendance = async (req, res) => {
   }
 };
 
-// 02 jan 2024
-// exports.addAttendance = async (req, res) => {
-//   try {
-//     const {
-//       dept,
-//       user_id,
-//       noOfabsent,
-//       month,
-//       year,
-//       bonus,
-//       remark,
-//       created_by,
-//       salary_deduction,
-//       attendence_status,
-//       attendence_status_flow,
-//       salary_status,
-//     } = req.body;
-//     const attendanceData = await userModel.aggregate([
-//       {
-//         $lookup: {
-//           from: "separationmodels",
-//           localField: "user_id",
-//           foreignField: "user_id",
-//           as: "separation",
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$separation",
-//           // preserveNullAndEmptyArrays: true,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: "$user_id",
-//           status: { $first: "$separation.status" },
-//           resignation_date: { $first: "$separation.resignation_date" },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           user_id: "$_id",
-//           status: 1,
-//           resignation_date: 1,
-//         },
-//       },
-//     ]);
-//     console.log("attendanceData",attendanceData)
-//     if (attendanceData.length !== 0) {
 
-//       for (const attendanceRecord of attendanceData) {
-//         console.log("runcode")
-//         if (attendanceRecord.status === "Resigned" || attendanceRecord.status === "Suspended") {
-//           const Dept = dept || "";
-//           const User_id = user_id || "";
-//           const No_of_absent = noOfabsent || 0;
-//           const Month = month || "";
-//           const Year = year || "";
-//           const Bonus = bonus || 0;
-//           const Remark = remark || "";
-//           const created_By = created_by ? parseInt(created_by) : 0;
-//           const creation_date = new Date();
-//           const check1 = await attendanceModel.find({
-//             user_id: req.body.user_id,
-//             month: req.body.month,
-//             year: req.body.year,
-//           });
-//           if (check1.length == 0) {
-//             const check2 = await userModel.find({
-//               job_type: "WFHD",
-//               dept_id: req.body.dept,
-//             });
-//             console.log("check2",check2)
-//             console.log("check2 length",check2.length)
-//             const finalUsers = check2.filter(user => user.user_id !== attendanceRecord.user_id);
-//             console.log("finalUsers",finalUsers)
-//             console.log("finalUsers length",finalUsers.length)
-//             if (finalUsers.length == 0) {
-//               return  res.send({ status: 200, sms: 'no users for adding attendance' })
-//             }
-//             finalUsers.map(async (user) => {
-//               var work_days;
-//               const resignation_date = attendanceRecord.resignation_date;
-//               const convertResignationDate = new Date(resignation_date);
-//               const extractResignationDate = convertResignationDate.getDate();
-//               const joining = user.joining_date;
-//               const convertDate = new Date(joining);
-//               const extractDate = convertDate.getDate();
-//               const joiningMonth = String(convertDate.getUTCMonth() + 1).padStart(
-//                 2,
-//                 "0"
-//               );
-//               const joiningYear = String(convertDate.getUTCFullYear());
-//               const mergeJoining = parseInt(joiningMonth + joiningYear);
-//               const monthNumber = monthNameToNumber(month);
-//               const mergeJoining1 = `${monthNumber}` + `${year}`;
-//               if (mergeJoining == mergeJoining1) {
-//                 work_days = attendanceRecord.resignation_date ? extractResignationDate - extractDate : 31 - extractDate;
-//               } else {
-//                 work_days = 30;
-//               }
-//               const userExistsInAttendance = await doesUserExistInAttendance(
-//                 user.user_id,
-//                 req.body.month,
-//                 req.body.year
-//               );
-//               if (!userExistsInAttendance) {
-//                 const presentDays = work_days - 0;
-//                 const perdaysal = user.salary / 30;
-//                 const totalSalary = perdaysal * presentDays;
-//                 const netSalary = totalSalary;
-//                 const tdsDeduction = (netSalary * user.tds_per) / 100;
-//                 const ToPay = netSalary - tdsDeduction;
-//                 const salary = user.salary;
-//                 let invoiceNo = await createNextInvoiceNumber(user.user_id);
-//                 console.log("here 5")
-//                 const creators = new attendanceModel({
-//                   dept: user.dept_id,
-//                   user_id: user.user_id,
-//                   invoiceNo: invoiceNo,
-//                   user_name: user.user_name,
-//                   noOfabsent: 0,
-//                   month: req.body.month,
-//                   year: req.body.year,
-//                   bonus: 0,
-//                   total_salary: user.salary && user.salary.toFixed(2),
-//                   tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-//                   net_salary: netSalary && netSalary.toFixed(2),
-//                   toPay: ToPay && ToPay.toFixed(2),
-//                   remark: "",
-//                   Created_by: req.body.user_id,
-//                   salary,
-//                   attendence_status_flow: 'salary generated'
-//                 });
-//                 const instav = await creators.save();
-//               }
-//               return res.send({ status: 200 });
-//             })
-//           } else if (
-//             req.body.user_id == check1[0].user_id &&
-//             req.body.month == check1[0].month &&
-//             req.body.year == check1[0].year
-//           ) {
-//             const results4 = await userModel.find({
-//               job_type: "WFHD",
-//               user_id: parseInt(req.body.user_id),
-//             });
-//             const perdaysal = results4[0].salary / 30;
-//             const totalSalary = perdaysal * (30 - noOfabsent);
-//             const netSalary = bonus
-//               ? totalSalary + bonus - salary_deduction
-//               : totalSalary;
-//             const tdsDeduction = (netSalary * results4[0].tds_per) / 100;
-//             const ToPay = netSalary - tdsDeduction;
-//             const salary = results4[0].salary;
-//             const editsim = await attendanceModel.findOneAndUpdate(
-//               { attendence_id: parseInt(check1[0].attendence_id) },
-//               {
-//                 dept: req.body.dept,
-//                 user_id: req.body.user_id,
-//                 noOfabsent: No_of_absent,
-//                 month: req.body.month,
-//                 year: req.body.year,
-//                 bonus: Bonus,
-//                 total_salary: totalSalary && totalSalary.toFixed(2),
-//                 tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-//                 net_salary: netSalary && netSalary.toFixed(2),
-//                 toPay: ToPay && ToPay.toFixed(2),
-//                 remark: req.body.remark,
-//                 salary,
-//                 salary_deduction,
-//                 attendence_status,
-//                 salary_status,
-//               },
-//               { new: true }
-//             );
-//             return res.send({ status: 200 });
-//           }
-//         }
-//       }
-//     }
-//     else {
-//       const Dept = dept || "";
-//       const User_id = user_id || "";
-//       const No_of_absent = noOfabsent || 0;
-//       const Month = month || "";
-//       const Year = year || "";
-//       const Bonus = bonus || 0;
-//       const Remark = remark || "";
-//       const created_By = created_by ? parseInt(created_by) : 0;
-//       const creation_date = new Date();
-//       const check1 = await attendanceModel.find({
-//         user_id: req.body.user_id,
-//         month: req.body.month,
-//         year: req.body.year,
-//       });
-//       if (check1.length == 0) {
-//         const check2 = await userModel.find({
-//           job_type: "WFHD",
-//           dept_id: req.body.dept,
-//         });
-//         check2.map(async (user) => {
-//           var work_days;
-//           const joining = user.joining_date;
-//           const convertDate = new Date(joining);
-//           const extractDate = convertDate.getDate();
-//           const joiningMonth = String(convertDate.getUTCMonth() + 1).padStart(
-//             2,
-//             "0"
-//           );
-//           const joiningYear = String(convertDate.getUTCFullYear());
-//           const mergeJoining = parseInt(joiningMonth + joiningYear);
-//           const monthNumber = monthNameToNumber(month);
-//           const mergeJoining1 = `${monthNumber}` + `${year}`;
-//           if (mergeJoining == mergeJoining1) {
-//             work_days = 31 - extractDate;
-//           } else {
-//             work_days = 30;
-//           }
-//           const userExistsInAttendance = await doesUserExistInAttendance(
-//             user.user_id,
-//             req.body.month,
-//             req.body.year
-//           );
-//           if (!userExistsInAttendance) {
-//             const presentDays = work_days - 0;
-//             const perdaysal = user.salary / 30;
-//             const totalSalary = perdaysal * presentDays;
-//             const netSalary = totalSalary;
-//             const tdsDeduction = (netSalary * user.tds_per) / 100;
-//             const ToPay = netSalary - tdsDeduction;
-//             const salary = user.salary;
-//             let invoiceNo = await createNextInvoiceNumber(user.user_id);
-//             console.log("here 6")
-//             const creators = new attendanceModel({
-//               dept: user.dept_id,
-//               user_id: user.user_id,
-//               invoiceNo: invoiceNo,
-//               user_name: user.user_name,
-//               noOfabsent: 0,
-//               month: req.body.month,
-//               year: req.body.year,
-//               bonus: 0,
-//               total_salary: user.salary && user.salary.toFixed(2),
-//               tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-//               net_salary: netSalary && netSalary.toFixed(2),
-//               toPay: ToPay && ToPay.toFixed(2),
-//               remark: "",
-//               Created_by: req.body.user_id,
-//               salary,
-//               attendence_status_flow: 'salary generated'
-//             });
-//             const instav = await creators.save();
-//           }
-//           return  res.send({ status: 200 });
-//         })
-//       } else if (
-//         req.body.user_id == check1[0].user_id &&
-//         req.body.month == check1[0].month &&
-//         req.body.year == check1[0].year
-//       ) {
-//         const results4 = await userModel.find({
-//           job_type: "WFHD",
-//           user_id: parseInt(req.body.user_id),
-//         });
-//         const perdaysal = results4[0].salary / 30;
-//         const totalSalary = perdaysal * (30 - noOfabsent);
-//         const netSalary = bonus
-//           ? totalSalary + bonus - salary_deduction
-//           : totalSalary;
-//         const tdsDeduction = (netSalary * results4[0].tds_per) / 100;
-//         const ToPay = netSalary - tdsDeduction;
-//         const salary = results4[0].salary;
-//         const editsim = await attendanceModel.findOneAndUpdate(
-//           { attendence_id: parseInt(check1[0].attendence_id) },
-//           {
-//             dept: req.body.dept,
-//             user_id: req.body.user_id,
-//             noOfabsent: No_of_absent,
-//             month: req.body.month,
-//             year: req.body.year,
-//             bonus: Bonus,
-//             total_salary: totalSalary && totalSalary.toFixed(2),
-//             tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-//             net_salary: netSalary && netSalary.toFixed(2),
-//             toPay: ToPay && ToPay.toFixed(2),
-//             remark: req.body.remark,
-//             salary,
-//             salary_deduction,
-//             attendence_status,
-//             salary_status,
-//           },
-//           { new: true }
-//         );
-//         return  res.send({ status: 200 });
-//       }
-//     }
-//   } catch (error) {
-//     console.log(error);
-//    return res.status(500).send({ error: error.message, sms: "error while adding data" });
-//   }
-// };
 
 exports.getSalaryByDeptIdMonthYear = async (req, res) => {
   try {
