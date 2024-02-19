@@ -4,11 +4,11 @@ var transport = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "onboarding@creativefuel.io",
-    pass: "jinrajpukgvynmci",
-},
+    pass: "yraixlmukhteijoa",
+  },
 });
 
-const mail = (subject, html,email) => {
+const mail = (subject, html, email) => {
   let mailOptions = {
     from: "onboarding@creativefuel.io",
     to: email,

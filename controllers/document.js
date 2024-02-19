@@ -15,7 +15,7 @@ exports.addDocument = async (req, res) => {
       period,
       isRequired,
       doc_number,
-      job_type: req.body?.job_type?.split(',').map(String)
+      job_type: req.body.job_type
     });
 
     const savedDoc = await doc.save();
