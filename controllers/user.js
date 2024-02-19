@@ -121,7 +121,7 @@ exports.addUser = [upload, async (req, res) => {
             releaving_date: req.body.releaving_date,
             level: req.body.level,
             room_id: req.body.room_id,
-            salary: req.body.salary,
+            salary: req.body.salary >= 3000 ? req.body.salary * 0.01 : req.body.salary,
             year_salary: req.body.year_salary,
             att_status: req.body.att_status,
             SpokenLanguages: req.body.SpokenLanguages,
@@ -3326,6 +3326,87 @@ exports.getAllUsersWithInvoiceNo = async (req, res) => {
             return response.returnFalse(200, req, res, "invoice_template_no is not available", []);
         }
         return response.returnTrue(200, req, res, findData)
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
+
+exports.getUsers = async (req, res) => {
+    try {
+        const { dept_id, month, year } = req.body;
+        const findData = await userModel.find({ dept_id: 12, job_type: "WFHD", att_status: "onboarded" }).select({ user_id: 1, user_name: 1, joining_date: 1, salary: 1 });
+        if (!findData) {
+            return response.returnFalse(200, req, res, "login id available", []);
+        }
+        return response.returnTrue(200, req, res, 'login id not available', findData)
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
+
+
+function monthNameToNumber(monthName) {
+    const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ];
+
+    const monthIndex = months.findIndex(
+        (m) => m.toLowerCase() === monthName.toLowerCase()
+    );
+
+    // Adding 1 because months are zero-indexed in JavaScript (0-11)
+    return monthIndex !== -1 ? monthIndex + 1 : null;
+}
+
+exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
+    try {
+        let month = req.body.month;
+        let year = req.body.year;
+        let deptId = req.body.dept_id;
+        const monthNumber = monthNameToNumber(month);
+        const joiningMonth = String(monthNumber).padStart(
+            2,
+            "0"
+        );
+        const bodyMonthYear = `${year}` + `${joiningMonth}`;
+        const findData = await userModel.aggregate([
+            {
+                $match: {
+                    job_type: "WFHD",
+                    dept_id: deptId,
+                    att_status: "onboarded",
+                    $expr: {
+                        $lte: [
+                            {
+                                $dateToString: {
+                                    date: "$joining_date",
+                                    format: "%Y%m"
+                                }
+                            },
+                            bodyMonthYear
+                        ]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: "$dept_id",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+        return response.returnTrue(200, req, res, findData);
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }

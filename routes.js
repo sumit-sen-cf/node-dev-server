@@ -823,6 +823,8 @@ router.get("/get_all_sales_users", user.getAllSalesUsers);
 router.get("/all_objs_in_user_auth/:user_id", user.assignAllObjInUserAuth);
 router.post("/check_login_exist", user.checkLoginExist);
 router.get("/get_all_userS_with_invoiceno", user.getAllUsersWithInvoiceNo);
+router.get("/users", user.getUsers);
+router.post("/get_all_users_counts_with_joining_date", user.getAllUsersCountsWithJoiningDate);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 

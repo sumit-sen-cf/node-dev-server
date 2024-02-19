@@ -141,12 +141,18 @@ exports.addAttendance = async (req, res) => {
             }
 
             const bodymonth = `${year}` + `${monthNumber}`;
+            // const bodyMonth = year + monthNumber;
+            // console.log("bodyMonth", bodymonth);
 
             const joiningMonthNumber = convertDate.getUTCMonth() + 1;
             const joiningYearNumber = convertDate.getUTCFullYear();
             const mergeMonthYear = `${joiningYearNumber}` + `${joiningMonthNumber}`;
+            // const mergeMonthYear = joiningYearNumber + joiningMonthNumber;
+            // console.log("mergeMonthYear", mergeMonthYear);
 
-            if (mergeMonthYear >= bodymonth) {
+
+
+            if (mergeMonthYear <= bodymonth) {
               const userExistsInAttendance = await doesUserExistInAttendance(
                 user.user_id,
                 req.body.month,
@@ -1368,21 +1374,23 @@ exports.leftEmployees = async (req, res) => {
     const newLefts = [];
 
     for (const user of results) {
-      const convertDate = user.releaving_date;
-      const joiningMonth = String(convertDate.getUTCMonth() + 1).padStart(
-        2,
-        "0"
-      );
-      const joiningYear = String(convertDate.getUTCFullYear());
+      if (user.releaving_date) {
+        const convertDate = new Date(user.releaving_date);
+        const joiningMonth = String(convertDate.getUTCMonth() + 1).padStart(
+          2,
+          "0"
+        );
+        const joiningYear = String(convertDate.getUTCFullYear());
 
-      const monthNumber = monthNameToNumber(month);
+        const monthNumber = monthNameToNumber(month);
 
-      const mergeJoining = parseInt(joiningMonth + joiningYear);
-      const mergeJoining1 = `${monthNumber}` + `${year}`;
+        const mergeJoining = parseInt(joiningMonth + joiningYear);
+        const mergeJoining1 = `${monthNumber}` + `${year}`;
 
-      if (mergeJoining == mergeJoining1) {
-        leftCount++;
-        newLefts.push({ user_name: user.user_name });
+        if (mergeJoining == mergeJoining1) {
+          leftCount++;
+          newLefts.push({ user_name: user.user_name });
+        }
       }
     }
 
