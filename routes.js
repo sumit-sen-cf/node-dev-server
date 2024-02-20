@@ -534,6 +534,7 @@ router.post(
   finance.addFinance
 );
 router.get("/get_finances", finance.getFinances);
+router.get("/get_wfhd_financial_year_data", finance.getWFHFinancialYearData);
 router.put(
   "/edit_finance",
 
@@ -541,6 +542,8 @@ router.put(
   finance.editFinance
 );
 router.delete("/delete_finance", finance.deleteFinance);
+router.post("/set_utr_data", upload1.single("excel"), finance.setUtrData)
+router.post("/get_wfhd_tds_users", finance.getWFHDTDSUsers)
 
 /* Sitting Routes */
 router.post("/add_sitting", sitting.addSitting);
