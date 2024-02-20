@@ -746,8 +746,14 @@ router.delete("/insta_brand/:id", instaBrand.deleteInstaBrand);
 //---------------------------------------------------------------------------All Routes OF User Module Starts Here ---------------------------------------------------------------------------------------------------//
 
 router.post("/add_user", user.addUser);
+router.post("/add_user_for_general_information", user.addUserForGeneralInformation);
 router.post("/forgot_pass", user.forgotPass);
 router.put("/update_user", user.updateUser);
+router.put("/update_user_for_personal_information/:user_id", user.updateUserForPersonalInformation);
+router.put("/update_user_for_official_information/:user_id", user.updateUserForOfficialInformation);
+router.put("/update_user_for_other_details/:user_id", user.updateUserInformation);
+router.put("/update_user_for_bank_details/:user_id", user.updateBankInformation);
+
 router.get("/get_wfh_user/:dept_id", user.getWFHUsersByDept);
 router.get("/get_all_users", user.getAllUsers);
 router.get("/get_single_user/:id", user.getSingleUser);
