@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const financeModel = new mongoose.Schema({
-    id:{
+    id: {
         type: Number,
         required: false
     },
-    status_: { 
+    status_: {
         type: Number,
         required: false,
         default: 0,
@@ -22,43 +22,48 @@ const financeModel = new mongoose.Schema({
         required: false,
         default: ""
     },
-    date:{
+    date: {
         type: Date,
         default: Date.now
     },
-    screenshot:{
+    screenshot: {
         type: String,
         required: false,
-        default:""
+        default: ""
     },
-    attendence_id:{
+    attendence_id: {
         type: Number,
         required: true
     },
-    reference_no:{
+    reference_no: {
         type: Number,
         required: false,
-        default:0
+        default: 0
     },
-    amount:{
-        type:Number,
-        default:0
+    amount: {
+        type: Number,
+        default: 0
     },
-    pay_date:{
+    pay_date: {
         type: Date,
-        default:""
+        default: ""
+    },
+    utr: {
+        type: String,
+        required: false,
+        default: ""
     }
 });
 
 financeModel.pre('save', async function (next) {
     if (!this.id) {
-      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'id': -1 } });
-  
-      if (lastAgency && lastAgency.id) {
-        this.id = lastAgency.id + 1;
-      } else {
-        this.id = 1;
-      }
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'id': -1 } });
+
+        if (lastAgency && lastAgency.id) {
+            this.id = lastAgency.id + 1;
+        } else {
+            this.id = 1;
+        }
     }
     next();
 });

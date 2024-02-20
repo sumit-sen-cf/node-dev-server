@@ -140,7 +140,7 @@ exports.getOprationDatas = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "databrandmodels",
+                    from: "brandmodels",
                     localField: "brand_id",
                     foreignField: "_id",
                     as: "brand",
@@ -183,7 +183,7 @@ exports.getOprationDatas = async (req, res) => {
             {
                 $project: {
                     _id: 1,
-                    public_usage:1,
+                    public_usage: 1,
                     data_name: 1,
                     data_id: 1,
                     platform_ids: 1,
