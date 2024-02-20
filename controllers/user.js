@@ -87,7 +87,7 @@ exports.addUser = [upload, async (req, res) => {
         const latestUser = await userModel.findOne({}).sort({ created_At: -1 });
         let latestInvoiceNo = latestUser.invoice_template_no + 1;
 
-        if (latestInvoiceNo > 5) {
+        if (latestInvoiceNo > 12) {
             latestInvoiceNo = 1
         }
 
@@ -121,7 +121,7 @@ exports.addUser = [upload, async (req, res) => {
             releaving_date: req.body.releaving_date,
             level: req.body.level,
             room_id: req.body.room_id,
-            salary: req.body.salary >= 3000 ? req.body.salary * 0.01 : req.body.salary,
+            salary: req.body.salary >= 3000 ? (req.body.salary - (req.body.salary * 0.01)) : req.body.salary,
             year_salary: req.body.year_salary,
             att_status: req.body.att_status,
             SpokenLanguages: req.body.SpokenLanguages,
