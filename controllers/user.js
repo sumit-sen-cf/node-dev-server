@@ -356,6 +356,321 @@ exports.addUser = [upload, async (req, res) => {
 }];
 
 
+exports.addUserForGeneralInformation = [upload, async (req, res) => {
+    try {
+        let encryptedPass;
+        //for user password encription
+        if (req.body.user_login_password) {
+            encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
+        }
+
+        //user data obj create 
+        const simc = new userModel({
+            //for personal information
+            user_name: req.body.user_name,
+            PersonalEmail: req.body.Personal_email,
+            PersonalNumber: req.body.personal_number,
+            alternate_contact: req.body.alternate_contact,
+            Gender: req.body.Gender,
+            DOB: req.body.DOB,
+            Age: req.body.Age,
+            Nationality: req.body.Nationality,
+            MartialStatus: req.body.MartialStatus,
+            created_by: req.body.created_by,
+            //for official information
+            job_type: req.body.job_type,
+            dept_id: req.body.dept_id,
+            sub_dept_id: req.body.sub_dept_id == null ? 0 : req.body.sub_dept_id,
+            user_designation: req.body.user_designation,
+            Report_L1: req.body.report_L1,
+            Report_L2: req.body.report_L2,
+            Report_L3: req.body.report_L3,
+            role_id: req.body.role_id,
+            user_email_id: req.body.user_email_id, //for offical
+            user_contact_no: req.body.user_contact_no, //for offical
+            user_login_id: req.body.user_login_id.toLowerCase().trim(),
+            user_login_password: encryptedPass,
+            joining_date: req.body.joining_date,
+            sitting_id: req.body.sitting_id,
+            room_id: req.body.room_id,
+        })
+
+        if (req.files && req.files.image && req.files.image[0].originalname) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob1 = bucket.file(req.files.image[0].originalname);
+            simc.image = blob1.name;
+            const blobStream1 = blob1.createWriteStream();
+            blobStream1.on("finish", () => { });
+            blobStream1.end(req.files.image[0].buffer);
+        }
+
+        const simv = await simc.save();
+
+        // Genreate a pdf file for offer later
+        if (simv?.offer_letter_send) {
+            helper.generateOfferLaterPdf(simv);
+
+        }
+        //Generate documents for respective user id
+        const docs = await documentModel.find();
+        if (docs.length !== 0) {
+            const newDocuments = docs.map(item => ({
+                doc_id: item._id,
+                user_id: simv?.user_id,
+            }));
+            await userDocManagmentModel.insertMany(newDocuments);
+        }
+        //End Generate documents for respective user id
+
+        if (simv) {
+            const objectData = await objModel.find();
+
+            for (const object of objectData) {
+                const objectId = object.obj_id;
+                let insert = 0;
+                let view = 0;
+                let update = 0;
+                let delete_flag = 0;
+
+                if (simv.role_id === 1) {
+                    insert = 1;
+                    view = 1;
+                    update = 1;
+                    delete_flag = 1;
+                }
+
+                const userAuthDocument = {
+                    Juser_id: simv.user_id,
+                    obj_id: objectId,
+                    insert: insert,
+                    view: view,
+                    update: update,
+                    delete_flag: delete_flag,
+                    creation_date: new Date(),
+                    created_by: simv.created_by || 0,
+                    last_updated_by: simv.created_by || 0,
+                    last_updated_date: new Date(),
+                };
+
+                await userAuthModel.create(userAuthDocument);
+            }
+            const deptDesiData = await deptDesiAuthModel.find({});
+            await Promise.all(deptDesiData.map(async (deptDesi) => {
+                if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
+                    const updatedData = await userAuthModel.updateOne(
+                        {
+                            obj_id: deptDesi.obj_id,
+                            Juser_id: simv.user_id
+                        },
+                        {
+                            $set: {
+                                insert: deptDesi.insert,
+                                view: deptDesi.view,
+                                update: deptDesi.update,
+                                delete_flag: deptDesi.delete_flag
+                            }
+                        },
+                        { new: true }
+                    );
+                }
+            }));
+        }
+
+        //send success response
+        res.send({ simv, status: 200 });
+    } catch (err) {
+        return res.status(500).send({ error: err.message, sms: 'This user cannot be created' })
+    }
+}];
+
+exports.updateUserForPersonalInformation = [upload, async (req, res) => {
+    try {
+        //check user exist or not
+        const existingUser = await userModel.findOne({ user_id: req.params.user_id });
+
+        //if user not exist then return error
+        if (!existingUser) {
+            return res.status(404).send({ success: false, message: 'User not found' });
+        }
+
+        //user details update in DB
+        const editsim = await userModel.findOneAndUpdate({ user_id: parseInt(req.params.user_id) }, {
+            //for personal information
+            user_name: req.body.user_name,
+            PersonalEmail: req.body.Personal_email,
+            PersonalNumber: req.body.personal_number,
+            alternate_contact: req.body.alternate_contact,
+            Gender: req.body.Gender,
+            DOB: req.body.DOB,
+            Age: req.body.Age,
+            Nationality: req.body.Nationality,
+            MartialStatus: req.body.MartialStatus,
+            created_by: req.body.created_by
+        }, { new: true });
+
+        if (!editsim) {
+            return res.status(500).send({ success: false })
+        }
+        // Genreate a pdf file for offer later
+        if (editsim?.offer_later_status == true || (editsim?.joining_date_extend || (editsim?.digital_signature_image && editsim?.digital_signature_image !== ""))) {
+            helper.generateOfferLaterPdf(editsim)
+        }
+
+        if (req.files && req.files.image && req.files.image[0]?.originalname) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+
+            const currentDate = new Date();
+            const fileNamef = `${currentDate.getTime()}.jpg`;
+
+            const blob = bucket.file(fileNamef);
+            editsim.image = blob.name;
+
+            const saveBlobPromise = new Promise((resolve, reject) => {
+                const blobStream = blob.createWriteStream();
+                blobStream.on("finish", () => {
+                    resolve();
+                });
+                blobStream.end(req.files.image[0]?.buffer);
+            });
+
+            try {
+                await saveBlobPromise;
+                editsim.save();
+            } catch (error) {
+                console.error("Error saving image:", error);
+            }
+        }
+
+
+        if (req.files && req.files.digital_signature_image && req.files.digital_signature_image[0]?.originalname) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob = bucket.file(req.files?.digital_signature_image[0]?.originalname);
+            editsim.digital_signature_image = blob.name;
+
+            const saveBlobPromise = new Promise((resolve, reject) => {
+                const blobStream = blob.createWriteStream();
+                blobStream.on("finish", () => {
+                    resolve();
+                });
+                blobStream.end(req.files.digital_signature_image[0]?.buffer);
+            })
+            try {
+                await saveBlobPromise;
+                editsim.save();
+            } catch (err) {
+                console.log('error', err)
+            }
+        }
+
+        return res.status(200).send({ success: true, data: editsim })
+    } catch (err) {
+        return res.status(500).send({ error: err.message, sms: 'Error while updating user personal information details' })
+    }
+}];
+
+exports.updateUserForOfficialInformation = async (req, res) => {
+    try {
+        let encryptedPass;
+        if (req.body.user_login_password) {
+            encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
+        }
+
+        const existingUser = await userModel.findOne({ user_id: req.params.user_id });
+
+        if (!existingUser) {
+            return res.status(404).send({ success: false, message: 'User not found' });
+        }
+
+        //user details update in DB
+        const editsim = await userModel.findOneAndUpdate({ user_id: parseInt(req.params.user_id) }, {
+            //for official information
+            job_type: req.body.job_type,
+            dept_id: req.body.dept_id,
+            sub_dept_id: isNaN(req.body.sub_dept_id) ? 0 : req.body.sub_dept_id,
+            user_designation: req.body.user_designation,
+            Report_L1: isNaN(req.body.report_L1) ? 0 : req.body.report_L1,
+            Report_L2: isNaN(req.body.report_L2) ? 0 : req.body.report_L2,
+            Report_L3: isNaN(req.body.report_L3) ? 0 : req.body.report_L3,
+            role_id: req.body.role_id,
+            user_email_id: req.body.user_email_id, //for offical
+            user_contact_no: req.body.user_contact_no, //for offical
+            user_login_id: req.body.user_login_id.toLowerCase().trim(),
+            user_login_password: encryptedPass,
+            joining_date: req.body.joining_date,
+            sitting_id: req.body.sitting_id,
+            room_id: req.body.room_id,
+        }, { new: true });
+
+        if (!editsim) {
+            return res.status(500).send({ success: false })
+        }
+
+        //return the succes response
+        return res.status(200).send({ success: true, data: editsim })
+    } catch (err) {
+        return res.status(500).send({ error: err.message, sms: 'Error while updating user personal information details' })
+    }
+};
+
+exports.updateUserInformation = async (req, res) => {
+    try {
+        //    const { id } = req.params;
+        const { current_address, current_city, current_state, current_pin_code, BloodGroup, Hobbies, SpokenLanguages, } = req.body;
+        const updateProfile = await userModel.findOne({ user_id: req.params.user_id });
+        if (!updateProfile) {
+            return res.status(404).send("User not found");
+        }
+        const profileUpdate = await userModel.findOneAndUpdate(
+            { user_id: req.params.user_id },
+            {
+                $set: {
+                    current_address: current_address, current_city: current_city, current_state: current_state,
+                    current_pin_code: current_pin_code, BloodGroup: BloodGroup, Hobbies: Hobbies, SpokenLanguages: SpokenLanguages
+                }
+            },
+            { new: true }
+        );
+        return res.status(200).json({
+            status: 200,
+            message: "profile updated successfully!",
+            profileUpdate,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Unexpected error,please try again later!",
+        });
+    }
+};
+
+exports.updateBankInformation = async (req, res) => {
+    try {
+        const { bank_name, ifsc_code, beneficiary, } = req.body;
+        const updateBankProfile = await userModel.findOne({ user_id: req.params.user_id });
+        if (!updateBankProfile) {
+            return res.status(404).send("User not found");
+        }
+        const bankprofileUpdate = await userModel.findOneAndUpdate(
+            { user_id: req.params.user_id },
+            { $set: { bank_name: bank_name, ifsc_code: ifsc_code, beneficiary: beneficiary } },
+            { new: true }
+        );
+        return res.status(200).json({
+            status: 200,
+            message: "Bank profile updated successfully!",
+            bankprofileUpdate,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Unexpected error,please try again later!",
+        });
+    }
+};
+
 exports.updateUser = [upload, async (req, res) => {
     try {
         let encryptedPass;
