@@ -113,6 +113,7 @@ exports.getFinances = async (req, res) => {
           reference_no: 1,
           amount: 1,
           pay_date: 1,
+          utr: 1,
           dept: "$attendence_data.dept",
           user_id: "$attendence_data.user_id",
           noOfabsent: "$attendence_data.noOfabsent",
@@ -139,7 +140,14 @@ exports.getFinances = async (req, res) => {
           dept_name: "$dept_data.dept_name",
           image_url: { $concat: [financeImagesBaseUrl, "$screenshot"] },
           digital_signature_image: "$user_data.digital_signature_image",
-          attendence_status_flow: "$attendence_data.attendence_status_flow"
+          attendence_status_flow: "$attendence_data.attendence_status_flow",
+          user_email_id: "$user_data.user_email_id",
+          user_contact_no: "$user_data.user_contact_no",
+          permanent_address: "$user_data.permanent_address",
+          permanent_city: "$user_data.permanent_city",
+          permanent_state: "$user_data.permanent_state",
+          permanent_pin_code: "$user_data.permanent_pin_code",
+          invoice_no: "$attendence_data.invoiceNo"
         },
       },
       {
@@ -166,88 +174,22 @@ exports.getFinances = async (req, res) => {
 exports.getWFHFinancialYearData = async (req, res) => {
   try {
     const financeImagesBaseUrl = vari.IMAGE_URL;
-    const simc = await financeModel.aggregate([
+    const findfinanceDate = await attendanceModel.find({}).select({ user_id: 1, Creation_date: 1, total_salary: 1, month: 1, year: 1, user_name: 1 });
+    const findfinanceMonth = findfinanceDate[0].Creation_date.getUTCMonth() + 1;
+    const financeYear = findfinanceDate[0].Creation_date.getUTCFullYear();
+    let startDate;
+    if (findfinanceMonth >= 4) {
+      startDate = new Date(`${financeYear}-04-01T06:00:00.000+00:00`);
+    } else {
+      startDate = new Date(`${financeYear - 1}-04-01T06:00:00.000+00:00`);
+    }
+    const endDate = new Date(`${financeYear}-03-31T06:00:00.000+00:00`);
+
+    const simc = await attendanceModel.aggregate([
       {
-        $lookup: {
-          from: "attendancemodels",
-          localField: "attendence_id",
-          foreignField: "attendence_id",
-          as: "attendence_data",
-        },
-      },
-      {
-        $unwind: {
-          path: "$attendence_data",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "usermodels",
-          localField: "attendence_data.user_id",
-          foreignField: "user_id",
-          as: "user_data",
-        },
-      },
-      {
-        $unwind: {
-          path: "$user_data",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "departmentmodels",
-          localField: "attendence_data.dept",
-          foreignField: "dept_id",
-          as: "dept_data",
-        },
-      },
-      {
-        $unwind: {
-          path: "$dept_data",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $project: {
-          id: 1,
-          status_: 1,
-          reason: 1,
-          screenshot: 1,
-          date: 1,
-          remark: 1,
-          attendence_id: 1,
-          reference_no: 1,
-          amount: 1,
-          pay_date: 1,
-          dept: "$attendence_data.dept",
-          user_id: "$attendence_data.user_id",
-          noOfabsent: "$attendence_data.noOfabsent",
-          year: "$attendence_data.year",
-          Creation_date: "$attendence_data.Creation_date",
-          Created_by: "$attendence_data.Created_by",
-          Last_updated_by: "$attendence_data.Last_updated_by",
-          Last_updated_date: "$attendence_data.Last_updated_date",
-          month: "$attendence_data.month",
-          bonus: "$attendence_data.bonus",
-          total_salary: "$attendence_data.total_salary",
-          net_salary: "$attendence_data.net_salary",
-          tds_deduction: "$attendence_data.tds_deduction",
-          user_name: "$attendence_data.user_name",
-          toPay: "$attendence_data.toPay",
-          sendToFinance: "$attendence_data.sendToFinance",
-          attendence_generated: "$attendence_data.attendence_generated",
-          attendence_status: "$attendence_data.attendence_status",
-          salary_status: "$attendence_data.salary_status",
-          salary_deduction: "$attendence_data.salary_deduction",
-          salary: "$attendence_data.salary",
-          invoice_template_no: "$user_data.invoice_template_no",
-          dept_name: "$dept_data.dept_name",
-          image_url: { $concat: [financeImagesBaseUrl, "$screenshot"] },
-          digital_signature_image: "$user_data.digital_signature_image",
-          attendence_status_flow: "$attendence_data.attendence_status_flow"
-        },
+        $match: {
+          "Creation_date": { $gte: startDate, $lte: endDate }
+        }
       },
       {
         $group: {
@@ -268,28 +210,32 @@ exports.getWFHFinancialYearData = async (req, res) => {
         $group: {
           _id: "$data.user_id",
           total_toPay: { $sum: "$data.total_salary" },
-          data: { $push: "$data" }
+          dept: { $first: "$data.dept" },
+          user_name: { $first: "$data.user_name" }
         }
       },
       {
         $project: {
           _id: 0,
           user_id: "$_id",
+          dept: 1,
           total_toPay: 1,
-          data: 1
+          user_name: 1
         }
       }
     ]);
-    if (!simc) {
-      res.status(500).send({ success: false });
+
+    if (!simc || simc.length === 0) {
+      return res.status(404).send({ success: false, message: "No data found between the given dates" });
     }
+
     res.status(200).send(simc);
   } catch (err) {
-    res
-      .status(500)
-      .send({ error: err.message, sms: "Error getting all finances" });
+    res.status(500).send({ error: err.message, sms: "Error getting all finances" });
   }
 };
+
+
 
 exports.editFinance = async (req, res) => {
   try {
@@ -436,7 +382,7 @@ exports.getWFHDTDSUsers = async (req, res) => {
     ]);
 
     if (!simc || simc.length === 0) {
-      return res.status(404).json({ success: false, message: 'No data found.' });
+      return res.status(200).json({ success: false, message: 'No data found.' });
     }
 
     return res.status(200).json(simc);
