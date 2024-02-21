@@ -208,50 +208,7 @@ exports.addAttendance = async (req, res) => {
               }
               return res.send({ status: 200 });
             }
-            // const userExistsInAttendance = await doesUserExistInAttendance(
-            //   user.user_id,
-            //   req.body.month,
-            //   req.body.year
-            // );
-            // if (!userExistsInAttendance) {
-            //   // console.log("lopp inner")
-            //   const presentDays = work_days - 0;
-            //   const perdaysal = user.salary / 30;
-            //   const totalSalary = perdaysal * presentDays;
-            //   const Bonus = bonus || 0;
-            //   const netSalary = totalSalary + Bonus;
-            //   const tdsDeduction = (netSalary * user.tds_per) / 100;
-            //   const ToPay = netSalary - tdsDeduction;
-            //   const salary = user.salary;
-            //   let invoiceNo = await createNextInvoiceNumber(user.user_id, month, year);
-
-            //   const attendanceId = await getNextAttendanceId();
-            //   const creators = new attendanceModel({
-            //     attendence_id: attendanceId,
-            //     dept: user.dept_id,
-            //     user_id: user.user_id,
-            //     invoiceNo: invoiceNo,
-            //     user_name: user.user_name,
-            //     noOfabsent: 0,
-            //     present_days: presentDays,
-            //     month_salary: totalSalary && totalSalary.toFixed(2),
-            //     month: req.body.month,
-            //     year: req.body.year,
-            //     bonus: Bonus,
-            //     total_salary: user.salary && user.salary.toFixed(2),
-            //     tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-            //     net_salary: netSalary && netSalary.toFixed(2),
-            //     toPay: ToPay && ToPay.toFixed(2),
-            //     remark: "",
-            //     Created_by: req.body.user_id,
-            //     salary,
-            //     attendence_status_flow: "Payout Generated",
-            //     disputed_reason: req.body.disputed_reason,
-            //     disputed_date: req.body.disputed_date
-            //   });
-            //   const instav = await creators.save();
-            // }
-            // return res.send({ status: 200 });
+            
           });
       } else {
         const Dept = dept || "";
@@ -349,7 +306,7 @@ exports.addAttendance = async (req, res) => {
 
           const workingDays = 31 - extractDate - noOfabsent;
           const perdaysal = results4[0].salary / 30;
-          const totalSalary = perdaysal * (30 - noOfabsent);
+          const totalSalary = perdaysal * workingDays;
           const Bonus = bonus || 0;
           const netSalary = Bonus ? totalSalary + Bonus - salary_deduction : totalSalary - salary_deduction;
           const tdsDeduction = (netSalary * results4[0].tds_per) / 100;

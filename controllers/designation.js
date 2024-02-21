@@ -21,7 +21,7 @@ exports.addDesignation = async (req, res) => {
     const simv = await simc.save();
 
     //latest desi Id get
-    const latestDesiId = (simv && simv.desi_id) ? simv.desi_id : null;
+    const latestDesiId = (simv && simv.desi_id) ? simv.desi_id : 0;
 
     //get object model all data
     const objectData = await objModel.find();
