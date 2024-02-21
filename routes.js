@@ -120,6 +120,7 @@ const dataOperation = require("./controllers/dataOperation.js");
 const attendanceDispute = require("./controllers/attendanceDispute.js");
 const userUpdateHistory = require("./controllers/userUpdateHistory.js");
 const userTraining = require("./controllers/userTraining.js");
+const nodePhpVendorPaymentMode = require("./controllers/nodePhpVendorPaymentMode.js");
 
 /* Task Mangement Controller Import */
 const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1529,5 +1530,12 @@ router.get("/get_user_trainings", userTraining.getUserTrainings);
 router.get("/get_single_user_training/:user_id", userTraining.getSingleUserTraining);
 router.put("/update_user_training", userTraining.editUserTraining);
 router.delete("/delete_user_training/:_id", userTraining.deleteUserTraining);
+
+// node php payment mode Routes
+router.post("/add_payment_mode", nodePhpVendorPaymentMode.addPaymentMode);
+router.get("/get_all_payment_mode", nodePhpVendorPaymentMode.getAllPaymentMode);
+router.get("/get_single_payment_mode/:_id", nodePhpVendorPaymentMode.getSinglePaymentMode);
+router.put("/edit_payment_mode/:_id", nodePhpVendorPaymentMode.editPaymentMode);
+router.delete("/delete_payment_mode/:_id", nodePhpVendorPaymentMode.deletePaymentMode);
 
 module.exports = router;
