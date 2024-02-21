@@ -23,6 +23,7 @@ exports.addFinance = async (req, res) => {
       reference_no: req.body.reference_no,
       amount: req.body.amount,
       pay_date: req.body.pay_date,
+      utr: req.body.utr
     });
 
     if (req.file) {
@@ -41,7 +42,7 @@ exports.addFinance = async (req, res) => {
 
     await attendanceModel.findOneAndUpdate(
       { attendence_id: parseInt(req.body.attendence_id) },
-      { attendence_status_flow: 'Invoice Submitted Pending For Verification' },
+      { attendence_status_flow: 'Pending From Finance' },
       { new: true }
     );
     res.send({ simv, status: 200 });
@@ -102,6 +103,20 @@ exports.getFinances = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "billingheadermodels",
+          localField: "attendence_data.dept",
+          foreignField: "dept_id",
+          as: "billing_header_data",
+        },
+      },
+      {
+        $unwind: {
+          path: "$billing_header_data",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $project: {
           id: 1,
           status_: 1,
@@ -147,7 +162,9 @@ exports.getFinances = async (req, res) => {
           permanent_city: "$user_data.permanent_city",
           permanent_state: "$user_data.permanent_state",
           permanent_pin_code: "$user_data.permanent_pin_code",
-          invoice_no: "$attendence_data.invoiceNo"
+          invoice_no: "$attendence_data.invoiceNo",
+          billing_header_id: "$billing_header_data.billingheader_id",
+          billing_header_name: "$billing_header_data.billing_header_name"
         },
       },
       {
@@ -250,6 +267,7 @@ exports.editFinance = async (req, res) => {
         reference_no: req.body.reference_no,
         amount: req.body.amount,
         pay_date: req.body.pay_date,
+        utr: req.body.utr
       },
       { new: true }
     );
@@ -269,7 +287,7 @@ exports.editFinance = async (req, res) => {
 
     await attendanceModel.findOneAndUpdate(
       { attendence_id: parseInt(req.body.attendence_id) },
-      { attendence_status_flow: 'invoice received' },
+      { attendence_status_flow: 'Proceeded to bank' },
       { new: true }
     );
     if (!editsim) {
@@ -382,7 +400,7 @@ exports.getWFHDTDSUsers = async (req, res) => {
     ]);
 
     if (!simc || simc.length === 0) {
-      return res.status(200).json({ success: false, message: 'No data found.' });
+      return res.status(404).json({ success: false, message: 'No data found.', data: [] });
     }
 
     return res.status(200).json(simc);

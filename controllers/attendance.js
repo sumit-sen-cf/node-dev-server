@@ -3,6 +3,7 @@ const attendanceModel = require("../models/attendanceModel.js");
 const userModels = require("../models/userAuthModel.js");
 const userModel = require("../models/userModel.js");
 const vari = require("../variables.js");
+const billingHeaderModel = require("../models/billingheaderModel.js");
 
 async function doesUserExistInAttendance(userId, month, year) {
   const results = await attendanceModel.find({
@@ -60,6 +61,15 @@ exports.addAttendance = async (req, res) => {
       attendence_status_flow,
       salary_status,
     } = req.body;
+
+    const checkBillingHeader = await billingHeaderModel.findOne({ dept_id: dept });
+
+    if (!checkBillingHeader) {
+      return res.status(409).send({
+        data: [],
+        message: "Please Added First Billing Header For This Department",
+      });
+    }
 
     const attendanceData = await userModel.aggregate([
       {
@@ -341,9 +351,7 @@ exports.addAttendance = async (req, res) => {
           const perdaysal = results4[0].salary / 30;
           const totalSalary = perdaysal * (30 - noOfabsent);
           const Bonus = bonus || 0;
-          const netSalary = Bonus
-            ? totalSalary + Bonus - salary_deduction
-            : totalSalary;
+          const netSalary = Bonus ? totalSalary + Bonus - salary_deduction : totalSalary - salary_deduction;
           const tdsDeduction = (netSalary * results4[0].tds_per) / 100;
           const ToPay = netSalary - tdsDeduction;
           const salary = results4[0].salary;
