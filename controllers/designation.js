@@ -1,5 +1,7 @@
 const designationModel = require('../models/designationModel.js');
 const response = require("../common/response.js");
+const objModel = require('../models/objModel.js');
+const deptDesiAuthModel = require("../models/deptDesiAuthModel.js");
 
 exports.addDesignation = async (req, res) => {
   try {
@@ -17,6 +19,36 @@ exports.addDesignation = async (req, res) => {
       created_by: req.body.created_by
     })
     const simv = await simc.save();
+
+    //latest desi Id get
+    const latestDesiId = (simv && simv.desi_id) ? simv.desi_id : null;
+
+    //get object model all data
+    const objectData = await objModel.find();
+
+    //itrate object model data
+    for (const object of objectData) {
+      const objectId = object.obj_id;
+
+      let insert = 0;
+      let view = 0;
+      let update = 0;
+      let delete_flag = 0;
+
+      const deptDesiAuthData = {
+        desi_id: latestDesiId,
+        dept_id: req.body.dept_id,
+        obj_id: objectId,
+        insert: insert,
+        view: view,
+        update: update,
+        delete_flag: delete_flag,
+      };
+
+      //data create in deptDesiAuthModel
+      await deptDesiAuthModel.create(deptDesiAuthData);
+    }
+    //response send
     res.send({ simv, status: 200 });
   } catch (err) {
     res.status(500).send({ error: err, sms: 'This designation cannot be created' })
