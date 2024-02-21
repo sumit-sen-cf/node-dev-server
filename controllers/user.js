@@ -121,7 +121,7 @@ exports.addUser = [upload, async (req, res) => {
             releaving_date: req.body.releaving_date,
             level: req.body.level,
             room_id: req.body.room_id,
-            salary: req.body.salary >= 3000 ? (req.body.salary - (req.body.salary * 0.01)) : req.body.salary,
+            salary: req.body.salary,
             year_salary: req.body.year_salary,
             att_status: req.body.att_status,
             SpokenLanguages: req.body.SpokenLanguages,
@@ -135,8 +135,8 @@ exports.addUser = [upload, async (req, res) => {
             BloodGroup: req.body.BloodGroup,
             MartialStatus: req.body.MartialStatus,
             DateofMarriage: req.body.DateofMarriage,
-            tds_applicable: req.body.tds_applicable,
-            tds_per: req.body.tds_per,
+            tds_applicable: req.body.salary >= 30000 ? 'Yes' : req.body.tds_applicable,
+            tds_per: req.body.salary >= 30000 ? 1 : req.body.tds_per,
             onboard_status: req.body.onboard_status,
             image_remark: req.body.image_remark,
             image_validate: req.body.image_validate,
@@ -241,6 +241,9 @@ exports.addUser = [upload, async (req, res) => {
             blobStream1.end(req.files.image[0].buffer);
         }
 
+        // if(req.body.salary>= 30000){
+
+        // }
         const simv = await simc.save();
 
         // Genreate a pdf file for offer later
@@ -684,6 +687,7 @@ exports.updateUser = [upload, async (req, res) => {
             return res.status(404).send({ success: false, message: 'User not found' });
         }
 
+
         const editsim = await userModel.findOneAndUpdate({ user_id: parseInt(req.body.user_id) }, {
             user_name: req.body.user_name,
             user_designation: req.body.user_designation,
@@ -707,9 +711,9 @@ exports.updateUser = [upload, async (req, res) => {
             // releaving_date: req.body.releaving_date,
             level: req.body.level,
             room_id: req.body.room_id,
-            salary: isNaN(req.body.salary) ? 0 : req.body.salary,
+            salary: req.body.salary,
             att_status: req.body.att_status,
-            year_salary: isNaN(req.body.year_salary) ? 0 : req.body.year_salary,
+            year_salary: req.body.year_salary,
             SpokenLanguages: req.body.SpokenLanguages,
             Gender: req.body.Gender,
             Nationality: req.body.Nationality,
@@ -722,8 +726,8 @@ exports.updateUser = [upload, async (req, res) => {
             BloodGroup: req.body.BloodGroup,
             MartialStatus: req.body.MartialStatus,
             DateofMarriage: req.body.DateofMarriage,
-            tds_applicable: req.body.tds_applicable,
-            tds_per: req.body.tds_per,
+            tds_applicable: (req.body.salary >= 30000 || req.body.ctc >= 100000) ? 'Yes' : req.body.tds_applicable,
+            tds_per: (req.body.salary >= 30000 || req.body.ctc >= 100000) ? 1 : req.body.tds_per,
             onboard_status: req.body.onboard_status,
             image_remark: req.body.image_remark,
             image_validate: req.body.image_validate,
@@ -3648,8 +3652,7 @@ exports.getAllUsersWithInvoiceNo = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
     try {
-        const { dept_id, month, year } = req.body;
-        const findData = await userModel.find({ dept_id: 12, job_type: "WFHD", att_status: "onboarded" }).select({ user_id: 1, user_name: 1, joining_date: 1, salary: 1 });
+        const findData = await userModel.find({ job_type: "WFHD", att_status: "onboarded" }).select({ user_id: 1, user_name: 1, dept_id: 1 });
         if (!findData) {
             return response.returnFalse(200, req, res, "login id available", []);
         }
@@ -3722,6 +3725,48 @@ exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
             }
         ]);
         return response.returnTrue(200, req, res, findData);
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
+
+exports.getAllWithDigitalSignatureImageUsers = async (req, res) => {
+    try {
+        const allData = await userModel.aggregate([
+            {
+                $match: {
+                    job_type: "WFHD",
+                    digital_signature_image: ""
+                }
+            },
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    user_id: 1,
+                    user_name: 1,
+                    dept_id: 1,
+                    dept_name: "$department.dept_name"
+                }
+            }
+        ]);
+
+        if (!allData) {
+            return response.returnFalse(200, req, res, "No Data Found", []);
+        }
+        return response.returnTrue(200, req, res, "all Data Fetched Successfully", allData)
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }

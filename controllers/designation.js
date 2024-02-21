@@ -127,7 +127,7 @@ exports.deleteDesignation = async (req, res) => {
 
 exports.getAllDesignationByDeptID = async (req, res) => {
   try {
-    const desiData = await designationModel.findOne({
+    const desiData = await designationModel.find({
       dept_id: parseInt(req.params.dept_id),
     });
     if (!desiData) {
@@ -138,7 +138,7 @@ exports.getAllDesignationByDeptID = async (req, res) => {
       req,
       res,
       "All Designation Data Fetch By Dept Id Successfully",
-      [desiData]
+      desiData
     );
   } catch (err) {
     return response.returnFalse(500, req, res, err.message, {});
