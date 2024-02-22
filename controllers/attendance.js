@@ -145,7 +145,7 @@ exports.addAttendance = async (req, res) => {
             const monthNumber = monthNameToNumber(month);
             const mergeJoining1 = `${monthNumber}` + `${year}`;
             if (mergeJoining == mergeJoining1) {
-              work_days = 31 - extractDate - noOfabsent;
+              work_days = 30 - extractDate - noOfabsent;
             } else {
               work_days = 30;
             }
@@ -245,7 +245,7 @@ exports.addAttendance = async (req, res) => {
             const monthNumber = monthNameToNumber(month);
             const mergeJoining1 = `${monthNumber}` + `${year}`;
             if (mergeJoining == mergeJoining1) {
-              work_days = 31 - extractDate;
+              work_days = 30 - extractDate;
             } else {
               work_days = 30;
             }
@@ -300,13 +300,31 @@ exports.addAttendance = async (req, res) => {
             user_id: parseInt(req.body.user_id),
           });
 
+          // const joining = results4[0].joining_date;
+          // const convertDate = new Date(joining);
+          // const extractDate = convertDate.getDate();
+
+          var work_days;
           const joining = results4[0].joining_date;
           const convertDate = new Date(joining);
-          const extractDate = convertDate.getDate();
+          const extractDate = convertDate.getDate() - 1;
+          const joiningMonth = String(convertDate.getUTCMonth() + 1).padStart(
+            2,
+            "0"
+          );
+          const joiningYear = String(convertDate.getUTCFullYear());
+          const mergeJoining = parseInt(joiningMonth + joiningYear);
+          const monthNumber = monthNameToNumber(month);
+          const mergeJoining1 = `${monthNumber}` + `${year}`;
+          if (mergeJoining == mergeJoining1) {
+            work_days = 30 - extractDate - noOfabsent;
+          } else {
+            work_days = 30;
+          }
 
-          const workingDays = 31 - extractDate - noOfabsent;
+          const present_days = work_days;
           const perdaysal = results4[0].salary / 30;
-          const totalSalary = perdaysal * workingDays;
+          const totalSalary = perdaysal * present_days;
           const Bonus = bonus || 0;
           const netSalary = Bonus ? totalSalary + Bonus - salary_deduction : totalSalary - salary_deduction;
           const tdsDeduction = (netSalary * results4[0].tds_per) / 100;
