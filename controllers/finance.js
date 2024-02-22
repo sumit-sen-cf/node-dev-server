@@ -168,7 +168,7 @@ exports.getFinances = async (req, res) => {
           bank_name: "$user_data.bank_name",
           ifsc_code: "$user_data.ifsc_code",
           account_no: "$user_data.account_no",
-          pan: "$user_data.pan"
+          pan_no: "$user_data.pan_no"
         },
       },
       {
@@ -379,6 +379,13 @@ exports.setUtrData = async (req, res) => {
     for (const data of utrData) {
       const { attendence_id, utr } = data;
       await financeModel.updateOne({ attendence_id }, { utr });
+      if (utr == '') {
+        await attendanceModel.findOneAndUpdate(
+          { attendence_id: attendence_id },
+          { attendence_status_flow: 'Payment Failed' },
+          { new: true }
+        );
+      }
       await attendanceModel.findOneAndUpdate(
         { attendence_id: attendence_id },
         { attendence_status_flow: 'Payment Released' },

@@ -64,7 +64,8 @@ const attendanceModel = new mongoose.Schema({
     },
     bonus: {
         type: Number,
-        required: false
+        required: false,
+        default: 0
     },
     total_salary: {
         type: Number,
@@ -138,12 +139,12 @@ const attendanceModel = new mongoose.Schema({
         type: String,
         default: ""
     },
-    disputed_status:{
-        type:String,
-        default:""
+    disputed_status: {
+        type: String,
+        default: ""
     },
-    resolved_date:{
-        type:Date
+    resolved_date: {
+        type: Date
     }
 });
 
