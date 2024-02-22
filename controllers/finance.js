@@ -162,9 +162,13 @@ exports.getFinances = async (req, res) => {
           permanent_city: "$user_data.permanent_city",
           permanent_state: "$user_data.permanent_state",
           permanent_pin_code: "$user_data.permanent_pin_code",
-          invoice_no: "$attendence_data.invoiceNo",
+          invoiceNo: "$attendence_data.invoiceNo",
           billing_header_id: "$billing_header_data.billingheader_id",
-          billing_header_name: "$billing_header_data.billing_header_name"
+          billing_header_name: "$billing_header_data.billing_header_name",
+          bank_name: "$user_data.bank_name",
+          ifsc_code: "$user_data.ifsc_code",
+          account_no: "$user_data.account_no",
+          pan: "$user_data.pan"
         },
       },
       {

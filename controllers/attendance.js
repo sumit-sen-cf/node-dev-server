@@ -135,7 +135,7 @@ exports.addAttendance = async (req, res) => {
             var work_days;
             const joining = user.joining_date;
             const convertDate = new Date(joining);
-            const extractDate = convertDate.getDate();
+            const extractDate = convertDate.getDate() - 1;
             const joiningMonth = String(convertDate.getUTCMonth() + 1).padStart(
               2,
               "0"
@@ -145,7 +145,7 @@ exports.addAttendance = async (req, res) => {
             const monthNumber = monthNameToNumber(month);
             const mergeJoining1 = `${monthNumber}` + `${year}`;
             if (mergeJoining == mergeJoining1) {
-              work_days = 31 - extractDate;
+              work_days = 31 - extractDate - noOfabsent;
             } else {
               work_days = 30;
             }
@@ -208,7 +208,7 @@ exports.addAttendance = async (req, res) => {
               }
               return res.send({ status: 200 });
             }
-            
+
           });
       } else {
         const Dept = dept || "";
@@ -235,7 +235,7 @@ exports.addAttendance = async (req, res) => {
             var work_days;
             const joining = user.joining_date;
             const convertDate = new Date(joining);
-            const extractDate = convertDate.getDate();
+            const extractDate = convertDate.getDate() - 1;
             const joiningMonth = String(convertDate.getUTCMonth() + 1).padStart(
               2,
               "0"
