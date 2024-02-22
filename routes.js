@@ -542,6 +542,7 @@ router.put(
   upload1.single("screenshot"),
   finance.editFinance
 );
+router.put("/edit_finance_utr", finance.editFinanceUtr );
 router.delete("/delete_finance", finance.deleteFinance);
 router.post("/set_utr_data", upload1.single("excel"), finance.setUtrData)
 router.post("/get_wfhd_tds_users", finance.getWFHDTDSUsers)
