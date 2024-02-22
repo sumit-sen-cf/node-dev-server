@@ -379,6 +379,13 @@ exports.setUtrData = async (req, res) => {
     for (const data of utrData) {
       const { attendence_id, utr } = data;
       await financeModel.updateOne({ attendence_id }, { utr });
+      if (utr == '') {
+        await attendanceModel.findOneAndUpdate(
+          { attendence_id: attendence_id },
+          { attendence_status_flow: 'Payment Failed' },
+          { new: true }
+        );
+      }
       await attendanceModel.findOneAndUpdate(
         { attendence_id: attendence_id },
         { attendence_status_flow: 'Payment Released' },
