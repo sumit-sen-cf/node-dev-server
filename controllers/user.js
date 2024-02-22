@@ -87,7 +87,7 @@ exports.addUser = [upload, async (req, res) => {
         const latestUser = await userModel.findOne({}).sort({ created_At: -1 });
         let latestInvoiceNo = latestUser.invoice_template_no + 1;
 
-        if (latestInvoiceNo > 12) {
+        if (latestInvoiceNo > 9) {
             latestInvoiceNo = 1
         }
 
@@ -715,7 +715,7 @@ exports.updateUser = [upload, async (req, res) => {
             sitting_id: req.body.sitting_id,
             job_type: req.body.job_type,
             personal_number: req.body.personal_number,
-            Report_L1: isNaN(req.body.report_L1) ? 0 : req.body.report_L1,
+            Report_L1: req.body.report_L1,
             Report_L2: isNaN(req.body.report_L2) ? 0 : req.body.report_L2,
             Report_L3: isNaN(req.body.report_L3) ? 0 : req.body.report_L3,
             Personal_email: req.body.Personal_email,
