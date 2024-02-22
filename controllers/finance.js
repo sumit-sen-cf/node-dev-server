@@ -168,7 +168,7 @@ exports.getFinances = async (req, res) => {
           bank_name: "$user_data.bank_name",
           ifsc_code: "$user_data.ifsc_code",
           account_no: "$user_data.account_no",
-          pan: "$user_data.pan"
+          pan_no: "$user_data.pan_no"
         },
       },
       {
