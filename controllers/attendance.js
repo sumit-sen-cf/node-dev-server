@@ -147,7 +147,7 @@ exports.addAttendance = async (req, res) => {
             if (mergeJoining == mergeJoining1) {
               work_days = 30 - extractDate - noOfabsent;
             } else {
-              work_days = 30;
+              work_days = 30 - noOfabsent;
             }
 
             const bodymonth = `${year}` + `${monthNumber}`;
@@ -171,12 +171,19 @@ exports.addAttendance = async (req, res) => {
               if (!userExistsInAttendance) {
                 // console.log("lopp inner")
                 const presentDays = work_days - 0;
+                // console.log("presentDays", presentDays);
                 const perdaysal = user.salary / 30;
+                // console.log("perdaysal", perdaysal);
                 const totalSalary = perdaysal * presentDays;
-                const Bonus = bonus || 0;
+                // console.log("totalSalary", totalSalary);
+                const Bonus = bonus == undefined ? 0 : req.body.bonus;
+                // console.log('bonus', req.body.bonus)
                 const netSalary = totalSalary + Bonus;
+                // console.log("netSalary", netSalary);
                 const tdsDeduction = (netSalary * user.tds_per) / 100;
+                // console.log("tdsDeduction", tdsDeduction);
                 const ToPay = netSalary - tdsDeduction;
+                // console.log("ToPay", ToPay);
                 const salary = user.salary;
                 let invoiceNo = await createNextInvoiceNumber(user.user_id, month, year);
 
@@ -187,7 +194,7 @@ exports.addAttendance = async (req, res) => {
                   user_id: user.user_id,
                   invoiceNo: invoiceNo,
                   user_name: user.user_name,
-                  noOfabsent: 0,
+                  noOfabsent: noOfabsent,
                   present_days: presentDays,
                   month_salary: totalSalary && totalSalary.toFixed(2),
                   month: req.body.month,
@@ -202,7 +209,8 @@ exports.addAttendance = async (req, res) => {
                   salary,
                   attendence_status_flow: "Payout Generated",
                   disputed_reason: req.body.disputed_reason,
-                  disputed_date: req.body.disputed_date
+                  disputed_date: req.body.disputed_date,
+                  salary_deduction: req.body.salary_deduction
                 });
                 const instav = await creators.save();
               }
@@ -319,7 +327,7 @@ exports.addAttendance = async (req, res) => {
           if (mergeJoining == mergeJoining1) {
             work_days = 30 - extractDate - noOfabsent;
           } else {
-            work_days = 30;
+            work_days = 30 - noOfabsent;
           }
 
           const present_days = work_days;
@@ -350,7 +358,7 @@ exports.addAttendance = async (req, res) => {
               tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
               net_salary: netSalary && netSalary.toFixed(2),
               toPay: ToPay && ToPay.toFixed(2),
-              month_salary: (workingDays * perdaysal).toFixed(2),
+              month_salary: (present_days * perdaysal).toFixed(2),
               remark: req.body.remark,
               salary,
               salary_deduction,
