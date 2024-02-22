@@ -620,22 +620,28 @@ exports.updateUserForOfficialInformation = async (req, res) => {
 
 exports.updateUserInformation = async (req, res) => {
     try {
-        //    const { id } = req.params;
         const { current_address, current_city, current_state, current_pin_code, BloodGroup, Hobbies, SpokenLanguages, } = req.body;
-        const updateProfile = await userModel.findOne({ user_id: req.params.user_id });
+        const updateProfile = await userModel.findOne({
+            user_id: req.params.user_id
+        });
         if (!updateProfile) {
             return res.status(404).send("User not found");
         }
-        const profileUpdate = await userModel.findOneAndUpdate(
-            { user_id: req.params.user_id },
-            {
-                $set: {
-                    current_address: current_address, current_city: current_city, current_state: current_state,
-                    current_pin_code: current_pin_code, BloodGroup: BloodGroup, Hobbies: Hobbies, SpokenLanguages: SpokenLanguages
-                }
-            },
-            { new: true }
-        );
+        const profileUpdate = await userModel.findOneAndUpdate({
+            user_id: req.params.user_id
+        }, {
+            $set: {
+                current_address: current_address,
+                current_city: current_city,
+                current_state: current_state,
+                current_pin_code: current_pin_code,
+                BloodGroup: BloodGroup,
+                Hobbies: Hobbies,
+                SpokenLanguages: SpokenLanguages
+            }
+        }, {
+            new: true
+        });
         return res.status(200).json({
             status: 200,
             message: "profile updated successfully!",

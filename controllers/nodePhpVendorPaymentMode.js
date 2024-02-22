@@ -5,7 +5,7 @@ exports.addPaymentMode = async (req, res) => {
     try {
         //check the alredy exist data then return error
         const paymentModeData = await nodePhpVendorPaymentModeModel.findOne({
-            created_by: req.body.created_by
+            payment_mode: req.body.payment_mode
         })
         if (paymentModeData) {
             return response.returnFalse(409, req, res, "Payment Mode Name is already exist", {});
