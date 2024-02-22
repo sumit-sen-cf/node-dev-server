@@ -301,6 +301,32 @@ exports.editFinance = async (req, res) => {
   }
 };
 
+exports.editFinanceUtr = async (req, res) => {
+  try {
+    const editsim = await financeModel.findOneAndUpdate(
+      { id: req.body.id },
+      {
+        attendence_id: req.body.attendence_id,
+        utr: req.body.utr
+      }
+    );
+
+    await attendanceModel.findOneAndUpdate(
+      { attendence_id: req.body.attendence_id },
+      { attendence_status_flow: 'Payment Released' },
+      { new: true }
+    );
+    if (!editsim) {
+      return res.status(500).send({ success: false });
+    }
+    res.status(200).send({ success: true, data: editsim });
+  } catch (err) {
+    return res
+      .status(500)
+      .send({ error: err.message, sms: "Error updating finance details" });
+  }
+};
+
 exports.deleteFinance = async (req, res) => {
   financeModel
     .deleteOne({ id: req.params.id })
@@ -346,10 +372,14 @@ exports.setUtrData = async (req, res) => {
       }
     });
 
-
     for (const data of utrData) {
       const { attendence_id, utr } = data;
       await financeModel.updateOne({ attendence_id }, { utr });
+      await attendanceModel.findOneAndUpdate(
+        { attendence_id: attendence_id },
+        { attendence_status_flow: 'Payment Released' },
+        { new: true }
+      );
     }
 
     return res.status(200).json({ success: true, message: 'UTR data updated successfully.' });
