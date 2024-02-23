@@ -107,7 +107,7 @@ const userModel = new mongoose.Schema({
     },
     releaving_date: {
         type: Date,
-        default: Date.now
+        // default: Date.now
     },
     level: {
         type: String,
@@ -176,7 +176,7 @@ const userModel = new mongoose.Schema({
     },
     DateOfMarriage: {
         type: Date,
-        default: Date.now
+        // default: Date.now
     },
     tds_applicable: {
         type: String,
@@ -519,7 +519,7 @@ const userModel = new mongoose.Schema({
     bank_Account_No: {
         type: Number,
         required: false,
-        default: ""
+        default: 0
     },
     account_Type: {
         type: String,

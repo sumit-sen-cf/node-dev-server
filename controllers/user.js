@@ -1545,7 +1545,7 @@ exports.getSingleUser = async (req, res) => {
                     document_percentage_non_mandatory: "$document_percentage_non_mandatory",
                     document_percentage: "$document_percentage",
                     bank_type: "$bank_type",
-                    upi_Id:"$"
+                    upi_Id:"$upi_Id"
                 }
             }
         ]).exec();
