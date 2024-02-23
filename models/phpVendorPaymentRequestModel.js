@@ -97,6 +97,16 @@ const phpVendorPaymentRequestModel = new mongoose.Schema({
         type: Number,
         required: false,
         default: 0
+    },
+    gst_Hold_Bool: {
+        type: Boolean,
+        required: false,
+        default: 0
+    },
+    tds_Deduction_Bool: {
+        type: Boolean,
+        required: false,
+        default: 0
     }
 });
 

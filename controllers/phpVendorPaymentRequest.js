@@ -28,7 +28,9 @@ exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
             request_date: req.body.request_date,
             payment_date: req.body.payment_date,
             tds_deduction: req.body.tds_deduction,
-            gst_hold: req.body.gst_hold
+            gst_hold: req.body.gst_hold,
+            gst_Hold_Bool: req.body.gst_Hold_Bool,
+            tds_Deduction_Bool: req.body.tds_Deduction_Bool
         });
 
         if (req.file) {
@@ -37,7 +39,8 @@ exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
             const blob = bucket.file(req.file.originalname);
             data.evidence = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => {
+            blobStream.
+            on("finish", () => {
                 // res.status(200).send("Success")
             });
             blobStream.end(req.file.buffer);
@@ -93,7 +96,9 @@ exports.addPhpVendorPaymentRequestSet = async (req, res) => {
                     name: data.name,
                     vendor_name: data.vendor_name,
                     request_date: data.request_date,
-                    payment_date: data.payment_date
+                    payment_date: data.payment_date,
+                    gst_Hold_Bool: data.gst_Hold_Bool,
+                    tds_Deduction_Bool: data.tds_Deduction_Bool
                 });
 
                 if (req.file) {
@@ -132,7 +137,9 @@ exports.addPhpVendorPaymentRequestSet = async (req, res) => {
                                 name: data.name,
                                 vendor_name: data.vendor_name,
                                 request_date: data.request_date,
-                                payment_date: data.payment_date
+                                payment_date: data.payment_date,
+                                gst_Hold_Bool: data.gst_Hold_Bool,
+                                tds_Deduction_Bool: data.tds_Deduction_Bool
                             }
                         }
                     )
