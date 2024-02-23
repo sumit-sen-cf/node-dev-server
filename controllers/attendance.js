@@ -214,10 +214,11 @@ exports.addAttendance = async (req, res) => {
                 });
                 const instav = await creators.save();
               }
-              return res.send({ status: 200 });
+              // res.send({ status: 200 });
             }
 
           });
+        res.send({ status: 200 });
       } else {
         const Dept = dept || "";
         const User_id = user_id || "";
@@ -296,8 +297,9 @@ exports.addAttendance = async (req, res) => {
               });
               const instav = await creators.save();
             }
-            return res.send({ status: 200 });
+            // res.send({ status: 200 });
           });
+          res.send({ status: 200 });
         } else if (
           req.body.user_id == check1[0].user_id &&
           req.body.month == check1[0].month &&
