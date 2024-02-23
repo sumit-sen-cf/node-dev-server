@@ -208,6 +208,11 @@ const userModel = new mongoose.Schema({
         required: false,
         default: ""
     },
+    upi_Id: {
+        type: String,
+        required: false,
+        default: ""
+    },
     uid_validate: {
         type: String,
         required: false,
