@@ -542,7 +542,7 @@ router.put(
   upload1.single("screenshot"),
   finance.editFinance
 );
-router.put("/edit_finance_utr", finance.editFinanceUtr );
+router.put("/edit_finance_utr", finance.editFinanceUtr);
 router.delete("/delete_finance", finance.deleteFinance);
 router.post("/set_utr_data", upload1.single("excel"), finance.setUtrData)
 router.post("/get_wfhd_tds_users", finance.getWFHDTDSUsers)
@@ -751,8 +751,7 @@ router.post("/add_user", user.addUser);
 router.post("/add_user_for_general_information", user.addUserForGeneralInformation);
 router.post("/forgot_pass", user.forgotPass);
 router.put("/update_user", user.updateUser);
-router.put("/update_user_for_personal_information/:user_id", user.updateUserForPersonalInformation);
-router.put("/update_user_for_official_information/:user_id", user.updateUserForOfficialInformation);
+router.put("/update_user_for_general_information/:user_id", user.updateUserForGeneralInformation);
 router.put("/update_user_for_other_details/:user_id", user.updateUserInformation);
 router.put("/update_user_for_bank_details/:user_id", user.updateBankInformation);
 
