@@ -684,7 +684,7 @@ exports.updateBankInformation = async (req, res) => {
         const bankprofileUpdate = await userModel.findOneAndUpdate({
             user_id: req.params.user_id
         }, {
-                $set: {
+            $set: {
                 bank_name: bank_name,
                 account_no: account_no,
                 ifsc_code: ifsc_code,
@@ -692,7 +692,7 @@ exports.updateBankInformation = async (req, res) => {
                 account_type: account_type,
                 branch_name: branch_name,
                 upi_Id: upi_id
-                }
+            }
         }, {
             new: true
         });
@@ -1088,6 +1088,8 @@ exports.getAllUsers = async (req, res) => {
                 $project: {
                     user_id: "$user_id",
                     user_name: "$user_name",
+                    account_type: "$account_type",
+                    branch_name: "$branch_name",
                     offer_later_status: "$offer_later_status",
                     user_designation: "$user_designation",
                     user_email_id: "$user_email_id",
@@ -1562,6 +1564,8 @@ exports.getSingleUser = async (req, res) => {
                     document_percentage_non_mandatory: "$document_percentage_non_mandatory",
                     document_percentage: "$document_percentage",
                     bank_type: "$bank_type",
+                    account_type: "$account_type",
+                    branch_name: "$branch_name",
                     upi_Id: "$upi_Id"
                 }
             }
