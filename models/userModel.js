@@ -516,17 +516,12 @@ const userModel = new mongoose.Schema({
         required: false,
         default: ""
     },
-    bank_Account_No: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    account_Type: {
+    account_type: {
         type: String,
         required: false,
         default: ""
     },
-    branch_Name: {
+    branch_name: {
         type: String,
         required: false,
         default: ""

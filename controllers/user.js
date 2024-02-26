@@ -229,7 +229,7 @@ exports.addUser = [upload, async (req, res) => {
             document_percentage_non_mandatory: req.body.document_percentage_non_mandatory,
             document_percentage: req.body.document_percentage,
             bank_type: req.body.bank_type,
-            upi_Id:req.body.upi_Id
+            upi_Id: req.body.upi_Id
         })
 
         if (req.files.image && req.files.image[0].originalname) {
@@ -397,7 +397,7 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             joining_date: req.body.joining_date,
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
-            upi_Id:req.body.upi_Id,
+            upi_Id: req.body.upi_Id,
         })
 
         if (req.files && req.files.image && req.files.image[0].originalname) {
@@ -509,7 +509,7 @@ exports.updateUserForPersonalInformation = [upload, async (req, res) => {
             Gender: req.body.Gender,
             DOB: req.body.DOB,
             Age: req.body.Age,
-            upi_Id:req.body.upi_Id,
+            upi_Id: req.body.upi_Id,
             Nationality: req.body.Nationality,
             MartialStatus: req.body.MartialStatus,
             created_by: req.body.created_by
@@ -608,7 +608,7 @@ exports.updateUserForOfficialInformation = async (req, res) => {
             joining_date: req.body.joining_date,
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
-            upi_Id:req.body.upi_Id,
+            upi_Id: req.body.upi_Id,
         }, { new: true });
 
         if (!editsim) {
@@ -624,14 +624,22 @@ exports.updateUserForOfficialInformation = async (req, res) => {
 
 exports.updateUserInformation = async (req, res) => {
     try {
-        const { current_address, current_city, current_state, current_pin_code, BloodGroup, Hobbies, SpokenLanguages, 
-            cast_type,upi_Id } = req.body;
+        const { current_address, current_city, current_state, current_pin_code,
+            permanent_address, permanent_city, permanent_state, permanent_pin_code,
+            BloodGroup, Hobbies, SpokenLanguages,
+            cast_type, upi_Id } = req.body;
+
+        //current user find for update details
         const updateProfile = await userModel.findOne({
             user_id: req.params.user_id
         });
+
+        //check user is not find
         if (!updateProfile) {
             return res.status(404).send("User not found");
         }
+
+        //user details update
         const profileUpdate = await userModel.findOneAndUpdate({
             user_id: req.params.user_id
         }, {
@@ -640,11 +648,15 @@ exports.updateUserInformation = async (req, res) => {
                 current_city: current_city,
                 current_state: current_state,
                 current_pin_code: current_pin_code,
+                permanent_address: permanent_address,
+                permanent_city: permanent_city,
+                permanent_state: permanent_state,
+                permanent_pin_code: permanent_pin_code,
                 BloodGroup: BloodGroup,
                 Hobbies: Hobbies,
                 SpokenLanguages: SpokenLanguages,
                 cast_type: cast_type,
-                upi_Id:upi_Id,
+                upi_Id: upi_Id
             }
         }, {
             new: true
@@ -664,21 +676,26 @@ exports.updateUserInformation = async (req, res) => {
 
 exports.updateBankInformation = async (req, res) => {
     try {
-        const { bank_name, ifsc_code, beneficiary, bank_Account_No, account_Type, branch_Name,upi_Id } = req.body;
+        const { bank_name, account_no, ifsc_code, beneficiary, account_type, branch_name, upi_id } = req.body;
         const updateBankProfile = await userModel.findOne({ user_id: req.params.user_id });
         if (!updateBankProfile) {
             return res.status(404).send("User not found");
         }
-        const bankprofileUpdate = await userModel.findOneAndUpdate(
-            { user_id: req.params.user_id },
-            {
+        const bankprofileUpdate = await userModel.findOneAndUpdate({
+            user_id: req.params.user_id
+        }, {
                 $set: {
-                    bank_name: bank_name, ifsc_code: ifsc_code, beneficiary: beneficiary, bank_Account_No: bank_Account_No,
-                    account_Type: account_Type, branch_Name: branch_Name,upi_Id:upi_Id
+                bank_name: bank_name,
+                account_no: account_no,
+                ifsc_code: ifsc_code,
+                beneficiary: beneficiary,
+                account_type: account_type,
+                branch_name: branch_name,
+                upi_Id: upi_id
                 }
-            },
-            { new: true }
-        );
+        }, {
+            new: true
+        });
         return res.status(200).json({
             status: 200,
             message: "Bank profile updated successfully!",
@@ -843,7 +860,7 @@ exports.updateUser = [upload, async (req, res) => {
             document_percentage: req.body.document_percentage,
             show_rocket: req.body.show_rocket,
             bank_type: req.body.bank_type,
-            upi_Id:req.body.upi_Id,
+            upi_Id: req.body.upi_Id,
         }, { new: true });
 
         if (!editsim) {
@@ -1214,7 +1231,7 @@ exports.getAllUsers = async (req, res) => {
                     document_percentage_mandatory: "$document_percentage_mandatory",
                     document_percentage_non_mandatory: "$document_percentage_non_mandatory",
                     document_percentage: "$document_percentage",
-                    upi_Id:"$upi_Id",
+                    upi_Id: "$upi_Id",
                     documentPercentage: {
                         $multiply: [
                             {
@@ -1545,7 +1562,7 @@ exports.getSingleUser = async (req, res) => {
                     document_percentage_non_mandatory: "$document_percentage_non_mandatory",
                     document_percentage: "$document_percentage",
                     bank_type: "$bank_type",
-                    upi_Id:"$upi_Id"
+                    upi_Id: "$upi_Id"
                 }
             }
         ]).exec();
