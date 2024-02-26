@@ -394,6 +394,7 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             user_contact_no: req.body.user_contact_no, //for offical
             user_login_id: req.body.user_login_id.toLowerCase().trim(),
             user_login_password: encryptedPass,
+            user_status: req.body.user_status,
             joining_date: req.body.joining_date,
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
@@ -489,8 +490,12 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
     }
 }];
 
-exports.updateUserForPersonalInformation = [upload, async (req, res) => {
+exports.updateUserForGeneralInformation = [upload, async (req, res) => {
     try {
+        let encryptedPass;
+        if (req.body.user_login_password) {
+            encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
+        }
         //check user exist or not
         const existingUser = await userModel.findOne({ user_id: req.params.user_id });
 
@@ -512,7 +517,25 @@ exports.updateUserForPersonalInformation = [upload, async (req, res) => {
             upi_Id: req.body.upi_Id,
             Nationality: req.body.Nationality,
             MartialStatus: req.body.MartialStatus,
-            created_by: req.body.created_by
+            created_by: req.body.created_by,
+            //for official information
+            job_type: req.body.job_type,
+            dept_id: req.body.dept_id,
+            sub_dept_id: isNaN(req.body.sub_dept_id) ? 0 : req.body.sub_dept_id,
+            user_designation: req.body.user_designation,
+            Report_L1: isNaN(req.body.report_L1) ? 0 : req.body.report_L1,
+            Report_L2: isNaN(req.body.report_L2) ? 0 : req.body.report_L2,
+            Report_L3: isNaN(req.body.report_L3) ? 0 : req.body.report_L3,
+            role_id: req.body.role_id,
+            user_email_id: req.body.user_email_id, //for offical
+            user_contact_no: req.body.user_contact_no, //for offical
+            user_login_id: req.body.user_login_id.toLowerCase().trim(),
+            user_login_password: encryptedPass,
+            user_status: req.body.user_status,
+            joining_date: req.body.joining_date,
+            sitting_id: req.body.sitting_id,
+            room_id: req.body.room_id,
+            upi_Id: req.body.upi_Id,
         }, { new: true });
 
         if (!editsim) {
@@ -576,51 +599,6 @@ exports.updateUserForPersonalInformation = [upload, async (req, res) => {
         return res.status(500).send({ error: err.message, sms: 'Error while updating user personal information details' })
     }
 }];
-
-exports.updateUserForOfficialInformation = async (req, res) => {
-    try {
-        let encryptedPass;
-        if (req.body.user_login_password) {
-            encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
-        }
-
-        const existingUser = await userModel.findOne({ user_id: req.params.user_id });
-
-        if (!existingUser) {
-            return res.status(404).send({ success: false, message: 'User not found' });
-        }
-
-        //user details update in DB
-        const editsim = await userModel.findOneAndUpdate({ user_id: parseInt(req.params.user_id) }, {
-            //for official information
-            job_type: req.body.job_type,
-            dept_id: req.body.dept_id,
-            sub_dept_id: isNaN(req.body.sub_dept_id) ? 0 : req.body.sub_dept_id,
-            user_designation: req.body.user_designation,
-            Report_L1: isNaN(req.body.report_L1) ? 0 : req.body.report_L1,
-            Report_L2: isNaN(req.body.report_L2) ? 0 : req.body.report_L2,
-            Report_L3: isNaN(req.body.report_L3) ? 0 : req.body.report_L3,
-            role_id: req.body.role_id,
-            user_email_id: req.body.user_email_id, //for offical
-            user_contact_no: req.body.user_contact_no, //for offical
-            user_login_id: req.body.user_login_id.toLowerCase().trim(),
-            user_login_password: encryptedPass,
-            joining_date: req.body.joining_date,
-            sitting_id: req.body.sitting_id,
-            room_id: req.body.room_id,
-            upi_Id: req.body.upi_Id,
-        }, { new: true });
-
-        if (!editsim) {
-            return res.status(500).send({ success: false })
-        }
-
-        //return the succes response
-        return res.status(200).send({ success: true, data: editsim })
-    } catch (err) {
-        return res.status(500).send({ error: err.message, sms: 'Error while updating user personal information details' })
-    }
-};
 
 exports.updateUserInformation = async (req, res) => {
     try {
