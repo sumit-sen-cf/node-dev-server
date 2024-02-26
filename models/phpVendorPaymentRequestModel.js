@@ -107,6 +107,44 @@ const phpVendorPaymentRequestModel = new mongoose.Schema({
         type: Boolean,
         required: false,
         default: 0
+    },
+    zoho_status: {
+        type: String,
+        dafault: "Pending",
+    },
+    zoho_date: {
+        type: Date
+    },
+    zoho_remark: {
+        type: String,
+        dafault: ""
+    },
+    tds_status: {
+        type: String,
+        dafault: "Pending",
+    },
+    tds_date: {
+        type: Date
+    },
+    tds_remark: {
+        type: String,
+        dafault: ""
+    },
+    gst_status: {
+        type: String,
+        dafault: "Pending",
+    },
+    gst_date: {
+        type: Date
+    },
+    gst_remark: {
+        type: String,
+        dafault: ""
+    },
+    gst_hold_amount: {
+        type: Number,
+        required: false,
+        default: 0
     }
 });
 
