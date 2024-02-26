@@ -30,7 +30,17 @@ exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
             tds_deduction: req.body.tds_deduction,
             gst_hold: req.body.gst_hold,
             gst_Hold_Bool: req.body.gst_Hold_Bool,
-            tds_Deduction_Bool: req.body.tds_Deduction_Bool
+            tds_Deduction_Bool: req.body.tds_Deduction_Bool,
+            zoho_status: req.body.zoho_status,
+            zoho_date: req.body.zoho_date,
+            zoho_remark: req.body.zoho_remark,
+            tds_status: req.body.tds_status,
+            tds_date: req.body.tds_date,
+            tds_remark: req.body.tds_remark,
+            gst_status: req.body.gst_status,
+            gst_date: req.body.gst_date,
+            gst_remark: req.body.gst_remark,
+            gst_hold_amount: req.body.gst_hold_amount
         });
 
         if (req.file) {
@@ -40,9 +50,9 @@ exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
             data.evidence = blob.name;
             const blobStream = blob.createWriteStream();
             blobStream.
-            on("finish", () => {
-                // res.status(200).send("Success")
-            });
+                on("finish", () => {
+                    // res.status(200).send("Success")
+                });
             blobStream.end(req.file.buffer);
         }
 
@@ -211,17 +221,32 @@ exports.getSinglePhpVendorPaymentRequest = async (req, res) => {
 
 exports.updatePhpVendorPaymentRequest = async (req, res) => {
     try {
-        const updatedData = phpVendorPaymentRequestModel.findOneAndUpdate({ request_id: req.body.request_id }, {
-            status: 1,
-            evidence: req.files?.evidence,
-            payment_date: req.body.payment_date,
-            payment_mode: req.body.payment_mode,
-            payment_amount: req.body.payment_amount,
-            payment_by: req.body.payment_by,
-            remark_finance: req.body.remark_finance,
-            tds_deduction: req.body.tds_deduction,
-            gst_hold: req.body.gst_hold
-        });
+        const updatedData = await phpVendorPaymentRequestModel.findOneAndUpdate(
+            { request_id: req.body.request_id },
+            {
+                status: 1,
+                evidence: req.files?.evidence,
+                payment_date: req.body.payment_date,
+                payment_mode: req.body.payment_mode,
+                payment_amount: req.body.payment_amount,
+                payment_by: req.body.payment_by,
+                remark_finance: req.body.remark_finance,
+                tds_deduction: req.body.tds_deduction,
+                gst_hold: req.body.gst_hold,
+                zoho_status: req.body.zoho_status,
+                zoho_date: req.body.zoho_date,
+                zoho_remark: req.body.zoho_remark,
+                tds_status: req.body.tds_status,
+                tds_date: req.body.tds_date,
+                tds_remark: req.body.tds_remark,
+                gst_status: req.body.gst_status,
+                gst_date: req.body.gst_date,
+                gst_remark: req.body.gst_remark,
+                gst_hold_amount: req.body.gst_hold_amount
+            },
+            { new: true }
+        );
+
         if (req.file && req.file.originalname) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
@@ -233,12 +258,12 @@ exports.updatePhpVendorPaymentRequest = async (req, res) => {
             });
             blobStream.end(req.file.buffer);
         } else {
-            updatedData.save();
+            await updatedData.save();
             return response.returnTrue(
                 200, req, res, "phpVendor Payment Request data updated", updatedData
-            )
+            );
         }
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
-}
+};
