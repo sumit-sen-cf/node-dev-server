@@ -30,7 +30,7 @@ const userModel = new mongoose.Schema({
     user_name: {
         type: String,
         required: false,
-        unique: true,
+        unique: false,
         default: ""
     },
     user_report_to_id: {
