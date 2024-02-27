@@ -12,6 +12,8 @@ const { base_url } = require("../common/constant.js");
 const constant = require("../common/constant.js");
 const notificationModel = require("../models/notificationModel.js");
 const departmentModel = require("../models/departmentModel.js");
+const vari = require("../variables.js");
+const { storage } = require('../common/uploadFile.js')
 
 module.exports = {
   /**
@@ -95,27 +97,38 @@ module.exports = {
       });
 
       //Save pdf at mention path
-      const outputPath = path.join(
-        __dirname,
-        `../uploads/offerLetterPdf/${pdfFileName} Offer Letter.pdf`
-      );
+      // const outputPath = path.join(
+      //   __dirname,
+      //   `../uploads/offerLetterPdf/${pdfFileName} Offer Letter.pdf`
+      // );
+
+      const remoteFilePath = `offerLetterPdf/${pdfFileName} Offer Letter.pdf`;
 
       // Generate PDF with Puppeteer
-      // const browser = await puppeteer.launch({headless: "true"});  // For Localhsot
-      const browser = await puppeteer.launch({
-        headless: "true",
-        executablePath: "/usr/bin/chromium",
-      });
+      const browser = await puppeteer.launch({ headless: "true" });  // For Localhsot
+      // const browser = await puppeteer.launch({
+      //   headless: "true",
+      //   executablePath: "/usr/bin/chromium",
+      // });
       const page = await browser.newPage();
       await page.setContent(html);
-      await page.pdf({ path: outputPath, format: "A4" });
+      // await page.pdf({ path: outputPath, format: "A4" });
+      const pdfBuffer = await page.pdf({ format: "A4" });
       await browser.close();
+
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const file = bucket.file(remoteFilePath);
+      await file.save(pdfBuffer, {
+        contentType: 'application/pdf',
+        gzip: false
+      });
 
       await userModel.findOneAndUpdate(
         { user_id: empData?.user_id },
         {
           $set: {
-            offer_later_pdf_url: `${base_url}/${pdfFileName} Offer Letter.pdf`,
+            offer_later_pdf_url: `${vari.IMAGE_URL}/${pdfFileName} Offer Letter.pdf`,
           },
         }
       );

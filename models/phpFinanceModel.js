@@ -8,7 +8,7 @@ const phpFinanceModel = new mongoose.Schema({
         required: false
     },
     payment_date: {
-        type: Date,
+        type: String,
         required: false
     },
     sale_booking_id: {
