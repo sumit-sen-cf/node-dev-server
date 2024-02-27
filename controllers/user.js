@@ -801,7 +801,7 @@ exports.updateUser = [upload, async (req, res) => {
             pre_expe_letter: req.files && req.files['pre_expe_letter'] && req.files['pre_expe_letter'][0] ? req.files['pre_expe_letter'][0].filename : (existingUser && existingUser.pre_expe_letter) || '',
             pre_relieving_letter: req.files && req.files['pre_relieving_letter'] && req.files['pre_relieving_letter'][0] ? req.files['pre_relieving_letter'][0].filename : (existingUser && existingUser.pre_relieving_letter) || '',
             bankPassBook_Cheque: req.files && req.files['bankPassBook_Cheque'] && req.files['bankPassBook_Cheque'][0] ? req.files['bankPassBook_Cheque'][0].filename : (existingUser && existingUser.bankPassBook_Cheque) || '',
-            joining_extend_document: req.files && req.files['joining_extend_document'] && req.files['joining_extend_document'][0] ? req.files['joining_extend_document'][0].filename : (existingUser && existingUser.joining_extend_document) || '',
+            joining_extend_document: req.files && req.files?.joining_extend_document && req.files?.joining_extend_document[0] ? req.files?.joining_extend_document[0].originalname : existingUser.joining_extend_document,
             userSalaryStatus: req.body.userSalaryStatus,
             // digital_signature_image: req.files && req.files['digital_signature_image'] && req.files['digital_signature_image'][0] ? req.files['digital_signature_image'][0].filename : (existingUser && existingUser.digital_signature_image) || '',
             digital_signature_image: req.files && req.files?.digital_signature_image && req.files?.digital_signature_image[0] ? req.files?.digital_signature_image[0].originalname : existingUser.digital_signature_image,
@@ -894,6 +894,32 @@ exports.updateUser = [upload, async (req, res) => {
                 editsim.save();
             } catch (err) {
                 console.log('error', err)
+            }
+        }
+
+        if (req.files && req.files.joining_extend_document && req.files.joining_extend_document[0]?.originalname) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+
+            const currentDate = new Date();
+            const fileNamef = `${currentDate.getTime()}.jpg`;
+
+            const blob = bucket.file(fileNamef);
+            editsim.joining_extend_document = blob.name;
+
+            const saveBlobPromise = new Promise((resolve, reject) => {
+                const blobStream = blob.createWriteStream();
+                blobStream.on("finish", () => {
+                    resolve();
+                });
+                blobStream.end(req.files.joining_extend_document[0]?.buffer);
+            });
+
+            try {
+                await saveBlobPromise;
+                editsim.save();
+            } catch (error) {
+                console.error("Error saving joining_extend_document:", error);
             }
         }
 
@@ -2674,6 +2700,7 @@ exports.sendMailAllWfoUser = async (req, res) => {
 
 exports.getAllWfhUsers = async (req, res) => {
     try {
+        const imageUrl = vari.IMAGE_URL;
         // const simc = await userModel.find({ job_type: 'WFHD' }).lean();
         const simc = await userModel.aggregate([
             {
@@ -2813,7 +2840,9 @@ exports.getAllWfhUsers = async (req, res) => {
                     joining_extend_document: "$joining_extend_document",
                     invoice_template_no: "$invoice_template_no",
                     userSalaryStatus: "$userSalaryStatus",
-                    digital_signature_image: "$digital_signature_image",
+                    digital_signature_image: {
+                        $concat: [imageUrl, "$digital_signature_image"],
+                    },
                     department_name: "$department.dept_name",
                     Role_name: "$role.Role_name",
                     report: "$reportTo.user_name",
