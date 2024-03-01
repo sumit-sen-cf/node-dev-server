@@ -79,8 +79,10 @@ const agencyController = require('./controllers/operationExecution/campaignMaste
 const goalController = require('./controllers/operationExecution/campaignMasterController/goalController.js')
 const serviceController = require('./controllers/operationExecution/campaignMasterController/serviceController.js')
 const industryController = require('./controllers/operationExecution/campaignMasterController/industryController.js')
-
 const directPlanCreationController = require('./controllers/operationExecution/directPlanCreationController.js')
+const tempPlanController=require('./controllers/operationExecution/tempPlan/tempPlanController.js')
+const tempExecutionController=require('./controllers/operationExecution/tempPlan/executionTempController.js')
+const handleInstaPost=require('./controllers/operationExecution/tempPlan/handleInstaPost.js')
 //opertaion + execution imports ends here`
 
 const city = require("./controllers/cityController.js");
@@ -223,6 +225,14 @@ router.get('/directplan/:id', directPlanCreationController.getSinglePlan)
 router.put('/directplan/:id', directPlanCreationController.updateSinglePlan)
 router.delete('/directplan/:id', directPlanCreationController.deleteSinglePlan)
 
+//temporary plan model
+router.post('/tempplan',tempPlanController.createTempPlan)
+router.post('/tempAssignments',tempExecutionController.getAllAssignmetsPlan)
+router.post('/tempexecution',tempExecutionController.getAllExecutionForPlan)
+router.put('/tempexecution',tempExecutionController.updateExecution)
+router.get('/tempAssignment/:id',tempExecutionController.getAllAssignementBasedOnExpertee)
+router.post('/getinstapostdata',handleInstaPost.getPostInfo)
+router.post('/checktempexecduplicacy',tempExecutionController.validateLinkDuplication)
 
 /*operation+execution api ends*/
 /*insta api*/
