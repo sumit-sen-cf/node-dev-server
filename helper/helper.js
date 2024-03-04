@@ -105,11 +105,11 @@ module.exports = {
       const remoteFilePath = `offerLetterPdf/${pdfFileName} Offer Letter.pdf`;
 
       // Generate PDF with Puppeteer
-      const browser = await puppeteer.launch({ headless: "true" });  // For Localhsot
-      // const browser = await puppeteer.launch({
-      //   headless: "true",
-      //   executablePath: "/usr/bin/chromium",
-      // });
+      // const browser = await puppeteer.launch({ headless: "true" });  // For Localhsot
+      const browser = await puppeteer.launch({
+        headless: "true",
+        executablePath: "/usr/bin/chromium",
+      });
       const page = await browser.newPage();
       await page.setContent(html);
       // await page.pdf({ path: outputPath, format: "A4" });
@@ -128,7 +128,7 @@ module.exports = {
         { user_id: empData?.user_id },
         {
           $set: {
-            offer_later_pdf_url: `${vari.IMAGE_URL}/${pdfFileName} Offer Letter.pdf`,
+            offer_later_pdf_url: `${vari.IMAGE_URL}${remoteFilePath}`,
           },
         }
       );

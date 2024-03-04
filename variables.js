@@ -1,6 +1,6 @@
 module.exports = {
-    PORT: 3000,
-    API_URL: 'http://0.0.0.0:3000/',
+    PORT: 8080,
+    API_URL: 'http://0.0.0.0:8080/',
     JWT: 'secret',
     // IMAGE_URL: 'http://34.93.221.166:3000/uploads/',
     MONGODB: 'mongodb+srv://manojgavel1:Manojatlas123@cluster0.6m1smop.mongodb.net/instaDB?retryWrites=true&w=majority',

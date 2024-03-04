@@ -154,9 +154,9 @@ exports.pendingInvoiceUpdate = async (req, res) => {
                 invoice: req.file?.originalname,
                 loggedin_user_id: req.body.loggedin_user_id,
                 status: req.body.status,
-                invoice_mnj_number: invoice_mnj_number,
-                invoice_mnj_date: invoice_mnj_date,
-                party_mnj_name: party_mnj_name
+                invoice_mnj_number: req.body.invoice_mnj_number,
+                invoice_mnj_date: req.body.invoice_mnj_date,
+                party_mnj_name: req.body.party_mnj_name
             },
             { new: true }
         );
@@ -177,7 +177,7 @@ exports.pendingInvoiceUpdate = async (req, res) => {
             const blob = bucket.file(req.file.originalname);
             editPendingApprovalData.invoice = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => { 
+            blobStream.on("finish", () => {
                 // res.status(200).send("Success") 
             });
             blobStream.end(req.file.buffer);

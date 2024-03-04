@@ -143,6 +143,47 @@ exports.getAssetModalById = async (req, res) => {
   }
 };
 
+exports.getAssetModalByAssetBrandId = async (req, res) => {
+  try {
+    const assetBrandData = await assetModalModel
+      .aggregate([
+        {
+          $match: { asset_brand_id: parseInt(req.params.id) },
+        },
+        {
+          $lookup: {
+            from: "assetsbrandmodels",
+            localField: "asset_brand_id",
+            foreignField: "asset_brand_id",
+            as: "assetBrand",
+          },
+        },
+        {
+          $unwind: {
+            path: "$assetBrand",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            asset_modal_id: "$asset_modal_id",
+            asset_brand_name: "$assetBrand.asset_brand_name",
+            asset_brand_id: "$asset_brand_id",
+            asset_modal_name: "$asset_modal_name",
+            creation_date: "$creation_date",
+            updated_at: "$updated_at"
+          },
+        },
+      ])
+      .exec();
+
+    return res.status(200).send(assetBrandData);
+  } catch (err) {
+    return response.returnFalse(500, req, res, err.message, {});
+  }
+};
+
 exports.editAssetModal = async (req, res) => {
   try {
     const editAssetModalData = await assetModalModel.findOneAndUpdate({ asset_modal_id: req.body.asset_modal_id }, {
