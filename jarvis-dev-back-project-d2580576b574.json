@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "jarvis-dev-back-project",
+  "private_key_id": "d2580576b574cf622ee1446cb534ee04ba14bab4",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDC4djFhyiD9dVe\nhwiGdxxqyjmXfhobdwgm3zn4IssCup/4Yi139xWFjs3NhtbjAXiGUipCDNXWA0TT\nPJ51TGLB1jD+Hgn9y38Au4K3jM1q+28PtCTcmoJJE5ErGbEs05V4AIuj03gVoLqZ\n25FcwqIZTl+q9Cq4A6raGAOD5asEDdHbouQZz7rd/mKwhB8FHAKdr7c/fh3xvd7b\nfXtF/EKFNyJxyyDr+g8WeKr+ppfTc9eRoxbKzGLSwEPsf1xY9kU7B7ftNuQ5wqdg\n4SwseH1Lww9DSPHG/KMGv2iYSNpF6jEd5t0eRGfiz91aaW7tDa+bNnGGHWBLR365\n7wf6JmP1AgMBAAECggEAFTpaLTwJgQROe2c8mb8QQJ6qEtMo31yCLg/LRfjuQawY\nAEubddGbjcqOJujc7+nJWeJJ2ZuB0HfXL6ZPAWpyaHhfKlMV1ggsW6VROhKzjod4\nY87E5CXNcs3XlokMKFycz69Jhq0ii8KQCPHmneLSmuyTVbEWlShLHEoY2e1yyTRS\nTOiowkcV1EwZ/by26D8eR9Pjr6/d0QBXitdi4DeSs3sTwG04xHiXTSIQmW2JXzs4\nLM6XxchcsVG9082rN9BgqOiIynUOy10aWltwv4k1yx+IJ24t1jDlMza4k+BCmqCu\nguCVv8uQ8Nvvky/gSdLtAXuIzNm1sjv7DV/kpJS/0QKBgQD1BuzSWMJgRZjf0bki\nJZWGvoVNIX1g8hia7+PYAaDVs1DaPfD5NzS5BUdolO4TaNxoDs16TZkN9hhhpZAP\n+Od2cy+rHHTvR2+6YcuYTCWyePpIr4MAYlVlxjo9/XB73I2SH3d18bqLTBecuV7b\nL/7Mdy1Y4YIcJ2lCtQ8LS8vlxQKBgQDLnAs9xC144kEDP4UCc2wt2+Da3DlBJlVg\nEHepN1dwQrdOJXSAT5F7Hv6dq2dRbAODjmPOBF0C6fZi8YGE7ZQOymISCJI3odjw\nJ1F/OK0vYe2fGuJTdW1/pOEDUOpV7z8DXZsV76B9f37VP76Gzbd5YdJqpsH+dLo6\npMLwdmWYcQKBgGfuFglqqJfZLWzSMiqvsmrC6Ru8NsgmKBWf5w66MhQyyPqpB0tO\nBUjtWkqb0RfehI6GqNVVkLQBTHoulZqQwuzVEsULfvX3YQa3cHoa4mp/Mfoep/xD\nuWE/4XhlxY5kEJCIVE1syOlIz0MkxX1HMFZdvphSnrN+bAFldwodjlDZAoGALTKS\nfD+UKIVxERuElyqwFO3+WBcSzpeH1C9ToMicLFti/YHq/qCrFr2mn7Fw2e40SXvO\nQ+lMDF2LSCN8MNncR/w9EOu+KYNP+N+Bg9A9AYunh+4b15L1n6QmHupTWoglYMXi\nq1fqNHGc4hGoZZw84kEIyIwD/ExFGseAToi5vMECgYEA1SOO+ZRQznkc0nkV8G4G\nonX8cHiCbDvoub/AgoQOGsUglO7GYIFqTXkTg1xv3/B18GtcnBst1KpDuOyRJ+c+\n4GmBPcBiiv0CcrR3xzmR2DOXjLI6P92m5fwMGTFZQZAXn5EjMJIjlOHyyi8xJbaG\ngYYRhBpbkxyi7UqIDb38xU4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "node-dev-bucket-cre@jarvis-dev-back-project.iam.gserviceaccount.com",
+  "client_id": "117093381895026548849",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/node-dev-bucket-cre%40jarvis-dev-back-project.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
