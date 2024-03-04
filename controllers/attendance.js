@@ -545,6 +545,15 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
             digital_signature_image: "$user.digital_signature_image",
           },
         },
+        {
+          $group: {
+            _id: "$attendence_id",
+            data: { $first: "$$ROOT" },
+          },
+        },
+        {
+          $replaceRoot: { newRoot: "$data" },
+        },
       ])
       .exec();
     if (getcreators?.length === 0) {

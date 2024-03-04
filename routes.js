@@ -123,6 +123,7 @@ const attendanceDispute = require("./controllers/attendanceDispute.js");
 const userUpdateHistory = require("./controllers/userUpdateHistory.js");
 const userTraining = require("./controllers/userTraining.js");
 const nodePhpVendorPaymentMode = require("./controllers/nodePhpVendorPaymentMode.js");
+const razorPay = require("./controllers/razorpay.js");
 
 /* Task Mangement Controller Import */
 const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1200,6 +1201,7 @@ router.post("/add_asset_modal", assetModal.addAssetModal);
 router.put("/update_asset_modal", assetModal.editAssetModal);
 router.get("/get_all_asset_modals", assetModal.getAssetModals);
 router.get("/get_single_asset_modal/:id", assetModal.getAssetModalById);
+router.get("/get_asset_modal_by_asset_brandId/:id", assetModal.getAssetModalByAssetBrandId);
 router.delete("/delete_asset_modal/:id", assetModal.deleteAssetModal);
 router.get("/get_asset_available_count_in_modal/:asset_modal_id", assetModal.getTotalAvailableAssetInModal);
 router.get("/get_asset_allocated_count_in_modal/:asset_modal_id", assetModal.getTotalAllocatedAssetInModal);
@@ -1548,5 +1550,9 @@ router.get("/get_all_payment_mode", nodePhpVendorPaymentMode.getAllPaymentMode);
 router.get("/get_single_payment_mode/:_id", nodePhpVendorPaymentMode.getSinglePaymentMode);
 router.put("/edit_payment_mode/:_id", nodePhpVendorPaymentMode.editPaymentMode);
 router.delete("/delete_payment_mode/:_id", nodePhpVendorPaymentMode.deletePaymentMode);
+
+// Payment Gateway Routes
+// router.post("/create_order", razorPay.createOrder);
+router.post("/process_payment", razorPay.processPayment);
 
 module.exports = router;

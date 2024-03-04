@@ -467,6 +467,7 @@ exports.showReturnAssetDataToUserReport = async (req, res) => {
                 $project: {
                     _id: "$assetReturn._id",
                     sim_id: 1,
+                    asset_id: "$sim_no",
                     asset_return_remark: "$assetReturn.asset_return_remark",
                     return_asset_data_time: "$assetReturn.return_asset_data_time",
                     asset_return_status: "$assetReturn.asset_return_status",
