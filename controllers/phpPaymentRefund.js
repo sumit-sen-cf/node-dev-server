@@ -36,6 +36,7 @@ exports.savePhpPaymentRefundInNode = async (req, res) => {
                     sale_booking_refund_id: data.sale_booking_refund_id,
                     refund_amount: data.refund_amount,
                     refund_files: data.refund_files,
+                    refund_request_reason: data.refund_request_reason,
                     manager_refund_status: data.manager_refund_status,
                     manager_refund_reason: data.manager_refund_reason,
                     finance_refund_status: data.finance_refund_status,
@@ -60,6 +61,7 @@ exports.savePhpPaymentRefundInNode = async (req, res) => {
                                 sale_booking_id: data.sale_booking_id,
                                 refund_amount: data.refund_amount,
                                 refund_files: data.refund_files,
+                                refund_request_reason: data.refund_request_reason,
                                 manager_refund_status: data.manager_refund_status,
                                 manager_refund_reason: data.manager_refund_reason,
                                 finance_refund_status: data.finance_refund_status,
@@ -109,13 +111,13 @@ exports.pendingApprovalRefundUpdate = async (req, res) => {
     try {
         let payment_screenshot;
 
-        if(req.file){
+        if (req.file) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
             const blob = bucket.file(req.file.originalname);
             payment_screenshot = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => { 
+            blobStream.on("finish", () => {
                 // res.status(200).send("Success") 
             });
             blobStream.end(req.file.buffer);
