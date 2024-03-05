@@ -19,6 +19,10 @@ const phpPaymentRefundModel = new mongoose.Schema({
         type: String,
         required: false
     },
+    refund_request_reason: {
+        type: String,
+        required: false
+    },
     manager_refund_status: {
         type: Number,
         required: false
@@ -55,11 +59,11 @@ const phpPaymentRefundModel = new mongoose.Schema({
         type: Date,
         required: false
     },
-    cust_name:{
+    cust_name: {
         type: String,
         required: false
     },
-    sno:{
+    sno: {
         type: Number,
         required: false
     }
