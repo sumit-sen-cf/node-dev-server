@@ -117,15 +117,15 @@ exports.getAssetRequests = async (req, res) => {
                         multi_tag_name: "$userMulti.user_name",
                     },
                 },
-                {
-                    $group: {
-                        _id: "$sub_category_id",
-                        data: { $first: "$$ROOT" }
-                    }
-                },
-                {
-                    $replaceRoot: { newRoot: "$data" }
-                }
+                // {
+                //     $group: {
+                //         _id: "$sub_category_id",
+                //         data: { $first: "$$ROOT" }
+                //     }
+                // },
+                // {
+                //     $replaceRoot: { newRoot: "$data" }
+                // }
             ])
             .exec();
 

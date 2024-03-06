@@ -4,12 +4,12 @@ const roomModel = require("../models/roomModel.js");
 const sittingModel = require('../models/sittingModel.js');
 const userModel = require("../models/userModel.js");
 const vari = require("../variables");
-const {storage} = require('../common/uploadFile.js')
+const { storage } = require('../common/uploadFile.js')
 
 exports.addSitting = async (req, res) => {
   try {
-    const checkDuplicacy = await sittingModel.findOne({sitting_ref_no: req.body.sitting_ref_no})
-    if(checkDuplicacy){
+    const checkDuplicacy = await sittingModel.findOne({ sitting_ref_no: req.body.sitting_ref_no })
+    if (checkDuplicacy) {
       return res.status(409).send({
         data: [],
         message: "Sitting ref no already exist",
@@ -110,43 +110,43 @@ exports.deleteSitting = async (req, res) => {
 };
 
 exports.getNotAllocSitting = async (req, res) => {
-    const pipeline = [
-        {
-          $lookup: {
-            from: "usermodels",
-            localField: "sitting_id",
-            foreignField: "sitting_id",
-            as: "user"
-        }
-      },
-      {
-        $match: {
-          "user": { $eq: [] }
-        }
-      },
-      {
-        $project: {
-          user: 0 
-        }
+  const pipeline = [
+    {
+      $lookup: {
+        from: "usermodels",
+        localField: "sitting_id",
+        foreignField: "sitting_id",
+        as: "user"
       }
-    ];
-  
-    sittingModel.aggregate(pipeline, (err, results) => {
-      if (err) {
-        res.sendStatus(500);
-        return;
+    },
+    {
+      $match: {
+        "user": { $eq: [] }
       }
-  
-      res.send({ data: results });
-    });
+    },
+    {
+      $project: {
+        user: 0
+      }
+    }
+  ];
+
+  sittingModel.aggregate(pipeline, (err, results) => {
+    if (err) {
+      res.sendStatus(500);
+      return;
+    }
+
+    res.send({ data: results });
+  });
 }
 
 exports.addRoom = async (req, res) => {
   try {
     const { sitting_ref_no, remarks, created_by } = req.body;
     let roomImage;
-    const checkDuplicacy = await roomModel.findOne({sitting_ref_no: req.body.sitting_ref_no})
-    if(checkDuplicacy){
+    const checkDuplicacy = await roomModel.findOne({ sitting_ref_no: req.body.sitting_ref_no })
+    if (checkDuplicacy) {
       return res.status(409).send({
         data: [],
         message: "Sitting ref no already exist",
@@ -159,13 +159,21 @@ exports.addRoom = async (req, res) => {
       created_by
     });
 
-    if(req.file){
+    if (req.file) {
       const bucketName = vari.BUCKET_NAME;
       const bucket = storage.bucket(bucketName);
       const blob = bucket.file(req.file.originalname);
+      const [exists] = await blob.exists();
+      if (exists) {
+        const currentDate = new Date().toISOString().replace(/:/g, '-');
+        const newFileName = `${currentDate}_${req.file.originalname}`;
+        const newBlob = bucket.file(newFileName);
+        await blob.move(newBlob);
+        roomImage = newFileName;
+      }
       roomObj.roomImage = blob.name;
       const blobStream = blob.createWriteStream();
-      blobStream.on("finish", () => { 
+      blobStream.on("finish", () => {
         // res.status(200).send("Success") 
       });
       blobStream.end(req.file.buffer);
@@ -223,7 +231,7 @@ exports.getRooms = async (req, res) => {
         .status(200)
         .send({ success: true, data: [], message: "No Record found" });
     } else {
-      res.status(200).send({data:dataWithImageUrl});
+      res.status(200).send({ data: dataWithImageUrl });
     }
   } catch (err) {
     res
@@ -292,7 +300,7 @@ exports.getRoomById = async (req, res) => {
 
 exports.editRoom = async (req, res) => {
   try {
-    const { sitting_ref_no, remarks,room_id, Last_updated_by } = req.body;
+    const { sitting_ref_no, remarks, room_id, Last_updated_by } = req.body;
     let last_updated_date = Date.now();
     let roomImage = req.file?.originalname;
     const editRoomObj = await roomModel.findOneAndUpdate(
@@ -309,7 +317,7 @@ exports.editRoom = async (req, res) => {
       }
     );
 
-    if(req.file){
+    if (req.file) {
       const bucketName = vari.BUCKET_NAME;
       const bucket = storage.bucket(bucketName);
       const blob = bucket.file(req.file.originalname);
@@ -322,7 +330,7 @@ exports.editRoom = async (req, res) => {
       blobStream.end(req.file.buffer);
     }
 
-    if (editRoomObj?.roomImage && roomImage ) {
+    if (editRoomObj?.roomImage && roomImage) {
       const result = helper.fileRemove(editRoomObj?.roomImage, "../uploads");
       if (result?.status == false) {
         return res.send(result.msg);
@@ -373,4 +381,3 @@ exports.deleteRoom = async (req, res) => {
     return res.status(400).json({ success: false, message: err.message });
   }
 };
- 
