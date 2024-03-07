@@ -221,7 +221,7 @@ exports.getSims = async (req, res) => {
           $lookup: {
             from: "assetmodalmodels",
             localField: "asset_modal_id",
-            foreignField: "asset_brand_id",
+            foreignField: "asset_modal_id",
             as: "assetModal",
           },
         },
@@ -394,7 +394,7 @@ exports.getSingleSim = async (req, res) => {
           $lookup: {
             from: "assetmodalmodels",
             localField: "asset_modal_id",
-            foreignField: "asset_brand_id",
+            foreignField: "asset_modal_id",
             as: "assetModal",
           },
         },
