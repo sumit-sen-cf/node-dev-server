@@ -111,9 +111,9 @@ const dataPlatform = require("./controllers/dataPlatform.js");
 const dataController = require("./controllers/data.js");
 const deptDesiAuth = require("./controllers/deptDesiAuth.js");
 const assetRequest = require("./controllers/assetRequest.js");
-const taskDelivery = require("./controllers/TMS/taskDelivery.js")
-const task = require("./controllers/TMS/task.js")
-const taskSequence = require("./controllers/TMS/taskSequence.js");
+//const taskDelivery = require("./controllers/TMS/taskDelivery.js")
+// const task = require("./controllers/TMS/task.js")
+// const taskSequence = require("./controllers/TMS/tmsStatusMastController.js");
 const assetReturnRequest = require("./controllers/assetReturn.js");
 const newCoc = require('./controllers/cocManagementNew.js')
 const phpVendorPaymentRequest = require("./controllers/phpVendorPaymentRequest.js");
@@ -126,7 +126,25 @@ const nodePhpVendorPaymentMode = require("./controllers/nodePhpVendorPaymentMode
 const razorPay = require("./controllers/razorpay.js");
 
 /* Task Mangement Controller Import */
-const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
+//const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
+const { createTmsCatMast, getTmsCatMast, updateTmsCatMast, deleteTmsCatMast, getAllTmsCatMast } = require("./controllers/TMS/tmsCatMastController.js");
+const { createTmsSubCatMast, getTmsSubCatMast, updateTmsSubCatMast, getAllTmsSubCatMast, getAllTmsSubCatList, deleteTmsSubCatMast } = require("./controllers/TMS/tmsSubCatController.js");
+const { createTmsStatusMast, getTmsStatusMast, updateTmsStatusMast, getAllTmsStatusMast, getAllTmsStatusMastList, deleteStatusMast } = require("./controllers/TMS/tmsStatusMastController.js");
+const { createTmsSubStatusMast, getTmsSubStatusMast, updateTmsSubStatusMast, getAllTmsSubStatusMast, getAllTmsSubStatusMastList, deleteSubStatusMast } = require("./controllers/TMS/tmsSubStatusMastController.js");
+const { createTmsTaskJourney, getTmsTaskJourney, getAllTmsTaskJourney, getAllTmsTaskJourneyList, deleteTaskJourney } = require("./controllers/TMS/tmsTaskJourneyController.js");
+const { addTmsTaskMast, getSingleTmsTaskMast, updateTmsTaskMast, getAllTmsTaskMastList } = require("./controllers/TMS/tmsTaskMastController.js");
+const { createPmsVendor, getVendorDetail, updateVendorType, getAllVendorData, deleteVendorType } = require("./controllers/PMS/pmsVendorTypeController.js");
+const { createPlatform, getPlatformDetail, updatePlatformData, getAllPlatformList, deletePlatformData } = require("./controllers/PMS/pmsPlatformController.js");
+const { createPayMethod, getPayDetail, updatePayData, getAllPayList, deletePayData } = require("./controllers/PMS/pmsPayMethodController.js");
+const { createPayCycle, getPayCycleDetail, updatePayCycle, getAllPayCycleList, deletePayCycleData } = require("./controllers/PMS/pmsPayCycleController.js");
+const { createGroupLink, getGroupLinkDetail, updateGroupLink, getAllGroupLinkList, deleteGroupLinkData } = require("./controllers/PMS/pmsGroupLinkTypeController.js");
+const { createPmsVendorMast, getVendorMastDetail, updateVendorMast, getAllVendorkMastList, getAllVendorMastList, vendorMastDelete } = require("./controllers/PMS/pmsVendorMastController.js");
+const { createVendorGroup, getVendorGroupDetail, updateVendorGroup, getAllVendorGroupList, deleteVendorGroupData } = require("./controllers/PMS/pmsVendorGroupLinkController.js");
+const { createPriceType, getPriceDetail, updatePriceType, getPriceList, deletePriceType } = require("./controllers/PMS/pmsPriceTypeController.js");
+const { createPlatformPrice, getPlatformPriceDetail, updatePlatformPriceData, getPlatformPriceList, deletePlatformPriceData } = require("./controllers/PMS/pmsPlatformPriceTypeController.js");
+const { createPageCatg, getPageCatgDetail, updatePageCatg, getPageCatgList, deletePageCatgData } = require("./controllers/PMS/pmsPageCategoryController.js");
+const { createPmsProfile, getProfileDetail, updateProfileType, getProfileList, deleteProfileType } = require("./controllers/PMS/pmsProfileTypeController.js");
+const { createPageMast } = require("./controllers/PMS/pmsPageMastController.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1492,28 +1510,121 @@ router.post("/add_dept_desi_auth", deptDesiAuth.addDeptDesiAuth);
 router.get("/get_single_desi_dept_auth/:desi_id", deptDesiAuth.getSingleDeptDesiAuthDetail);
 router.put("/update_dept_desi_auth", deptDesiAuth.updateDeptDesiAuth);
 
+// --------------------------------------------------------------Page Mangements System all Routes------------------------------------------//
+
+router.post("/addVendor", createPmsVendor);
+router.get("/vendorDetail/:id", getVendorDetail);
+router.put("/updateVendor/:id", updateVendorType);
+router.get("/getAllVendor", getAllVendorData);
+router.delete("/deleteVendor/:id", deleteVendorType);
+
+router.post("/addPlatform", createPlatform);
+router.get("/platformDetail/:id", getPlatformDetail);
+router.put("/updatePlatform/:id", updatePlatformData);
+router.get("/getAllPlatform", getAllPlatformList);
+router.delete("/deletePlatform/:id", deletePlatformData);
+
+router.post("/addpayMethod", createPayMethod);
+router.get("/getPay/:id", getPayDetail);
+router.put("/updatePay/:id", updatePayData);
+router.get("/getAllPay", getAllPayList);
+router.delete("/deletePay/:id", deletePayData);
+
+router.post("/addPayCycle", createPayCycle);
+router.get("/getPayCycle/:id", getPayCycleDetail);
+router.put("/updatePayCycle/:id", updatePayCycle);
+router.get("/getAllPayCycle", getAllPayCycleList);
+router.delete("/deletePayCycle/:id", deletePayCycleData);
+
+router.post("/addGroupLink", createGroupLink);
+router.get("/getGroupLink/:id", getGroupLinkDetail);
+router.put("/updateGroupLink/:id", updateGroupLink);
+router.get("/getAllGroupLink", getAllGroupLinkList);
+router.delete("/deleteGroupLink/:id", deleteGroupLinkData);
+
+router.post("/addVendorMast", createPmsVendorMast);
+router.get("/getVendorMast/:id", getVendorMastDetail);
+router.put("/updateVendorMast/:id", updateVendorMast);
+router.get("/vendorAllData", getAllVendorMastList);
+router.delete("/deleteVendorMast/:id", vendorMastDelete);
+
+router.post("/addVendorGroup", createVendorGroup);
+router.get("/getVendorGroup/:id", getVendorGroupDetail);
+router.put("/updateVendorGroup/:id", updateVendorGroup);
+router.get("/getAllVendorGroupList", getAllVendorGroupList);
+router.delete("/deleteVendorGroup/:id", deleteVendorGroupData);
+
+router.post("/addPrice", createPriceType);
+router.get("/getPrice/:id", getPriceDetail);
+router.put("/updatePrice/:id", updatePriceType);
+router.get("/getPriceList", getPriceList);
+router.delete("/deletePrice/:id", deletePriceType);
+
+router.post("/addPlatformPrice", createPlatformPrice);
+router.get("/getPlatformPriceDetail/:id", getPlatformPriceDetail);
+router.put("/updatePlatformPrice/:id", updatePlatformPriceData);
+router.get("/getPlatformPriceList", getPlatformPriceList);
+router.delete("/deletePlatformPrice/:id", deletePlatformPriceData);
+
+router.post("/addPageCatg", createPageCatg);
+router.get("/getPageCatg/:id", getPageCatgDetail);
+router.put("/updatePageCatg/:id", updatePageCatg);
+router.get("/getPageCatgList", getPageCatgList);
+router.delete("/deletePage/:id", deletePageCatgData);
+
+router.post("/addProfile", createPmsProfile);
+router.get("/getProfile/:id", getProfileDetail);
+router.put("/updateProfile/:id", updateProfileType);
+router.get("/getProfileList", getProfileList);
+router.delete("/deleteProfile/:id", deleteProfileType);
+
+router.post("/addPageMast", createPageMast);
+// router.get("/getProfile/:id", getProfileDetail); 
+// router.put("/updateProfile/:id", updateProfileType);
+// router.get("/getProfileList", getProfileList);
+// router.delete("/deleteProfile/:id", deleteProfileType);
 
 // --------------------------------------------------------------Task Mangements all Routes------------------------------------------//
-router.post("/deptwisestatus", deptWiseStatus.addDeptWiseStatus);
-router.put("/deptwisestatus", deptWiseStatus.editDataDeptWiseStatus);
-router.get("/deptwisestatus", deptWiseStatus.getDeptWiseStatus);
-router.get("/deptwisestatus/:_id", deptWiseStatus.getSingleDeptWiseStatus);
-router.delete("/deptwisestatus/:_id", deptWiseStatus.deleteDataDeptWiseStatus);
+router.post("/addSubStatus", createTmsSubStatusMast);
+router.get("/getSubStatus/:id", getTmsSubStatusMast);
+router.put("/updateSubStatus/:id", updateTmsSubStatusMast);
+router.get("/getAllSubstatus", getAllTmsSubStatusMast);
+router.get("/getAllSubstatusList", getAllTmsSubStatusMastList);
+router.delete("/deleteSubStatus/:id", deleteSubStatusMast);
 
-router.post("/task_delivery", taskDelivery.addTaskDelivery)
-router.get("/task_delivery", taskDelivery.getTaskDelivery)
-router.put("/task_delivery", taskDelivery.editTaskDelivery)
-router.delete("/task_delivery/:_id", taskDelivery.deleteTaskDelivery)
+router.post("/addSubCat", createTmsSubCatMast);
+router.get("/getSubCat/:id", getTmsSubCatMast);
+router.put("/updateSubCat/:id", updateTmsSubCatMast);
+router.get("/getAllSubCatList", getAllTmsSubCatMast);
+router.get("/allSubCatList", getAllTmsSubCatList);
+router.delete("/deleteSubCat/:id", deleteTmsSubCatMast);
 
-router.post("/task", task.addTask)
-router.get("/task", task.getTasks)
-router.put("/task", task.editTask)
-router.delete("/task/:_id", task.deleteTask)
+router.post("/createtmsCat", createTmsCatMast);
+router.get("/getCatMast/:id", getTmsCatMast);
+router.get("/getAllCatList", getAllTmsCatMast);
+router.put("/updateCatMast/:id", updateTmsCatMast);
+router.delete("/deteCatMast/:id", deleteTmsCatMast);
 
-router.post("/task_sequence", taskSequence.addSequence)
-router.get("/task_sequence", taskSequence.getSequences)
-router.put("/task_sequence", taskSequence.editTaskSequence)
-router.delete("/task_sequence/:_id", taskSequence.deleteTaskSequence)
+router.post("/addtmsStatus", createTmsStatusMast);
+router.get("/getStatus/:id", getTmsStatusMast);
+router.put("/updateStatus/:id", updateTmsStatusMast);
+router.get("/getAllStatus", getAllTmsStatusMast);
+router.get("/getAllStatusList", getAllTmsStatusMastList);
+router.delete("/deleteStatus/:id", deleteStatusMast);
+
+router.post("/addTaskJorney", upload1.single("attachments"), createTmsTaskJourney);
+router.get("/gettaskJourney/:id", getTmsTaskJourney);
+router.get("/getAllTaskJourney", getAllTmsTaskJourney);
+router.get("/getAllTaskJourneyList", getAllTmsTaskJourneyList);
+router.delete("/deleteTaskJourney/:id", deleteTaskJourney);
+
+router.post("/addTask", upload1.single("attachments"), addTmsTaskMast);
+router.get("/gettask/:id", getSingleTmsTaskMast);
+router.put("/updateTask/:id", upload1.single('attachments'), updateTmsTaskMast)
+router.get("/getAllTask", getAllTmsTaskMastList);
+// router.get("/getAllTaskJourneyList", getAllTmsTaskJourneyList);
+// router.delete("/deleteTaskJourney/:id", deleteTaskJourney);
+
 
 //phpVendorRequest Routes
 router.post("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaymentRequest.addPhpVendorPaymentRequestAdd);
