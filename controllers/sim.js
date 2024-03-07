@@ -61,6 +61,14 @@ exports.addSim = async (req, res) => {
       const bucketName = vari.BUCKET_NAME;
       const bucket = storage.bucket(bucketName);
       const blob = bucket.file(req.file.originalname);
+      const [exists] = await blob.exists();
+      if (exists) {
+        const currentDate = new Date().toISOString().replace(/:/g, '-');
+        const newFileName = `${currentDate}_${req.file.originalname}`;
+        const newBlob = bucket.file(newFileName);
+        await blob.move(newBlob);
+        roomImage = newFileName;
+      }
       simc.invoiceCopy = blob.name;
       const blobStream = blob.createWriteStream();
       blobStream.on("finish", () => {
