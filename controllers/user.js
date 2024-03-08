@@ -1251,7 +1251,7 @@ exports.getAllUsers = async (req, res) => {
                     }
                 }
             }
-        ]).exec();
+        ]).sort({ user_id: -1 });
         const userImagesBaseUrl = `${vari.IMAGE_URL}`;
         const fieldsToCheck = [
             'user_name', 'PersonalEmail', 'PersonalNumber', 'fatherName', 'Gender', 'motherName',
@@ -3027,7 +3027,7 @@ exports.getLoginHistory = async (req, res) => {
                     log_out_date: 1
                 }
             }
-        ]).exec();
+        ]).sort({ user_id: -1 });
         res.status(200).send({ data: loginHistory });
     } catch (error) {
         res.status(500).send({ error: error.message, sms: "Error getting user login history" });

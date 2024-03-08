@@ -301,8 +301,7 @@ exports.getSims = async (req, res) => {
             },
           },
         },
-      ])
-      .exec();
+      ]).sort({ sim_id: -1 });
 
     if (!simc) {
       return res.status(500).json({ success: false, message: "No data found" });
@@ -2506,5 +2505,129 @@ exports.showAssetDataToUserReport = async (req, res) => {
     res.status(200).json({ data: userData });
   } catch (err) {
     res.status(500).send({ error: err.message, sms: "Error getting user details" });
+  }
+};
+
+exports.getSimBySubCategoryId = async (req, res) => {
+  try {
+    const singlesim = await simModel
+      .aggregate([
+        {
+          $match: { sub_category_id: parseInt(req.params.id) }
+        },
+        {
+          $lookup: {
+            from: "assetscategorymodels",
+            localField: "category_id",
+            foreignField: "category_id",
+            as: "category",
+          },
+        },
+        {
+          $unwind: {
+            path: "$category",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "assetssubcategorymodels",
+            localField: "sub_category_id",
+            foreignField: "sub_category_id",
+            as: "subcategory",
+          },
+        },
+        {
+          $unwind: {
+            path: "$subcategory",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "vendormodels",
+            localField: "vendor_id",
+            foreignField: "vendor_id",
+            as: "vendor",
+          },
+        },
+        {
+          $unwind: {
+            path: "$vendor",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "assetbrandmodels",
+            localField: "asset_brand_id",
+            foreignField: "asset_brand_id",
+            as: "assetBrand",
+          },
+        },
+        {
+          $unwind: {
+            path: "$assetBrand",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "assetmodalmodels",
+            localField: "asset_modal_id",
+            foreignField: "asset_modal_id",
+            as: "assetModal",
+          },
+        },
+        {
+          $unwind: {
+            path: "$assetModal",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: "$_id",
+            sim_id: "$sim_id",
+            user_id: "$user_id",
+            asset_id: "$sim_no",
+            status: "$status",
+            asset_type: "$s_type",
+            assetsName: "$assetsName",
+            assetsOtherID: "$assetsOtherID",
+            category_id: "$category_id",
+            sub_category_id: "$sub_category_id",
+            vendor_id: "$vendor_id",
+            inWarranty: "$inWarranty",
+            warrantyDate: "$warrantyDate",
+            dateOfPurchase: "$dateOfPurchase",
+            hrAuditPeriod: "$hrAuditPeriod",
+            hrAuditUnit: "$hrAuditUnit",
+            selfAuditPeriod: "$selfAuditPeriod",
+            selfAuditUnit: "$selfAuditUnit",
+            invoiceCopy: "$invoiceCopy",
+            assetsValue: "$assetsValue",
+            created_by: "$created_by",
+            asset_financial_type: "$asset_financial_type",
+            assetsCurrentValue: "$assetsCurrentValue",
+            Remarks: "$Remarks",
+            category_name: "$category.category_name",
+            sub_category_name: "$subcategory.sub_category_name",
+            vendor_name: "$vendor.vendor_name",
+            asset_brand_id: "$asset_brand_id",
+            asset_modal_id: "$asset_modal_id",
+            asset_brand_name: "$assetBrand.asset_brand_name",
+            asset_modal_name: "$assetModal.asset_modal_name",
+            depreciation_percentage: "$depreciation_percentage"
+          },
+        },
+      ])
+      .exec();
+    if (!singlesim) {
+      return res.status(500).send({ success: false });
+    }
+    res.status(200).send({ data: singlesim });
+  } catch (err) {
+    res.status(500).send({ error: err, sms: "Error getting sim details" });
   }
 };

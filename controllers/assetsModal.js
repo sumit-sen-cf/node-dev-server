@@ -91,8 +91,10 @@ exports.getAssetModals = async (req, res) => {
             updated_at: { $first: "$updated_at" },
           },
         },
-      ])
-      .exec();
+        {
+          $sort: { _id: -1 },
+        },
+      ]);
     if (!assetBrandData) {
       return response.returnFalse(200, req, res, "No Record Found...", []);
     }
@@ -298,11 +300,13 @@ exports.getTotalAvailableAssetInModal = async (req, res) => {
       ])
       .exec();
 
+    const modalLength = assets.length;
+
     if (!assets || assets.length === 0) {
       return res.status(404).send({ success: false, message: 'No assets found for the given category_id' });
     }
 
-    res.status(200).send({ success: true, data: assets });
+    res.status(200).send({ success: true, count: modalLength, data: assets });
   } catch (err) {
     console.error(err);
     res.status(500).send({ success: false, error: err, message: 'Error getting asset details' });
@@ -379,11 +383,13 @@ exports.getTotalAllocatedAssetInModal = async (req, res) => {
       ])
       .exec();
 
+    const modalLength = assets.length;
+
     if (!assets || assets.length === 0) {
       return res.status(404).send({ success: false, message: 'No assets found for the given category_id' });
     }
 
-    res.status(200).send({ success: true, data: assets });
+    res.status(200).send({ success: true, count: modalLength, data: assets });
   } catch (err) {
     console.error(err);
     res.status(500).send({ success: false, error: err, message: 'Error getting asset details' });

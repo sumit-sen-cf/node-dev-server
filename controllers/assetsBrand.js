@@ -65,8 +65,10 @@ exports.getAssetBrands = async (req, res) => {
             },
           },
         },
+        {
+          $sort: { _id: -1 },
+        },
       ])
-      .exec();
 
     if (assetBrandData.length === 0) {
       res
