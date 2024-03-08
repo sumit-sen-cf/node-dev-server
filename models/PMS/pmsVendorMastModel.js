@@ -17,6 +17,10 @@ const pmsVendorMastSchema = new Schema({
         required: true,
         ref: "pmsPayMethod"
     },
+    vendorMast_Id: {
+        type: Number,
+        required: false,
+    },
     cycle_id: {
         type: Schema.Types.ObjectId,
         required: true,
@@ -117,5 +121,18 @@ const pmsVendorMastSchema = new Schema({
         default: 0
     }
 });
+pmsVendorMastSchema.pre('save', async function (next) {
+    if (!this.vendorMast_Id) {
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'vendorMast_Id': -1 } });
+
+        if (lastAgency && lastAgency.vendorMast_Id) {
+            this.vendorMast_Id = lastAgency.vendorMast_Id + 1;
+        } else {
+            this.vendorMast_Id = 1;
+        }
+    }
+    next();
+});
+
 const pmsVendorMastModel = mongoose.model("pmsVendorMast", pmsVendorMastSchema);
 module.exports = pmsVendorMastModel;
