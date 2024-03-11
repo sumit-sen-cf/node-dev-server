@@ -78,6 +78,9 @@ exports.getAssetCategorys = async (req, res) => {
       });
     }
 
+    // Sort the result array based on sub_category_id
+    result.sort((a, b) => b.category_id - a.category_id);
+
     return response.returnTrue(
       200,
       req,

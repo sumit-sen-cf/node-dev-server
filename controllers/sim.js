@@ -2303,8 +2303,7 @@ exports.showAssetDataToUser = async (req, res) => {
 
 exports.showNewAssetDataToUser = async (req, res) => {
   try {
-    const { user_id } = req.params;
-
+    const user_id = parseInt(req.params.user_id);
     const userData = await assetRequestModel.aggregate([
       {
         $lookup: {
@@ -2421,7 +2420,7 @@ exports.showNewAssetDataToUser = async (req, res) => {
       //     asset_request_id: "$assetRequest._id"
       //   },
       // },
-    ]).exec();
+    ]);
 
     if (!userData) {
       return res.status(500).json({ success: false, message: "No data found" });
@@ -2431,6 +2430,13 @@ exports.showNewAssetDataToUser = async (req, res) => {
       return res.status(404).json({ success: false, message: "No data found for the user_id" });
     }
 
+    const userReportL1 = await userModel.find({ user_id: userData[0].asset_request_by })
+    const reportData = userReportL1[0].Report_L1;
+
+    const assetReqBy = parseInt(userData[0].asset_request_by)
+    if (assetReqBy === user_id || reportData === user_id || 633 === user_id) {
+      return res.status(404).send("data not found")
+    }
     res.status(200).json({ data: userData });
   } catch (err) {
     res.status(500).send({ error: err.message, sms: "Error getting user details" });

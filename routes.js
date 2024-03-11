@@ -1200,8 +1200,8 @@ router.get(
   "/get_sub_category_from_categroyid/:category_id",
   assetSubCategory.getAssetSubCategoryFromCategoryId
 );
-router.get("/get_total_asset_in_category/:category_id", assetSubCategory.getTotalAssetInSubCategory);
-router.get("/get_total_asset_in_category_allocated/:category_id", assetSubCategory.getTotalAssetInSubCategoryAllocated);
+router.get("/get_total_asset_in_category/:sub_category_id", assetSubCategory.getTotalAssetInSubCategory);
+router.get("/get_total_asset_in_category_allocated/:sub_category_id", assetSubCategory.getTotalAssetInSubCategoryAllocated);
 /* Vendor Routes */
 router.post("/add_vendor", vendor.addVendor);
 router.get("/get_all_vendor", vendor.getVendors);
@@ -1587,21 +1587,21 @@ router.get("/getProfileList", getProfileList);
 router.delete("/deleteProfile/:id", deleteProfileType);
 
 router.post("/addPageMast", createPageMast);
-router.get("/getPageDetail/:id", getPageMastDetail); 
+router.get("/getPageDetail/:id", getPageMastDetail);
 router.put("/updatePage/:id", updatePageMast);
 router.get("/getPageMastList", getPageMastList);
 router.delete("/deletePageMast/:id", deletePageMastData);
 
 
 router.post("/addPageOwner", createPageOwner);
-router.get("/getPageOwner/:id", getPageOwnerDetail); 
+router.get("/getPageOwner/:id", getPageOwnerDetail);
 router.put("/updatePageOwner/:id", updatePageOwner);
 router.get("/getPageOwnerList", getPageOwnerList);
 router.delete("/deletePageOwner/:id", deletePageOwnerData);
 
 
 router.post("/addVendorPagePrice", createVendorPagePrice);
-router.get("/getVendorPagePrice/:id", getVendorPagePriceDetail); 
+router.get("/getVendorPagePrice/:id", getVendorPagePriceDetail);
 router.put("/updateVendorPagePrice/:id", updateVendorPagePrice);
 router.get("/getVendorPagePriceList", getVendorPagePriceList);
 router.delete("/deleteVendorPagePrice/:id", deleteVendorPagePriceData);

@@ -77,7 +77,7 @@ exports.addAssetSubCategory = async (req, res) => {
 
 exports.getAssetSubCategorys = async (req, res) => {
     try {
-        const assetSubCategories = await assetsSubCategoryModel.find().sort({ sub_category_id: - 1 });
+        const assetSubCategories = await assetsSubCategoryModel.find({});
 
         if (!assetSubCategories || assetSubCategories.length === 0) {
             return response.returnFalse(200, req, res, "No Record Found...", []);
@@ -118,6 +118,9 @@ exports.getAssetSubCategorys = async (req, res) => {
             });
         }
 
+        // // Sort the result array based on sub_category_id
+        // result.sort((a, b) => b.sub_category_id - a.sub_category_id);
+
         return response.returnTrue(
             200,
             req,
@@ -129,7 +132,6 @@ exports.getAssetSubCategorys = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 };
-
 
 exports.getSingleAssetSubCategory = async (req, res) => {
     try {
