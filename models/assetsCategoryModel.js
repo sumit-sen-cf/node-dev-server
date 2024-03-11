@@ -9,7 +9,7 @@ const assetsCategoryModel = new mongoose.Schema({
   category_name: {
     type: String,
     required: false,
-    unique:true,
+    unique: true,
     default: "",
   },
   description: {
@@ -28,16 +28,16 @@ const assetsCategoryModel = new mongoose.Schema({
   },
   last_updated_by: {
     type: Number,
-    default:0
+    default: 0
   },
   last_updated_date: {
     type: Date,
-    default:0
+    default: 0
   },
   selfAuditPeriod: {
     type: Number,
     required: false,
-    default: 90,
+    default: 0,
   },
   selfAuditUnit: {
     type: String,
@@ -47,7 +47,7 @@ const assetsCategoryModel = new mongoose.Schema({
   hrAuditPeriod: {
     type: Number,
     required: false,
-    default: 90,
+    default: 0,
   },
   hrAuditUnit: {
     type: String,

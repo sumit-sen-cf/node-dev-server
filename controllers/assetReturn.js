@@ -506,3 +506,187 @@ exports.showReturnAssetDataToUserReport = async (req, res) => {
         return res.status(500).send({ error: err.message, sms: "Error getting Asset Return Request Data" });
     }
 };
+
+exports.showReturnReturnAllData = async (req, res) => {
+    try {
+        const imageUrl = vari.IMAGE_URL;
+        const userData = await assetReturnModel.aggregate([
+            {
+                $lookup: {
+                    from: "simmodels",
+                    localField: "sim_id",
+                    foreignField: "sim_id",
+                    as: "sim",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$sim",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "asset_return_by",
+                    foreignField: "user_id",
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    sim_id: 1,
+                    asset_return_remark: 1,
+                    return_asset_data_time: 1,
+                    asset_return_status: 1,
+                    asset_return_recover_by: 1,
+                    asser_return_recovered_date_time: 1,
+                    assetName: "$sim.assetsName",
+                    asset_return_by_name: "$user.user_name",
+                    //   asset_return_recover_name: "$user1.user_name",
+                    return_asset_image_1: {
+                        $concat: [imageUrl, "$return_asset_image_1"],
+                    },
+                    return_asset_image_2: {
+                        $concat: [imageUrl, "$return_asset_image_2"],
+                    },
+                    recover_asset_image_1: {
+                        $concat: [imageUrl, "$recover_asset_image_1"],
+                    },
+                    recover_asset_image_2: {
+                        $concat: [imageUrl, "$recover_asset_image_2"],
+                    },
+                },
+            },
+        ]);
+        if (!userData) {
+            return res.status(500).json({
+                success: 'false',
+                message: "No data found"
+            })
+        }
+
+        if (userData.length === 0) {
+            return res.status(404).json({
+                success: "false",
+                message: "No data"
+            })
+        }
+
+        return res.status(200).json({
+            succes: "true",
+            data: userData
+        })
+
+    } catch (err) {
+        return res.status(400).json({
+            status: "fail",
+            message: err.message,
+        });
+    }
+};
+
+
+exports.assetReturnByUser = async (req, res) => {
+    try {
+        // let user = await assetReturnModel.findOne({asset_return_by:req.params.asset_return_by})
+        const imageUrl = vari.IMAGE_URL;
+
+        const userData = await assetReturnModel.aggregate([
+            {
+                $match: {
+                    asset_return_by: parseInt(req.params.asset_return_by)
+                }
+            },
+            {
+                $lookup: {
+                    from: "simmodels",
+                    localField: "sim_id",
+                    foreignField: "sim_id",
+                    as: "sim",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$sim",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "asset_return_by",
+                    foreignField: "user_id",
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    sim_id: 1,
+                    asset_return_remark: 1,
+                    return_asset_data_time: 1,
+                    asset_return_status: 1,
+                    asset_return_recover_by: 1,
+                    asser_return_recovered_date_time: 1,
+                    assetName: "$sim.assetsName",
+                    asset_return_by_name: "$user.user_name",
+                    //   asset_return_recover_name: "$user1.user_name",
+                    return_asset_image_1: {
+                        $concat: [imageUrl, "$return_asset_image_1"],
+                    },
+                    return_asset_image_2: {
+                        $concat: [imageUrl, "$return_asset_image_2"],
+                    },
+                    recover_asset_image_1: {
+                        $concat: [imageUrl, "$recover_asset_image_1"],
+                    },
+                    recover_asset_image_2: {
+                        $concat: [imageUrl, "$recover_asset_image_2"],
+                    },
+                },
+            },
+        ]);
+        if (!userData) {
+            return res.status(500).json({
+                success: 'false',
+                message: "No data found"
+            })
+        }
+
+        if (userData.length === 0) {
+            return res.status(404).json({
+                success: "false",
+                message: "No data"
+            })
+        }
+
+        return res.status(200).json({
+            succes: "true",
+            data: userData
+        })
+
+
+
+
+    } catch (err) {
+        return res.status(500).json({
+            status: "fail",
+            message: err.message
+        })
+    }
+
+} 

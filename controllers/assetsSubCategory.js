@@ -77,7 +77,7 @@ exports.addAssetSubCategory = async (req, res) => {
 
 exports.getAssetSubCategorys = async (req, res) => {
     try {
-        const assetSubCategories = await assetsSubCategoryModel.find().exec();
+        const assetSubCategories = await assetsSubCategoryModel.find({});
 
         if (!assetSubCategories || assetSubCategories.length === 0) {
             return response.returnFalse(200, req, res, "No Record Found...", []);
@@ -118,6 +118,9 @@ exports.getAssetSubCategorys = async (req, res) => {
             });
         }
 
+        // // Sort the result array based on sub_category_id
+        // result.sort((a, b) => b.sub_category_id - a.sub_category_id);
+
         return response.returnTrue(
             200,
             req,
@@ -129,7 +132,6 @@ exports.getAssetSubCategorys = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 };
-
 
 exports.getSingleAssetSubCategory = async (req, res) => {
     try {
@@ -261,5 +263,132 @@ exports.getAssetSubCategoryFromCategoryId = async (req, res) => {
         return res.status(200).send(singlesim);
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
+    }
+};
+
+exports.getTotalAssetInSubCategory = async (req, res) => {
+    try {
+        const assets = await simModel
+            .aggregate([
+                {
+                    $match: {
+                        sub_category_id: parseInt(req.params.sub_category_id),
+                        status: "Available",
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "assetscategorymodels",
+                        localField: "category_id",
+                        foreignField: "category_id",
+                        as: "category",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$category",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "assetssubcategorymodels",
+                        localField: "sub_category_id",
+                        foreignField: "sub_category_id",
+                        as: "subcategory",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$subcategory",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $project: {
+                        _id: "$_id",
+                        sim_id: "$sim_id",
+                        asset_id: "$sim_no",
+                        status: "$status",
+                        asset_type: "$s_type",
+                        assetsName: "$assetsName",
+                        category_id: "$category_id",
+                        sub_category_id: "$sub_category_id",
+                        category_name: "$category.category_name",
+                        sub_category_name: "$subcategory.sub_category_name"
+                    },
+                },
+            ])
+            .exec();
+
+        if (!assets || assets.length === 0) {
+            return res.status(404).send({ success: false, message: 'No assets found for the given sub_category_id' });
+        }
+
+        res.status(200).send({ success: true, data: assets });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ success: false, error: err, message: 'Error getting asset details' });
+    }
+};
+
+exports.getTotalAssetInSubCategoryAllocated = async (req, res) => {
+    try {
+        const assets = await simModel.aggregate([
+            {
+                $match: {
+                    sub_category_id: parseInt(req.params.sub_category_id),
+                    status: "Allocated",
+                },
+            },
+            {
+                $lookup: {
+                    from: "assetscategorymodels",
+                    localField: "category_id",
+                    foreignField: "category_id",
+                    as: "category",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$category",
+                },
+            },
+            {
+                $lookup: {
+                    from: "assetssubcategorymodels",
+                    localField: "sub_category_id",
+                    foreignField: "sub_category_id",
+                    as: "subcategory",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$subcategory",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: "$_id",
+                    sim_id: "$sim_id",
+                    asset_id: "$sim_no",
+                    status: "$status",
+                    asset_type: "$s_type",
+                    assetsName: "$assetsName",
+                    category_id: "$category_id",
+                    sub_category_id: "$sub_category_id",
+                    category_name: "$category.category_name",
+                    sub_category_name: "$subcategory.sub_category_name",
+                },
+            },
+        ]).exec();
+        if (!assets || assets.length === 0) {
+            return res.status(404).send({ success: false, message: 'No assets found for the given sub_category_id' });
+        }
+
+        res.status(200).send({ success: true, data: assets });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ success: false, error: err, message: 'Error getting asset details' });
     }
 };

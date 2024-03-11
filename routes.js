@@ -80,9 +80,9 @@ const goalController = require('./controllers/operationExecution/campaignMasterC
 const serviceController = require('./controllers/operationExecution/campaignMasterController/serviceController.js')
 const industryController = require('./controllers/operationExecution/campaignMasterController/industryController.js')
 const directPlanCreationController = require('./controllers/operationExecution/directPlanCreationController.js')
-const tempPlanController=require('./controllers/operationExecution/tempPlan/tempPlanController.js')
-const tempExecutionController=require('./controllers/operationExecution/tempPlan/executionTempController.js')
-const handleInstaPost=require('./controllers/operationExecution/tempPlan/handleInstaPost.js')
+const tempPlanController = require('./controllers/operationExecution/tempPlan/tempPlanController.js')
+const tempExecutionController = require('./controllers/operationExecution/tempPlan/executionTempController.js')
+const handleInstaPost = require('./controllers/operationExecution/tempPlan/handleInstaPost.js')
 //opertaion + execution imports ends here`
 
 const city = require("./controllers/cityController.js");
@@ -247,13 +247,13 @@ router.put('/directplan/:id', directPlanCreationController.updateSinglePlan)
 router.delete('/directplan/:id', directPlanCreationController.deleteSinglePlan)
 
 //temporary plan model
-router.post('/tempplan',tempPlanController.createTempPlan)
-router.post('/tempAssignments',tempExecutionController.getAllAssignmetsPlan)
-router.post('/tempexecution',tempExecutionController.getAllExecutionForPlan)
-router.put('/tempexecution',tempExecutionController.updateExecution)
-router.get('/tempAssignment/:id',tempExecutionController.getAllAssignementBasedOnExpertee)
-router.post('/getinstapostdata',handleInstaPost.getPostInfo)
-router.post('/checktempexecduplicacy',tempExecutionController.validateLinkDuplication)
+router.post('/tempplan', tempPlanController.createTempPlan)
+router.post('/tempAssignments', tempExecutionController.getAllAssignmetsPlan)
+router.post('/tempexecution', tempExecutionController.getAllExecutionForPlan)
+router.put('/tempexecution', tempExecutionController.updateExecution)
+router.get('/tempAssignment/:id', tempExecutionController.getAllAssignementBasedOnExpertee)
+router.post('/getinstapostdata', handleInstaPost.getPostInfo)
+router.post('/checktempexecduplicacy', tempExecutionController.validateLinkDuplication)
 
 /*operation+execution api ends*/
 /*insta api*/
@@ -1161,6 +1161,7 @@ router.get("/show_asset_hr_data", sim.showAssetDataToHR);
 router.get("/show_asset_user_data/:user_id", sim.showAssetDataToUser);
 router.get("/show_new_asset_user_data/:user_id", sim.showNewAssetDataToUser);
 router.get("/show_asset_user_data_report/:user_id", sim.showAssetDataToUserReport);
+router.get("/get_asset_by_sub_cat_id/:id", sim.getSimBySubCategoryId);
 
 /* Asset Category Routes */
 router.post("/add_asset_category", assetCategory.addAssetCategory);
@@ -1199,7 +1200,8 @@ router.get(
   "/get_sub_category_from_categroyid/:category_id",
   assetSubCategory.getAssetSubCategoryFromCategoryId
 );
-
+router.get("/get_total_asset_in_category/:sub_category_id", assetSubCategory.getTotalAssetInSubCategory);
+router.get("/get_total_asset_in_category_allocated/:sub_category_id", assetSubCategory.getTotalAssetInSubCategoryAllocated);
 /* Vendor Routes */
 router.post("/add_vendor", vendor.addVendor);
 router.get("/get_all_vendor", vendor.getVendors);
@@ -1252,6 +1254,8 @@ router.get("/get_all_repair_request_by_asset_reasonId/:id", repairRequest.getAll
 router.delete("/delete_repair_request/:id", repairRequest.deleteRepairRequest);
 router.get("/show_repair_request_asset_data_to_reportL1/:user_id", repairRequest.showRepairRequestAssetDataToUserReport);
 router.get("/show_asset_repair_request_data_to_user/:user_id", repairRequest.showAssetRepairRequestDataToUser);
+router.get("/get_summary_for_asset_repair_request", repairRequest.getAllRepairRequestsForSummary);
+router.get("/get_single_repair_request_by_reqBy/:req_by", repairRequest.getSingleRepairRequestsByReqBy);
 
 /* Assets Images master */
 router.post("/add_assets_images", assetsImage.addAssetImage);
@@ -1270,6 +1274,8 @@ router.get("/assetreturn", assetReturnRequest.getAssetReturnRequests);
 router.get("/assetreturn/:_id", assetReturnRequest.getAssetReturnRequestById);
 router.delete("/assetreturn/:_id", assetReturnRequest.deleteAssetReturnRequest);
 router.get("/show_return_asset_to_reportL1/:user_id", assetReturnRequest.showReturnAssetDataToUserReport);
+router.get("/get_summary_of_asset_return", assetReturnRequest.showReturnReturnAllData)
+router.get("/get_summary_of_asset_return_by_user/:asset_return_by", assetReturnRequest.assetReturnByUser)
 
 //Asset History Routes
 router.get("/get_all_asset_history", assetHistory.getAllAssetsHistrory);
@@ -1581,21 +1587,21 @@ router.get("/getProfileList", getProfileList);
 router.delete("/deleteProfile/:id", deleteProfileType);
 
 router.post("/addPageMast", createPageMast);
-router.get("/getPageDetail/:id", getPageMastDetail); 
+router.get("/getPageDetail/:id", getPageMastDetail);
 router.put("/updatePage/:id", updatePageMast);
 router.get("/getPageMastList", getPageMastList);
 router.delete("/deletePageMast/:id", deletePageMastData);
 
 
 router.post("/addPageOwner", createPageOwner);
-router.get("/getPageOwner/:id", getPageOwnerDetail); 
+router.get("/getPageOwner/:id", getPageOwnerDetail);
 router.put("/updatePageOwner/:id", updatePageOwner);
 router.get("/getPageOwnerList", getPageOwnerList);
 router.delete("/deletePageOwner/:id", deletePageOwnerData);
 
 
 router.post("/addVendorPagePrice", createVendorPagePrice);
-router.get("/getVendorPagePrice/:id", getVendorPagePriceDetail); 
+router.get("/getVendorPagePrice/:id", getVendorPagePriceDetail);
 router.put("/updateVendorPagePrice/:id", updateVendorPagePrice);
 router.get("/getVendorPagePriceList", getVendorPagePriceList);
 router.delete("/deleteVendorPagePrice/:id", deleteVendorPagePriceData);

@@ -36,7 +36,7 @@ exports.addAssetCategory = async (req, res) => {
 
 exports.getAssetCategorys = async (req, res) => {
   try {
-    const assetCategories = await assetsCategoryModel.find().exec();
+    const assetCategories = await assetsCategoryModel.find().sort({ category_id: -1 });
 
     if (!assetCategories || assetCategories.length === 0) {
       return response.returnFalse(404, req, res, "No Record Found...", []);
@@ -77,6 +77,9 @@ exports.getAssetCategorys = async (req, res) => {
         available_assets_count: totalAvailableAssets
       });
     }
+
+    // Sort the result array based on sub_category_id
+    result.sort((a, b) => b.category_id - a.category_id);
 
     return response.returnTrue(
       200,

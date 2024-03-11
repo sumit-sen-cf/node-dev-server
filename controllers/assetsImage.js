@@ -50,7 +50,7 @@ exports.addAssetImage = [
         const blob2 = bucket.file(req.files.img2[0].originalname);
         assetImage.img2 = blob2.name;
         const blobStream2 = blob2.createWriteStream();
-        blobStream2.on("finish", () => { 
+        blobStream2.on("finish", () => {
           // res.status(200).send("Success") 
         });
         blobStream2.end(req.files.img2[0].buffer);
@@ -59,7 +59,7 @@ exports.addAssetImage = [
         const blob3 = bucket.file(req.files.img3[0].originalname);
         assetImage.img3 = blob3.name;
         const blobStream3 = blob3.createWriteStream();
-        blobStream3.on("finish", () => { 
+        blobStream3.on("finish", () => {
           // res.status(200).send("Success") 
         });
         blobStream3.end(req.files.img3[0].buffer);
@@ -68,7 +68,7 @@ exports.addAssetImage = [
         const blob4 = bucket.file(req.files.img4[0].originalname);
         assetImage.img4 = blob4.name;
         const blobStream4 = blob4.createWriteStream();
-        blobStream4.on("finish", () => { 
+        blobStream4.on("finish", () => {
           // res.status(200).send("Success") 
         });
         blobStream4.end(req.files.img4[0].buffer);
@@ -124,7 +124,7 @@ exports.getAllAssetsImages = async (req, res) => {
           },
         },
       ])
-      .exec();
+      .sort({ asset_image_id: - 1 });
     const assetImagesBaseUrl = `${vari.IMAGE_URL}`;
     const dataWithImageUrl = assetsdata.map((assetimage) => ({
       ...assetimage,

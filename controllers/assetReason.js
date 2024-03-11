@@ -66,31 +66,31 @@ exports.getAssetReasons = async (req, res) => {
                 },
                 {
                     $lookup: {
-                      from: "repairrequestmodels", 
-                      localField: "asset_reason_id",
-                      foreignField: "asset_reason_id",
-                      as: "repairRequests",
+                        from: "repairrequestmodels",
+                        localField: "asset_reason_id",
+                        foreignField: "asset_reason_id",
+                        as: "repairRequests",
                     },
-                  },
-                  {
+                },
+                {
                     $addFields: {
-                      requestCount: { $size: "$repairRequests" },
+                        requestCount: { $size: "$repairRequests" },
                     },
-                  },
-                  {
+                },
+                {
                     $project: {
-                      _id: 1,
-                      asset_reason_id: 1,
-                      category_id: 1,
-                      sub_category_id: 1,
-                      category_name: 1,
-                      sub_category_name: 1,
-                      reason: 1,
-                      requestCount: 1,
+                        _id: 1,
+                        asset_reason_id: 1,
+                        category_id: 1,
+                        sub_category_id: 1,
+                        category_name: 1,
+                        sub_category_name: 1,
+                        reason: 1,
+                        requestCount: 1,
                     },
-                  },
+                },
             ])
-            .exec();
+            .sort({ asset_reason_id: -1 });
 
         if (!assetReasonData) {
             return res.status(500).json({ success: false, message: "No data found" });
