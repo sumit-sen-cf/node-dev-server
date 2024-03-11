@@ -144,7 +144,9 @@ const { createPriceType, getPriceDetail, updatePriceType, getPriceList, deletePr
 const { createPlatformPrice, getPlatformPriceDetail, updatePlatformPriceData, getPlatformPriceList, deletePlatformPriceData } = require("./controllers/PMS/pmsPlatformPriceTypeController.js");
 const { createPageCatg, getPageCatgDetail, updatePageCatg, getPageCatgList, deletePageCatgData } = require("./controllers/PMS/pmsPageCategoryController.js");
 const { createPmsProfile, getProfileDetail, updateProfileType, getProfileList, deleteProfileType } = require("./controllers/PMS/pmsProfileTypeController.js");
-const { createPageMast } = require("./controllers/PMS/pmsPageMastController.js");
+const { createPageMast, getPageMastDetail, updatePageMast, getPageMastList, deletePageMastData } = require("./controllers/PMS/pmsPageMastController.js");
+const { createPageOwner, getPageOwnerDetail, updatePageOwner, getPageOwnerList, deletePageOwnerData } = require("./controllers/PMS/pmsPageOwnershipController.js");
+const { createVendorPagePrice, getVendorPagePriceDetail, updateVendorPagePrice, getVendorPagePriceList, deleteVendorPagePriceData } = require("./controllers/PMS/pmsVendorPagePriceController.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1579,10 +1581,24 @@ router.get("/getProfileList", getProfileList);
 router.delete("/deleteProfile/:id", deleteProfileType);
 
 router.post("/addPageMast", createPageMast);
-// router.get("/getProfile/:id", getProfileDetail); 
-// router.put("/updateProfile/:id", updateProfileType);
-// router.get("/getProfileList", getProfileList);
-// router.delete("/deleteProfile/:id", deleteProfileType);
+router.get("/getPageDetail/:id", getPageMastDetail); 
+router.put("/updatePage/:id", updatePageMast);
+router.get("/getPageMastList", getPageMastList);
+router.delete("/deletePageMast/:id", deletePageMastData);
+
+
+router.post("/addPageOwner", createPageOwner);
+router.get("/getPageOwner/:id", getPageOwnerDetail); 
+router.put("/updatePageOwner/:id", updatePageOwner);
+router.get("/getPageOwnerList", getPageOwnerList);
+router.delete("/deletePageOwner/:id", deletePageOwnerData);
+
+
+router.post("/addVendorPagePrice", createVendorPagePrice);
+router.get("/getVendorPagePrice/:id", getVendorPagePriceDetail); 
+router.put("/updateVendorPagePrice/:id", updateVendorPagePrice);
+router.get("/getVendorPagePriceList", getVendorPagePriceList);
+router.delete("/deleteVendorPagePrice/:id", deleteVendorPagePriceData);
 
 // --------------------------------------------------------------Task Mangements all Routes------------------------------------------//
 router.post("/addSubStatus", createTmsSubStatusMast);
