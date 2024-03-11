@@ -6,6 +6,10 @@ const pmsPageMastSchema = new Schema({
         type: String,
         required: true
     },
+    pageMast_id: {
+        type: String,
+        required: false,
+    },
     link: {
         type: String,
         required: true
@@ -48,10 +52,10 @@ const pmsPageMastSchema = new Schema({
         type: String,
         required: true,
     },
-    owner_vendor_id: {
-        type: Schema.Types.ObjectId,
+    vendorMast_Id: {
+        type: Number,
         required: true,
-        ref: "pmsVendorMast"
+        // ref: "pmsVendorMast"
     },
     followers_count: {
         type: Number,
@@ -93,5 +97,18 @@ const pmsPageMastSchema = new Schema({
         default: 0
     }
 });
+pmsPageMastSchema.pre('save', async function (next) {
+    if (!this.pageMast_id) {
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'pageMast_id': -1 } });
+
+        if (lastAgency && lastAgency.pageMast_id) {
+            this.pageMast_id = lastAgency.pageMast_id + 1;
+        } else {
+            this.pageMast_id = 1;
+        }
+    }
+    next();
+});
+
 const pmsPageMastModel = mongoose.model("pmsPageMast", pmsPageMastSchema);
 module.exports = pmsPageMastModel;

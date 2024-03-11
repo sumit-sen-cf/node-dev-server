@@ -43,12 +43,12 @@ exports.createPmsVendorMast = [
                 });
             }
 
-            const { type_id, platform_id, payMethod_id, cycle_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
+            const { type_id,vendorMast_Id, platform_id, payMethod_id, cycle_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
                 personal_address, pan_no, gst_no, comapny_name, company_address, company_city, created_date_time, company_pincode, company_state,
                 threshold_limit, home_address, home_city, home_state, created_by, last_updated_date, last_updated_by } = req.body;
-            console.log("req.body--------", req.body)
             const addVendorMastData = new pmsVendorMastModel({
                 type_id: type_id,
+                vendorMast_Id:vendorMast_Id,
                 platform_id: platform_id,
                 payMethod_id: payMethod_id,
                 cycle_id: cycle_id,
@@ -74,7 +74,6 @@ exports.createPmsVendorMast = [
                 last_updated_date: last_updated_date,
                 last_updated_by: last_updated_by
             });
-            console.log("addVendor------------", addVendorMastData)
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
 
@@ -102,7 +101,6 @@ exports.createPmsVendorMast = [
                 data: addVendorMastData,
             });
         } catch (error) {
-            console.log("error----------", error)
             return res.status(500).json({
                 status: 500,
                 message: message.ERROR_MESSAGE,
@@ -271,7 +269,6 @@ exports.updateVendorMast = [
             },
                 { new: true }
             );
-            console.log("updated-----", vendorData)
             return res.status(200).json({
                 message: "PMS vendor-mast data updated successfully!",
                 data: vendorData,
