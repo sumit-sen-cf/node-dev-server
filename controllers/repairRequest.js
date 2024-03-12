@@ -22,6 +22,7 @@ exports.addRepairRequest = [
     upload,
     async (req, res) => {
         try {
+            const uniqueMultiTagValues = [...new Set(req.body.multi_tag.split(',').map(Number))];
             const repairdata = new repairRequestModel({
                 sim_id: req.body.sim_id,
                 acknowledge_date: req.body.acknowledge_date,
@@ -34,8 +35,8 @@ exports.addRepairRequest = [
                 priority: req.body.priority,
                 repair_request_date_time: req.body.repair_request_date_time,
                 problem_detailing: req.body.problem_detailing,
-                // multi_tag: req.body.multi_tag,
-                multi_tag: req.body.multi_tag.split(',').map(Number),
+                multi_tag: uniqueMultiTagValues,
+                // multi_tag: req.body.multi_tag.split(',').map(Number),
                 status: req.body.status,
                 // status: req.body.status,
                 req_by: req.body.req_by,
@@ -862,14 +863,18 @@ exports.showAssetRepairRequestDataToUser = async (req, res) => {
             return res.status(404).json({ success: false, message: "No data found" });
         }
 
-        const userReportL1 = await userModel.find({ user_id: userData[0].req_by })
-        const reportData = userReportL1[0].Report_L1;
+        // const userReportL1 = await userModel.find({ user_id: userData[0].req_by })
+        // const reportData = userReportL1[0].Report_L1;
 
-        const assetReqBy = parseInt(userData[0].req_by)
-        if (assetReqBy === user_id || reportData === user_id || 633 === user_id) {
-            return res.status(404).send("data not found")
-        }
-        res.status(200).json({ data: userData });
+        // const assetReqBy = parseInt(userData[0].req_by)
+        // if (assetReqBy === user_id || reportData === user_id || 633 === user_id) {
+        //     return res.status(404).send("data not found")
+        // }
+
+        const filteredUserData = userData.filter(item => {
+            return item.multi_tag.includes(user_id);
+        });
+        res.status(200).json({ data: filteredUserData });
     } catch (err) {
         res.status(500).send({ error: err.message, sms: "Error getting user details" });
     }
