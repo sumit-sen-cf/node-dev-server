@@ -52,10 +52,9 @@ const pmsPageMastSchema = new Schema({
         type: String,
         required: true,
     },
-    vendorMast_Id: {
+    vendorMast_id: {
         type: Number,
         required: true,
-        // ref: "pmsVendorMast"
     },
     followers_count: {
         type: Number,

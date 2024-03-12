@@ -17,7 +17,7 @@ const pmsVendorMastSchema = new Schema({
         required: true,
         ref: "pmsPayMethod"
     },
-    vendorMast_Id: {
+    vendorMast_id: {
         type: Number,
         required: false,
     },
@@ -66,7 +66,7 @@ const pmsVendorMastSchema = new Schema({
         type: String,
         required: false
     },
-    comapny_name: {
+    company_name: {
         type: String,
         required: false
     },

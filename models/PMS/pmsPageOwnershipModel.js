@@ -9,12 +9,10 @@ const pmsPageOwnershipSchema = new Schema({
     pageMast_id: {
         type: Number,
         required: true,
-      //  ref: "pmsPageMast"
     },
     vendorMast_id: {
         type: Number,
         required: true,
-       // ref: "pmsVendorMast"
     },
     sharing_per: {
         type: Number,

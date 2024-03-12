@@ -13,13 +13,11 @@ exports.createGroupLink = async (req, res) => {
                 message: "PMS group link type data alredy exist!",
             });
         }
-        const { link_type, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { link_type, description, created_by, last_updated_by } = req.body;
         const addGroupLinkData = new pmsGroupLinkTypeModel({
             link_type: link_type,
             description: description,
-            created_date_time: created_date_time,
             created_by: created_by,
-            last_updated_date: last_updated_date,
             last_updated_by: last_updated_by
         });
         await addGroupLinkData.save();
@@ -31,7 +29,7 @@ exports.createGroupLink = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -84,7 +82,7 @@ exports.getGroupLinkDetail = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -93,7 +91,7 @@ exports.getGroupLinkDetail = async (req, res) => {
 exports.updateGroupLink = async (req, res) => {
     try {
         const { id } = req.params;
-        const { link_type, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { link_type, description, created_by, last_updated_by } = req.body;
         const groupLinkData = await pmsGroupLinkTypeModel.findOne({ _id: id });
         if (!groupLinkData) {
             return res.send("Invalid group-link Id...");
@@ -103,9 +101,7 @@ exports.updateGroupLink = async (req, res) => {
             $set: {
                 link_type,
                 description,
-                created_date_time,
                 created_by,
-                last_updated_date,
                 last_updated_by
             },
         },
@@ -117,7 +113,7 @@ exports.updateGroupLink = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -178,9 +174,9 @@ exports.getAllGroupLinkList = async (req, res) => {
             message: "PMS group link type data list successfully!",
             data: pmsGroupLinkData
         });
-    } catch (err) {
+    } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -205,7 +201,7 @@ exports.deleteGroupLinkData = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };

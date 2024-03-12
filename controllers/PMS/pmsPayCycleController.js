@@ -13,13 +13,11 @@ exports.createPayCycle = async (req, res) => {
                 message: "PMS pay-cycle data alredy exist!",
             });
         }
-        const { cycle_name, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { cycle_name, description, created_by, last_updated_by } = req.body;
         const addPayCycleData = new pmsPayCycleModel({
             cycle_name: cycle_name,
             description: description,
-            created_date_time: created_date_time,
             created_by: created_by,
-            last_updated_date: last_updated_date,
             last_updated_by: last_updated_by
         });
         await addPayCycleData.save();
@@ -32,7 +30,7 @@ exports.createPayCycle = async (req, res) => {
         console.log("error-----", error)
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -85,7 +83,7 @@ exports.getPayCycleDetail = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -94,19 +92,17 @@ exports.getPayCycleDetail = async (req, res) => {
 exports.updatePayCycle = async (req, res) => {
     try {
         const { id } = req.params;
-        const { cycle_name, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { cycle_name, description, created_by, last_updated_by } = req.body;
         const payCycleData = await pmsPayCycleModel.findOne({ _id: id });
         if (!payCycleData) {
-            return res.send("Invalid pay-method Id...");
+            return res.send("Invalid pay-cycle Id...");
         }
         await payCycleData.save();
         const payCycleUpdatedData = await pmsPayCycleModel.findOneAndUpdate({ _id: id }, {
             $set: {
                 cycle_name,
                 description,
-                created_date_time,
                 created_by,
-                last_updated_date,
                 last_updated_by
             },
         },
@@ -118,7 +114,7 @@ exports.updatePayCycle = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -179,9 +175,9 @@ exports.getAllPayCycleList = async (req, res) => {
             message: "PMS pay-cycle data list successfully!",
             data: pmsPayCycleData
         });
-    } catch (err) {
+    } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -206,7 +202,7 @@ exports.deletePayCycleData = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };

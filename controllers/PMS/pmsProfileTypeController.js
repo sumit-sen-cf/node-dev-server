@@ -3,7 +3,7 @@ const { message } = require("../../common/message");
 const mongoose = require("mongoose");
 const pmsProfileTypeModel = require('../../models/PMS/pmsProfileTypeModel');
 
-//POST- TmsCatMast
+//POST- PMS_Profile_Type
 exports.createPmsProfile = async (req, res) => {
     try {
         const checkDuplicacy = await pmsProfileTypeModel.findOne({ profile_type: req.body.profile_type });
@@ -13,13 +13,11 @@ exports.createPmsProfile = async (req, res) => {
                 message: "PMS profile type alredy exist!",
             });
         }
-        const { profile_type, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { profile_type, description, created_by, last_updated_by } = req.body;
         const addProfileData = new pmsProfileTypeModel({
             profile_type: profile_type,
             description: description,
-            created_date_time: created_date_time,
             created_by: created_by,
-            last_updated_date: last_updated_date,
             last_updated_by: last_updated_by
         });
         await addProfileData.save();
@@ -31,7 +29,7 @@ exports.createPmsProfile = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -84,7 +82,7 @@ exports.getProfileDetail = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -93,19 +91,17 @@ exports.getProfileDetail = async (req, res) => {
 exports.updateProfileType = async (req, res) => {
     try {
         const { id } = req.params;
-        const { profile_type, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { profile_type, description, created_by, last_updated_by } = req.body;
         const profileData = await pmsProfileTypeModel.findOne({ _id: id });
         if (!profileData) {
-            return res.send("Invalid Vendore Id...");
+            return res.send("Invalid Profile_type Id...");
         }
         await profileData.save();
         const profileUpdatedData = await pmsProfileTypeModel.findOneAndUpdate({ _id: id }, {
             $set: {
                 profile_type,
                 description,
-                created_date_time,
                 created_by,
-                last_updated_date,
                 last_updated_by
             },
         },
@@ -117,7 +113,7 @@ exports.updateProfileType = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -157,6 +153,7 @@ exports.getProfileList = async (req, res) => {
             {
                 $project: {
                     type_name: 1,
+                    profile_type: 1,
                     description: 1,
                     created_date_time: 1,
                     created_by: 1,
@@ -178,14 +175,14 @@ exports.getProfileList = async (req, res) => {
             message: "PMS profile data list successfully!",
             data: pmsProfileData
         });
-    } catch (err) {
+    } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
 
-//DELETE - PMS_vendor_Type_ By-ID
+//DELETE - PMS_Profile_Type_ By-ID
 exports.deleteProfileType = async (req, res) => {
     try {
         const { params } = req;
@@ -205,7 +202,7 @@ exports.deleteProfileType = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
