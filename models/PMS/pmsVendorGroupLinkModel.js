@@ -3,9 +3,8 @@ const Schema = mongoose.Schema;
 
 const pmsVendorGroupLinkSchema = new Schema({
     vendorMast_id: {
-        type: Schema.Types.ObjectId,
+        type: Number,
         required: true,
-        ref: "pmsVendorMast"
     },
     group_link_type_id: {
         type: Schema.Types.ObjectId,

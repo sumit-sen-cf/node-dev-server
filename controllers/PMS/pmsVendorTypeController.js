@@ -3,7 +3,7 @@ const { message } = require("../../common/message");
 const mongoose = require("mongoose");
 const pmsVendorModel = require('../../models/PMS/pmsVendoreTypeModel');
 
-//POST- TmsCatMast
+//POST- PMS_Vendor_type
 exports.createPmsVendor = async (req, res) => {
     try {
         const checkDuplicacy = await pmsVendorModel.findOne({ type_name: req.body.type_name });
@@ -29,7 +29,7 @@ exports.createPmsVendor = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -82,7 +82,7 @@ exports.getVendorDetail = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -113,7 +113,7 @@ exports.updateVendorType = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -174,9 +174,9 @@ exports.getAllVendorData = async (req, res) => {
             message: "PMS vendor data list successfully!",
             data: pmsVendorData
         });
-    } catch (err) {
+    } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -201,7 +201,7 @@ exports.deleteVendorType = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
