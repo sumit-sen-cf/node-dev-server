@@ -333,3 +333,28 @@ exports.getAllphpFinanceDataPending = async (req, res) => {
         res.status(500).send({ error: error.message, sms: "error getting php payment refund data" })
     }
 }
+
+exports.deletePhpFinanceData = async (req, res) => {
+    const id = req.params.id;
+    const condition = { payment_update_id: id };
+    try {
+        const result = await phpFinanceModel.deleteOne(condition);
+        if (result.deletedCount === 1) {
+            return res.status(200).json({
+                success: true,
+                message: `phpFinanceModel with ID ${id} deleted successfully`,
+            });
+        } else {
+            return res.status(200).json({
+                success: false,
+                message: `phpFinanceModel with ID ${id} not found`,
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while deleting the phpFinanceModel",
+            error: error.message,
+        });
+    }
+};

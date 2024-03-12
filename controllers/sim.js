@@ -1177,6 +1177,15 @@ exports.alldataofsimallocment = async (req, res) => {
           deleted_status: "$deleted_status",
         },
       },
+      {
+        $group: {
+          _id: "$sim_id",
+          data: { $first: "$$ROOT" },
+        },
+      },
+      {
+        $replaceRoot: { newRoot: "$data" },
+      },
     ]);
 
     if (!simc || simc.length === 0) {
