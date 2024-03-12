@@ -1677,6 +1677,7 @@ exports.loginUser = async (req, res) => {
                     email: '$user_email_id',
                     dept_id: '$dept_id',
                     role_id: '$role_id',
+                    _id: 1,
                     id: "$user_id",
                     room_id: '$room_id',
                     user_status: '$user_status',
@@ -1700,6 +1701,7 @@ exports.loginUser = async (req, res) => {
             const token = jwt.sign(
                 {
                     id: simc[0]?.id,
+                    _id: simc[0]?._id,
                     name: simc[0]?.name,
                     email: simc[0]?.email,
                     sitting_id: simc[0]?.sitting_id,

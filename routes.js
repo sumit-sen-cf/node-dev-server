@@ -124,6 +124,9 @@ const userUpdateHistory = require("./controllers/userUpdateHistory.js");
 const userTraining = require("./controllers/userTraining.js");
 const nodePhpVendorPaymentMode = require("./controllers/nodePhpVendorPaymentMode.js");
 const razorPay = require("./controllers/razorpay.js");
+const chatController = require("./controllers/chatController.js");
+const messageController = require("./controllers/messageController.js");
+const chatNotificationController = require("./controllers/chatNotificationController.js");
 
 /* Task Mangement Controller Import */
 //const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1687,5 +1690,24 @@ router.delete("/delete_payment_mode/:_id", nodePhpVendorPaymentMode.deletePaymen
 // Payment Gateway Routes
 // router.post("/create_order", razorPay.createOrder);
 router.post("/process_payment", razorPay.processPayment);
+
+// socket chat Routes
+router.get("/chat/:id", chatController.fetchChats);
+router.post("/chat", chatController.accessChat)
+router.get("/get_chating_users/:id", chatController.getChatingUsers);
+// Route to send the message to the recipient
+router.post("/message", messageController.sendMessage);
+// Route to retrieve all the message
+router.get("/message/:chatId", messageController.fetchMessage);
+// group chat Routes
+// router.post("/group", chatController.createGroupChat);
+// router.put('/grouprename', verifyToken, chatController.renameGroup);
+// router.put('/groupremove', verifyToken, chatController.removeFromGroup);
+// router.put('/groupadd', verifyToken, chatController.addToGroup);
+
+//chat notification routes
+router.get("/chatNotification", verifyToken, chatNotificationController.getNotification);
+router.post("/chatNotification", verifyToken, chatNotificationController.addNewNotification);
+router.delete("/chatNotification/:notificationId", verifyToken, chatNotificationController.deleteNotification);
 
 module.exports = router;

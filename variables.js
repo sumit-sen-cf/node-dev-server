@@ -11,4 +11,5 @@ module.exports = {
     // IMAGE_URL: 'https://storage.googleapis.com/jarvis-dot-work-bucket/',
     ALLOWED_URL: 'http://34.93.92.90',
     // ALLOWED_URL: 'https://jarvis.work'
+    SOCKET_PORT: 8098
 };
