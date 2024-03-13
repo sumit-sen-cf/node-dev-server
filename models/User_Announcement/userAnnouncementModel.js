@@ -10,15 +10,20 @@ const userAnnouncementSchema = new mongoose.Schema({
         required: true,
     },
     all_emp: {
-        type: String,
+        type: Boolean,
         required: false,
     },
     dept_id: {
         type: Number,
-        required: false,
+        required: true,
+        //  ref: "departmentModel"
     },
     desi_id: {
         type: Number,
+        required: true,
+    },
+    job_type: {
+        type: String,
         required: false,
     },
     image: {

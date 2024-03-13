@@ -6,13 +6,6 @@ const pmsVendorGroupLinkModel = require('../../models/PMS/pmsVendorGroupLinkMode
 //POST- PMS_Vendor_Group_Link
 exports.createVendorGroup = async (req, res) => {
     try {
-        const checkDuplicacy = await pmsVendorGroupLinkModel.findOne({ link_type: req.body.link_type });
-        if (checkDuplicacy) {
-            return res.status(403).json({
-                status: 403,
-                message: "PMS vendor group link data alredy exist!",
-            });
-        }
         const { vendorMast_id, group_link_type_id, group_link, description, created_by,
             last_updated_by } = req.body;
         const addVendorGroupData = new pmsVendorGroupLinkModel({
