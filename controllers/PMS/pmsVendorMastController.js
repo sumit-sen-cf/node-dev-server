@@ -194,8 +194,8 @@ exports.updateVendorMast = [
                 return res.send("Invalid Vendore-Mast Id...");
             }
             if (req.files) {
-                VendorMastData.upload_pan_image = req.files["upload_pan_image"] ? req.files["upload_pan_image"][0].filename : assetReturnRequest.upload_pan_image;
-                VendorMastData.upload_gst_image = req.files["upload_gst_image"] ? req.files["upload_gst_image"][0].filename : assetReturnRequest.upload_gst_image;
+                VendorMastData.upload_pan_image = req.files["upload_pan_image"] ? req.files["upload_pan_image"][0].filename : VendorMastData.upload_pan_image;
+                VendorMastData.upload_gst_image = req.files["upload_gst_image"] ? req.files["upload_gst_image"][0].filename : VendorMastData.upload_gst_image;
             }
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
@@ -234,7 +234,6 @@ exports.updateVendorMast = [
                     company_name,
                     company_address,
                     company_city,
-                    created_date_time,
                     company_pincode,
                     company_state,
                     threshold_limit,

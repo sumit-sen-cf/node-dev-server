@@ -148,6 +148,7 @@ const { createPmsProfile, getProfileDetail, updateProfileType, getProfileList, d
 const { createPageMast, getPageMastDetail, updatePageMast, getPageMastList, deletePageMastData } = require("./controllers/PMS/pmsPageMastController.js");
 const { createPageOwner, getPageOwnerDetail, updatePageOwner, getPageOwnerList, deletePageOwnerData } = require("./controllers/PMS/pmsPageOwnershipController.js");
 const { createVendorPagePrice, getVendorPagePriceDetail, updateVendorPagePrice, getVendorPagePriceList, deleteVendorPagePriceData } = require("./controllers/PMS/pmsVendorPagePriceController.js");
+const { createUserAnnouncement, getUserAnnouncementDetail, updateUserAnnouncement, getUserAnnoncementList, deleteUserAnnouncementData } = require("./controllers/Announcement/userAnnouncementController.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1520,6 +1521,14 @@ router.get('/total_count_data', dataController.totalCountOfData);
 router.post("/add_dept_desi_auth", deptDesiAuth.addDeptDesiAuth);
 router.get("/get_single_desi_dept_auth/:desi_id", deptDesiAuth.getSingleDeptDesiAuthDetail);
 router.put("/update_dept_desi_auth", deptDesiAuth.updateDeptDesiAuth);
+
+// --------------------------------------------------------------User_Announcement------------------------------------------//
+
+router.post("/add_announcement",createUserAnnouncement);
+router.get("/get_user_announcement/:id",getUserAnnouncementDetail);
+router.put("/update_user_announcement/:id",updateUserAnnouncement);
+router.get("/get_all_user_announcement",getUserAnnoncementList);
+router.delete("/delete_user_announcement",deleteUserAnnouncementData);
 
 // --------------------------------------------------------------Page Mangements System all Routes------------------------------------------//
 
