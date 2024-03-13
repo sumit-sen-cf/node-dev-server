@@ -887,6 +887,25 @@ exports.getAllRepairRequestsForSummary = async (req, res) => {
         const assetsdata = await repairRequestModel
             .aggregate([
                 {
+                    $match: {
+                        status: "Resolved"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "req_by",
+                        foreignField: "user_id",
+                        as: "user_data",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$user_data",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
                     $lookup: {
                         from: "simmodels",
                         localField: "sim_id",
@@ -924,6 +943,11 @@ exports.getAllRepairRequestsForSummary = async (req, res) => {
                         path: "$assetreturnData",
                         preserveNullAndEmptyArrays: true,
                     },
+                },
+                {
+                    $match: {
+                        "assetreturnData.asset_return_status": "RecovedByHR"
+                    }
                 },
                 {
                     $lookup: {
@@ -979,6 +1003,7 @@ exports.getAllRepairRequestsForSummary = async (req, res) => {
                         updated_at: "$updated_at",
                         repair_request_date_time: "$repair_request_date_time",
                         req_by: "$req_by",
+                        req_by_name: "$user_data.user_name",
                         req_date: "$req_date",
                         recovery_remark: "$recovery_remark",
                         recovery_by: "$recovery_by",
@@ -999,25 +1024,8 @@ exports.getAllRepairRequestsForSummary = async (req, res) => {
                         asset_return_by_name: "$user.user_name"
                     },
                 },
-            ])
-            .exec();
-        const assetRepairDataBaseUrl = `${vari.IMAGE_URL}`;
-        const dataWithImageUrl = assetsdata.map((assetrepairdatas) => ({
-            ...assetrepairdatas,
-            img1_url: assetrepairdatas.img1 ? assetRepairDataBaseUrl + assetrepairdatas.img1 : null,
-            img2_url: assetrepairdatas.img2 ? assetRepairDataBaseUrl + assetrepairdatas.img2 : null,
-            img3_url: assetrepairdatas.img3 ? assetRepairDataBaseUrl + assetrepairdatas.img3 : null,
-            img4_url: assetrepairdatas.img4 ? assetRepairDataBaseUrl + assetrepairdatas.img4 : null,
-            recovery_image_upload1_url: assetrepairdatas.recovery_image_upload1 ? assetRepairDataBaseUrl + assetrepairdatas.recovery_image_upload1 : null,
-            recovery_image_upload2_url: assetrepairdatas.recovery_image_upload2 ? assetRepairDataBaseUrl + assetrepairdatas.recovery_image_upload2 : null,
-        }));
-        if (dataWithImageUrl?.length === 0) {
-            res
-                .status(200)
-                .send({ success: true, data: [], message: "No Record found" });
-        } else {
-            res.status(200).send({ data: dataWithImageUrl });
-        }
+            ]);
+        res.status(200).send({ data: assetsdata });
     } catch (err) {
         return res
             .status(500)
