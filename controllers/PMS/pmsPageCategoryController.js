@@ -13,13 +13,11 @@ exports.createPageCatg = async (req, res) => {
                 message: "PMS page-category data alredy exist!",
             });
         }
-        const { page_category, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { page_category, description, created_by, last_updated_by } = req.body;
         const pageCategoryData = new pmsPageCategoryModel({
             page_category: page_category,
             description: description,
-            created_date_time: created_date_time,
             created_by: created_by,
-            last_updated_date: last_updated_date,
             last_updated_by: last_updated_by
         });
         await pageCategoryData.save();
@@ -31,7 +29,7 @@ exports.createPageCatg = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -83,7 +81,7 @@ exports.getPageCatgDetail = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -92,7 +90,7 @@ exports.getPageCatgDetail = async (req, res) => {
 exports.updatePageCatg = async (req, res) => {
     try {
         const { id } = req.params;
-        const { page_category, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { page_category, description, created_by, last_updated_by } = req.body;
         const pageCatgData = await pmsPageCategoryModel.findOne({ _id: id });
         if (!pageCatgData) {
             return res.send("Invalid page-Catg Id...");
@@ -102,9 +100,7 @@ exports.updatePageCatg = async (req, res) => {
             $set: {
                 page_category,
                 description,
-                created_date_time,
                 created_by,
-                last_updated_date,
                 last_updated_by
             },
         },
@@ -116,7 +112,7 @@ exports.updatePageCatg = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -177,9 +173,9 @@ exports.getPageCatgList = async (req, res) => {
             message: "PMS page-catg data list successfully!",
             data: pmsPageCatgData
         });
-    } catch (err) {
+    } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -204,7 +200,7 @@ exports.deletePageCatgData = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };

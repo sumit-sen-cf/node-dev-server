@@ -13,13 +13,11 @@ exports.createPayMethod = async (req, res) => {
                 message: "PMS pay-method data alredy exist!",
             });
         }
-        const { payMethod_name, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { payMethod_name, description, created_by, last_updated_by } = req.body;
         const addPayData = new pmsPayModel({
             payMethod_name: payMethod_name,
             description: description,
-            created_date_time: created_date_time,
             created_by: created_by,
-            last_updated_date: last_updated_date,
             last_updated_by: last_updated_by
         });
         await addPayData.save();
@@ -31,7 +29,7 @@ exports.createPayMethod = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -84,7 +82,7 @@ exports.getPayDetail = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -93,7 +91,7 @@ exports.getPayDetail = async (req, res) => {
 exports.updatePayData = async (req, res) => {
     try {
         const { id } = req.params;
-        const { payMethod_name, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { payMethod_name, description, created_by, last_updated_by } = req.body;
         const payData = await pmsPayModel.findOne({ _id: id });
         if (!payData) {
             return res.send("Invalid pay-method Id...");
@@ -103,9 +101,7 @@ exports.updatePayData = async (req, res) => {
             $set: {
                 payMethod_name,
                 description,
-                created_date_time,
                 created_by,
-                last_updated_date,
                 last_updated_by
             },
         },
@@ -117,12 +113,12 @@ exports.updatePayData = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
 
-//GET - PMS_Platform_List
+//GET - PMS_PayMethod_List
 exports.getAllPayList = async (req, res) => {
     try {
         const pmsPayData = await pmsPayModel.aggregate([
@@ -178,9 +174,9 @@ exports.getAllPayList = async (req, res) => {
             message: "PMS pay-method data list successfully!",
             data: pmsPayData
         });
-    } catch (err) {
+    } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -205,7 +201,7 @@ exports.deletePayData = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };

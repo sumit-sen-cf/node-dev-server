@@ -13,13 +13,11 @@ exports.createPlatform = async (req, res) => {
                 message: " PMS platform alredy exist!",
             });
         }
-        const { platform_name, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { platform_name, description, created_by, last_updated_by } = req.body;
         const addPlatformData = new pmsPlatformModel({
             platform_name: platform_name,
             description: description,
-            created_date_time: created_date_time,
             created_by: created_by,
-            last_updated_date: last_updated_date,
             last_updated_by: last_updated_by
         });
         await addPlatformData.save();
@@ -31,7 +29,7 @@ exports.createPlatform = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -84,7 +82,7 @@ exports.getPlatformDetail = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -93,7 +91,7 @@ exports.getPlatformDetail = async (req, res) => {
 exports.updatePlatformData = async (req, res) => {
     try {
         const { id } = req.params;
-        const { platform_name, description, created_date_time, created_by, last_updated_date, last_updated_by } = req.body;
+        const { platform_name, description, created_by, last_updated_by } = req.body;
         const editPlatformData = await pmsPlatformModel.findOne({ _id: id });
         if (!editPlatformData) {
             return res.send("Invalid Platform Id...");
@@ -103,9 +101,7 @@ exports.updatePlatformData = async (req, res) => {
             $set: {
                 platform_name,
                 description,
-                created_date_time,
                 created_by,
-                last_updated_date,
                 last_updated_by
             },
         },
@@ -117,7 +113,7 @@ exports.updatePlatformData = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -178,9 +174,9 @@ exports.getAllPlatformList = async (req, res) => {
             message: "PMS platform data list successfully!",
             data: pmsPlatformData
         });
-    } catch (err) {
+    } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -205,7 +201,7 @@ exports.deletePlatformData = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };

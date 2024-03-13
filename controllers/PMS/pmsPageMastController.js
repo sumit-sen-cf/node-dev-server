@@ -13,12 +13,11 @@ exports.createPageMast = async (req, res) => {
                 message: "PMS page-mast data alredy exist!",
             });
         }
-        const { page_user_name, pageMast_id, link, platform_id, page_catg_id, tag_category, page_level, page_status, page_closed_by,
-            page_name_type, content_creation, ownership_type, vendorMast_Id, followers_count, profile_type_id, platform_active_on,
+        const { page_user_name, link, platform_id, page_catg_id, tag_category, page_level, page_status, page_closed_by,
+            page_name_type, content_creation, ownership_type, vendorMast_id, followers_count, profile_type_id, platform_active_on,
             engagment_rate, description, created_by, last_updated_by } = req.body;
         const pageMastData = new pmsPageMastModel({
             page_user_name: page_user_name,
-            pageMast_id: pageMast_id,
             link: link,
             platform_id: platform_id,
             page_catg_id: page_catg_id,
@@ -29,7 +28,7 @@ exports.createPageMast = async (req, res) => {
             page_name_type: page_name_type,
             content_creation: content_creation,
             ownership_type: ownership_type,
-            vendorMast_Id: vendorMast_Id,
+            vendorMast_id: vendorMast_id,
             followers_count: followers_count,
             profile_type_id: profile_type_id,
             platform_active_on: platform_active_on,
@@ -47,7 +46,7 @@ exports.createPageMast = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -87,7 +86,7 @@ exports.getPageMastDetail = async (req, res) => {
                     page_name_type: 1,
                     content_creation: 1,
                     ownership_type: 1,
-                    vendorMast_Id: 1,
+                    vendorMast_id: 1,
                     followers_count: 1,
                     profile_type_id: 1,
                     platform_active_on: 1,
@@ -114,7 +113,7 @@ exports.getPageMastDetail = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -124,8 +123,8 @@ exports.getPageMastDetail = async (req, res) => {
 exports.updatePageMast = async (req, res) => {
     try {
         const { id } = req.params;
-        const { page_user_name, pageMast_id, link, platform_id, page_catg_id, tag_category, page_level, page_status, page_closed_by,
-            page_name_type, content_creation, ownership_type, vendorMast_Id, followers_count, profile_type_id, platform_active_on,
+        const { page_user_name, link, platform_id, page_catg_id, tag_category, page_level, page_status, page_closed_by,
+            page_name_type, content_creation, ownership_type, vendorMast_id, followers_count, profile_type_id, platform_active_on,
             engagment_rate, description, created_by, last_updated_by } = req.body;
         const pageMastData = await pmsPageMastModel.findOne({ _id: id });
         if (!pageMastData) {
@@ -135,7 +134,6 @@ exports.updatePageMast = async (req, res) => {
         const pageMastUpdated = await pmsPageMastModel.findOneAndUpdate({ _id: id }, {
             $set: {
                 page_user_name,
-                pageMast_id,
                 link,
                 platform_id,
                 page_catg_id,
@@ -146,7 +144,7 @@ exports.updatePageMast = async (req, res) => {
                 page_name_type,
                 content_creation,
                 ownership_type,
-                vendorMast_Id,
+                vendorMast_id,
                 followers_count,
                 profile_type_id,
                 platform_active_on,
@@ -164,7 +162,7 @@ exports.updatePageMast = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -229,7 +227,7 @@ exports.getPageMastList = async (req, res) => {
                     page_name_type: 1,
                     content_creation: 1,
                     ownership_type: 1,
-                    vendorMast_Id: 1,
+                    vendorMast_id: 1,
                     followers_count: 1,
                     profile_type_id: 1,
                     platform_active_on: 1,
@@ -241,10 +239,12 @@ exports.getPageMastList = async (req, res) => {
                     last_updated_date: 1,
                     last_updated_by: 1,
                     PMS_paform_data: {
+                        platform_id: "$pmsplatform._id",
                         platform_name: "$pmsplatform.platform_name",
                         description: "$pmsplatform.description"
                     },
                     PMS_Pagecategories: {
+                        page_catg_id: "$pmspagecategorie._id",
                         page_category: "$pmspagecategorie.page_category",
                         description: "$pmspagecategorie.description",
                         created_by: "$pmspagecategorie.created_by"
@@ -263,9 +263,9 @@ exports.getPageMastList = async (req, res) => {
             message: "PMS page-mast data list successfully!",
             data: pmsPageMastData
         });
-    } catch (err) {
+    } catch (error) {
         return res.status(500).json({
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -290,7 +290,7 @@ exports.deletePageMastData = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };

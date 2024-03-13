@@ -11,7 +11,7 @@ const pmsVendorPagePriceSchema = new Schema({
         type: Number,
         required: true,
     },
-    vendorMast_Id: {
+    vendorMast_id: {
         type: Number,
         required: true,
     },

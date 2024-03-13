@@ -127,6 +127,7 @@ const razorPay = require("./controllers/razorpay.js");
 const chatController = require("./controllers/chatController.js");
 const messageController = require("./controllers/messageController.js");
 const chatNotificationController = require("./controllers/chatNotificationController.js");
+const phpVendorPurchasePaymentRequest = require("./controllers/phpVendorPurchasePayment.js");
 
 /* Task Mangement Controller Import */
 //const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1203,8 +1204,9 @@ router.get(
   "/get_sub_category_from_categroyid/:category_id",
   assetSubCategory.getAssetSubCategoryFromCategoryId
 );
-router.get("/get_total_asset_in_category/:sub_category_id", assetSubCategory.getTotalAssetInSubCategory);
-router.get("/get_total_asset_in_category_allocated/:sub_category_id", assetSubCategory.getTotalAssetInSubCategoryAllocated);
+router.get("/get_total_asset_in_sub_category/:sub_category_id", assetSubCategory.getTotalAssetInSubCategory);
+router.get("/get_total_asset_in_sub_category_allocated/:sub_category_id", assetSubCategory.getTotalAssetInSubCategoryAllocated);
+router.get("/get_asset_by_sub_cat/:sub_category_id", assetSubCategory.getAssetBySubCat)
 /* Vendor Routes */
 router.post("/add_vendor", vendor.addVendor);
 router.get("/get_all_vendor", vendor.getVendors);
@@ -1366,6 +1368,7 @@ router.delete("/delete_city/:_id", city.deleteCity);
 /* php finance api */
 router.post("/add_php_finance_data_in_node", phpFinance.savePhpFinanceDataInNode);
 router.get("/get_all_php_finance_data", phpFinance.getAllphpFinanceData);
+router.delete("/delete_php_finance_data", phpFinance.deletePhpFinanceData);
 router.get("/get_all_php_finance_data_pending", phpFinance.getAllphpFinanceDataPending);
 router.post("/add_php_payment_acc_data_in_node", phpPayment.savePhpPaymentAccDataInNode);
 router.get("/get_all_php_payment_acc_data", phpPayment.getAllphpPaymentAccData);
@@ -1656,7 +1659,12 @@ router.post("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPay
 router.get("/phpvendor_insert_data_node", phpVendorPaymentRequest.addPhpVendorPaymentRequestSet);
 router.get("/phpvendorpaymentrequest", phpVendorPaymentRequest.getPhpVendorPaymentRequests);
 router.get("/phpvendorpaymentrequest/:request_id", phpVendorPaymentRequest.getSinglePhpVendorPaymentRequest)
-router.put("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaymentRequest.updatePhpVendorPaymentRequest)
+router.put("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaymentRequest.updatePhpVendorPaymentRequest);
+
+
+// phpVendorPurchase Routes
+router.post("/phpvendorpurchasepaymentrequest", phpVendorPurchasePaymentRequest.addPhpVendorPurchasePaymentRequestSet);
+router.get("/phpvendorpurchasepaymentrequest", phpVendorPurchasePaymentRequest.getPhpVendorPurchasePaymentRequests)
 
 //Data Operation Routes
 router.post("/dataoperation", dataOperation.addOperationData);

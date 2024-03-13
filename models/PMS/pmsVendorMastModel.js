@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const pmsVendorMastSchema = new Schema({
+    vendorMast_id: {
+        type: Number,
+        required: false,
+    },
     type_id: {
         type: Schema.Types.ObjectId,
         required: true,
@@ -16,10 +20,6 @@ const pmsVendorMastSchema = new Schema({
         type: Schema.Types.ObjectId,
         required: true,
         ref: "pmsPayMethod"
-    },
-    vendorMast_Id: {
-        type: Number,
-        required: false,
     },
     cycle_id: {
         type: Schema.Types.ObjectId,
@@ -66,7 +66,7 @@ const pmsVendorMastSchema = new Schema({
         type: String,
         required: false
     },
-    comapny_name: {
+    company_name: {
         type: String,
         required: false
     },
@@ -122,13 +122,13 @@ const pmsVendorMastSchema = new Schema({
     }
 });
 pmsVendorMastSchema.pre('save', async function (next) {
-    if (!this.vendorMast_Id) {
-        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'vendorMast_Id': -1 } });
+    if (!this.vendorMast_id) {
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'vendorMast_id': -1 } });
 
-        if (lastAgency && lastAgency.vendorMast_Id) {
-            this.vendorMast_Id = lastAgency.vendorMast_Id + 1;
+        if (lastAgency && lastAgency.vendorMast_id) {
+            this.vendorMast_id = lastAgency.vendorMast_id + 1;
         } else {
-            this.vendorMast_Id = 1;
+            this.vendorMast_id = 1;
         }
     }
     next();
