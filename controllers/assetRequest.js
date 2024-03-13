@@ -40,213 +40,108 @@ exports.addAssetRequest = async (req, res) => {
     }
 };
 
-// exports.getAssetRequests = async (req, res) => {
-//     try {
-
-//         const assetRequestData = await assetRequestModel
-//             .aggregate([
-//                 {
-//                     $lookup: {
-//                         from: "assetssubcategorymodels",
-//                         localField: "sub_category_id",
-//                         foreignField: "sub_category_id",
-//                         as: "SubCategory",
-//                     },
-//                 },
-//                 {
-//                     $unwind: {
-//                         path: "$SubCategory",
-//                         preserveNullAndEmptyArrays: true,
-//                     },
-//                 },
-//                 {
-//                     $lookup: {
-//                         from: "simmodels",
-//                         localField: "sim_id",
-//                         foreignField: "sim_id",
-//                         as: "Sim",
-//                     },
-//                 },
-//                 {
-//                     $unwind: {
-//                         path: "$Sim",
-//                         preserveNullAndEmptyArrays: true,
-//                     },
-//                 },
-//                 {
-//                     $lookup: {
-//                         from: "usermodels",
-//                         localField: "request_by",
-//                         foreignField: "user_id",
-//                         as: "user",
-//                     },
-//                 },
-//                 {
-//                     $unwind: {
-//                         path: "$user",
-//                         preserveNullAndEmptyArrays: true,
-//                     },
-//                 },
-//                 {
-//                     $lookup: {
-//                         from: "usermodels",
-//                         localField: "multi_tag",
-//                         foreignField: "user_id",
-//                         as: "userMulti",
-//                     },
-//                 },
-//                 {
-//                     $unwind: {
-//                         path: "$userMulti",
-//                         preserveNullAndEmptyArrays: true,
-//                     },
-//                 },
-//                 {
-//                     $project: {
-//                         sim_id: "$sim_id",
-//                         asset_name: "$Sim.assetsName",
-//                         sub_category_id: "$sub_category_id",
-//                         sub_category_name: "$SubCategory.sub_category_name",
-//                         detail: "$detail",
-//                         priority: "$priority",
-//                         date_and_time_of_asset_request: "$date_and_time_of_asset_request",
-//                         request_by: "$request_by",
-//                         request_by_name: "$user.user_name",
-//                         multi_tag: "$multi_tag",
-//                         asset_request_status: "$asset_request_status",
-//                         multi_tag_name: "$userMulti.user_name",
-//                     },
-//                 },
-//                 {
-//                     $group: {
-//                         _id: "$sub_category_id",
-//                         data: { $first: "$$ROOT" }
-//                     }
-//                 },
-//                 {
-//                     $replaceRoot: { newRoot: "$data" }
-//                 }
-//             ])
-//             .exec();
-
-//         if (assetRequestData.length === 0) {
-//             res
-//                 .status(200)
-//                 .send({ success: true, data: [], message: "No Record found" });
-//         } else {
-//             res.status(200).send({ data: assetRequestData });
-//         }
-//     } catch (err) {
-//         res
-//             .status(500)
-//             .send({ error: err.message, message: "Error getting all assetRequestData" });
-//     }
-// };
-
-
 exports.getAssetRequests = async (req, res) => {
     try {
-        const assetRequestData = await assetRequestModel.aggregate([
-            {
-                $lookup: {
-                    from: "assetssubcategorymodels",
-                    localField: "sub_category_id",
-                    foreignField: "sub_category_id",
-                    as: "SubCategory",
+
+        const assetRequestData = await assetRequestModel
+            .aggregate([
+                {
+                    $lookup: {
+                        from: "assetssubcategorymodels",
+                        localField: "sub_category_id",
+                        foreignField: "sub_category_id",
+                        as: "SubCategory",
+                    },
                 },
-            },
-            {
-                $unwind: {
-                    path: "$SubCategory",
-                    preserveNullAndEmptyArrays: true,
+                {
+                    $unwind: {
+                        path: "$SubCategory",
+                        preserveNullAndEmptyArrays: true,
+                    },
                 },
-            },
-            {
-                $lookup: {
-                    from: "simmodels",
-                    localField: "sim_id",
-                    foreignField: "sim_id",
-                    as: "Sim",
+                {
+                    $lookup: {
+                        from: "simmodels",
+                        localField: "sim_id",
+                        foreignField: "sim_id",
+                        as: "Sim",
+                    },
                 },
-            },
-            {
-                $unwind: {
-                    path: "$Sim",
-                    preserveNullAndEmptyArrays: true,
+                {
+                    $unwind: {
+                        path: "$Sim",
+                        preserveNullAndEmptyArrays: true,
+                    },
                 },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "request_by",
-                    foreignField: "user_id",
-                    as: "user",
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "request_by",
+                        foreignField: "user_id",
+                        as: "user",
+                    },
                 },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
+                {
+                    $unwind: {
+                        path: "$user",
+                        preserveNullAndEmptyArrays: true,
+                    },
                 },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "multi_tag",
-                    foreignField: "user_id",
-                    as: "userMulti",
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "multi_tag",
+                        foreignField: "user_id",
+                        as: "userMulti",
+                    },
                 },
-            },
-            {
-                $unwind: {
-                    path: "$userMulti",
-                    preserveNullAndEmptyArrays: true,
+                {
+                    $unwind: {
+                        path: "$userMulti",
+                        preserveNullAndEmptyArrays: true,
+                    },
                 },
-            },
-            {
-                $project: {
-                    sim_id: "$sim_id",
-                    asset_name: "$Sim.assetsName",
-                    sub_category_id: "$sub_category_id",
-                    sub_category_name: "$SubCategory.sub_category_name",
-                    detail: "$detail",
-                    priority: "$priority",
-                    date_and_time_of_asset_request: "$date_and_time_of_asset_request",
-                    request_by: "$request_by",
-                    request_by_name: "$user.user_name",
-                    multi_tag: "$multi_tag",
-                    asset_request_status: "$asset_request_status",
-                    multi_tag_names: "$userMulti.user_name",
+                {
+                    $project: {
+                        asset_request_id: "$asset_request_id",
+                        sim_id: "$sim_id",
+                        asset_name: "$Sim.assetsName",
+                        sub_category_id: "$sub_category_id",
+                        sub_category_name: "$SubCategory.sub_category_name",
+                        detail: "$detail",
+                        priority: "$priority",
+                        date_and_time_of_asset_request: "$date_and_time_of_asset_request",
+                        request_by: "$request_by",
+                        request_by_name: "$user.user_name",
+                        multi_tag: "$multi_tag",
+                        asset_request_status: "$asset_request_status",
+                        multi_tag_name: "$userMulti.user_name",
+                    },
                 },
-            },
-            {
-                $unwind: {
-                    path: "$multi_tag",
-                    preserveNullAndEmptyArrays: true,
+                {
+                    $group: {
+                        _id: "$asset_request_id",
+                        data: { $first: "$$ROOT" }
+                    }
                 },
-            },
-            {
-                $group: {
-                    _id: { sub_category_id: "$sub_category_id", multi_tag: "$multi_tag" },
-                    data: { $first: "$$ROOT" },
-                },
-            },
-            {
-                $replaceRoot: { newRoot: "$data" },
-            },
-        ]).exec();
+                {
+                    $replaceRoot: { newRoot: "$data" }
+                }
+            ]);
 
         if (assetRequestData.length === 0) {
-            res.status(200).send({ success: true, data: [], message: "No Record found" });
+            res
+                .status(200)
+                .send({ success: true, data: [], message: "No Record found" });
         } else {
             res.status(200).send({ data: assetRequestData });
         }
     } catch (err) {
-        res.status(500).send({ error: err.message, message: "Error getting all assetRequestData" });
+        res
+            .status(500)
+            .send({ error: err.message, message: "Error getting all assetRequestData" });
     }
 };
-
-
 
 // exports.getAssetRequestById = async (req, res) => {
 //     try {
@@ -461,6 +356,7 @@ exports.getAssetRequestById = async (req, res) => {
             {
                 $group: {
                     _id: "$_id",
+                    asset_request_id: "$asset_request_id",
                     sub_category_id: { $first: "$sub_category_id" },
                     detail: { $first: "$detail" },
                     priority: { $first: "$priority" },
