@@ -356,7 +356,6 @@ exports.getAssetRequestById = async (req, res) => {
             {
                 $group: {
                     _id: "$_id",
-                    asset_request_id: "$asset_request_id",
                     sub_category_id: { $first: "$sub_category_id" },
                     detail: { $first: "$detail" },
                     priority: { $first: "$priority" },

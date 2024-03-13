@@ -181,6 +181,7 @@ exports.getAllVendorGroupList = async (req, res) => {
                 $project: {
                     group_link: 1,
                     description: 1,
+                    vendorMast_id: 1,
                     created_date_time: 1,
                     created_by: 1,
                     last_updated_by_name: "$user_data.user_name",
@@ -209,12 +210,22 @@ exports.getAllVendorGroupList = async (req, res) => {
                         created_by: "$pmsvendormast.created_by",
                         last_updated_by: "$pmsvendormast.last_updated_by",
                         PMSGroupLinks_data: {
+                            group_link_type_id: "$pmsgrouplink._id",
                             link_type: "$pmsgrouplink.link_type",
                             description_group_link_type: "$pmsgrouplink.description",
                             created_by_group_link_type: "$pmsgrouplink.created_by"
                         }
                     }
                 }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    data: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$data" }
             }
         ])
         if (!pmsVendorGroupLinkData) {
