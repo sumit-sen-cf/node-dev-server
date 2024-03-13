@@ -108,7 +108,7 @@ module.exports = {
       // const browser = await puppeteer.launch({ headless: "true" });  // For Localhsot
       const browser = await puppeteer.launch({
         headless: "true",
-        executablePath: "/usr/bin/chromium",
+        executablePath: "/usr/lib/chromium",
       });
       const page = await browser.newPage();
       await page.setContent(html);
