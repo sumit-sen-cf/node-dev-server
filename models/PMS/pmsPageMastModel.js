@@ -2,13 +2,13 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const pmsPageMastSchema = new Schema({
+    pageMast_id: {
+        type: Number,
+        required: false,
+    },
     page_user_name: {
         type: String,
         required: true
-    },
-    pageMast_id: {
-        type: String,
-        required: false,
     },
     link: {
         type: String,
