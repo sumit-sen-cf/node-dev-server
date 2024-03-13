@@ -25,12 +25,11 @@ exports.createPmsVendorMast = [
                     message: "PMS vendore-mast alredy exist!",
                 });
             }
-            const { type_id, vendorMast_id, platform_id, payMethod_id, cycle_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
+            const { type_id,  platform_id, payMethod_id, cycle_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
                 personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode, company_state,
                 threshold_limit, home_address, home_city, home_state, created_by, last_updated_by } = req.body;
             const addVendorMastData = new pmsVendorMastModel({
                 type_id: type_id,
-                vendorMast_id: vendorMast_id,
                 platform_id: platform_id,
                 payMethod_id: payMethod_id,
                 cycle_id: cycle_id,
@@ -187,7 +186,7 @@ exports.updateVendorMast = [
     async (req, res) => {
         try {
             const { id } = req.params;
-            const { type_id, platform_id, payMethod_id, cycle_id, vendorMast_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
+            const { type_id, platform_id, payMethod_id, cycle_id,vendorMast_name, country_code, mobile, alternate_mobile, email,
                 personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode, company_state,
                 threshold_limit, home_address, home_city, home_state, created_by, last_updated_by } = req.body;
             const VendorMastData = await pmsVendorMastModel.findOne({ _id: id });
@@ -224,7 +223,6 @@ exports.updateVendorMast = [
                     platform_id,
                     payMethod_id,
                     cycle_id,
-                    vendorMast_id,
                     vendorMast_name,
                     country_code,
                     mobile,
