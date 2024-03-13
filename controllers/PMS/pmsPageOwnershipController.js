@@ -35,7 +35,7 @@ exports.createPageOwner = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: error.message ? error.message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -89,7 +89,7 @@ exports.getPageOwnerDetail = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: error.message ? error.message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -123,7 +123,7 @@ exports.updatePageOwner = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: error.message ? error.message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -200,7 +200,7 @@ exports.getPageOwnerList = async (req, res) => {
                     last_updated_date: 1,
                     last_updated_by: 1,
                     PMS_VendorMasts_data: {
-                        pmsvendor_id:"$vendorMast._id",
+                        pmsvendor_id: "$vendorMast._id",
                         vendorMast_name: "$pmsvendormast.vendorMast_name",
                         country_code: "$pmsvendormast.country_code",
                         mobile: "$pmsvendormast.mobile",
@@ -222,7 +222,7 @@ exports.getPageOwnerList = async (req, res) => {
                         last_updated_by: "$pmsvendormast.last_updated_by",
                     },
                     pmspagemast_data: {
-                        pmspageMast_id:"$pmspagemast._id",
+                        pmspageMast_id: "$pmspagemast._id",
                         page_user_name: "$pmspagemast.page_user_name",
                         link: "$pmspagemast.link",
                         platform_id: "$pmspagemast.platform_id",
@@ -245,8 +245,16 @@ exports.getPageOwnerList = async (req, res) => {
                         last_updated_by: "$pmspagemast.last_updated_by",
                     }
                 }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    data: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$data" }
             }
-
         ])
         if (!pageOwnerData) {
             return res.status(500).send({
@@ -261,7 +269,7 @@ exports.getPageOwnerList = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: error.message ? error.message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -286,7 +294,7 @@ exports.deletePageOwnerData = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: error.message ? error.message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
