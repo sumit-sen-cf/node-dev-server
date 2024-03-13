@@ -12,6 +12,7 @@ const errorController = require('./controllers/errorController.js')
 const swaggerAccessManagement = require('./doc/customization_src/controller/swaggerAccessManagement.js');
 const { checkDevAuthentication } = require("./doc/customization_src/middleware/swaggerMiddleware.js");
 const path = require("path");
+const Socket = require("socket.io");
 // const axios = require("axios");
 require("./controllers/autoMail.js");
 require("./controllers/assetAutoMail.js");
@@ -94,7 +95,60 @@ mongoose
     console.log(err);
   });
 
-app.listen(vari.PORT, () => {
+// app.listen(vari.PORT, () => {
+//   console.log("server is running at " + vari.API_URL);
+// });
+const PORT = vari.PORT || 3000;
+const server = app.listen(PORT, () => {
   console.log("server is running at " + vari.API_URL);
+});
+
+// Initialize Socket.io
+const io = Socket(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+// Socket.io connection handling
+io.on("connection", (socket) => {
+  console.log("socket server connected");
+  console.log("a user connected", socket.id);
+
+  socket.on("setup", (userData) => {
+    console.log("========= userData =========");
+    console.log(userData);
+    socket.join(userData._id);
+    console.log(userData.name, "connected");
+    socket.emit("connected");
+  });
+  socket.on("join chat", (room) => {
+    socket.join(room);
+    console.log("User joined room: " + room);
+  });
+  socket.on("new-message", (newMessage) => {
+    console.log("========= newMessage =========");
+    console.log(newMessage);
+    let chat = newMessage.chatIdData;
+    if (!chat || !chat.users) {
+      return console.log("chat.users not defined");
+    }
+
+    chat.users.forEach((user) => {
+      if (user._id === newMessage.sender._id) return;
+      socket.in(user._id).emit("message received", newMessage);
+    });
+    socket.on("typing", (room) => {
+      socket.in(room).emit("typing");
+    });
+    socket.on("stop typing", (room) => {
+      socket.in(room).emit("stop typing");
+    });
+  });
+  socket.off("setup", () => {
+    console.log("USER DISCONNECTED");
+    socket.leave(userData._id);
+  });
 
 });
