@@ -94,7 +94,7 @@ exports.addRepairRequest = [
             }
             if (req.files.recovery_image_upload1 && req.files.recovery_image_upload1[0].originalname) {
                 const blob4 = bucket.file(req.files.recovery_image_upload1[0].originalname);
-                returndata.recovery_image_upload1 = blob4.name;
+                repairdata.recovery_image_upload1 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
                     // res.status(200).send("Success") 
@@ -103,7 +103,7 @@ exports.addRepairRequest = [
             }
             if (req.files.recovery_image_upload2 && req.files.recovery_image_upload2[0].originalname) {
                 const blob4 = bucket.file(req.files.recovery_image_upload2[0].originalname);
-                returndata.recovery_image_upload2 = blob4.name;
+                repairdata.recovery_image_upload2 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
                     // res.status(200).send("Success") 
@@ -553,12 +553,12 @@ exports.editRepairRequest = [
             };
 
             if (req.files) {
-                updateFields.img1 = req.files["img1"] ? req.files["img1"][0].filename : existingRepairRequest.img1;
-                updateFields.img2 = req.files["img2"] ? req.files["img2"][0].filename : existingRepairRequest.img2;
-                updateFields.img3 = req.files["img3"] ? req.files["img3"][0].filename : existingRepairRequest.img3;
-                updateFields.img4 = req.files["img4"] ? req.files["img4"][0].filename : existingRepairRequest.img4;
-                updateFields.recovery_image_upload1 = req.files["recovery_image_upload1"] ? req.files["recovery_image_upload1"][0].filename : existingRepairRequest.recovery_image_upload1;
-                updateFields.recovery_image_upload2 = req.files["recovery_image_upload2"] ? req.files["recovery_image_upload2"][0].filename : existingRepairRequest.recovery_image_upload2;
+                updateFields.img1 = req.files?.img1 ? req.files.img1[0].originalname : existingRepairRequest.img1;
+                updateFields.img2 = req.files?.img2 ? req.files.img2[0].originalname : existingRepairRequest.img2;
+                updateFields.img3 = req.files?.img3 ? req.files.img3[0].originalname : existingRepairRequest.img3;
+                updateFields.img4 = req.files?.img4 ? req.files.img4[0].originalname : existingRepairRequest.img4;
+                updateFields.recovery_image_upload1 = req.files?.recovery_image_upload1 ? req.files.recovery_image_upload1[0].originalname : existingRepairRequest.recovery_image_upload1;
+                updateFields.recovery_image_upload2 = req.files?.recovery_image_upload2 ? req.files.recovery_image_upload2[0].originalname : existingRepairRequest.recovery_image_upload2;
             }
 
             const editrepairdata = await repairRequestModel.findOneAndUpdate(
@@ -612,7 +612,7 @@ exports.editRepairRequest = [
             }
             if (req.files?.recovery_image_upload1 && req.files?.recovery_image_upload1[0].originalname) {
                 const blob4 = bucket.file(req.files?.recovery_image_upload1[0].originalname);
-                returndata.recovery_image_upload1 = blob4.name;
+                editrepairdata.recovery_image_upload1 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
                     // res.status(200).send("Success") 
@@ -621,7 +621,7 @@ exports.editRepairRequest = [
             }
             if (req.files?.recovery_image_upload2 && req.files?.recovery_image_upload2[0].originalname) {
                 const blob4 = bucket.file(req.files.recovery_image_upload2[0].originalname);
-                returndata.recovery_image_upload2 = blob4.name;
+                editrepairdata.recovery_image_upload2 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
                     // res.status(200).send("Success") 
@@ -888,7 +888,7 @@ exports.getAllRepairRequestsForSummary = async (req, res) => {
             .aggregate([
                 {
                     $match: {
-                        status: "Resolved"
+                        status: "Recover"
                     }
                 },
                 {
@@ -930,39 +930,39 @@ exports.getAllRepairRequestsForSummary = async (req, res) => {
                 {
                     $unwind: "$assetreasonmodelData",
                 },
-                {
-                    $lookup: {
-                        from: "assetreturnmodels",
-                        localField: "sim_id",
-                        foreignField: "sim_id",
-                        as: "assetreturnData",
-                    },
-                },
-                {
-                    $unwind: {
-                        path: "$assetreturnData",
-                        preserveNullAndEmptyArrays: true,
-                    },
-                },
-                {
-                    $match: {
-                        "assetreturnData.asset_return_status": "RecovedByHR"
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "usermodels",
-                        localField: "assetreturnData.asset_return_by",
-                        foreignField: "user_id",
-                        as: "user",
-                    },
-                },
-                {
-                    $unwind: {
-                        path: "$user",
-                        preserveNullAndEmptyArrays: true,
-                    },
-                },
+                // {
+                //     $lookup: {
+                //         from: "assetreturnmodels",
+                //         localField: "sim_id",
+                //         foreignField: "sim_id",
+                //         as: "assetreturnData",
+                //     },
+                // },
+                // {
+                //     $unwind: {
+                //         path: "$assetreturnData",
+                //         preserveNullAndEmptyArrays: true,
+                //     },
+                // },
+                // {
+                //     $match: {
+                //         "assetreturnData.asset_return_status": "RecovedByHR"
+                //     }
+                // },
+                // {
+                //     $lookup: {
+                //         from: "usermodels",
+                //         localField: "assetreturnData.asset_return_by",
+                //         foreignField: "user_id",
+                //         as: "user",
+                //     },
+                // },
+                // {
+                //     $unwind: {
+                //         path: "$user",
+                //         preserveNullAndEmptyArrays: true,
+                //     },
+                // },
                 {
                     $project: {
                         repair_id: "$repair_id",
@@ -976,7 +976,7 @@ exports.getAllRepairRequestsForSummary = async (req, res) => {
                         resolved_remark: "$resolved_remark",
                         asset_reason_id: "$asset_reason_id",
                         reason_name: "$assetreasonmodelData.reason",
-                        asset_name: "$sim.assetsName",
+                        assetName: "$sim.assetsName",
                         priority: "$priority",
                         problem_detailing: "$problem_detailing",
                         multi_tag: "$multi_tag",
@@ -1008,20 +1008,20 @@ exports.getAllRepairRequestsForSummary = async (req, res) => {
                         recovery_remark: "$recovery_remark",
                         recovery_by: "$recovery_by",
                         recovery_date_time: "$recovery_date_time",
-                        asset_return_remark: "$assetreturnData.asset_return_remark",
-                        return_asset_data_time: "$assetreturnData.return_asset_data_time",
-                        asset_return_by: "$assetreturnData.asset_return_by",
-                        asset_return_status: "$assetreturnData.asset_return_status",
-                        asset_return_recover_by: "$assetreturnData.asset_return_recover_by",
-                        asset_return_recover_by_remark: "$assetreturnData.asset_return_recover_by_remark",
-                        asset_return_recovered_date_time: "$assetreturnData.asset_return_recovered_date_time",
-                        return_asset_image_1: {
-                            $concat: [imageUrl, "$assetreturnData.return_asset_image_1"],
-                        },
-                        return_asset_image_2: {
-                            $concat: [imageUrl, "$assetreturnData.return_asset_image_2"],
-                        },
-                        asset_return_by_name: "$user.user_name"
+                        // asset_return_remark: "$assetreturnData.asset_return_remark",
+                        // return_asset_data_time: "$assetreturnData.return_asset_data_time",
+                        // asset_return_by: "$assetreturnData.asset_return_by",
+                        // asset_return_status: "$assetreturnData.asset_return_status",
+                        // asset_return_recover_by: "$assetreturnData.asset_return_recover_by",
+                        // asset_return_recover_by_remark: "$assetreturnData.asset_return_recover_by_remark",
+                        // asset_return_recovered_date_time: "$assetreturnData.asset_return_recovered_date_time",
+                        // return_asset_image_1: {
+                        //     $concat: [imageUrl, "$assetreturnData.return_asset_image_1"],
+                        // },
+                        // return_asset_image_2: {
+                        //     $concat: [imageUrl, "$assetreturnData.return_asset_image_2"],
+                        // },
+                        // asset_return_by_name: "$user.user_name"
                     },
                 },
             ]);
