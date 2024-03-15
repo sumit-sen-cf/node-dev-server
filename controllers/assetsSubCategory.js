@@ -75,61 +75,79 @@ exports.addAssetSubCategory = async (req, res) => {
 //     }
 // };
 
+// exports.getAssetSubCategorys = async (req, res) => {
+//     try {
+//         const assetSubCategories = await assetsSubCategoryModel.find({});
+
+//         if (!assetSubCategories || assetSubCategories.length === 0) {
+//             return response.returnFalse(200, req, res, "No Record Found...", []);
+//         }
+
+//         const result = [];
+
+//         for (const subcategory of assetSubCategories) {
+//             const subCategories = await assetsCategoryModel.find({
+//                 category_id: subcategory.category_id,
+//             });
+
+//             const subCategoryCount = subCategories.length;
+
+//             const totalAllocatedAssets = await simModel.countDocuments({
+//                 category_id: subcategory.category_id,
+//                 status: 'Allocated',
+//             });
+
+//             const totalAvailableAssets = await simModel.countDocuments({
+//                 category_id: subcategory.category_id,
+//                 status: 'Available',
+//             });
+
+//             const category = await assetsCategoryModel.findOne({
+//                 category_id: subcategory.category_id,
+//             });
+
+//             result.push({
+//                 sub_category_id: subcategory.sub_category_id,
+//                 sub_category_name: subcategory.sub_category_name,
+//                 category_id: subcategory.category_id,
+//                 category_name: category ? category?.category_name : '',
+//                 sub_category_count: subCategoryCount,
+//                 allocated_assets_count: totalAllocatedAssets,
+//                 available_assets_count: totalAvailableAssets,
+//                 inWarranty: subcategory.inWarranty
+//             });
+//         }
+
+//         // // Sort the result array based on sub_category_id
+//         // result.sort((a, b) => b.sub_category_id - a.sub_category_id);
+
+//         return response.returnTrue(
+//             200,
+//             req,
+//             res,
+//             "Asset Sub-Categories Data Fetch Successfully",
+//             result
+//         );
+//     } catch (err) {
+//         return response.returnFalse(500, req, res, err.message, {});
+//     }
+// };
+
+
 exports.getAssetSubCategorys = async (req, res) => {
     try {
-        const assetSubCategories = await assetsSubCategoryModel.find({});
-
-        if (!assetSubCategories || assetSubCategories.length === 0) {
-            return response.returnFalse(200, req, res, "No Record Found...", []);
+        const assetSubCategories = await assetsSubCategoryModel.find();
+        if (assetSubCategories.length === 0) {
+            res
+                .status(200)
+                .send({ success: true, data: [], message: "No Record found" });
+        } else {
+            res.status(200).send({ data: assetSubCategories });
         }
-
-        const result = [];
-
-        for (const subcategory of assetSubCategories) {
-            const subCategories = await assetsCategoryModel.find({
-                category_id: subcategory.category_id,
-            });
-
-            const subCategoryCount = subCategories.length;
-
-            const totalAllocatedAssets = await simModel.countDocuments({
-                category_id: subcategory.category_id,
-                status: 'Allocated',
-            });
-
-            const totalAvailableAssets = await simModel.countDocuments({
-                category_id: subcategory.category_id,
-                status: 'Available',
-            });
-
-            const category = await assetsCategoryModel.findOne({
-                category_id: subcategory.category_id,
-            });
-
-            result.push({
-                sub_category_id: subcategory.sub_category_id,
-                sub_category_name: subcategory.sub_category_name,
-                category_id: subcategory.category_id,
-                category_name: category ? category?.category_name : '',
-                sub_category_count: subCategoryCount,
-                allocated_assets_count: totalAllocatedAssets,
-                available_assets_count: totalAvailableAssets,
-                inWarranty: subcategory.inWarranty
-            });
-        }
-
-        // // Sort the result array based on sub_category_id
-        // result.sort((a, b) => b.sub_category_id - a.sub_category_id);
-
-        return response.returnTrue(
-            200,
-            req,
-            res,
-            "Asset Sub-Categories Data Fetch Successfully",
-            result
-        );
     } catch (err) {
-        return response.returnFalse(500, req, res, err.message, {});
+        res
+            .status(500)
+            .send({ error: err.message, message: "Error getting all brandcategorydata" });
     }
 };
 
