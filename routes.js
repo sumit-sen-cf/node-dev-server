@@ -1708,10 +1708,10 @@ router.post("/message", messageController.sendMessage);
 // Route to retrieve all the message
 router.get("/message/:chatId", messageController.fetchMessage);
 // group chat Routes
-// router.post("/group", chatController.createGroupChat);
-// router.put('/grouprename', verifyToken, chatController.renameGroup);
-// router.put('/groupremove', verifyToken, chatController.removeFromGroup);
-// router.put('/groupadd', verifyToken, chatController.addToGroup);
+router.post("/group", chatController.createGroupChat);
+router.put('/grouprename', chatController.renameGroup);
+router.put('/groupremove', chatController.removeFromGroup);
+router.put('/groupadd', chatController.addToGroup);
 
 //chat notification routes
 router.get("/chatNotification", verifyToken, chatNotificationController.getNotification);

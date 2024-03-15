@@ -747,7 +747,7 @@ exports.getAllInstaPages = async (req, res) => {
         ]).exec();
         res.status(200).send(delv)
     } catch (error) {
-        res.status(500).send({ error: err, sms: 'error getting all insta pages' })
+        res.status(500).send({ error: error, sms: 'error getting all insta pages' })
     }
 }
 

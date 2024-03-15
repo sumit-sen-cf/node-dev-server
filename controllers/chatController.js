@@ -1,6 +1,7 @@
 const response = require("../common/response.js");
 const userModel = require("../models/userModel.js");
 const Chat = require("../models/chat/chatModel.js");
+var ObjectId = require('mongodb').ObjectId;
 
 // @desc		Access or initiate all chating users
 // @route		GET /get_chating_users/:id
@@ -242,36 +243,80 @@ exports.fetchChats = async (req, res) => {
 // @route		POST /api/chats/group
 // @access		Private
 exports.createGroupChat = async (req, res) => {
-    // const createGroupChat = asyncHandler(async (req, res) => {
-    if (!req.body.users || !req.body.name) {
-        return res.status(400).send({
-            message: "Please add all the required fields",
-        });
+    //check body requires fields
+    if (!req.body.users || !req.body.groupName || !req.body.groupAdminId) {
+        return response.returnTrue(400, req, res, "Please add all the required fields", {})
     }
-    var users = JSON.parse(req.body.users);
-    if (users.length < 2) {
-        return res.status(400).send({
-            message: "A group must have more than 2 users",
-        });
-    }
-
-    // add the current logged in user as well in the users array
-    users.push(req.user);
     try {
+        let users = req.body.users;
+        //check group users length
+        if (users.length < 3) {
+            return response.returnTrue(400, req, res, "A group must have more than 2 users", {})
+        }
+
+        //group chat created in DB
         const groupChat = await Chat.create({
-            chatName: req.body.name,
+            chatName: req.body.groupName,
             users: users,
             isGroupChat: true,
-            groupAdmin: req.user,
+            groupAdmin: req.body.groupAdminId,
         });
-        const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
-            .populate("users", "-password")
-            .populate("groupAdmin", "-password");
 
-        res.status(200).json(fullGroupChat);
+        //chat data details get from aggregate.
+        const fullGroupChat = await Chat.aggregate([{
+            $match: {
+                _id: groupChat._id
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "users",
+                foreignField: "user_id",
+                as: "users",
+            },
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "groupAdmin",
+                foreignField: "_id",
+                as: "groupAdmin",
+            },
+        }, {
+            $unwind: {
+                path: "$groupAdmin",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                _id: 1,
+                chatName: 1,
+                isGroupChat: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                users: {
+                    _id: 1,
+                    user_id: 1,
+                    user_login_id: 1,
+                    user_name: 1,
+                    user_email_id: 1,
+                    image: 1,
+                },
+                groupAdmin: {
+                    _id: 1,
+                    user_id: 1,
+                    user_login_id: 1,
+                    user_name: 1,
+                    user_email_id: 1,
+                    image: 1,
+                }
+            }
+        }]);
+
+        //return success data response
+        return response.returnTrue(200, req, res, "Group Chat Data created and data Fetched Successfully", fullGroupChat[0])
     } catch (err) {
-        res.status(500);
-        throw new Error("Server could not work on the request");
+        //return error response
+        return response.returnFalse(500, req, res, err.message, {});
     }
 };
 
@@ -279,29 +324,75 @@ exports.createGroupChat = async (req, res) => {
 // @route		PUT /api/chats/groupRename
 // @access		Private
 exports.renameGroup = async (req, res) => {
-    // const renameGroup = asyncHandler(async (req, res) => {
+    //body data get
     const { chatId, chatName } = req.body;
+    //check if group name not get
     if (!chatName) {
-        res.status(400).send({
-            message: "Please provide a valid group name",
-        });
+        return response.returnTrue(400, req, res, "Please provide a valid group name", {})
     }
     try {
-        const updatedChat = await Chat.findByIdAndUpdate(
-            chatId,
-            {
-                chatName: chatName,
-            },
-            {
-                new: true,
+        //update group name in collection
+        await Chat.updateOne({
+            _id: chatId
+        }, {
+            chatName: chatName
+        });
+
+        //chat data details get from aggregate.
+        const updatedChat = await Chat.aggregate([{
+            $match: {
+                _id: ObjectId(chatId)
             }
-        )
-            .populate("users", "-password")
-            .populate("groupAdmin", "-password");
-        res.status(200).json(updatedChat);
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "users",
+                foreignField: "user_id",
+                as: "users",
+            },
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "groupAdmin",
+                foreignField: "_id",
+                as: "groupAdmin",
+            },
+        }, {
+            $unwind: {
+                path: "$groupAdmin",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                _id: 1,
+                chatName: 1,
+                isGroupChat: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                users: {
+                    _id: 1,
+                    user_id: 1,
+                    user_login_id: 1,
+                    user_name: 1,
+                    user_email_id: 1,
+                    image: 1,
+                },
+                groupAdmin: {
+                    _id: 1,
+                    user_id: 1,
+                    user_login_id: 1,
+                    user_name: 1,
+                    user_email_id: 1,
+                    image: 1,
+                }
+            }
+        }]);
+
+        //return success data response
+        return response.returnTrue(200, req, res, "Group name updated and data Fetched Successfully", updatedChat[0])
     } catch (err) {
-        res.status(500);
-        throw new Error("Server could not work on the request");
+        //return error response
+        return response.returnFalse(500, req, res, err.message, {});
     }
 };
 
@@ -309,29 +400,76 @@ exports.renameGroup = async (req, res) => {
 // @route		PUT /api/chats/groupAdd
 // @access		Private
 exports.addToGroup = async (req, res) => {
-    // const addToGroup = asyncHandler(async (req, res) => {
+    //body data get
     const { chatId, userId } = req.body;
     try {
-        const updatedChat = await Chat.findByIdAndUpdate(
-            chatId,
-            {
-                $push: { users: userId },
-            },
-            {
-                new: true,
+        //add user in group
+        await Chat.updateOne({
+            _id: chatId,
+            users: {
+                $nin: userId
             }
-        )
-            .populate("users", "-password")
-            .populate("groupAdmin", "-password");
-        if (!updatedChat) {
-            res.status(400);
-            throw new Error("Invalid chat");
-        } else {
-            res.status(200).json(updatedChat);
-        }
+        }, {
+            $push: {
+                users: userId
+            }
+        });
+
+        //chat data details get from aggregate.
+        const updatedChat = await Chat.aggregate([{
+            $match: {
+                _id: ObjectId(chatId)
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "users",
+                foreignField: "user_id",
+                as: "users",
+            },
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "groupAdmin",
+                foreignField: "_id",
+                as: "groupAdmin",
+            },
+        }, {
+            $unwind: {
+                path: "$groupAdmin",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                _id: 1,
+                chatName: 1,
+                isGroupChat: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                users: {
+                    _id: 1,
+                    user_id: 1,
+                    user_login_id: 1,
+                    user_name: 1,
+                    user_email_id: 1,
+                    image: 1,
+                },
+                groupAdmin: {
+                    _id: 1,
+                    user_id: 1,
+                    user_login_id: 1,
+                    user_name: 1,
+                    user_email_id: 1,
+                    image: 1,
+                }
+            }
+        }]);
+
+        //return success data response
+        return response.returnTrue(200, req, res, "Add User In Group and data Fetched Successfully", updatedChat[0])
     } catch (error) {
-        res.status(500);
-        throw new Error("Server could not work on the request");
+        //return error response
+        return response.returnFalse(500, req, res, error.message, {});
     }
 };
 
@@ -339,43 +477,75 @@ exports.addToGroup = async (req, res) => {
 // @route		PUT /api/chats/groupAdd
 // @access		Private
 exports.removeFromGroup = async (req, res) => {
+    //body data get 
     const { chatId, userId } = req.body;
     try {
-        const updatedChat = await Chat.findByIdAndUpdate(
-            chatId,
-            {
-                $pull: { users: userId },
-            },
-            {
-                new: true,
+        //remove user from the group
+        await Chat.updateOne({
+            _id: chatId,
+            users: {
+                $in: userId
             }
-        )
-            .populate("users", "-password")
-            .populate("groupAdmin", "-password");
-        if (!updatedChat) {
-            res.status(400);
-            throw new Error("Invalid chat");
-        } else {
-            res.status(200).json(updatedChat);
-        }
+        }, {
+            $pull: {
+                users: userId
+            }
+        });
+
+        //chat data details get from aggregate.
+        const updatedChat = await Chat.aggregate([{
+            $match: {
+                _id: ObjectId(chatId)
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "users",
+                foreignField: "user_id",
+                as: "users",
+            },
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "groupAdmin",
+                foreignField: "_id",
+                as: "groupAdmin",
+            },
+        }, {
+            $unwind: {
+                path: "$groupAdmin",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                _id: 1,
+                chatName: 1,
+                isGroupChat: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                users: {
+                    _id: 1,
+                    user_id: 1,
+                    user_login_id: 1,
+                    user_name: 1,
+                    user_email_id: 1,
+                    image: 1,
+                },
+                groupAdmin: {
+                    _id: 1,
+                    user_id: 1,
+                    user_login_id: 1,
+                    user_name: 1,
+                    user_email_id: 1,
+                    image: 1,
+                }
+            }
+        }]);
+
+        //return success data response
+        return response.returnTrue(200, req, res, "Remove User from Group and data Fetched Successfully", updatedChat[0])
     } catch (error) {
-        res.status(500);
-        throw new Error("Server could not work on the request");
+        //return error response
+        return response.returnFalse(500, req, res, error.message, {});
     }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
