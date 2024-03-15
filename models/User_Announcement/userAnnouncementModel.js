@@ -14,20 +14,21 @@ const userAnnouncementSchema = new mongoose.Schema({
         required: false,
     },
     dept_id: {
-        type: Number,
-        required: true,
-        //  ref: "departmentModel"
+        type: [Number],
+        required: false,
+        default: []
     },
     desi_id: {
-        type: Number,
-        required: true,
+        type: [Number],
+        required: false,
+        default: []
     },
     job_type: {
-        type: String,
+        type: Array,
         required: false,
     },
     image: {
-        type: String,
+        type: [String],
         required: false,
     },
     video: {
@@ -35,20 +36,20 @@ const userAnnouncementSchema = new mongoose.Schema({
         required: false,
     },
     attachment: {
-        type: String,
+        type: [String],
         required: false,
     },
     notify_by_user_email: {
         type: Boolean,
         required: true,
     },
-    email_respone: {
+    email_response: {
         type: String,
         required: true,
     },
     target_audience_count: {
         type: Number,
-        required: true,
+        required: false,
     },
     created_by: {
         type: Number,

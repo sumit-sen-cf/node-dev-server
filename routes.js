@@ -148,7 +148,12 @@ const { createPmsProfile, getProfileDetail, updateProfileType, getProfileList, d
 const { createPageMast, getPageMastDetail, updatePageMast, getPageMastList, deletePageMastData } = require("./controllers/PMS/pmsPageMastController.js");
 const { createPageOwner, getPageOwnerDetail, updatePageOwner, getPageOwnerList, deletePageOwnerData } = require("./controllers/PMS/pmsPageOwnershipController.js");
 const { createVendorPagePrice, getVendorPagePriceDetail, updateVendorPagePrice, getVendorPagePriceList, deleteVendorPagePriceData } = require("./controllers/PMS/pmsVendorPagePriceController.js");
-const { createUserAnnouncement, getUserAnnouncementDetail, updateUserAnnouncement, getUserAnnoncementList, deleteUserAnnouncementData } = require("./controllers/Announcement/userAnnouncementController.js");
+const { createUserAnnouncement, getUserAnnouncementDetail, updateUserAnnouncement, getUserAnnoncementList, deleteUserAnnouncementData, listAnnounce } = require("./controllers/Announcement/userAnnouncementController.js");
+const { createCustomerType, getcustomerTypeDetail, updateCustomerType, getCustomerTypeList, deleteCustomerType } = require("./controllers/Customer&Campaign/opsCustomerTypeController.js");
+const { createAccountType, getAccountTypeDetail, updateAccountType, getAccountTypeList, deleteAccountType } = require("./controllers/Customer&Campaign/opsAccountTypeController.js");
+const { createOwnership, getOwnershipDetail, updateOwnershipType, getOwnershipList, deleteOwnership } = require("./controllers/Customer&Campaign/opsOwnershipController.js");
+const { createCustomerMast, getCustomerMastDetail, updateCustomerMast, getCustomerMastList, customerMastDelete } = require("./controllers/Customer&Campaign/opsCustomerMastController.js");
+const { createCustomerContact } = require("./controllers/Customer&Campaign/opsCustomerContactController.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1522,13 +1527,45 @@ router.post("/add_dept_desi_auth", deptDesiAuth.addDeptDesiAuth);
 router.get("/get_single_desi_dept_auth/:desi_id", deptDesiAuth.getSingleDeptDesiAuthDetail);
 router.put("/update_dept_desi_auth", deptDesiAuth.updateDeptDesiAuth);
 
+// --------------------------------------------------------------Customer_&_Campaign-----------------------------------------------//
+
+router.post("/add_customer_type", createCustomerType);
+router.get("/get_customer_type/:id", getcustomerTypeDetail);
+router.put("/update_customer_type/:id", updateCustomerType);
+router.get("/get_all_customer_type", getCustomerTypeList);
+router.delete("/delete_customer_type/:id", deleteCustomerType);
+
+router.post("/add_account_type", createAccountType);
+router.get("/get_account_type/:id", getAccountTypeDetail);
+router.put("/update_account_type/:id", updateAccountType);
+router.get("/get_all_account_type", getAccountTypeList);
+router.delete("/delete_account_type/:id", deleteAccountType);
+
+router.post("/add_ownership", createOwnership);
+router.get("/get_ownership/:id", getOwnershipDetail);
+router.put("/update_ownership/:id", updateOwnershipType);
+router.get("/get_all_ownership", getOwnershipList);
+router.delete("/delete_ownership/:id", deleteOwnership);
+
+router.post("/add_customer_mast", createCustomerMast);
+router.get("/get_customer_mast/:id", getCustomerMastDetail);
+router.put("/update_customer_mast/:id", updateCustomerMast);
+router.get("/get_all_customer_mast", getCustomerMastList);
+router.delete("/delete_customer_mast/:id", customerMastDelete);
+
+router.post("/add_customer_contact", createCustomerContact);
+// router.get("/get_customer_mast/:id", getCustomerMastDetail);
+// router.put("/update_customer_mast/:id", updateCustomerMast);
+// router.get("/get_all_customer_mast", getCustomerMastList);
+// router.delete("/delete_customer_mast/:id", customerMastDelete);
+
 // --------------------------------------------------------------User_Announcement------------------------------------------//
 
-router.post("/add_announcement",createUserAnnouncement);
-router.get("/get_user_announcement/:id",getUserAnnouncementDetail);
-router.put("/update_user_announcement/:id",updateUserAnnouncement);
-router.get("/get_all_user_announcement",getUserAnnoncementList);
-router.delete("/delete_user_announcement",deleteUserAnnouncementData);
+router.post("/add_announcement", createUserAnnouncement);
+router.get("/get_user_announcement/:id", getUserAnnouncementDetail);
+router.put("/update_user_announcement/:id", updateUserAnnouncement);
+router.get("/get_all_user_announcement", getUserAnnoncementList);
+router.delete("/delete_user_announcement/:id", deleteUserAnnouncementData);
 
 // --------------------------------------------------------------Page Mangements System all Routes------------------------------------------//
 

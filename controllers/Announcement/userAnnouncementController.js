@@ -7,14 +7,15 @@ const mongoose = require("mongoose");
 const path = require("path");
 const fs = require("fs");
 const ejs = require('ejs');
+const userModel = require("../../models/userModel.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
 }).fields([
-    { name: "image", maxCount: 1 },
-    { name: "attachment", maxCount: 1 },
-    { name: "image", maxCount: 1 },
-    { name: "attachment", maxCount: 1 },
+    { name: "image", maxCount: 10 },
+    { name: "attachment", maxCount: 10 },
+    { name: "image", maxCount: 10 },
+    { name: "attachment", maxCount: 10 },
     { name: "video", maxCount: 1 },
     { name: "video", maxCount: 1 },
 ]);
@@ -23,9 +24,8 @@ const upload = multer({
 exports.createUserAnnouncement = [
     upload, async (req, res) => {
         try {
-            const { post_content, post_subject, all_emp, dept_id, desi_id, job_type, notify_by_user_email, email_respone,
+            const { post_content, post_subject, all_emp, dept_id, desi_id, job_type, notify_by_user_email, email_response,
                 target_audience_count, created_by, last_updated_by } = req.body;
-
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
@@ -57,25 +57,31 @@ exports.createUserAnnouncement = [
                 post_content: post_content,
                 post_subject: post_subject,
                 all_emp: all_emp,
-                dept_id: dept_id,
-                desi_id: desi_id,
+                dept_id: dept_id.split(',').map(Number),
+                desi_id: desi_id.split(',').map(Number),
                 job_type: job_type,
                 notify_by_user_email: notify_by_user_email,
-                email_respone: email_respone,
+                email_response: email_response,
                 target_audience_count: target_audience_count,
                 created_by: created_by,
                 last_updated_by: last_updated_by
             });
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
-
-            if (req.files.image && req.files.image[0].originalname) {
-                const blob1 = bucket.file(req.files.image[0].originalname);
-                addUserAnnouncementData.image = blob1.name;
-                const blobStream1 = blob1.createWriteStream();
-                blobStream1.on("finish", () => {
+            if (req.files['image']) {
+                const imagesPromises = req.files['image'].map(async (imageFile) => {
+                    if (imageFile.originalname) {
+                        const blob = bucket.file(imageFile.originalname);
+                        addUserAnnouncementData.image.push(blob.name);
+                        const blobStream = blob.createWriteStream();
+                        blobStream.on("finish", () => {
+                            console.log('Image uploaded successfully');
+                        });
+                        blobStream.end(imageFile.buffer);
+                    }
                 });
-                blobStream1.end(req.files.image[0].buffer);
+
+                await Promise.all(imagesPromises);
             }
             if (req.files.video && req.files.video[0].originalname) {
                 const blob2 = bucket.file(req.files.video[0].originalname);
@@ -85,13 +91,27 @@ exports.createUserAnnouncement = [
                 });
                 blobStream2.end(req.files.video[0].buffer);
             }
-            if (req.files.attachment && req.files.attachment[0].originalname) {
-                const blob2 = bucket.file(req.files.attachment[0].originalname);
-                addUserAnnouncementData.attachment = blob2.name;
-                const blobStream2 = blob2.createWriteStream();
-                blobStream2.on("finish", () => {
+            // if (req.files.attachment && req.files.attachment[0].originalname) {
+            //     const blob2 = bucket.file(req.files.attachment[0].originalname);
+            //     addUserAnnouncementData.attachment = blob2.name;
+            //     const blobStream2 = blob2.createWriteStream();
+            //     blobStream2.on("finish", () => {
+            //     });
+            //     blobStream2.end(req.files.attachment[0].buffer);
+            // }
+            if (req.files['attachment']) {
+                const attachmentsPromises = req.files['attachment'].map(async (attachmentFile) => {
+                    if (attachmentFile.originalname) {
+                        const blob = bucket.file(attachmentFile.originalname);
+                        addUserAnnouncementData.attachment.push(blob.name);
+                        const blobStream = blob.createWriteStream();
+                        blobStream.on("finish", () => {
+                            console.log('Attachment uploaded successfully');
+                        });
+                        blobStream.end(attachmentFile.buffer);
+                    }
                 });
-                blobStream2.end(req.files.attachment[0].buffer);
+                await Promise.all(attachmentsPromises);
             }
             if (req.body.notify_by_user_email === 'true') {
                 const subject = 'New Announcement';
@@ -144,7 +164,7 @@ exports.getUserAnnouncementDetail = async (req, res) => {
                     desi_id: 1,
                     job_type: 1,
                     notify_by_user_email: 1,
-                    email_respone: 1,
+                    email_response: 1,
                     target_audience_count: 1,
                     created_date_time: 1,
                     created_by: 1,
@@ -188,7 +208,7 @@ exports.updateUserAnnouncement = [
     async (req, res) => {
         try {
             const { id } = req.params;
-            const { post_content, post_subject, all_emp, dept_id, desi_id, job_type, notify_by_user_email, email_respone,
+            const { post_content, post_subject, all_emp, dept_id, desi_id, job_type, notify_by_user_email, email_response,
                 target_audience_count, created_by, last_updated_by } = req.body;
             const userAnnouncementData = await userAnnouncementModel.findOne({ _id: id });
             if (!userAnnouncementData) {
@@ -243,7 +263,7 @@ exports.updateUserAnnouncement = [
                     desi_id,
                     job_type,
                     notify_by_user_email,
-                    email_respone,
+                    email_response,
                     target_audience_count,
                     created_by,
                     last_updated_by
@@ -296,6 +316,20 @@ exports.getUserAnnoncementList = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "created_by",
+                    foreignField: "user_id",
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     post_content: 1,
                     post_subject: 1,
@@ -304,21 +338,27 @@ exports.getUserAnnoncementList = async (req, res) => {
                     desi_id: 1,
                     job_type: 1,
                     notify_by_user_email: 1,
-                    email_respone: 1,
-                    target_audience_count: 1,
+                    email_response: 1,
+                    //target_audience_count: 1,
                     created_date_time: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
                     last_updated_by: 1,
                     image: {
-                        $concat: [imageUrl, "$image"],
+                        $concat: [
+                            { $ifNull: [imageUrl, "$image"] },
+                        ]
                     },
                     attachment: {
-                        $concat: [imageUrl, "$attachment"],
+                        $concat: [
+                            { $ifNull: [imageUrl, "$attachment"] },
+                        ]
                     },
                     video: {
-                        $concat: [imageUrl, "$video"],
+                        $concat: [
+                            { $ifNull: [imageUrl, "$video"] },
+                        ]
                     },
                     department_data: {
                         department_id: "$departmentData._id",
@@ -336,10 +376,38 @@ exports.getUserAnnoncementList = async (req, res) => {
                         remark: "$designationData.remark",
                         created_by: "$designationData.created_by",
                         last_updated_by: "$designationData.last_updated_by"
-                    }
+                    },
                 },
             },
+            {
+                $group: {
+                    _id: "$_id",
+                    data: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$data" }
+            }
         ])
+        const userData = await userModel.aggregate([{
+            $group: {
+                _id: "$user_designation",
+                target_audience_count: { $sum: 1 }
+            },
+        }, {
+            $project: {
+                desi_id: "$_id",
+                target_audience_count: 1
+            }
+        }]);
+        const announcementsDeptIdsArray = await userAnnouncementModel.distinct("desi_id");
+        const usersByDesiInAnnouncements = announcementsDeptIdsArray.map(desi_id => {
+            const userDataEntry = userData.find(entry => entry.desi_id === desi_id);
+            return {
+                desi_id,
+                target_audience_count: userDataEntry ? userDataEntry.target_audience_count : 0
+            };
+        });
         const totalUserAnnouncementList = await userAnnouncementModel.countDocuments(userAnnouncementList);
         if (!totalUserAnnouncementList) {
             return res.status(404).send({
@@ -350,7 +418,8 @@ exports.getUserAnnoncementList = async (req, res) => {
         return res.status(200).send({
             succes: true,
             message: "User_Announcement list created successfully!",
-            Announcement_data: totalUserAnnouncementList, userAnnouncementList
+            Announcement_data: totalUserAnnouncementList, userAnnouncementList,
+            desiWiseUserCounts: usersByDesiInAnnouncements,
         });
     } catch (error) {
         return res.status(500).json({
