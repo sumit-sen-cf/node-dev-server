@@ -138,7 +138,6 @@ exports.addAttendance = async (req, res) => {
             const resignYear = String(resignConvertDate.getUTCFullYear());
             const resignExtractDate = resignConvertDate.getDate() - 1;
             const resignMonthYear = `${resignYear}` + `${resignMonthNum}`;
-            console.log("resignMonthYear", resignMonthYear);
 
             var work_days;
             const joining = user.joining_date;
@@ -159,7 +158,6 @@ exports.addAttendance = async (req, res) => {
             }
 
             const bodymonth = `${year}` + `${monthNumber}`;
-            console.log("bodymonth", bodymonth);
 
             const joiningMonthNumber = convertDate.getUTCMonth() + 1;
             const joiningYearNumber = convertDate.getUTCFullYear();
@@ -209,7 +207,7 @@ exports.addAttendance = async (req, res) => {
                 });
 
                 if (user.status == "Resigned" && resignMonthYear < bodymonth) {
-                  console.log("User Ja Chuka he Ghar Uske Ma Chudane ");
+                  console.log("User Exist ");
                 } else {
                   const instav = await creators.save();
                 }
