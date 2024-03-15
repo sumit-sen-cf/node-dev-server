@@ -87,8 +87,9 @@ const pmsVendorMastSchema = new Schema({
         required: false
     },
     threshold_limit: {
-        type: Number,
-        required: false
+        type: String,
+        required: false,
+        default: ""
     },
     home_address: {
         type: String,
