@@ -303,8 +303,8 @@ exports.getAllRepairRequestsByAssetReasonId = async (req, res) => {
                 {
                     $lookup: {
                         from: "usermodels",
-                        localField: "user_id",
-                        foreignField: "recovery_by",
+                        localField: "recovery_by",
+                        foreignField: "user_id",
                         as: "recoveryByData",
                     },
                 },
@@ -317,8 +317,8 @@ exports.getAllRepairRequestsByAssetReasonId = async (req, res) => {
                 {
                     $lookup: {
                         from: "usermodels",
-                        localField: "user_id",
-                        foreignField: "accept_by",
+                        localField: "accept_by",
+                        foreignField: "user_id",
                         as: "acceptByData",
                     },
                 },
