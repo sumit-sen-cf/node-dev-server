@@ -54,7 +54,7 @@ const simModel = new mongoose.Schema({
   },
   inWarranty: {
     type: String,
-    required: false,
+    required: true,
     default: "",
   },
   warrantyDate: {
@@ -68,7 +68,7 @@ const simModel = new mongoose.Schema({
   selfAuditPeriod: {
     type: Number,
     required: false,
-    default: 90,
+    default: 0,
   },
   selfAuditUnit: {
     type: String,
@@ -78,7 +78,7 @@ const simModel = new mongoose.Schema({
   hrAuditPeriod: {
     type: Number,
     required: false,
-    default: 90,
+    default: 0,
   },
   hrAuditUnit: {
     type: String,

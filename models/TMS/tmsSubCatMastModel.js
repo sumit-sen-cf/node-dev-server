@@ -1,0 +1,40 @@
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const tmsSubCatMast = new Schema(
+  {
+    cat_id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "tmsCatMastModel"
+    },
+    sub_cat_name: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        required: false
+    },
+    created_date_time: {
+        type: Date,
+        default: Date.now,
+    },
+    created_by: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
+    last_updated_date: {
+        type: Date,
+        default: Date.now,
+    },
+    last_updated_by: {
+        type: Number,
+        required: false,
+        default: 0
+    }
+});
+
+const tmsSubCatModel = mongoose.model("tmsSubCatMast",tmsSubCatMast);
+module.exports = tmsSubCatModel;

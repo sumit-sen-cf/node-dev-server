@@ -97,6 +97,10 @@ exports.editEducation = async (req, res) => {
   try {
 
     if (!req.body.education_id) {
+      const titleName = await educationModel.findOne({ user_id: req.body.user_id, title: req.body.title })
+      if (titleName) {
+        return response.returnFalse(409, req, res, "Title Name is already exist", {});
+      }
       const newEducation = new educationModel({
         user_id: req.body.user_id,
         institute_name: req.body.institute_name,

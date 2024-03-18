@@ -801,7 +801,7 @@ exports.updateUser = [upload, async (req, res) => {
             pre_expe_letter: req.files && req.files['pre_expe_letter'] && req.files['pre_expe_letter'][0] ? req.files['pre_expe_letter'][0].filename : (existingUser && existingUser.pre_expe_letter) || '',
             pre_relieving_letter: req.files && req.files['pre_relieving_letter'] && req.files['pre_relieving_letter'][0] ? req.files['pre_relieving_letter'][0].filename : (existingUser && existingUser.pre_relieving_letter) || '',
             bankPassBook_Cheque: req.files && req.files['bankPassBook_Cheque'] && req.files['bankPassBook_Cheque'][0] ? req.files['bankPassBook_Cheque'][0].filename : (existingUser && existingUser.bankPassBook_Cheque) || '',
-            joining_extend_document: req.files && req.files?.joining_extend_document && req.files?.joining_extend_document[0] ? req.files?.joining_extend_document[0].originalname : existingUser.joining_extend_document,
+            joining_extend_document: req.files && req.files?.joining_extend_document && req.files?.joining_extend_document[0] ? req.files?.joining_extend_document[0].originalname : '',
             userSalaryStatus: req.body.userSalaryStatus,
             // digital_signature_image: req.files && req.files['digital_signature_image'] && req.files['digital_signature_image'][0] ? req.files['digital_signature_image'][0].filename : (existingUser && existingUser.digital_signature_image) || '',
             digital_signature_image: req.files && req.files?.digital_signature_image && req.files?.digital_signature_image[0] ? req.files?.digital_signature_image[0].originalname : existingUser.digital_signature_image,
@@ -921,6 +921,8 @@ exports.updateUser = [upload, async (req, res) => {
             } catch (error) {
                 console.error("Error saving joining_extend_document:", error);
             }
+        } else {
+            editsim.joining_extend_document = '';
         }
 
         return res.status(200).send({ success: true, data: editsim })
@@ -1051,43 +1053,43 @@ exports.getAllUsers = async (req, res) => {
             },
             {
                 $unwind: {
-                    path: "$reportl3",
+                    path: "$reportL3",
                     preserveNullAndEmptyArrays: true
                 }
             },
-            {
-                $lookup: {
-                    from: 'userdocmanagementmodels',
-                    localField: 'user_id',
-                    foreignField: 'user_id',
-                    as: 'userdocuments'
-                }
-            },
-            {
-                $unwind: {
-                    path: "$userdocuments",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $lookup: {
-                    from: 'documentmodels',
-                    localField: 'userdocuments.doc_id',
-                    foreignField: 'doc_id',
-                    as: 'documents'
-                }
-            },
-            {
-                $addFields: {
-                    requiredDocuments: {
-                        $filter: {
-                            input: "$documents",
-                            as: "doc",
-                            cond: "$$doc.isRequired"
-                        }
-                    }
-                }
-            },
+            // {
+            //     $lookup: {
+            //         from: 'userdocmanagementmodels',
+            //         localField: 'user_id',
+            //         foreignField: 'user_id',
+            //         as: 'userdocuments'
+            //     }
+            // },
+            // {
+            //     $unwind: {
+            //         path: "$userdocuments",
+            //         preserveNullAndEmptyArrays: true
+            //     }
+            // },
+            // {
+            //     $lookup: {
+            //         from: 'documentmodels',
+            //         localField: 'userdocuments.doc_id',
+            //         foreignField: 'doc_id',
+            //         as: 'documents'
+            //     }
+            // },
+            // {
+            //     $addFields: {
+            //         requiredDocuments: {
+            //             $filter: {
+            //                 input: "$documents",
+            //                 as: "doc",
+            //                 cond: "$$doc.isRequired"
+            //             }
+            //         }
+            //     }
+            // },
             {
                 $project: {
                     user_id: "$user_id",
@@ -1201,9 +1203,7 @@ exports.getAllUsers = async (req, res) => {
                     report: "$reportTo.user_name",
                     Report_L1N: "$reportL1.user_name",
                     Report_L2N: "$reportL2.user_name",
-                    Report_L3N: {
-                        $arrayElemAt: ["$reportL3.user_name", 0]
-                    },
+                    Report_L3N: "$reportL3.user_name",
                     designation_name: "$designation.desi_name",
                     userSalaryStatus: '$userSalaryStatus',
                     digital_signature_image: "$digital_signature_image",
@@ -1238,20 +1238,20 @@ exports.getAllUsers = async (req, res) => {
                     document_percentage_non_mandatory: "$document_percentage_non_mandatory",
                     document_percentage: "$document_percentage",
                     upi_Id: "$upi_Id",
-                    documentPercentage: {
-                        $multiply: [
-                            {
-                                $divide: [
-                                    { $size: "$requiredDocuments" },
-                                    { $size: "$documents" }
-                                ]
-                            },
-                            100
-                        ]
-                    }
+                    // documentPercentage: {
+                    //     $multiply: [
+                    //         {
+                    //             $divide: [
+                    //                 { $size: "$requiredDocuments" },
+                    //                 { $size: "$documents" }
+                    //             ]
+                    //         },
+                    //         100
+                    //     ]
+                    // }
                 }
             }
-        ]).exec();
+        ]).sort({ user_id: -1 });
         const userImagesBaseUrl = `${vari.IMAGE_URL}`;
         const fieldsToCheck = [
             'user_name', 'PersonalEmail', 'PersonalNumber', 'fatherName', 'Gender', 'motherName',
@@ -1287,6 +1287,7 @@ exports.getAllUsers = async (req, res) => {
                 digital_signature_image_url: user.digital_signature_image ? userImagesBaseUrl + user.digital_signature_image : null,
                 annexure_pdf_url: user.annexure_pdf ? userImagesBaseUrl + user.annexure_pdf : null,
                 percentage_filled: percentageFilled.toFixed(2) + '%',
+                documentPercentage: (Number(user.document_percentage_mandatory) + Number(user.document_percentage_non_mandatory)) / 2
             };
         });
         if (dataWithImageUrl?.length === 0) {
@@ -1402,7 +1403,7 @@ exports.getSingleUser = async (req, res) => {
             },
             {
                 $unwind: {
-                    path: "$reportl3",
+                    path: "$reportL3",
                     preserveNullAndEmptyArrays: true
                 }
             },
@@ -2186,7 +2187,7 @@ exports.sendUserMail = async (req, res) => {
                 service: "gmail",
                 auth: {
                     user: "onboarding@creativefuel.io",
-                    pass: "yraixlmukhteijoa",
+                    pass: "gakatoehtvscfjep",
                 },
             });
 
@@ -2224,7 +2225,7 @@ exports.sendUserMail = async (req, res) => {
                 service: "gmail",
                 auth: {
                     user: "onboarding@creativefuel.io",
-                    pass: "yraixlmukhteijoa",
+                    pass: "gakatoehtvscfjep",
                 },
             });
 
@@ -2666,7 +2667,7 @@ exports.sendMailAllWfoUser = async (req, res) => {
                 service: "gmail",
                 auth: {
                     user: "onboarding@creativefuel.io",
-                    pass: "yraixlmukhteijoa",
+                    pass: "gakatoehtvscfjep",
                 },
             });
 
@@ -2981,7 +2982,7 @@ exports.forgotPass = async (req, res) => {
             service: "gmail",
             auth: {
                 user: "onboarding@creativefuel.io",
-                pass: "yraixlmukhteijoa",
+                pass: "gakatoehtvscfjep",
             },
         });
 
@@ -3027,7 +3028,7 @@ exports.getLoginHistory = async (req, res) => {
                     log_out_date: 1
                 }
             }
-        ]).exec();
+        ]).sort({ user_id: -1 });
         res.status(200).send({ data: loginHistory });
     } catch (error) {
         res.status(500).send({ error: error.message, sms: "Error getting user login history" });

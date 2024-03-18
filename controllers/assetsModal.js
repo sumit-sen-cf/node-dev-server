@@ -91,8 +91,10 @@ exports.getAssetModals = async (req, res) => {
             updated_at: { $first: "$updated_at" },
           },
         },
-      ])
-      .exec();
+        {
+          $sort: { _id: -1 },
+        },
+      ]);
     if (!assetBrandData) {
       return response.returnFalse(200, req, res, "No Record Found...", []);
     }
@@ -108,6 +110,47 @@ exports.getAssetModalById = async (req, res) => {
       .aggregate([
         {
           $match: { asset_modal_id: parseInt(req.params.id) },
+        },
+        {
+          $lookup: {
+            from: "assetsbrandmodels",
+            localField: "asset_brand_id",
+            foreignField: "asset_brand_id",
+            as: "assetBrand",
+          },
+        },
+        {
+          $unwind: {
+            path: "$assetBrand",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            asset_modal_id: "$asset_modal_id",
+            asset_brand_name: "$assetBrand.asset_brand_name",
+            asset_brand_id: "$asset_brand_id",
+            asset_modal_name: "$asset_modal_name",
+            creation_date: "$creation_date",
+            updated_at: "$updated_at"
+          },
+        },
+      ])
+      .exec();
+
+    return res.status(200).send(assetBrandData);
+  } catch (err) {
+    return response.returnFalse(500, req, res, err.message, {});
+  }
+};
+
+exports.getAssetModalByAssetBrandId = async (req, res) => {
+  try {
+    const assetBrandData = await assetModalModel
+      .aggregate([
+        {
+          $match: { asset_brand_id: parseInt(req.params.id) },
         },
         {
           $lookup: {
@@ -257,11 +300,13 @@ exports.getTotalAvailableAssetInModal = async (req, res) => {
       ])
       .exec();
 
+    const modalLength = assets.length;
+
     if (!assets || assets.length === 0) {
       return res.status(404).send({ success: false, message: 'No assets found for the given category_id' });
     }
 
-    res.status(200).send({ success: true, data: assets });
+    res.status(200).send({ success: true, count: modalLength, data: assets });
   } catch (err) {
     console.error(err);
     res.status(500).send({ success: false, error: err, message: 'Error getting asset details' });
@@ -338,11 +383,13 @@ exports.getTotalAllocatedAssetInModal = async (req, res) => {
       ])
       .exec();
 
+    const modalLength = assets.length;
+
     if (!assets || assets.length === 0) {
       return res.status(404).send({ success: false, message: 'No assets found for the given category_id' });
     }
 
-    res.status(200).send({ success: true, data: assets });
+    res.status(200).send({ success: true, count: modalLength, data: assets });
   } catch (err) {
     console.error(err);
     res.status(500).send({ success: false, error: err, message: 'Error getting asset details' });

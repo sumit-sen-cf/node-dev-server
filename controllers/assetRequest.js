@@ -103,6 +103,7 @@ exports.getAssetRequests = async (req, res) => {
                 },
                 {
                     $project: {
+                        asset_request_id: "$asset_request_id",
                         sim_id: "$sim_id",
                         asset_name: "$Sim.assetsName",
                         sub_category_id: "$sub_category_id",
@@ -119,15 +120,14 @@ exports.getAssetRequests = async (req, res) => {
                 },
                 {
                     $group: {
-                        _id: "$sub_category_id",
+                        _id: "$asset_request_id",
                         data: { $first: "$$ROOT" }
                     }
                 },
                 {
                     $replaceRoot: { newRoot: "$data" }
                 }
-            ])
-            .exec();
+            ]);
 
         if (assetRequestData.length === 0) {
             res
@@ -142,7 +142,6 @@ exports.getAssetRequests = async (req, res) => {
             .send({ error: err.message, message: "Error getting all assetRequestData" });
     }
 };
-
 
 // exports.getAssetRequestById = async (req, res) => {
 //     try {

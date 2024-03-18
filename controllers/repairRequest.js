@@ -22,6 +22,7 @@ exports.addRepairRequest = [
     upload,
     async (req, res) => {
         try {
+            const uniqueMultiTagValues = [...new Set(req.body.multi_tag.split(',').map(Number))];
             const repairdata = new repairRequestModel({
                 sim_id: req.body.sim_id,
                 acknowledge_date: req.body.acknowledge_date,
@@ -34,8 +35,8 @@ exports.addRepairRequest = [
                 priority: req.body.priority,
                 repair_request_date_time: req.body.repair_request_date_time,
                 problem_detailing: req.body.problem_detailing,
-                // multi_tag: req.body.multi_tag,
-                multi_tag: req.body.multi_tag.split(',').map(Number),
+                multi_tag: uniqueMultiTagValues,
+                // multi_tag: req.body.multi_tag.split(',').map(Number),
                 status: req.body.status,
                 // status: req.body.status,
                 req_by: req.body.req_by,
@@ -93,7 +94,7 @@ exports.addRepairRequest = [
             }
             if (req.files.recovery_image_upload1 && req.files.recovery_image_upload1[0].originalname) {
                 const blob4 = bucket.file(req.files.recovery_image_upload1[0].originalname);
-                returndata.recovery_image_upload1 = blob4.name;
+                repairdata.recovery_image_upload1 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
                     // res.status(200).send("Success") 
@@ -102,7 +103,7 @@ exports.addRepairRequest = [
             }
             if (req.files.recovery_image_upload2 && req.files.recovery_image_upload2[0].originalname) {
                 const blob4 = bucket.file(req.files.recovery_image_upload2[0].originalname);
-                returndata.recovery_image_upload2 = blob4.name;
+                repairdata.recovery_image_upload2 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
                     // res.status(200).send("Success") 
@@ -552,12 +553,12 @@ exports.editRepairRequest = [
             };
 
             if (req.files) {
-                updateFields.img1 = req.files["img1"] ? req.files["img1"][0].filename : existingRepairRequest.img1;
-                updateFields.img2 = req.files["img2"] ? req.files["img2"][0].filename : existingRepairRequest.img2;
-                updateFields.img3 = req.files["img3"] ? req.files["img3"][0].filename : existingRepairRequest.img3;
-                updateFields.img4 = req.files["img4"] ? req.files["img4"][0].filename : existingRepairRequest.img4;
-                updateFields.recovery_image_upload1 = req.files["recovery_image_upload1"] ? req.files["recovery_image_upload1"][0].filename : existingRepairRequest.recovery_image_upload1;
-                updateFields.recovery_image_upload2 = req.files["recovery_image_upload2"] ? req.files["recovery_image_upload2"][0].filename : existingRepairRequest.recovery_image_upload2;
+                updateFields.img1 = req.files?.img1 ? req.files.img1[0].originalname : existingRepairRequest.img1;
+                updateFields.img2 = req.files?.img2 ? req.files.img2[0].originalname : existingRepairRequest.img2;
+                updateFields.img3 = req.files?.img3 ? req.files.img3[0].originalname : existingRepairRequest.img3;
+                updateFields.img4 = req.files?.img4 ? req.files.img4[0].originalname : existingRepairRequest.img4;
+                updateFields.recovery_image_upload1 = req.files?.recovery_image_upload1 ? req.files.recovery_image_upload1[0].originalname : existingRepairRequest.recovery_image_upload1;
+                updateFields.recovery_image_upload2 = req.files?.recovery_image_upload2 ? req.files.recovery_image_upload2[0].originalname : existingRepairRequest.recovery_image_upload2;
             }
 
             const editrepairdata = await repairRequestModel.findOneAndUpdate(
@@ -611,7 +612,7 @@ exports.editRepairRequest = [
             }
             if (req.files?.recovery_image_upload1 && req.files?.recovery_image_upload1[0].originalname) {
                 const blob4 = bucket.file(req.files?.recovery_image_upload1[0].originalname);
-                returndata.recovery_image_upload1 = blob4.name;
+                editrepairdata.recovery_image_upload1 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
                     // res.status(200).send("Success") 
@@ -620,7 +621,7 @@ exports.editRepairRequest = [
             }
             if (req.files?.recovery_image_upload2 && req.files?.recovery_image_upload2[0].originalname) {
                 const blob4 = bucket.file(req.files.recovery_image_upload2[0].originalname);
-                returndata.recovery_image_upload2 = blob4.name;
+                editrepairdata.recovery_image_upload2 = blob4.name;
                 const blobStream4 = blob4.createWriteStream();
                 blobStream4.on("finish", () => {
                     // res.status(200).send("Success") 
@@ -729,7 +730,7 @@ exports.showRepairRequestAssetDataToUserReport = async (req, res) => {
 
 exports.showAssetRepairRequestDataToUser = async (req, res) => {
     try {
-        const { user_id } = req.params;
+        const user_id = parseInt(req.params.user_id);
         const userData = await simModel.aggregate([
             {
                 $lookup: {
@@ -856,14 +857,290 @@ exports.showAssetRepairRequestDataToUser = async (req, res) => {
                     asset_repair_request_status: "$assetRepair.status"
                 },
             },
-        ]).exec();
+        ]);
 
         if (!userData || userData.length === 0) {
             return res.status(404).json({ success: false, message: "No data found" });
         }
 
-        res.status(200).json({ data: userData });
+        // const userReportL1 = await userModel.find({ user_id: userData[0].req_by })
+        // const reportData = userReportL1[0].Report_L1;
+
+        // const assetReqBy = parseInt(userData[0].req_by)
+        // if (assetReqBy === user_id || reportData === user_id || 633 === user_id) {
+        //     return res.status(404).send("data not found")
+        // }
+
+        const filteredUserData = userData.filter(item => {
+            return item.multi_tag.includes(user_id);
+        });
+        res.status(200).json({ data: filteredUserData });
     } catch (err) {
         res.status(500).send({ error: err.message, sms: "Error getting user details" });
+    }
+};
+
+// All Data of repair request
+exports.getAllRepairRequestsForSummary = async (req, res) => {
+    try {
+        const imageUrl = vari.IMAGE_URL;
+        const assetsdata = await repairRequestModel
+            .aggregate([
+                {
+                    $match: {
+                        status: "Recover"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "req_by",
+                        foreignField: "user_id",
+                        as: "user_data",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$user_data",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "simmodels",
+                        localField: "sim_id",
+                        foreignField: "sim_id",
+                        as: "sim",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$sim",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "assetreasonmodels",
+                        localField: "asset_reason_id",
+                        foreignField: "asset_reason_id",
+                        as: "assetreasonmodelData",
+                    },
+                },
+                {
+                    $unwind: "$assetreasonmodelData",
+                },
+                // {
+                //     $lookup: {
+                //         from: "assetreturnmodels",
+                //         localField: "sim_id",
+                //         foreignField: "sim_id",
+                //         as: "assetreturnData",
+                //     },
+                // },
+                // {
+                //     $unwind: {
+                //         path: "$assetreturnData",
+                //         preserveNullAndEmptyArrays: true,
+                //     },
+                // },
+                // {
+                //     $match: {
+                //         "assetreturnData.asset_return_status": "RecovedByHR"
+                //     }
+                // },
+                // {
+                //     $lookup: {
+                //         from: "usermodels",
+                //         localField: "assetreturnData.asset_return_by",
+                //         foreignField: "user_id",
+                //         as: "user",
+                //     },
+                // },
+                // {
+                //     $unwind: {
+                //         path: "$user",
+                //         preserveNullAndEmptyArrays: true,
+                //     },
+                // },
+                {
+                    $project: {
+                        repair_id: "$repair_id",
+                        sim_id: "$sim_id",
+                        repair_status: "$repair_status",
+                        acknowledge_date: "$acknowledge_date",
+                        acknowledge_remark: "$acknowledge_remark",
+                        submission_date: "$submission_date",
+                        submission_remark: "$submission_remark",
+                        resolved_date: "$resolved_date",
+                        resolved_remark: "$resolved_remark",
+                        asset_reason_id: "$asset_reason_id",
+                        reason_name: "$assetreasonmodelData.reason",
+                        assetName: "$sim.assetsName",
+                        priority: "$priority",
+                        problem_detailing: "$problem_detailing",
+                        multi_tag: "$multi_tag",
+                        status: "$status",
+                        img1: {
+                            $concat: [imageUrl, "$img1"],
+                        },
+                        img2: {
+                            $concat: [imageUrl, "$img2"],
+                        },
+                        img3: {
+                            $concat: [imageUrl, "$img3"],
+                        },
+                        img4: {
+                            $concat: [imageUrl, "$img4"],
+                        },
+                        recovery_image_upload1: {
+                            $concat: [imageUrl, "$recovery_image_upload1"],
+                        },
+                        recovery_image_upload2: {
+                            $concat: [imageUrl, "$recovery_image_upload2"],
+                        },
+                        created_at: "$created_at",
+                        updated_at: "$updated_at",
+                        repair_request_date_time: "$repair_request_date_time",
+                        req_by: "$req_by",
+                        req_by_name: "$user_data.user_name",
+                        req_date: "$req_date",
+                        recovery_remark: "$recovery_remark",
+                        recovery_by: "$recovery_by",
+                        recovery_date_time: "$recovery_date_time",
+                        // asset_return_remark: "$assetreturnData.asset_return_remark",
+                        // return_asset_data_time: "$assetreturnData.return_asset_data_time",
+                        // asset_return_by: "$assetreturnData.asset_return_by",
+                        // asset_return_status: "$assetreturnData.asset_return_status",
+                        // asset_return_recover_by: "$assetreturnData.asset_return_recover_by",
+                        // asset_return_recover_by_remark: "$assetreturnData.asset_return_recover_by_remark",
+                        // asset_return_recovered_date_time: "$assetreturnData.asset_return_recovered_date_time",
+                        // return_asset_image_1: {
+                        //     $concat: [imageUrl, "$assetreturnData.return_asset_image_1"],
+                        // },
+                        // return_asset_image_2: {
+                        //     $concat: [imageUrl, "$assetreturnData.return_asset_image_2"],
+                        // },
+                        // asset_return_by_name: "$user.user_name"
+                    },
+                },
+            ]);
+        res.status(200).send({ data: assetsdata });
+    } catch (err) {
+        return res
+            .status(500)
+            .send({ error: err.message, sms: "Error getting all Assets Repair Data" });
+    }
+};
+
+
+exports.getSingleRepairRequestsByReqBy = async (req, res) => {
+    try {
+        const assetsdata = await repairRequestModel
+            .aggregate([
+                {
+                    $match: { req_by: parseInt(req.params.req_by) },
+                },
+                {
+                    $lookup: {
+                        from: "simmodels",
+                        localField: "sim_id",
+                        foreignField: "sim_id",
+                        as: "sim",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$sim",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                // {
+                //     $lookup: {
+                //         from: "usermodels",
+                //         localField: "user_id",
+                //         foreignField: "recovery_by",
+                //         as: "recoveryByData",
+                //     },
+                // },
+                // {
+                //     $unwind: {
+                //         path: "$recoveryByData",
+                //         preserveNullAndEmptyArrays: true,
+                //     },
+                // },
+                // {
+                //     $lookup: {
+                //         from: "usermodels",
+                //         localField: "user_id",
+                //         foreignField: "accept_by",
+                //         as: "acceptByData",
+                //     },
+                // },
+                // {
+                //     $unwind: {
+                //         path: "$acceptByData",
+                //         preserveNullAndEmptyArrays: true,
+                //     },
+                // },
+                {
+                    $project: {
+                        repair_id: "$repair_id",
+                        sim_id: "$sim_id",
+                        acknowledge_date: "$acknowledge_date",
+                        acknowledge_remark: "$acknowledge_remark",
+                        submission_date: "$submission_date",
+                        submission_remark: "$submission_remark",
+                        resolved_date: "$resolved_date",
+                        resolved_remark: "$resolved_remark",
+                        asset_reason_id: "$asset_reason_id",
+                        asset_name: "$sim.assetsName",
+                        priority: "$priority",
+                        problem_detailing: "$problem_detailing",
+                        multi_tag: "$multi_tag",
+                        status: "$status",
+                        img1: "$img1",
+                        img2: "$img2",
+                        img3: "$img3",
+                        img4: "$img4",
+                        created_at: "$created_at",
+                        updated_at: "$updated_at",
+                        repair_request_date_time: "$repair_request_date_time",
+                        req_by: "$req_by",
+                        req_date: "$req_date",
+                        recovery_remark: "$recovery_remark",
+                        recovery_image_upload1: "$recovery_image_upload1",
+                        recovery_image_upload2: "$recovery_image_upload2",
+                        recovery_by: "$recovery_by",
+                        // recovery_by_name: "$recoveryByData.user_name",
+                        recovery_date_time: "$recovery_date_time",
+                        scrap_remark: "$scrap_remark",
+                        accept_by: "$accept_by",
+                        // accept_by_name: "$acceptByData.user_name"
+                    },
+                },
+            ])
+            .exec();
+        const assetRepairDataBaseUrl = `${vari.IMAGE_URL}`;
+        const dataWithImageUrl = assetsdata.map((assetrepairdatas) => ({
+            ...assetrepairdatas,
+            img1_url: assetrepairdatas.img1 ? assetRepairDataBaseUrl + assetrepairdatas.img1 : null,
+            img2_url: assetrepairdatas.img2 ? assetRepairDataBaseUrl + assetrepairdatas.img2 : null,
+            img3_url: assetrepairdatas.img3 ? assetRepairDataBaseUrl + assetrepairdatas.img3 : null,
+            img4_url: assetrepairdatas.img4 ? assetRepairDataBaseUrl + assetrepairdatas.img4 : null,
+            recovery_image_upload1_url: assetrepairdatas.recovery_image_upload1 ? assetRepairDataBaseUrl + assetrepairdatas.recovery_image_upload1 : null,
+            recovery_image_upload2_url: assetrepairdatas.recovery_image_upload2 ? assetRepairDataBaseUrl + assetrepairdatas.recovery_image_upload2 : null,
+        }));
+        if (dataWithImageUrl?.length === 0) {
+            res
+                .status(200)
+                .send({ success: true, data: [], message: "No Record found" });
+        } else {
+            res.status(200).send({ data: dataWithImageUrl });
+        }
+    } catch (err) {
+        return res
+            .status(500)
+            .send({ error: err.message, sms: "Error getting single Asset Repair Data " });
     }
 };
