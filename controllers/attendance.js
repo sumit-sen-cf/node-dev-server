@@ -4,6 +4,7 @@ const userModels = require("../models/userAuthModel.js");
 const userModel = require("../models/userModel.js");
 const vari = require("../variables.js");
 const billingHeaderModel = require("../models/billingheaderModel.js");
+const separationModel = require("../models/separationModel.js");
 
 async function doesUserExistInAttendance(userId, month, year) {
   const results = await attendanceModel.find({
@@ -132,11 +133,16 @@ exports.addAttendance = async (req, res) => {
           filteredUserData.map(async (user) => {
             //logic for separation
             const resignDate = user.resignation_date;
+            // console.log("resignDate", resignDate)
             const resignConvertDate = new Date(resignDate);
+            // console.log("resignConvertDate", resignConvertDate)
             const resignMonth = resignConvertDate.toLocaleString('default', { month: 'long' });
+            // console.log("resignMonth", resignMonth)
             const resignMonthNum = resignConvertDate.getUTCMonth() + 1;
+            // console.log("resignMonthNum", resignMonthNum)
             const resignYear = String(resignConvertDate.getUTCFullYear());
-            const resignExtractDate = resignConvertDate.getDate() - 1;
+            const resignExtractDate = resignConvertDate.getDate();
+            // console.log("resignExtractDate", resignExtractDate);
             const resignMonthYear = `${resignYear}` + `${resignMonthNum}`;
 
             var work_days;
@@ -151,12 +157,11 @@ exports.addAttendance = async (req, res) => {
             if (mergeJoining == mergeJoining1) {
               work_days = 30 - extractDate - noOfabsent;
             } else if (user.status == "Resigned") {
-              work_days = 30 - resignExtractDate;
+              work_days = (30 - resignExtractDate) - noOfabsent;
             }
             else {
               work_days = 30 - noOfabsent;
             }
-
             const bodymonth = `${year}` + `${monthNumber}`;
 
             const joiningMonthNumber = convertDate.getUTCMonth() + 1;
@@ -308,6 +313,11 @@ exports.addAttendance = async (req, res) => {
             user_id: parseInt(req.body.user_id),
           });
 
+          const findSeparationData = await separationModel.findOne({ user_id: req.body.user_id })
+          const resignDate = findSeparationData.resignation_date;
+          const resignConvertDate = new Date(resignDate);
+          const resignExtractDate = resignConvertDate.getDate();
+
           var work_days;
           const joining = results4[0].joining_date;
           const convertDate = new Date(joining);
@@ -322,7 +332,10 @@ exports.addAttendance = async (req, res) => {
           const mergeJoining1 = `${monthNumber}` + `${year}`;
           if (mergeJoining == mergeJoining1) {
             work_days = 30 - extractDate - noOfabsent;
-          } else {
+          } else if (findSeparationData.status == "Resigned") {
+            work_days = (30 - resignExtractDate) - noOfabsent;
+          }
+          else {
             work_days = 30 - noOfabsent;
           }
 
@@ -366,6 +379,7 @@ exports.addAttendance = async (req, res) => {
             },
             { new: true }
           ).sort({ attendence_id: 1 });
+          console.log("edit", editsim)
           return res.send({ status: 200 });
         }
       }

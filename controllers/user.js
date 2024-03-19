@@ -3737,6 +3737,49 @@ function monthNameToNumber(monthName) {
     return monthIndex !== -1 ? monthIndex + 1 : null;
 }
 
+// exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
+//     try {
+//         let month = req.body.month;
+//         let year = req.body.year;
+//         let deptId = req.body.dept_id;
+//         const monthNumber = monthNameToNumber(month);
+//         const joiningMonth = String(monthNumber).padStart(
+//             2,
+//             "0"
+//         );
+//         const bodyMonthYear = `${year}` + `${joiningMonth}`;
+//         const findData = await userModel.aggregate([
+//             {
+//                 $match: {
+//                     job_type: "WFHD",
+//                     dept_id: deptId,
+//                     att_status: "onboarded",
+//                     $expr: {
+//                         $lte: [
+//                             {
+//                                 $dateToString: {
+//                                     date: "$joining_date",
+//                                     format: "%Y%m"
+//                                 }
+//                             },
+//                             bodyMonthYear
+//                         ]
+//                     }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$dept_id",
+//                     count: { $sum: 1 }
+//                 }
+//             }
+//         ]);
+//         return response.returnTrue(200, req, res, findData);
+//     } catch (err) {
+//         return response.returnFalse(500, req, res, err.message, {});
+//     }
+// };
+
 exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
     try {
         let month = req.body.month;
@@ -3747,7 +3790,7 @@ exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
             2,
             "0"
         );
-        const bodyMonthYear = `${year}` + `${joiningMonth}`;
+        const bodyMonthYear = `${year}${joiningMonth}`;
         const findData = await userModel.aggregate([
             {
                 $match: {
@@ -3768,17 +3811,33 @@ exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
                 }
             },
             {
-                $group: {
-                    _id: "$dept_id",
-                    count: { $sum: 1 }
+                $project: {
+                    user_id: "$user_id",
+                    user_name: "$user_name"
                 }
             }
         ]);
-        return response.returnTrue(200, req, res, findData);
+
+        const separationData = await separationModel.find({}).select({ user_id: 1, resignation_date: 1 });
+
+        const filteredSeparationData = separationData.filter(data => {
+            const resignationMonthYear = `${data.resignation_date.getFullYear()}${String(data.resignation_date.getMonth() + 1).padStart(2, "0")}`;
+            return resignationMonthYear !== bodyMonthYear;
+        });
+
+        const separatedUserIds = filteredSeparationData.map(data => data.user_id);
+
+        const filteredData = findData.filter(data => !separatedUserIds.includes(data.user_id));
+
+        const count = filteredData.length;
+
+
+        return response.returnTrue(200, req, res, count);
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
 };
+
 
 exports.getAllWithDigitalSignatureImageUsers = async (req, res) => {
     try {

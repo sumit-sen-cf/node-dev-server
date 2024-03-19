@@ -1,4 +1,5 @@
 const repairRequestModel = require("../models/repairRequestModel.js");
+const assetRepairRequestSumModel = require("../models/assetRepairRequestSumModel.js");
 const simModel = require("../models/simModel.js");
 const assetHistoryModel = require("../models/assetHistoryModel.js");
 const simAlloModel = require("../models/simAlloModel.js");
@@ -380,8 +381,16 @@ exports.getAllRepairRequestsByAssetReasonId = async (req, res) => {
                         multi_tag_users_name: "$multiTagUsers.user_name"
                     },
                 },
-            ])
-            .exec();
+                // {
+                //     $group: {
+                //         _id: "$repair_id",
+                //         data: { $first: "$$ROOT" }
+                //     }
+                // },
+                // {
+                //     $replaceRoot: { newRoot: "$data" }
+                // }
+            ]);
         const assetRepairDataBaseUrl = `${vari.IMAGE_URL}`;
         const dataWithImageUrl = assetsdata.map((assetrepairdatas) => ({
             ...assetrepairdatas,
@@ -627,6 +636,20 @@ exports.editRepairRequest = [
                     // res.status(200).send("Success") 
                 });
                 blobStream4.end(req.files.recovery_image_upload2[0].buffer);
+            }
+
+            if (req.body.status === "Recover") {
+                const repairSummaryData = {
+                    sim_id: editrepairdata.sim_id,
+                    req_by: editrepairdata.req_by,
+                    recovery_remark: editrepairdata.recovery_remark,
+                    recovery_by: editrepairdata.recovery_by,
+                    recovery_image_upload1: editrepairdata.recovery_image_upload1,
+                    recovery_image_upload2: editrepairdata.recovery_image_upload2,
+                    repair_request_date_time: editrepairdata.repair_request_date_time
+                };
+
+                await assetRepairRequestSumModel.create(repairSummaryData);
             }
 
             return res.status(200).send({ success: true, data: editrepairdata });
