@@ -274,7 +274,6 @@ exports.updatePhpVendorPaymentRequest = async (req, res) => {
     }
 };
 
-<<<<<<< Updated upstream
 exports.deletePhpVendorPaymentRequest = async (req, res) => {
     phpVendorPaymentRequestModel.deleteOne({ request_id: req.params.request_id }).then(item => {
         if (item) {
@@ -286,7 +285,6 @@ exports.deletePhpVendorPaymentRequest = async (req, res) => {
         return res.status(400).json({ success: false, message: err })
     })
 };
-=======
 
 exports.getVendorPaymentRequestList = async (req, res) => {
     try {
@@ -612,4 +610,3 @@ exports.getVendorPaymentRequestMatchList = async (req, res) => {
         });
     }
 }
->>>>>>> Stashed changes
