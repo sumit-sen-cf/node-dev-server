@@ -1,52 +1,60 @@
 const response = require('../../common/response');
 const { message } = require("../../common/message");
 const mongoose = require("mongoose");
-const opsCustomerContactModel = require('../../models/Customer&Campaign/opsCustomerContactModel');
+const opsCustomerDocumentModel = require('../../models/Customer&Campaign/opsCustomerDocumentModel');
+const multer = require("multer");
 const vari = require("../../variables.js");
+const { storage } = require('../../common/uploadFile.js')
 
-//POST- OPS_Customer_Contact
-exports.createCustomerContact = async (req, res) => {
-    try {
-        const checkDuplicacy = await opsCustomerContactModel.findOne({ contact_no: req.body.contact_no });
-        if (checkDuplicacy) {
-            return res.status(403).json({
-                status: 403,
-                message: "OPS customer contact data alredy exist!",
+const upload = multer({
+    storage: multer.memoryStorage()
+}).fields([
+    { name: "doc_upload", maxCount: 1 },
+]);
+
+//POST- OPS_Customer_Document
+exports.createCustomerDocument = [
+    upload, async (req, res) => {
+        try {
+            const { customer_id, doc_id, doc_no, description, created_by, last_updated_by } = req.body;
+            const addCustomerDocumentData = new opsCustomerDocumentModel({
+                customer_id: customer_id,
+                doc_id: doc_id,
+                doc_no: doc_no,
+                description: description,
+                created_by: created_by,
+                last_updated_by: last_updated_by
+            });
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName); 
+
+            if (req.files.doc_upload && req.files.doc_upload[0].originalname) {
+                const blob1 = bucket.file(req.files.doc_upload[0].originalname);
+                addCustomerDocumentData.doc_upload = blob1.name;
+                const blobStream1 = blob1.createWriteStream(); 
+                blobStream1.on("finish", () => {
+                });
+                blobStream1.end(req.files.doc_upload[0].buffer);
+            }
+            await addCustomerDocumentData.save();
+            return res.status(200).json({
+                status: 200,
+                message: "OPS customer-document data added successfully!",
+                data: addCustomerDocumentData,
+            });
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                message: error.message ? error.message : message.ERROR_MESSAGE,
             });
         }
-        const { customer_id, closed_by, contact_name, contact_no, alternative_contact_no, email_Id, department,
-            designation, description, created_by, last_updated_by } = req.body;
-        const addCustomerContactData = new opsCustomerContactModel({
-            customer_id: customer_id,
-            closed_by: closed_by,
-            contact_name: contact_name,
-            contact_no: contact_no,
-            alternative_contact_no: alternative_contact_no,
-            email_Id: email_Id,
-            department: department,
-            designation: designation,
-            description: description,
-            created_by: created_by,
-            last_updated_by: last_updated_by
-        });
-        await addCustomerContactData.save();
-        return res.status(200).json({
-            status: 200,
-            message: "OPS customer contact data added successfully!",
-            data: addCustomerContactData,
-        });
-    } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
-    }
-};
+    }];
 
-//GET - OPS_get_Customer_Contact - BY_ID
-exports.getCustomerContactDetail = async (req, res) => {
+//GET - OPS_getCustomerDocument - BY_ID
+exports.getcustomerDocumentDetail = async (req, res) => {
     try {
-        const customerContactData = await opsCustomerContactModel.aggregate([
+        const imageUrl = vari.IMAGE_URL;
+        const customerDocumentData = await opsCustomerDocumentModel.aggregate([
             {
                 $match: { _id: mongoose.Types.ObjectId(req.params.id) },
             },
@@ -67,27 +75,25 @@ exports.getCustomerContactDetail = async (req, res) => {
             {
                 $project: {
                     customer_id: 1,
-                    closed_by: 1,
-                    contact_name: 1,
-                    contact_no: 1,
-                    alternative_contact_no: 1,
-                    email_Id: 1,
-                    department: 1,
-                    designation: 1,
+                    doc_id: 1,
+                    doc_no: 1,
                     description: 1,
                     created_date_time: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
                     last_updated_by: 1,
+                    doc_upload: {
+                        $concat: [imageUrl, "$doc_upload"],
+                    },
                 },
             },
         ])
-        if (customerContactData) {
+        if (customerDocumentData) {
             return res.status(200).json({
                 status: 200,
-                message: "OPS customer contact details successfully!",
-                data: customerContactData,
+                message: "OPS customer document details successfully!",
+                data: customerDocumentData,
             });
         }
         return res.status(404).json({
@@ -102,50 +108,57 @@ exports.getCustomerContactDetail = async (req, res) => {
     }
 };
 
-//PUT - updateCustomerContact_By-ID
-exports.updateCustomerContact = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { customer_id, closed_by, contact_name, contact_no, alternative_contact_no, email_Id, department,
-            designation, description, created_by, last_updated_by } = req.body;
-        const customerContactData = await opsCustomerContactModel.findOne({ _id: id });
-        if (!customerContactData) {
-            return res.send("Invalid customer-contact Id...");
-        }
-        await customerContactData.save();
-        const customerContactUpdatedData = await opsCustomerContactModel.findOneAndUpdate({ _id: id }, {
-            $set: {
-                customer_id,
-                closed_by,
-                contact_name,
-                contact_no,
-                alternative_contact_no,
-                email_Id,
-                department,
-                designation,
-                description,
-                created_by,
-                last_updated_by
-            },
-        },
-            { new: true }
-        );
-        return res.status(200).json({
-            message: "OPS customer-contact data updated successfully!",
-            data: customerContactUpdatedData,
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
-    }
-};
+//PUT - updateCustomerDocument_By-ID
+exports.updateCustomerDocument = [
+    upload,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { customer_id, doc_id, doc_no, description, created_by, last_updated_by } = req.body;
+            const customerDocumentData = await opsCustomerDocumentModel.findOne({ _id: id });
+            if (!customerDocumentData) {
+                return res.send("Invalid customer-document Id...");
+            }
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
 
-//GET - OPS_Customer_Contact_List
-exports.getCustomerContactList = async (req, res) => {
+            if (req.files.doc_upload && req.files.doc_upload[0].originalname) {
+                const blob1 = bucket.file(req.files.doc_upload[0].originalname);
+                customerDocumentData.doc_upload = blob1.name;
+                const blobStream1 = blob1.createWriteStream();
+                blobStream1.on("finish", () => {
+                });
+                blobStream1.end(req.files.doc_upload[0].buffer);
+            }
+            await customerDocumentData.save();
+            const customerDocumentUpdatedData = await opsCustomerDocumentModel.findOneAndUpdate({ _id: id }, {
+                $set: {
+                    customer_id,
+                    doc_id,
+                    doc_no,
+                    description,
+                    created_by,
+                    last_updated_by
+                },
+            },
+                { new: true }
+            );
+            return res.status(200).json({
+                message: "OPS customer document data updated successfully!",
+                data: customerDocumentUpdatedData,
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: error.message ? error.message : message.ERROR_MESSAGE,
+            });
+        }
+    }];
+
+//GET - OPS_CustomerDocument_List
+exports.getCustomerDocumentList = async (req, res) => {
     try {
         const imageUrl = vari.IMAGE_URL;
-        const customerContactData = await opsCustomerContactModel.aggregate([
+        const customerDocumentData = await opsCustomerDocumentModel.aggregate([
             {
                 $lookup: {
                     from: "usermodels",
@@ -163,7 +176,7 @@ exports.getCustomerContactList = async (req, res) => {
             {
                 $lookup: {
                     from: "usermodels",
-                    localField: "closed_by",
+                    localField: "last_updated_by",
                     foreignField: "user_id",
                     as: "user_data",
                 },
@@ -189,17 +202,25 @@ exports.getCustomerContactList = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "docmasts",
+                    localField: "doc_id",
+                    foreignField: "_id",
+                    as: "docmast",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$docmast",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     _id: 1,
                     customer_id: 1,
-                    closed_by: "$closed_by",
-                    closed_by_id: "$user_data.user_id",
-                    contact_name: 1,
-                    contact_no: 1,
-                    alternative_contact_no: 1,
-                    email_Id: 1,
-                    department: 1,
-                    designation: 1,
+                    doc_id: 1,
+                    doc_no: 1,
                     description: 1,
                     created_date_time: 1,
                     created_by: 1,
@@ -207,10 +228,13 @@ exports.getCustomerContactList = async (req, res) => {
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
                     last_updated_by: 1,
+                    doc_upload: {
+                        $concat: [imageUrl, "$doc_upload"],
+                    },
                     OPS_CustomerMast_data: {
                         _id: "$customermast_data._id",
                         customermast_id: "$customermast_data.customer_id",
-                        customer_id: "$customermast_data.customer_id",
+                        customer_type_id: "$customermast_data.customer_type_id",
                         account_type_id: "$customermast_data.account_type_id",
                         ownership_id: "$customermast_data.ownership_id",
                         industry_id: "$customermast_data.industry_id",
@@ -248,19 +272,26 @@ exports.getCustomerContactList = async (req, res) => {
                             $concat: [imageUrl, "$customermast_data.gst_upload"],
                         },
                     },
+                    OPS_Doc_Mast: {
+                        _id: "$docmast._id",
+                        doc_name: "$docmast.doc_name",
+                        description: "$docmast.description",
+                        created_date_time: "$docmast.created_date_time",
+                        created_by: "$docmast._id",
+                    }
                 }
             }
         ])
-        if (!customerContactData) {
+        if (!customerDocumentData) {
             return res.status(500).send({
                 succes: true,
-                message: "OPS customer-contact data list not found!",
+                message: "OPS customer document data list not found!",
             });
         }
         return res.status(200).send({
             succes: true,
-            message: "OPS customer-contact data list successfully!",
-            data: customerContactData
+            message: "OPS customer document data list successfully!",
+            data: customerDocumentData
         });
     } catch (error) {
         return res.status(500).json({
@@ -269,22 +300,22 @@ exports.getCustomerContactList = async (req, res) => {
     }
 };
 
-//DELETE - OPS_CustomerConatct- By-ID
-exports.deleteCustomerContact = async (req, res) => {
+//DELETE - OPS_CustomerDocument- By-ID
+exports.deleteCustomerDocument = async (req, res) => {
     try {
         const { params } = req;
         const { id } = params;
-        const custoemrContactData = await opsCustomerContactModel.findOne({ _id: id });
-        if (!custoemrContactData) {
+        const custoemrDocumentData = await opsCustomerDocumentModel.findOne({ _id: id });
+        if (!custoemrDocumentData) {
             return res.status(404).json({
                 status: 404,
                 message: message.DATA_NOT_FOUND,
             });
         }
-        await opsCustomerContactModel.deleteOne({ _id: id });
+        await opsCustomerDocumentModel.deleteOne({ _id: id });
         return res.status(200).json({
             status: 200,
-            message: "OPS customer contact data deleted successfully!",
+            message: "OPS customer document data deleted successfully!",
         });
     } catch (error) {
         return res.status(500).json({

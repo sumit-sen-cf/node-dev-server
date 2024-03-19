@@ -156,7 +156,9 @@ const { createCustomerType, getcustomerTypeDetail, updateCustomerType, getCustom
 const { createAccountType, getAccountTypeDetail, updateAccountType, getAccountTypeList, deleteAccountType } = require("./controllers/Customer&Campaign/opsAccountTypeController.js");
 const { createOwnership, getOwnershipDetail, updateOwnershipType, getOwnershipList, deleteOwnership } = require("./controllers/Customer&Campaign/opsOwnershipController.js");
 const { createCustomerMast, getCustomerMastDetail, updateCustomerMast, getCustomerMastList, customerMastDelete } = require("./controllers/Customer&Campaign/opsCustomerMastController.js");
-const { createCustomerContact } = require("./controllers/Customer&Campaign/opsCustomerContactController.js");
+const { createCustomerContact, getCustomerContactDetail, updateCustomerContact, getCustomerContactList, deleteCustomerContact } = require("./controllers/Customer&Campaign/opsCustomerContactController.js");
+const { createDocMast, getDocMastDetail, updateDocMast, getDocMastList, deleteDocMast } = require("./controllers/Customer&Campaign/opsDocMastController.js");
+const { createCustomerDocument, getcustomerDocumentDetail, updateCustomerDocument, getCustomerDocumentList, deleteCustomerDocument } = require("./controllers/Customer&Campaign/opsCustomerDocumentController.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1561,10 +1563,22 @@ router.get("/get_all_customer_mast", getCustomerMastList);
 router.delete("/delete_customer_mast/:id", customerMastDelete);
 
 router.post("/add_customer_contact", createCustomerContact);
-// router.get("/get_customer_mast/:id", getCustomerMastDetail);
-// router.put("/update_customer_mast/:id", updateCustomerMast);
-// router.get("/get_all_customer_mast", getCustomerMastList);
-// router.delete("/delete_customer_mast/:id", customerMastDelete);
+router.get("/get_customer_contact/:id", getCustomerContactDetail);
+router.put("/update_customer_contact/:id", updateCustomerContact);
+router.get("/get_all_customer_contact", getCustomerContactList);
+router.delete("/delete_customer_contact/:id", deleteCustomerContact);
+
+router.post("/add_doc_mast", createDocMast);
+router.get("/get_doc_mast/:id", getDocMastDetail);
+router.put("/update_doc_mast/:id", updateDocMast);
+router.get("/get_all_doc_mast", getDocMastList);
+router.delete("/delete_doc_mast/:id", deleteDocMast);
+
+router.post("/add_customer_document", createCustomerDocument);
+router.get("/get_customer_document/:id", getcustomerDocumentDetail);
+router.put("/update_customer_document/:id", updateCustomerDocument);
+router.get("/get_all_customer_document", getCustomerDocumentList);
+router.delete("/delete_customer_document/:id", deleteCustomerDocument);
 
 // --------------------------------------------------------------User_Announcement------------------------------------------//
 
@@ -1711,6 +1725,11 @@ router.get("/phpvendorpaymentrequest", phpVendorPaymentRequest.getPhpVendorPayme
 router.get("/phpvendorpaymentrequest/:request_id", phpVendorPaymentRequest.getSinglePhpVendorPaymentRequest)
 router.put("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaymentRequest.updatePhpVendorPaymentRequest);
 router.delete("/deletephpvendorpaymentrequest/:request_id", phpVendorPaymentRequest.deletePhpVendorPaymentRequest);
+
+router.get("/phpvendorpaymentList/:status", phpVendorPaymentRequest.getVendorPaymentRequestList);
+router.get("/phpvendorpaymentmatchlist", phpVendorPaymentRequest.getVendorPaymentRequestMatchList);
+
+
 
 // phpVendorPurchase Routes
 router.post("/phpvendorpurchasepaymentrequest", phpVendorPurchasePaymentRequest.addPhpVendorPurchasePaymentRequestSet);
