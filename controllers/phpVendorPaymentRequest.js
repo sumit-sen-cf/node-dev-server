@@ -176,7 +176,7 @@ exports.getPhpVendorPaymentRequests = async (req, res) => {
 
         const modifiedData = vendorpaymentdata.map(vendorPaymentRequest => ({
             ...vendorPaymentRequest.toObject(),
-            evidence: `https://storage.cloud.google.com/dev-backend-bucket/${vendorPaymentRequest.evidence}`
+            evidence: `${vari.IMAGE_URL}${vendorPaymentRequest.evidence}`
         }));
 
         return res.status(200).send({
@@ -266,4 +266,16 @@ exports.updatePhpVendorPaymentRequest = async (req, res) => {
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
+};
+
+exports.deletePhpVendorPaymentRequest = async (req, res) => {
+    phpVendorPaymentRequestModel.deleteOne({ request_id: req.params.request_id }).then(item => {
+        if (item) {
+            return res.status(200).json({ success: true, message: 'Php Vendor Payment Request deleted' })
+        } else {
+            return res.status(404).json({ success: false, message: 'Php Vendor Payment Request not found' })
+        }
+    }).catch(err => {
+        return res.status(400).json({ success: false, message: err })
+    })
 };

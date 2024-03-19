@@ -48,6 +48,11 @@ const assetRequestModel = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    reject_reason: {
+        type: String,
+        required: false,
+        default: ""
+    }
 });
 
 assetRequestModel.pre('save', async function (next) {

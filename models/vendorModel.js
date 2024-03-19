@@ -66,6 +66,11 @@ const vendorModel = new mongoose.Schema({
     type: String,
     required: false,
     default: "",
+  },
+  company_name: {
+    type: String,
+    required: false,
+    default: "",
   }
 });
 

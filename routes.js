@@ -126,6 +126,9 @@ const nodePhpVendorPaymentMode = require("./controllers/nodePhpVendorPaymentMode
 const razorPay = require("./controllers/razorpay.js");
 const phpVendorPurchasePaymentRequest = require("./controllers/phpVendorPurchasePayment.js");
 
+//Routes for Asset Repair and Return Summary Data
+const repairandreturnsumdata = require("./controllers/repairAndReturnSum.js");
+
 /* Task Mangement Controller Import */
 //const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
 const { createTmsCatMast, getTmsCatMast, updateTmsCatMast, deleteTmsCatMast, getAllTmsCatMast } = require("./controllers/TMS/tmsCatMastController.js");
@@ -1265,6 +1268,10 @@ router.get("/show_asset_repair_request_data_to_user/:user_id", repairRequest.sho
 router.get("/get_summary_for_asset_repair_request", repairRequest.getAllRepairRequestsForSummary);
 router.get("/get_single_repair_request_by_reqBy/:req_by", repairRequest.getSingleRepairRequestsByReqBy);
 
+// asset summary repair and return routes
+router.get("/get_all_repair_summary_data", repairandreturnsumdata.getAllRepairSummaryData);
+router.get("/get_all_return_summary_data", repairandreturnsumdata.getAllReturnSummaryData);
+
 /* Assets Images master */
 router.post("/add_assets_images", assetsImage.addAssetImage);
 router.get("/get_all_assets_images", assetsImage.getAllAssetsImages);
@@ -1703,7 +1710,7 @@ router.get("/phpvendor_insert_data_node", phpVendorPaymentRequest.addPhpVendorPa
 router.get("/phpvendorpaymentrequest", phpVendorPaymentRequest.getPhpVendorPaymentRequests);
 router.get("/phpvendorpaymentrequest/:request_id", phpVendorPaymentRequest.getSinglePhpVendorPaymentRequest)
 router.put("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaymentRequest.updatePhpVendorPaymentRequest);
-
+router.delete("/deletephpvendorpaymentrequest/:request_id", phpVendorPaymentRequest.deletePhpVendorPaymentRequest);
 
 // phpVendorPurchase Routes
 router.post("/phpvendorpurchasepaymentrequest", phpVendorPurchasePaymentRequest.addPhpVendorPurchasePaymentRequestSet);

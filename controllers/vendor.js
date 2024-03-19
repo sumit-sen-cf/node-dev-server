@@ -14,7 +14,8 @@ exports.addVendor = async (req, res) => {
       vendor_type: req.body.vendor_type,
       vendor_category: req.body.vendor_category,
       secondary_contact_no: req.body.secondary_contact_no,
-      secondary_person_name: req.body.secondary_person_name
+      secondary_person_name: req.body.secondary_person_name,
+      company_name: req.body.company_name
     });
     const simv = await vendord.save();
     return response.returnTrue(
@@ -77,7 +78,8 @@ exports.editVendor = async (req, res) => {
         vendor_type: req.body.vendor_type,
         vendor_category: req.body.vendor_category,
         secondary_contact_no: req.body.secondary_contact_no,
-        secondary_person_name: req.body.secondary_person_name
+        secondary_person_name: req.body.secondary_person_name,
+        company_name: req.body.company_name
       },
       { new: true }
     );

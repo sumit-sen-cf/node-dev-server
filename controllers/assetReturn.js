@@ -2,6 +2,7 @@ const assetReturnModel = require("../models/assetReturnModel.js");
 const simModel = require("../models/simModel.js");
 const userModel = require("../models/userModel.js");
 const assetHistoryModel = require("../models/assetHistoryModel.js");
+const assetReturnSumModel = require("../models/assetReturnSumModel.js");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const vari = require("../variables.js");
@@ -373,6 +374,21 @@ exports.editAssetReturnRequest = [
                 });
                 blobStream4.end(req.files.recover_asset_image_2[0].buffer);
             }
+
+            if (req.body.asset_return_status === "RecovedByHR") {
+                const returnSummaryData = {
+                    sim_id: editAssetReturn.sim_id,
+                    return_asset_data_time: editAssetReturn.return_asset_data_time,
+                    asset_return_remark: editAssetReturn.asset_return_remark,
+                    recover_asset_image_1: editAssetReturn.recover_asset_image_1,
+                    recover_asset_image_2: editAssetReturn.recover_asset_image_2,
+                    asset_return_by: editAssetReturn.asset_return_by,
+                    asset_return_recover_by: editAssetReturn.asset_return_recover_by
+                };
+
+                await assetReturnSumModel.create(returnSummaryData);
+            }
+
 
             res.status(200).send({
                 success: true,
