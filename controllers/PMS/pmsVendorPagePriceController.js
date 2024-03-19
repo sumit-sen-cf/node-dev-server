@@ -30,7 +30,7 @@ exports.createVendorPagePrice = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: error.message ? error.message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -87,7 +87,7 @@ exports.getVendorPagePriceDetail = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: error.message ? error.message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -126,7 +126,7 @@ exports.updateVendorPagePrice = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: error.message ? error.message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -134,6 +134,7 @@ exports.updateVendorPagePrice = async (req, res) => {
 //GET - PMS_VendorPagePrice_List
 exports.getVendorPagePriceList = async (req, res) => {
     try {
+
         const vendorPagePriceData = await pmsVendorPagePriceModel.aggregate([
             {
                 $lookup: {
@@ -234,12 +235,12 @@ exports.getVendorPagePriceList = async (req, res) => {
                     last_updated_date: 1,
                     last_updated_by: 1,
                     pmsplatformprice_data: {
-                        platform_price_id:"$pmsplatformprice._id",
+                        platform_price_id: "$pmsplatformprice._id",
                         description: "$pmsplatformprice.description",
                         created_by: "$pmsplatformprice.created_by"
                     },
                     PMS_PageMast_data: {
-                        pmspageMast_id:"$pmspagemast._id",
+                        pmspageMast_id: "$pmspagemast._id",
                         page_user_name: "$pmspagemast.page_user_name",
                         link: "$pmspagemast.link",
                         platform_id: "$pmspagemast.platform_id",
@@ -262,7 +263,7 @@ exports.getVendorPagePriceList = async (req, res) => {
                         last_updated_by: "$pmspagemast.last_updated_by",
                     },
                     PMS_VendorMasts_data: {
-                        vendorMast_id:"$pmsvendormast._id",
+                        vendorMast_id: "$pmsvendormast._id",
                         vendorMast_name: "$pmsvendormast.vendorMast_name",
                         country_code: "$pmsvendormast.country_code",
                         mobile: "$pmsvendormast.mobile",
@@ -283,13 +284,22 @@ exports.getVendorPagePriceList = async (req, res) => {
                         created_by: "$pmsvendormast.created_by",
                         last_updated_by: "$pmsvendormast.last_updated_by",
                     },
-                    PMS_Price_data:{
-                        price_type_id:"$pmspricetype._id",
-                        price_type:"$pmspricetype.price_type",
-                        description:"$pmspricetype.description",
-                        created_by:"$pmspricetype.created_by"
+                    PMS_Price_data: {
+                        price_type_id: "$pmspricetype._id",
+                        price_type: "$pmspricetype.price_type",
+                        description: "$pmspricetype.description",
+                        created_by: "$pmspricetype.created_by"
                     }
                 }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    data: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$data" }
             }
         ])
         if (!vendorPagePriceData) {
@@ -305,7 +315,7 @@ exports.getVendorPagePriceList = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: error.message ? error.message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
@@ -330,7 +340,7 @@ exports.deleteVendorPagePriceData = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: error.message ? error.message: message.ERROR_MESSAGE,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };

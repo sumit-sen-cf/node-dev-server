@@ -145,6 +145,11 @@ const phpVendorPaymentRequestModel = new mongoose.Schema({
         type: Number,
         required: false,
         default: 0
+    },
+    is_email_send:{
+        type:Boolean,
+        required:false,
+        default:"false"
     }
 });
 

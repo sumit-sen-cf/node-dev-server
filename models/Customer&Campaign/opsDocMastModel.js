@@ -1,7 +1,7 @@
 const { default: mongoose } = require("mongoose");
 
-const ownershipSchema = new mongoose.Schema({
-    ownership_name: {
+const docMastSchema = new mongoose.Schema({
+    doc_name: {
         type: String,
         required: true,
     },
@@ -29,4 +29,4 @@ const ownershipSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model("opsownership", ownershipSchema);
+module.exports = mongoose.model("docmast", docMastSchema);

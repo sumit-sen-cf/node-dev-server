@@ -2,10 +2,9 @@ const { default: mongoose } = require("mongoose");
 const Schema = mongoose.Schema;
 
 const customerContactSchema = new mongoose.Schema({
-    customer_type_id: {
-        type: Schema.Types.ObjectId,
+    customer_id: {
+        type: Number,
         required: true,
-        ref: "customertype"
     },
     closed_by: {
         type: Number,
