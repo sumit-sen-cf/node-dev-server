@@ -152,8 +152,8 @@ exports.getAllVendorGroupList = async (req, res) => {
             {
                 $lookup: {
                     from: "pmsvendormasts",
-                    localField: "pmsvendormast_id",
-                    foreignField: "pmsvendormast_id",
+                    localField: "vendorMast_id",
+                    foreignField: "vendorMast_id",
                     as: "pmsvendormast",
                 },
             },

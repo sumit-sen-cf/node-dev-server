@@ -1,8 +1,22 @@
 const { default: mongoose } = require("mongoose");
+const Schema = mongoose.Schema;
 
-const ownershipSchema = new mongoose.Schema({
-    ownership_name: {
+const customerDocumentSchema = new mongoose.Schema({
+    customer_id: {
+        type: Number,
+        required: true,
+    },
+    doc_id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "docmast",
+    },
+    doc_upload: {
         type: String,
+        require: true,
+    },
+    doc_no: {
+        type: Number,
         required: true,
     },
     description: {
@@ -29,4 +43,4 @@ const ownershipSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model("opsownership", ownershipSchema);
+module.exports = mongoose.model("customerdocument", customerDocumentSchema);
