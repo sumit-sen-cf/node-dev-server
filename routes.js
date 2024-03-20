@@ -1727,8 +1727,8 @@ router.put("/phpvendorpaymentrequest", upload1.single('evidence'), phpVendorPaym
 router.delete("/deletephpvendorpaymentrequest/:request_id", phpVendorPaymentRequest.deletePhpVendorPaymentRequest);
 router.put("/updatePhpVendorPaymentRequestImage", upload1.single('evidence'), phpVendorPaymentRequest.updatePhpVendorPaymentRequestImage);
 
-router.get("/phpvendorpaymentList/:status", phpVendorPaymentRequest.getVendorPaymentRequestList);
-router.get("/phpvendorpaymentmatchlist", phpVendorPaymentRequest.getVendorPaymentRequestMatchList);
+// router.get("/phpvendorpaymentList/:status", phpVendorPaymentRequest.getVendorPaymentRequestList);
+// router.get("/phpvendorpaymentmatchlist", phpVendorPaymentRequest.getVendorPaymentRequestMatchList);
 
 
 
