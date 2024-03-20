@@ -2,6 +2,10 @@ const { default: mongoose } = require("mongoose");
 // const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const assetRepairRequestSumModel = new mongoose.Schema({
+    asset_repair_sum_id: {
+        type: Number,
+        required: false,
+    },
     sim_id: {
         type: Number,
         required: false,
@@ -45,18 +49,18 @@ const assetRepairRequestSumModel = new mongoose.Schema({
     }
 });
 
-// repairRequestModel.pre('save', async function (next) {
-//     if (!this.repair_id) {
-//         const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'repair_id': -1 } });
+assetRepairRequestSumModel.pre('save', async function (next) {
+    if (!this.asset_repair_sum_id) {
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'asset_repair_sum_id': -1 } });
 
-//         if (lastAgency && lastAgency.repair_id) {
-//             this.repair_id = lastAgency.repair_id + 1;
-//         } else {
-//             this.repair_id = 1;
-//         }
-//     }
-//     next();
-// });
+        if (lastAgency && lastAgency.asset_repair_sum_id) {
+            this.asset_repair_sum_id = lastAgency.asset_repair_sum_id + 1;
+        } else {
+            this.asset_repair_sum_id = 1;
+        }
+    }
+    next();
+});
 
 module.exports = mongoose.model(
     "assetRepairRequestSumModel",

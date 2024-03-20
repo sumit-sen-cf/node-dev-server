@@ -24,8 +24,8 @@ exports.getAllRepairSummaryData = async (req, res) => {
                 {
                     $lookup: {
                         from: "usermodels",
-                        localField: "user_id",
-                        foreignField: "recovery_by",
+                        localField: "recovery_by",
+                        foreignField: "user_id",
                         as: "recoveryByData",
                     },
                 },
@@ -38,8 +38,8 @@ exports.getAllRepairSummaryData = async (req, res) => {
                 {
                     $lookup: {
                         from: "usermodels",
-                        localField: "user_id",
-                        foreignField: "req_by",
+                        localField: "req_by",
+                        foreignField: "user_id",
                         as: "reqByData",
                     },
                 },
@@ -72,7 +72,7 @@ exports.getAllRepairSummaryData = async (req, res) => {
                 },
                 {
                     $group: {
-                        _id: "$repair_id",
+                        _id: "$asset_repair_sum_id",
                         data: { $first: "$$ROOT" }
                     }
                 },
@@ -111,8 +111,8 @@ exports.getAllReturnSummaryData = async (req, res) => {
                 {
                     $lookup: {
                         from: "usermodels",
-                        localField: "user_id",
-                        foreignField: "asset_return_by",
+                        localField: "asset_return_by",
+                        foreignField: "user_id",
                         as: "returnByData",
                     },
                 },
@@ -125,8 +125,8 @@ exports.getAllReturnSummaryData = async (req, res) => {
                 {
                     $lookup: {
                         from: "usermodels",
-                        localField: "user_id",
-                        foreignField: "asset_return_recover_by",
+                        localField: "asset_return_recover_by",
+                        foreignField: "user_id",
                         as: "recoverByData",
                     },
                 },
@@ -151,7 +151,8 @@ exports.getAllReturnSummaryData = async (req, res) => {
                         asset_return_by: "$asset_return_by",
                         asset_return_by_name: "$returnByData.user_name",
                         asset_return_recover_by: "$asset_return_recover_by",
-                        asset_return_recover_by_name: "$recoverByData.user_name"
+                        asset_return_recover_by_name: "$recoverByData.user_name",
+                        asset_return_recover_by_remark: "$asset_return_recover_by_remark"
                     },
                 },
                 {

@@ -228,10 +228,10 @@ exports.getSinglePhpVendorPaymentRequest = async (req, res) => {
 exports.updatePhpVendorPaymentRequest = async (req, res) => {
     try {
         const updatedData = await phpVendorPaymentRequestModel.findOneAndUpdate(
-            { request_id: req.body.request_id },
+            { request_id: parseInt(req.body.request_id) },
             {
                 status: 1,
-                evidence: req.files?.evidence,
+                // evidence: req.files?.evidence,
                 payment_date: req.body.payment_date,
                 payment_mode: req.body.payment_mode,
                 payment_amount: req.body.payment_amount,
@@ -286,327 +286,33 @@ exports.deletePhpVendorPaymentRequest = async (req, res) => {
     })
 };
 
-exports.getVendorPaymentRequestList = async (req, res) => {
+exports.updatePhpVendorPaymentRequestImage = async (req, res) => {
     try {
-        console.log("req.params")
-        console.log(req.params)
-        const { status } = req.params;
+        const updatedData = await phpVendorPaymentRequestModel.findOneAndUpdate(
+            { request_id: parseInt(req.body.request_id) },
+            { evidence: req.file.originalname },
+            { new: true }
+        );
 
-        const paymentRequsetData = await phpVendorPaymentRequestModel.aggregate(
-            [
-                {
-                    $group:
-                    {
-                        _id: "$status",
-                        totalPaymentAmount: { $sum: "$payment_amount" },
-                        totalRequestAmount: { $sum: "$request_amount" },
-                        count: { $sum: 1 }
-                    }
-                },
-                {
-                    $group:
-                    {
-                        _id: "$_id",
-                        totalSuccRej: { $sum: "$payment_amount" },
-                        count: { $sum: 1 },
-                        data: { $first: "$$ROOT" },
-                    }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        totalPaymentAmount: "$data.totalPaymentAmount",
-                        totalRequestAmount: "$data.totalRequestAmount",
-                        count: "$data.count",
-                        totalSuccRej: {
-                            $add: ["$data.totalPaymentAmount", "$data.totalRequestAmount"]
-                        },
-                        totaldisbursedAmount: { $sum: "$data.totalPaymentAmount" },
-                        countDisbursedAmount: { $sum: 1 }
-                    }
-                },
-            ]
-        )
-        if (!paymentRequsetData) {
-            return res.status(500).send({
-                succes: true,
-                message: "Payment request data list not found!",
+        if (req.file && req.file.originalname) {
+            const bucketName = vari.BUCKET_NAME;
+            const bucket = storage.bucket(bucketName);
+            const blob = bucket.file(req.file.originalname);
+            const blobStream = blob.createWriteStream();
+            blobStream.on("finish", async () => {
+                await updatedData.save();
+                return response.returnTrue(
+                    200, req, res, "phpVendor Payment Request data updated", updatedData
+                );
             });
-        }
-        // Construct email message
-        const totalPaymentAmount = paymentRequsetData[1].totalPaymentAmount;
-        const totalRequestAmount = paymentRequsetData[1].totalRequestAmount;
-        const count = paymentRequsetData[1].count;
-        const totaldisbursedAmount = paymentRequsetData[1].totaldisbursedAmount
-        let message;
-        if (status === '1') {
-            message = `Success Message : Payment request successfully!\nTotal Payment Amount: ${totalPaymentAmount}, \nTotal Payment Count: ${count}, \nTotal Request Amount: ${totalRequestAmount}, \nTotal Payment Disbursed Amount: ${totaldisbursedAmount}`;
-        } else if (status === '2') {
-            message = `Rejected Message : Payment request rejected!\nTotal Payment Amount: ${totalPaymentAmount}, \nTotal Payment Count: ${count}, \nTotal Request Amount: ${totalRequestAmount}`;
+            blobStream.end(req.file.buffer);
         } else {
-            message = "Unknown status!";
+            await updatedData.save();
+            return response.returnTrue(
+                200, req, res, "phpVendor Payment Request data updated", updatedData
+            );
         }
-        // Send email
-        const emailsend = await sendEmail(message, totalPaymentAmount, totalRequestAmount, count, totaldisbursedAmount);
-
-        return res.status(200).send({
-            succes: true,
-            message: "Payment request data list successfully!",
-            data: paymentRequsetData
-        });
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
-}
-async function sendEmail(message, totalPaymentAmount, totalRequestAmount, count, totaldisbursedAmount) {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: "ankigupta1254@gmail.com",
-            pass: "ptxbqtjmcaghogcg",
-        }
-    });
-    const templatePath = path.join(__dirname, "vendorPhpPaymentRequest.ejs");
-    const template = await fs.promises.readFile(templatePath, "utf-8");
-    const html = ejs.render(template, {
-        totalPaymentAmount,
-        totalRequestAmount,
-        count,
-        totaldisbursedAmount
-    });
-    console.log("html----------------------------", html)
-    try {
-        await transporter.sendMail({
-            from: "ankigupta1254@gmail.com",
-            to: "ankigupta1254@gmail.com",
-            subject: 'Payment Request Data',
-            text: message, // Plain text body
-            html: html
-        });
-        console.log("Email sent successfully");
-    } catch (error) {
-        console.error('Error sending email:', error);
-        throw error;
-    }
-
 };
-
-
-// const emailCronJob = async () => {
-//     const paymentRequsetData = await phpVendorPaymentRequestModel.aggregate([{
-//         $group:
-//         {
-//             _id: "$status",
-//             totalAmount: { $sum: "$payment_amount" },
-//             request_amount: { $first: "$request_amount" },
-//             count: { $sum: 1 }
-//         }
-//     }, {
-//         $project: {
-//             _id: 1,
-//             totalAmount: 1,
-//             count:1
-//         }
-//     }]);
-//     console.log("paymentRequsetData")
-//     console.log(paymentRequsetData)
-
-//     const transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//         user: "ankigupta1254@gmail.com",
-//         pass: "ptxbqtjmcaghogcg",
-//     }
-// });
-
-// const sendMail = async (to, vendor_name, request_by,request_amount,paymentRequsetData) => {
-//     const templatePath = path.join(__dirname, "userAnnouncement.ejs");
-//     const template = await fs.promises.readFile(templatePath, "utf-8");
-//     const html = ejs.render(template, {
-//         vendor_name,
-//         request_by,
-//         request_amount,
-//         paymentRequsetData
-//     });
-//     console.log("666------------------------", html)
-// }
-//     try {
-//         await transporter.sendMail({
-//             from: "ankigupta1254@gmail.com",
-//             to: "ankigupta1254@gmail.com",
-//             subject: vendor_name,
-//             text: request_amount
-
-//         });
-//         console.log('Email sent successfully');
-//     } catch (error) {
-//         console.error('Error sending email:', error);
-//     }
-// };
-// paymentRequsetData.map(async (request) => {
-//     const { vendor_name, request_by, request_amount } = request;
-//     const html = `<p>Vendor: ${vendor_name}</p><p>Requested by: ${request_by}</p><p>Requested amount: ${request_amount}</p>`;
-//     await sendMail("ankigupta1254@gmail.com", vendor_name, request_amount, html);
-// });
-// Iterate through payment request data and send emails
-
-// console.log("fffffffffff", emailCronJob)
-// const cron = require('node-cron');
-// function logMessage() {
-//     console.log('Cron job executed at:', new Date().toLocaleString());
-// }
-// // Schedule the cron job to run every minute
-// cron.schedule('* * * * *', () => {
-//     console.log("emai--------------")
-//     emailCronJob();
-// });
-
-
-
-
-
-// exports.getVendorPaymentRequestList = async (req, res) => {
-//     try {
-//         const currentDate = new Date().toISOString(); // Get current date in ISO format
-//         console.log("Current Date:", currentDate);
-
-//         const query = await phpVendorPaymentRequestModel.find({}, { request_date: 1 })
-//         console.log("queryyyyyyyy", query);
-//         const paymentRequsetData = await phpVendorPaymentRequestModel.aggregate([
-//             {
-//                 $addFields: {
-//                     "parsed_request_date": {
-//                         $dateFromString: {
-//                             dateString: {
-//                                 $substr: ["$request_date", 0, 10] // Extract date part from string
-//                             },
-//                             format: "%Y-%m-%d" // Specify the format of the extracted date
-//                         }
-//                     }
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     parsed_request_date: 1,
-//                 }
-//             }
-//             // {
-//             //     $match: {
-//             //         $expr: {
-//             //             $eq: ["$parsed_request_date", currentDate]
-//             //         }
-//             //     }
-//             // }
-
-//         ]);
-
-//         console.log("Payment Request Data--------------------------------------------", paymentRequsetData);
-//         if (!paymentRequsetData) { // Check if no documents found
-//             return res.status(500).send({
-//                 success: false,
-//                 message: "Payment request data list not found for today!",
-//             });
-//         }
-
-//         return res.status(200).send({
-//             success: true,
-//             message: "Payment request data list successfully fetched for today!",
-//             data: paymentRequsetData
-//         });
-//     } catch (err) {
-//         return res.status(500).send({
-//             success: false,
-//             message: "Internal server error",
-//             error: err.message
-//         });
-//     }
-// }
-
-
-exports.getVendorPaymentRequestMatchList = async (req, res) => {
-    try {
-        const currentDate = new Date().toISOString().split('T')[0];
-        console.log("Current Date:", currentDate);
-
-        const paymentRequsetData = await phpVendorPaymentRequestModel.aggregate([
-            {
-                $addFields: {
-                    "parsed_request_date": {
-                        $dateFromString: {
-                            dateString: {
-                                $substr: ["$request_date", 0, 10]
-                            },
-                            format: "%Y-%m-%d"
-                        },
-                    }
-                }
-            },
-
-            // {
-            //     $project: {
-            //         parsed_request_date: { $dateToString: { format: "%Y-%m-%d", date: "$parsed_request_date" } },
-            //         request_id: 1,
-            //         vendor_id: 1,
-            //         request_amount: 1,
-            //         payment_amount: {$sum: "$payment_amount"},
-            //         count: { $sum: 1 },
-            //     }
-            // },
-
-            {
-                $group:
-                {
-                    _id: "$status",
-                    totalPaymentAmount: { $sum: "$payment_amount" },
-                    totalRequestAmount: { $sum: "$request_amount" },
-                    count: { $sum: 1 },
-                    data: { $first: "$$ROOT" },
-                }
-            },
-            {
-                $group:
-                {
-                    _id: "$_id",
-                    count: { $sum: 1 },
-                    data: { $first: "$$ROOT" },
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    parsed_request_date: { $dateToString: { format: "%Y-%m-%d", date: "$parsed_request_date" } },
-                    totalPaymentAmount: "$data.totalPaymentAmount",
-                    totalRequestAmount: "$data.totalRequestAmount",
-                    count: "$data.count",
-                    totaldisbursedAmount: { $sum: "$data.totalPaymentAmount" },
-                    countDisbursedAmount: { $sum: 1 }
-                }
-            },
-        ]);
-        console.log("Payment Request Data:", paymentRequsetData);
-        const matchingData = paymentRequsetData.filter(doc => {
-            return doc.parsed_request_date === currentDate;
-        });
-
-        console.log("matchingData", matchingData)
-
-        if (!matchingData || matchingData.length === 0) { // Check if no documents found
-            return res.status(500).send({
-                success: false,
-                message: "Payment request data list not found for today!",
-            });
-        }
-
-        return res.status(200).send({
-            success: true,
-            message: "Payment request data list successfully fetched for today!",
-            data: matchingData
-        });
-    } catch (err) {
-        return res.status(500).send({
-            success: false,
-            message: "Internal server error",
-            error: err.message
-        });
-    }
-}

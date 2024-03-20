@@ -314,11 +314,13 @@ exports.addAttendance = async (req, res) => {
           });
 
           const findSeparationData = await separationModel.findOne({ user_id: req.body.user_id })
-          const resignDate = findSeparationData.resignation_date;
+          const resignDate = findSeparationData?.resignation_date;
           const resignConvertDate = new Date(resignDate);
-          const resignExtractDate = resignConvertDate.getDate();
+          const resignExtractDate = resignConvertDate?.getDate();
 
           var work_days;
+          const absent = noOfabsent == undefined ? 0 : req.body.noOfabsent;
+          const salaryDeduction = salary_deduction == undefined ? 0 : req.body.salary_deduction;
           const joining = results4[0].joining_date;
           const convertDate = new Date(joining);
           const extractDate = convertDate.getDate() - 1;
@@ -332,18 +334,18 @@ exports.addAttendance = async (req, res) => {
           const mergeJoining1 = `${monthNumber}` + `${year}`;
           if (mergeJoining == mergeJoining1) {
             work_days = 30 - extractDate - noOfabsent;
-          } else if (findSeparationData.status == "Resigned") {
+          } else if (findSeparationData?.status == "Resigned") {
             work_days = (30 - resignExtractDate) - noOfabsent;
           }
           else {
-            work_days = 30 - noOfabsent;
+            work_days = 30 - absent;
           }
 
           const present_days = work_days;
           const perdaysal = results4[0].salary / 30;
           const totalSalary = perdaysal * present_days;
-          const Bonus = bonus || 0;
-          const netSalary = Bonus ? totalSalary + Bonus - salary_deduction : totalSalary - salary_deduction;
+          const Bonus = bonus == undefined ? 0 : req.body.bonus;
+          const netSalary = (totalSalary + parseInt(Bonus)) - salaryDeduction;
           const tdsDeduction = (netSalary * results4[0].tds_per) / 100;
           const ToPay = netSalary - tdsDeduction;
           const salary = results4[0].salary;
