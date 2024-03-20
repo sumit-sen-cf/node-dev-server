@@ -355,18 +355,13 @@ exports.setUtrData = async (req, res) => {
   try {
     const { month, year, dept_id } = req.body;
     const excel = req.file;
-
     if (!excel) {
       return res.status(400).json({ success: false, message: 'Excel file is required.' });
     }
-
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(excel.buffer);
-
     const worksheet = workbook.worksheets[0];
-
     const utrData = [];
-
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber > 1) {
         if (rowNumber > 1) {
@@ -376,24 +371,22 @@ exports.setUtrData = async (req, res) => {
         }
       }
     });
-
     for (const data of utrData) {
       const { attendence_id, utr } = data;
       await financeModel.updateOne({ attendence_id }, { utr });
-      if (utr == '') {
+      await attendanceModel.findOneAndUpdate(
+        { attendence_id: attendence_id },
+        { attendence_status_flow: 'Payment Released' },
+        { new: true }
+      );
+      if (utr === '') {
         await attendanceModel.findOneAndUpdate(
           { attendence_id: attendence_id },
           { attendence_status_flow: 'Payment Failed' },
           { new: true }
         );
       }
-      await attendanceModel.findOneAndUpdate(
-        { attendence_id: attendence_id },
-        { attendence_status_flow: 'Payment Released' },
-        { new: true }
-      );
     }
-
     return res.status(200).json({ success: true, message: 'UTR data updated successfully.' });
   } catch (err) {
     console.error('Error in setUtrData:', err);

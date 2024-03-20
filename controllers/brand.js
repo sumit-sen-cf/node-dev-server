@@ -1,7 +1,7 @@
 const response = require("../common/response");
 const brandSchema = require("../models/brandModel");
-const projectxCategoryModel=require('../models/projectxCategoryModel')
-const projectxSubcategoryModel=require('../models/projectxSubCategoryModel')
+const projectxCategoryModel = require('../models/projectxCategoryModel')
+const projectxSubcategoryModel = require('../models/projectxSubCategoryModel')
 
 exports.addBrand = async (req, res) => {
   try {
@@ -30,7 +30,7 @@ exports.addBrand = async (req, res) => {
       brand_name,
       category_id,
       sub_category_id,
-     
+
       platform,
       user_id,
       major_category,
@@ -48,30 +48,81 @@ exports.addBrand = async (req, res) => {
 
 exports.getBrands = async (req, res) => {
   try {
-    const brands = await brandSchema.find()
+    const assetRequestData = await brandSchema
+      .aggregate([
+        {
+          $lookup: {
+            from: "projectxcategorymodels",
+            localField: "category_id",
+            foreignField: "category_id",
+            as: "Category",
+          },
+        },
+        {
+          $unwind: {
+            path: "$Category",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "projectxsubcategorymodels",
+            localField: "sub_category_id",
+            foreignField: "sub_category_id",
+            as: "SubCategory",
+          },
+        },
+        {
+          $unwind: {
+            path: "$SubCategory",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            brand_id: 1,
+            brand_name: 1,
+            category_id: 1,
+            category_name: "$Category.category_name",
+            sub_category_id: 1,
+            sub_category_name: "$SubCategory.sub_category_name",
+            platform: 1,
+            major_category: 1
+          },
+        }
+      ]);
 
-    if (brands.length === 0) {
+    if (assetRequestData.length === 0) {
       res
         .status(200)
         .send({ success: true, data: [], message: "No Record found" });
     } else {
-      res.status(200).json({ data: brands });
+      res.status(200).send({ data: assetRequestData });
     }
+    // const brands = await brandSchema.find()
+
+    // if (brands.length === 0) {
+    //   res
+    //     .status(200)
+    //     .send({ success: true, data: [], message: "No Record found" });
+    // } else {
+    //   res.status(200).json({ data: brands });
+    // }
   } catch (err) {
     res.status(500).send({ error: err.message, message: "Error getting all brands" });
   }
 };
 
 exports.getBrandById = async (req, res) => {
-  const id=req.params.id
-  const brandData=await brandSchema.findById(id);
-  const category=await projectxCategoryModel.findOne({category_id:brandData.category_id})
-  const subCategory=await projectxSubcategoryModel.findOne({sub_category_id:brandData.sub_category_id})
-  const data={
-    ...brandData.toObject(),category:category.category_name,subCategory:subCategory.sub_category_name
+  const id = req.params.id
+  const brandData = await brandSchema.findById(id);
+  const category = await projectxCategoryModel.findOne({ category_id: brandData.category_id })
+  const subCategory = await projectxSubcategoryModel.findOne({ sub_category_id: brandData.sub_category_id })
+  const data = {
+    ...brandData.toObject(), category: category.category_name, subCategory: subCategory.sub_category_name
   }
   res.status(200).json({
-    data:data
+    data: data
   })
 };
 // exports.getBrandById = async (req, res) => {
@@ -172,7 +223,7 @@ exports.editBrand = async (req, res) => {
           brand_name,
           category_id,
           sub_category_id,
-         platform,
+          platform,
           user_id,
           major_category,
           website,

@@ -383,7 +383,8 @@ exports.editAssetReturnRequest = [
                     recover_asset_image_1: editAssetReturn.recover_asset_image_1,
                     recover_asset_image_2: editAssetReturn.recover_asset_image_2,
                     asset_return_by: editAssetReturn.asset_return_by,
-                    asset_return_recover_by: editAssetReturn.asset_return_recover_by
+                    asset_return_recover_by: editAssetReturn.asset_return_recover_by,
+                    asset_return_recover_by_remark: editAssetReturn.asset_return_recover_by_remark
                 };
 
                 await assetReturnSumModel.create(returnSummaryData);

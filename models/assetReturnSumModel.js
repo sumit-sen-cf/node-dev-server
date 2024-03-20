@@ -2,6 +2,10 @@ const { default: mongoose } = require("mongoose");
 // const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const assetReturnSumModel = new mongoose.Schema({
+    asset_return_sum_id: {
+        type: Number,
+        required: false,
+    },
     sim_id: {
         type: Number,
         required: false,
@@ -36,6 +40,11 @@ const assetReturnSumModel = new mongoose.Schema({
         required: false,
         default: 0
     },
+    asset_return_recover_by_remark: {
+        type: String,
+        required: false,
+        default: ""
+    },
     created_at: {
         type: Date,
         default: Date.now,
@@ -46,6 +55,18 @@ const assetReturnSumModel = new mongoose.Schema({
     }
 });
 
+assetReturnSumModel.pre('save', async function (next) {
+    if (!this.asset_return_sum_id) {
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'asset_return_sum_id': -1 } });
+
+        if (lastAgency && lastAgency.asset_return_sum_id) {
+            this.asset_return_sum_id = lastAgency.asset_return_sum_id + 1;
+        } else {
+            this.asset_return_sum_id = 1;
+        }
+    }
+    next();
+});
 
 module.exports = mongoose.model(
     "assetReturnSumModel",
