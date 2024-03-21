@@ -6,6 +6,10 @@ const pmsPageMastSchema = new Schema({
         type: Number,
         required: false,
     },
+    page_user_id: {
+        type: Number,
+        required: false,
+    },
     page_user_name: {
         type: String,
         required: true
