@@ -15,7 +15,7 @@ exports.createPageMast = async (req, res) => {
         }
         const { page_user_name, link, platform_id, page_catg_id, tag_category, page_level, page_status, page_closed_by,
             page_name_type, content_creation, ownership_type, vendorMast_id, followers_count, profile_type_id, platform_active_on,
-            engagment_rate, description, created_by, last_updated_by } = req.body;
+            engagment_rate, description, created_by, last_updated_by, page_user_id } = req.body;
         const pageMastData = new pmsPageMastModel({
             page_user_name: page_user_name,
             link: link,
@@ -34,6 +34,7 @@ exports.createPageMast = async (req, res) => {
             platform_active_on: platform_active_on,
             engagment_rate: engagment_rate,
             description: description,
+            page_user_id: page_user_id,
             created_by: created_by,
             last_updated_by: last_updated_by
         });
@@ -80,6 +81,7 @@ exports.getPageMastDetail = async (req, res) => {
                     platform_id: 1,
                     page_catg_id: 1,
                     tag_category: 1,
+                    page_user_id: 1,
                     page_level: 1,
                     page_status: 1,
                     page_closed_by: 1,
@@ -125,7 +127,7 @@ exports.updatePageMast = async (req, res) => {
         const { id } = req.params;
         const { page_user_name, link, platform_id, page_catg_id, tag_category, page_level, page_status, page_closed_by,
             page_name_type, content_creation, ownership_type, vendorMast_id, followers_count, profile_type_id, platform_active_on,
-            engagment_rate, description, created_by, last_updated_by } = req.body;
+            engagment_rate, description, created_by, last_updated_by, page_user_id } = req.body;
         const pageMastData = await pmsPageMastModel.findOne({ _id: id });
         if (!pageMastData) {
             return res.send("Invalid page-mast Id...");
@@ -150,6 +152,7 @@ exports.updatePageMast = async (req, res) => {
                 platform_active_on,
                 engagment_rate,
                 description,
+                page_user_id,
                 created_by,
                 last_updated_by
             },
@@ -233,6 +236,7 @@ exports.getPageMastList = async (req, res) => {
                     platform_active_on: 1,
                     engagment_rate: 1,
                     description: 1,
+                    page_user_id: 1,
                     created_by: 1,
                     last_updated_by_name: "$user_data.user_name",
                     created_by_name: "$user.user_name",
