@@ -9,6 +9,7 @@ const pmsPageMastSchema = new Schema({
     page_user_id: {
         type: Number,
         required: false,
+        default: 0
     },
     page_user_name: {
         type: String,
