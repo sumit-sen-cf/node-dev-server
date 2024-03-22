@@ -1732,10 +1732,8 @@ router.put("/updatePhpVendorPaymentRequestImage", upload1.single('evidence'), ph
 
 // router.get("/phpvendorpaymentList/:status", phpVendorPaymentRequest.getVendorPaymentRequestList);
 // router.get("/phpvendorpaymentmatchlist", phpVendorPaymentRequest.getVendorPaymentRequestMatchList);
-// router.get("/phpvendorpaymentList/:status", phpVendorPaymentRequest.getVendorPaymentRequestList);
-router.get("/phpvendorpaymentmatchlist", phpVendorPaymentRequest.getVendorPaymentRequestDayWiseListData);
-
-
+//  router.get("/phpvendorpaymentWeeklyList", phpVendorPaymentRequest.getVendorPaymentRequestWeeklyList);
+// router.get("/phpvendorpaymentmatchlist", phpVendorPaymentRequest.getVendorPaymentRequestDayWiseListData);
 
 // phpVendorPurchase Routes
 router.post("/phpvendorpurchasepaymentrequest", phpVendorPurchasePaymentRequest.addPhpVendorPurchasePaymentRequestSet);

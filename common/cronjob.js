@@ -1,66 +1,30 @@
 const cron = require('node-cron');
+const phpVendorPaymentRequestData = require("../controllers/phpVendorPaymentRequest");
 
-
+console.log("cron file calls");
 exports.cronImplement = async (req, res) => {
-
-    cron.schedule('0 0 * * 0', async () => { 
-        await sendWeeklyEmail();
+    console.log("cron function calls");
+    //cron is to used daily email send
+    cron.schedule('0 0 * * *', async () => {
+        console.log("cron is to used daily email send")
+        //  await phpVendorPaymentRequestData.getVendorPaymentRequestDayWiseListData();
     });
-    cron.schedule('0 0 1 * *', async () => { 
-        await sendMonthlyEmail();
+
+    //cron is to used weekly email send
+    cron.schedule('0 8 1 * * 1', async () => {
+        console.log("cron is to used weekly email send")
+        //  await phpVendorPaymentRequestData.getVendorPaymentRequestWeeklyList();
     });
-    cron.schedule('0 0 1 1,4,7,10 *', async () => { 
-        await sendQuarterlyEmail();
+
+    //cron is to used for monthly email send
+    cron.schedule('0 6 1 * *', async () => {
+        console.log("cron is to used for monthly email send")
+        //  await phpVendorPaymentRequestData.getVendorPaymentRequestMonthlyList();
     });
-}
-async function sendWeeklyEmail() {
-    try {
-        console.log("Sending weekly email...");
 
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'your.email@gmail.com', 
-                pass: 'yourpassword' 
-            }
-        });
-
-        // Email content
-        const mailOptions = {
-            from: 'your.email@gmail.com', 
-            to: 'recipient@example.com', 
-            subject: 'Weekly Report', 
-            html: '<p>This is the weekly report.</p>' 
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        console.log("Weekly email sent successfully");
-    } catch (error) {
-        console.error('Error sending weekly email:', error);
-    }
-}
-
-// Function to send monthly email
-async function sendMonthlyEmail() {
-    try {
-        // Implement your logic to send the monthly email
-        console.log("Sending monthly email...");
-        // Example: await sendEmail(description, parsed_request_date, totalPaymentAmount, totalRequestAmount, count, totaldisbursedAmount);
-    } catch (error) {
-        console.error('Error sending monthly email:', error);
-    }
-}
-
-
-
-// Function to send quarterly email
-async function sendQuarterlyEmail() {
-    try {
-        // Implement your logic to send the quarterly email
-        console.log("Sending quarterly email...");
-        // Example: await sendEmail(description, parsed_request_date, totalPaymentAmount, totalRequestAmount, count, totaldisbursedAmount);
-    } catch (error) {
-        console.error('Error sending quarterly email:', error);
-    }
+    //cron is to used for quaterly email send
+    cron.schedule('0 9 1 1,4,7,10 *', async () => {
+        console.log("cron is to used for quaterly email send")
+        //  await phpVendorPaymentRequestData.getVendorPaymentRequestQuatrlyList();
+    });
 }
