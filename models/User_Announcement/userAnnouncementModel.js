@@ -51,6 +51,13 @@ const userAnnouncementSchema = new mongoose.Schema({
         type: Number,
         required: false,
     },
+    reactions: {
+        like: { type: String },
+        haha: { type: String },
+        clap: { type: String },
+        love: { type: String },
+        sad: { type: String }
+    },
     created_by: {
         type: Number,
         required: false,

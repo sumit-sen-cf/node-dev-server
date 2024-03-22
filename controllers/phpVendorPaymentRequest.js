@@ -9,11 +9,48 @@ const nodemailer = require('nodemailer');
 const path = require("path");
 const fs = require("fs");
 const ejs = require('ejs');
+const moment = require('moment');
 const mail = require("../common/sendMail.js");
 
 
 exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
     try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: "ankigupta1254@gmail.com",
+                pass: "ptxbqtjmcaghogcg",
+            }
+        });
+        async function sendEmail(to, subject, text) {
+            console.log("phpVendorPaymentRequestData.request_by");
+            console.log("to", to);
+            const templatePath = path.join(__dirname, "vendorPhpPaymentRequest2.ejs");
+            const template = await fs.promises.readFile(templatePath, "utf-8");
+            const html = ejs.render(template, {
+                subject,
+                request_by: phpVendorPaymentRequestData.request_by,
+                vendor_name: phpVendorPaymentRequestData.vendor_name,
+                request_date: phpVendorPaymentRequestData.request_date,
+                request_amount: phpVendorPaymentRequestData.request_amount,
+                payment_amount: phpVendorPaymentRequestData.payment_amount,
+                payment_date: phpVendorPaymentRequestData.payment_date,
+                payment_by: phpVendorPaymentRequestData.payment_by,
+                status: phpVendorPaymentRequestData.status,
+                mobile: phpVendorPaymentRequestData.mobile
+            });
+            try {
+                await transporter.sendMail({
+                    from: "ankigupta1254@gmail.com",
+                    to: "ankigupta1254@gmail.com",
+                    subject: subject,
+                    html: html
+                });
+                console.log('Email sent successfully');
+            } catch (error) {
+                console.error('Error sending email:', error);
+            }
+        };
         const data = new phpVendorPaymentRequestModel({
             request_id: req.body.request_id,
             vendor_id: req.body.vendor_id,
@@ -62,6 +99,28 @@ exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
             blobStream.end(req.file.buffer);
         }
         const phpVendorPaymentRequestData = await data.save();
+
+        let message;
+        if (phpVendorPaymentRequestData.status === '1') {
+            message = `Success Message : Payment request successfully!\nRequest_By: ${phpVendorPaymentRequestData.request_by},
+             \nVendor_name: ${phpVendorPaymentRequestData.vendor_name}, \nRequest_Date: ${phpVendorPaymentRequestData.request_date}, 
+             \nRequest_Amount: ${phpVendorPaymentRequestData.request_amount}, \nPayment_Amount: ${phpVendorPaymentRequestData.payment_amount}
+             \nMobile: ${phpVendorPaymentRequestData.mobile}, \n Payment_Date: ${phpVendorPaymentRequestData.payment_date},
+             \nPayment_Pay: ${phpVendorPaymentRequestData.payment_by},\nStatus: ${phpVendorPaymentRequestData.status}`;
+
+        } else if (phpVendorPaymentRequestData.status === '2') {
+            message = `Rejected Message: Payment request rejected!\nRequest_By: ${phpVendorPaymentRequestData.request_by}, 
+            \nVendor_name: ${phpVendorPaymentRequestData.vendor_name}, \nRequest_Date: ${phpVendorPaymentRequestData.request_date}   
+             \n Payment_Date: ${phpVendorPaymentRequestData.payment_date}, 
+             \nPayment_Pay: ${phpVendorPaymentRequestData.payment_by}, \nStatus: ${phpVendorPaymentRequestData.status}`;
+        }
+
+        // Send email
+        const emailsend = await sendEmail(message, phpVendorPaymentRequestData.request_by, phpVendorPaymentRequestData.vendor_name,
+            phpVendorPaymentRequestData.request_date, phpVendorPaymentRequestData.request_amount, phpVendorPaymentRequestData.payment_amount,
+            phpVendorPaymentRequestData.mobile, phpVendorPaymentRequestData.status, phpVendorPaymentRequestData.payment_date,
+            phpVendorPaymentRequestData.payment_by, phpVendorPaymentRequestData.status);
+
         return response.returnTrue(
             200,
             req,
@@ -316,3 +375,643 @@ exports.updatePhpVendorPaymentRequestImage = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 };
+
+
+
+exports.getVendorPaymentRequestDayWiseListData = async () => {
+    try {
+        // const currentDate = new Date().toISOString().split('T')[0];
+        const currentDate = new Date();
+        console.log("Current Date:", currentDate);
+        let startDate = moment(currentDate).format('YYYY-MM-DD 00:00:00');
+        console.log("startDate:", startDate);
+        let endtDate = moment(currentDate).format('YYYY-MM-DD 23:59:59');
+        console.log("endtDate:", endtDate);
+        const paymentRequestData = await phpVendorPaymentRequestModel.aggregate([{
+            $match: {
+                request_date: {
+                    $gte: startDate, // Start of current day in UTC
+                    $lt: endtDate, // Start of next day in UTC
+                }
+            }
+        }, {
+            $addFields: {
+                "isRequestAmountGreaterThanZero": {
+                    $cond: {
+                        if: {
+                            $gt: ["$request_amount", 0]
+                        },
+                        then: 1,
+                        else: 0
+                    }
+                },
+                "isDisbursedAmountGreaterThanZero": {
+                    $cond: {
+                        if: {
+                            $gt: ["$payment_amount", 0]
+                        },
+                        then: 1,
+                        else: 0
+                    }
+                }
+            }
+        }, {
+            $group: {
+                _id: "$status",
+                totalRequestAmount: {
+                    $sum: {
+                        $cond: {
+                            if: {
+                                $gt: ["$request_amount", 0]
+                            },
+                            then: "$request_amount",
+                            else: 0
+                        }
+                    }
+                },
+                totalDisbursedAmount: {
+                    $sum: {
+                        $cond: {
+                            if: {
+                                $gt: ["$payment_amount", 0]
+                            },
+                            then: "$payment_amount",
+                            else: 0
+                        }
+                    }
+                },
+                totalRequestCounts: { $sum: "$isRequestAmountGreaterThanZero" },
+                totalDisbursedCounts: { $sum: "$isDisbursedAmountGreaterThanZero" },
+                data: { $first: "$$ROOT" },
+            }
+        }, {
+            $project: {
+                _id: 1,
+                totalRequestAmount: 1,
+                totalRequestCounts: 1,
+                totalDisbursedAmount: 1,
+                totalDisbursedCounts: 1,
+            }
+        }]);
+        console.log("Payment Request Data--------------------------", paymentRequestData);
+        let emailDataObj = {
+            totalRejectAmount: 0,
+            totalRejectCounts: 0
+        };
+        for (const data of paymentRequestData) {
+            console.log("data");
+            console.log(data);
+            if (data && data._id == 1) {
+                console.log("in if status 1");
+                emailDataObj.totalRequestedCount = data.totalRequestCounts;
+                emailDataObj.totalRequestedAmount = data.totalRequestAmount;
+                emailDataObj.totalDisbursedCounts = data.totalDisbursedCounts;
+                emailDataObj.totalDisbursedAmount = data.totalDisbursedAmount;
+            }
+            if (data && data._id == 2) {
+                console.log("in else status 2");
+                console.log("data------------------------------", data)
+                emailDataObj.totalRejectAmount = data.totalRequestAmount;
+                emailDataObj.totalRejectCounts = data.totalRequestCounts;
+            }
+        }
+
+        console.log("emailDataObj--------------------------", emailDataObj);
+
+        //php pending payment req get
+        const response = await axios.get(
+            'https://purchase.creativefuel.io/webservices/RestController.php?view=getpaymentrequest'
+        )
+        console.log("php data response");
+        const phpResonseData = response?.data?.body
+        let totalPendingAmount = 0;
+        let totalPendingCounts = 0;
+        let currentDateFormat = moment(currentDate).format('YYYY-MM-DD');
+        console.log("currentDateFormat");
+        console.log(currentDateFormat);
+        for (const phpData of phpResonseData) {
+            let pendingReqDate = moment(phpData.request_date).format('YYYY-MM-DD');
+            //status wise current date php data compare 
+            if (pendingReqDate == currentDateFormat && phpData && phpData.status == 0) {
+                console.log(" in phpData if")
+                console.log("phpData-------------------------", phpData)
+                totalPendingAmount = totalPendingAmount + parseInt(phpData.request_amount);
+                totalPendingCounts++;
+            }
+        }
+        emailDataObj.totalPendingAmount = totalPendingAmount;
+        emailDataObj.totalPendingCounts = totalPendingCounts;
+        console.log("email-----------------------", emailDataObj)
+
+        //Send email
+        const emailsend = await emailSends(emailDataObj);
+
+        return res.status(200).send({
+            success: true,
+            description: "Payment request data list successfully fetched for today!",
+            data: emailDataObj,
+        });
+    } catch (err) {
+        console.log("err------------------", err)
+        return res.status(500).send({
+            success: false,
+            description: "Internal server error",
+            error: err.description
+        });
+    }
+}
+
+
+async function emailSends(emailData) {
+    try {
+        console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+        console.log("emailData...----------------------------", emailData);
+        let htmlData = ``
+        if (emailData) {
+            htmlData = `\nTotal Requested Count: ${emailData.totalRequestedCount}, Total Requested Amount: ${emailData.totalRequestedAmount},
+            \nTotal Disbursed Count: ${emailData.totalDisbursedCounts}, Total Disbursed Amount: ${emailData.totalDisbursedAmount},
+            \nTotal Pending Count: ${emailData.totalPendingCounts}, Total Pending Amount: ${emailData.totalPendingAmount},
+            \nTotal Rejected Count: ${emailData.totalRejectCounts}, Total Rejected Amount: ${emailData.totalRejectAmount},
+         `;
+        }
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: "ankigupta1254@gmail.com",
+                pass: "ptxbqtjmcaghogcg",
+            }
+        });
+
+        // Email content
+        const mailOptions = {
+            from: "ankigupta1254@gmail.com",
+            to: "ankigupta1254@gmail.com",
+            subject: 'day_wise_data Report',
+            html: htmlData,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        console.log("email sent successfully");
+    } catch (error) {
+        console.error('Error in sending  email:', error);
+    }
+}
+
+
+exports.getVendorPaymentRequestWeeklyList = async () => {
+    try {
+
+        const currentDate = new Date();
+        console.log("Current Date:", currentDate);
+        let startDate = moment(currentDate).subtract(6, 'days').startOf('day').format('YYYY-MM-DD 00:00:00');
+        console.log("startDate:------", startDate);
+        let endtDate = moment(currentDate).startOf('day').format('YYYY-MM-DD 23:59:59');
+        console.log("endtDate:-------", endtDate);
+
+        const paymentRequestData = await phpVendorPaymentRequestModel.aggregate([{
+            $match: {
+                request_date: {
+                    $gte: startDate, // Start of current day in UTC
+                    $lt: endtDate, // Start of next day in UTC
+                }
+            }
+        }, {
+            $addFields: {
+                "isRequestAmountGreaterThanZero": {
+                    $cond: {
+                        if: {
+                            $gt: ["$request_amount", 0]
+                        },
+                        then: 1,
+                        else: 0
+                    }
+                },
+                "isDisbursedAmountGreaterThanZero": {
+                    $cond: {
+                        if: {
+                            $gt: ["$payment_amount", 0]
+                        },
+                        then: 1,
+                        else: 0
+                    }
+                }
+            }
+        }, {
+            $group: {
+                _id: "$status",
+                totalRequestAmount: {
+                    $sum: {
+                        $cond: {
+                            if: {
+                                $gt: ["$request_amount", 0]
+                            },
+                            then: "$request_amount",
+                            else: 0
+                        }
+                    }
+                },
+                totalDisbursedAmount: {
+                    $sum: {
+                        $cond: {
+                            if: {
+                                $gt: ["$payment_amount", 0]
+                            },
+                            then: "$payment_amount",
+                            else: 0
+                        }
+                    }
+                },
+                totalRequestCounts: { $sum: "$isRequestAmountGreaterThanZero" },
+                totalDisbursedCounts: { $sum: "$isDisbursedAmountGreaterThanZero" },
+                data: { $first: "$$ROOT" },
+            }
+        }, {
+            $project: {
+                _id: 1,
+                totalRequestAmount: 1,
+                totalRequestCounts: 1,
+                totalDisbursedAmount: 1,
+                totalDisbursedCounts: 1,
+            }
+        }]);
+        console.log("Payment Request Data--------------------------", paymentRequestData);
+        let emailDataObj = {
+            totalRejectAmount: 0,
+            totalRejectCounts: 0
+        };
+        for (const data of paymentRequestData) {
+            console.log("data");
+            console.log(data);
+            if (data && data._id == 1) {
+                console.log("in if status 1");
+                emailDataObj.totalRequestedCount = data.totalRequestCounts;
+                emailDataObj.totalRequestedAmount = data.totalRequestAmount;
+                emailDataObj.totalDisbursedCounts = data.totalDisbursedCounts;
+                emailDataObj.totalDisbursedAmount = data.totalDisbursedAmount;
+            }
+            if (data && data._id == 2) {
+                console.log("in else status 2");
+                console.log("data------------------------------", data)
+                emailDataObj.totalRejectAmount = data.totalRequestAmount;
+                emailDataObj.totalRejectCounts = data.totalRequestCounts;
+            }
+        }
+
+        console.log("emailDataObj--------------------------", emailDataObj);
+
+        //php pending payment req get
+        const response = await axios.get(
+            'https://purchase.creativefuel.io/webservices/RestController.php?view=getpaymentrequest'
+        )
+        console.log("php data response");
+        const phpResonseData = response?.data?.body
+        let totalPendingAmount = 0;
+        let totalPendingCounts = 0;
+
+        for (const phpData of phpResonseData) {
+            let pendingReqDate = moment(phpData.request_date).format('YYYY-MM-DD');
+            if (
+                pendingReqDate >= startDate &&
+                pendingReqDate <= endtDate &&
+                phpData &&
+                phpData.status == 0
+            ) {
+                totalPendingAmount += parseInt(phpData.request_amount);
+                totalPendingCounts++;
+            }
+        }
+
+        emailDataObj.totalPendingAmount = totalPendingAmount;
+        emailDataObj.totalPendingCounts = totalPendingCounts;
+        console.log("email-----------------------", emailDataObj)
+
+        //Send email
+        const emailsend = await emailSends(emailDataObj);
+
+        return res.status(200).send({
+            success: true,
+            description: "Payment request weekly data list successfully!",
+            data: emailDataObj,
+        });
+    } catch (err) {
+        console.log("err------------------", err)
+        return res.status(500).send({
+            success: false,
+            description: "Internal server error",
+            error: err.description
+        });
+    }
+}
+
+
+exports.getVendorPaymentRequestMonthlyList = async () => {
+    try {
+        const currentDate = new Date();
+        console.log("Current Date:", currentDate);
+
+        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+        console.log("firstDayOfMonth:", firstDayOfMonth);
+        const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+        console.log("lastDayOfMonth:", lastDayOfMonth);
+        let startDate = moment(firstDayOfMonth).format('YYYY-MM-DD 00:00:00');
+        console.log("startDate:", startDate);
+        let endtDate = moment(lastDayOfMonth).format('YYYY-MM-DD 23:59:59');
+        console.log("endtDate:", endtDate);
+        const paymentRequestData = await phpVendorPaymentRequestModel.aggregate([{
+            $match: {
+                request_date: {
+                    $gte: startDate,
+                    $lt: endtDate,
+                }
+            }
+        }, {
+            $addFields: {
+                "isRequestAmountGreaterThanZero": {
+                    $cond: {
+                        if: {
+                            $gt: ["$request_amount", 0]
+                        },
+                        then: 1,
+                        else: 0
+                    }
+                },
+                "isDisbursedAmountGreaterThanZero": {
+                    $cond: {
+                        if: {
+                            $gt: ["$payment_amount", 0]
+                        },
+                        then: 1,
+                        else: 0
+                    }
+                }
+            }
+        }, {
+            $group: {
+                _id: "$status",
+                totalRequestAmount: {
+                    $sum: {
+                        $cond: {
+                            if: {
+                                $gt: ["$request_amount", 0]
+                            },
+                            then: "$request_amount",
+                            else: 0
+                        }
+                    }
+                },
+                totalDisbursedAmount: {
+                    $sum: {
+                        $cond: {
+                            if: {
+                                $gt: ["$payment_amount", 0]
+                            },
+                            then: "$payment_amount",
+                            else: 0
+                        }
+                    }
+                },
+                totalRequestCounts: { $sum: "$isRequestAmountGreaterThanZero" },
+                totalDisbursedCounts: { $sum: "$isDisbursedAmountGreaterThanZero" },
+                data: { $first: "$$ROOT" },
+            }
+        }, {
+            $project: {
+                _id: 1,
+                totalRequestAmount: 1,
+                totalRequestCounts: 1,
+                totalDisbursedAmount: 1,
+                totalDisbursedCounts: 1,
+            }
+        }]);
+        console.log("Payment Request Data--------------------------", paymentRequestData);
+        let emailDataObj = {
+            totalRejectAmount: 0,
+            totalRejectCounts: 0
+        };
+        for (const data of paymentRequestData) {
+            console.log("data");
+            console.log(data);
+            if (data && data._id == 1) {
+                console.log("in if status 1");
+                emailDataObj.totalRequestedCount = data.totalRequestCounts;
+                emailDataObj.totalRequestedAmount = data.totalRequestAmount;
+                emailDataObj.totalDisbursedCounts = data.totalDisbursedCounts;
+                emailDataObj.totalDisbursedAmount = data.totalDisbursedAmount;
+            }
+            if (data && data._id == 2) {
+                console.log("in else status 2");
+                console.log("data------------------------------", data)
+                emailDataObj.totalRejectAmount = data.totalRequestAmount;
+                emailDataObj.totalRejectCounts = data.totalRequestCounts;
+            }
+        }
+
+        console.log("emailDataObj--------------------------", emailDataObj);
+
+        //php pending payment req get
+        const response = await axios.get(
+            'https://purchase.creativefuel.io/webservices/RestController.php?view=getpaymentrequest'
+        )
+        console.log("php data response");
+        const phpResonseData = response?.data?.body
+        let totalPendingAmount = 0;
+        let totalPendingCounts = 0;
+        let currentDateFormat = moment(currentDate).format('YYYY-MM');
+        console.log("currentDateFormat");
+        console.log(currentDateFormat);
+        for (const phpData of phpResonseData) {
+            let pendingReqDate = moment(phpData.request_date).format('YYYY-MM');
+            //status wise current date php data compare 
+            if (pendingReqDate == currentDateFormat && phpData && phpData.status == 0) {
+                console.log(" in phpData if")
+                console.log("phpData.request_amount-------------------------", phpData.request_amount)
+                totalPendingAmount = totalPendingAmount + parseInt(phpData.request_amount);
+                totalPendingCounts++;
+            }
+        }
+        emailDataObj.totalPendingAmount = totalPendingAmount;
+        emailDataObj.totalPendingCounts = totalPendingCounts;
+        console.log("email-----------------------", emailDataObj)
+
+        //Send email
+        const emailsend = await emailSends(emailDataObj);
+
+        return res.status(200).send({
+            success: true,
+            description: "Payment request monthly data list successfully!",
+            data: emailDataObj,
+        });
+    } catch (err) {
+        console.log("err------------------", err)
+        return res.status(500).send({
+            success: false,
+            description: "Internal server error",
+            error: err.description
+        });
+    }
+}
+
+
+exports.getVendorPaymentRequestQuatrlyList = async () => {
+    try {
+
+        const currentDate = new Date();
+        console.log("Current Date:", currentDate);
+        const currentQuarter = Math.floor((currentDate.getMonth() / 3));
+        console.log("currentQuarter:", currentQuarter);
+        const currentYear = currentDate.getFullYear();
+        console.log("currentYear:", currentYear);
+        const quarterStartDate = new Date(currentYear, currentQuarter * 3, 1);
+        console.log("quarterStartDate:", quarterStartDate);
+        const quarterEndDate = new Date(currentYear, currentQuarter * 3 + 3, 0, 23, 59, 59);
+        console.log("quarterEndDate:", quarterEndDate);
+
+        const startDate = moment(quarterStartDate).format('YYYY-MM-DD 00:00:00');
+        console.log("startDate:", startDate);
+        const endDate = moment(quarterEndDate).format('YYYY-MM-DD 23:59:59');
+        console.log("endtDate:", endDate);
+
+        const paymentRequestData = await phpVendorPaymentRequestModel.aggregate([{
+            $match: {
+                request_date: {
+                    $gte: startDate, // Start of current day in UTC
+                    $lt: endDate, // Start of next day in UTC
+                }
+            }
+        }, {
+            $addFields: {
+                "isRequestAmountGreaterThanZero": {
+                    $cond: {
+                        if: {
+                            $gt: ["$request_amount", 0]
+                        },
+                        then: 1,
+                        else: 0
+                    }
+                },
+                "isDisbursedAmountGreaterThanZero": {
+                    $cond: {
+                        if: {
+                            $gt: ["$payment_amount", 0]
+                        },
+                        then: 1,
+                        else: 0
+                    }
+                }
+            }
+        }, {
+            $group: {
+                _id: "$status",
+                totalRequestAmount: {
+                    $sum: {
+                        $cond: {
+                            if: {
+                                $gt: ["$request_amount", 0]
+                            },
+                            then: "$request_amount",
+                            else: 0
+                        }
+                    }
+                },
+                totalDisbursedAmount: {
+                    $sum: {
+                        $cond: {
+                            if: {
+                                $gt: ["$payment_amount", 0]
+                            },
+                            then: "$payment_amount",
+                            else: 0
+                        }
+                    }
+                },
+                totalRequestCounts: { $sum: "$isRequestAmountGreaterThanZero" },
+                totalDisbursedCounts: { $sum: "$isDisbursedAmountGreaterThanZero" },
+                data: { $first: "$$ROOT" },
+            }
+        }, {
+            $project: {
+                _id: 1,
+                totalRequestAmount: 1,
+                totalRequestCounts: 1,
+                totalDisbursedAmount: 1,
+                totalDisbursedCounts: 1,
+            }
+        }]);
+        console.log("Payment Request Data--------------------------", paymentRequestData);
+        let emailDataObj = {
+            totalRejectAmount: 0,
+            totalRejectCounts: 0
+        };
+        for (const data of paymentRequestData) {
+            console.log("data");
+            console.log(data);
+            if (data && data._id == 1) {
+                console.log("in if status 1");
+                emailDataObj.totalRequestedCount = data.totalRequestCounts;
+                emailDataObj.totalRequestedAmount = data.totalRequestAmount;
+                emailDataObj.totalDisbursedCounts = data.totalDisbursedCounts;
+                emailDataObj.totalDisbursedAmount = data.totalDisbursedAmount;
+            }
+            if (data && data._id == 2) {
+                console.log("in else status 2");
+                console.log("data------------------------------", data)
+                emailDataObj.totalRejectAmount = data.totalRequestAmount;
+                emailDataObj.totalRejectCounts = data.totalRequestCounts;
+            }
+        }
+
+        console.log("emailDataObj--------------------------", emailDataObj);
+
+        //php pending payment req get
+        const response = await axios.get(
+            'https://purchase.creativefuel.io/webservices/RestController.php?view=getpaymentrequest'
+        )
+        console.log("php data response");
+        const phpResonseData = response?.data?.body
+        let totalPendingAmount = 0;
+        let totalPendingCounts = 0;
+
+        for (const phpData of phpResonseData) {
+            let date = new Date(phpData.request_date);
+            console.log("date //////////");
+            console.log(date);
+            console.log("phpData.request_date");
+            console.log(phpData.request_date);
+            let pendingReqDate = new Date(moment(phpData.request_date).format('YYYY-MM-DD'));
+            console.log("pendingReqDate //////////");
+            console.log(pendingReqDate);
+            if (
+                pendingReqDate >= quarterStartDate &&
+                pendingReqDate <= quarterEndDate &&
+                phpData &&
+                phpData.status == 0
+            ) {
+                console.log(" in phpData if")
+                console.log("phpData-------------------------", phpData.request_amount)
+                totalPendingAmount += parseInt(phpData.request_amount);
+                totalPendingCounts++;
+            }
+        }
+        emailDataObj.totalPendingAmount = totalPendingAmount;
+        emailDataObj.totalPendingCounts = totalPendingCounts;
+        console.log("email-----------------------", emailDataObj)
+
+        //Send email
+        const emailsend = await emailSends(emailDataObj);
+
+        return res.status(200).send({
+            success: true,
+            description: "Payment request weekly data list successfully!",
+            data: emailDataObj,
+        });
+    } catch (err) {
+        console.log("err------------------", err)
+        return res.status(500).send({
+            success: false,
+            description: "Internal server error",
+            error: err.description
+        });
+    }
+}

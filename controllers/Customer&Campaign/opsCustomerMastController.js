@@ -383,6 +383,7 @@ exports.getCustomerMastList = async (req, res) => {
                     },
                     Customer_type_data: {
                         customer_type_id: "$customertype._id",
+                        customer_id:"$customertype.customer_id",
                         customer_type_name: "$customertype.customer_type_name",
                         description_type: "$customertype.description",
                         created_by: "$customertype.created_by",

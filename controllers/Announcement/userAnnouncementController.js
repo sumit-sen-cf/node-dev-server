@@ -339,6 +339,7 @@ exports.getUserAnnoncementList = async (req, res) => {
                     job_type: 1,
                     notify_by_user_email: 1,
                     email_response: 1,
+                    reactions: 1,
                     //target_audience_count: 1,
                     created_date_time: 1,
                     created_by: 1,
@@ -450,5 +451,100 @@ exports.deleteUserAnnouncementData = async (req, res) => {
             status: 500,
             message: error.message ? error.message : message.ERROR_MESSAGE,
         });
+    }
+};
+
+
+
+exports.announcementUpdateData = async (req, res) => {
+    try {
+        const { announcement_id, user_id, reaction, isRemoveReaction } = req.body;
+        console.log("body------------------------------------", req.body)
+        // if (reaction !== 'like' && reaction !== 'love' && reaction !== 'haha' && reaction !== 'sad' && reaction !== 'clap') {
+        //     return res.status(400).json({ success: false, message: 'Invalid reaction type' });
+        // }
+        // let reactionUserData = { [user_id]: 1 }
+
+        let reactionArray = ['love','like','haha','sad','clap'];
+        if(reactionArray.includes(reaction)){
+            // reactionArray
+        }
+        let updateQuery = {};
+        let findQuery = {
+            _id: announcement_id,
+        };
+        if (!isRemoveReaction) {
+            if (reaction === 'like') {
+                findQuery['$nin'] = { 'reactions.like': user_id };
+                updateQuery['$push'] = { 'reactions.like': user_id };
+            } else if (reaction === 'love') {
+                findQuery['$nin'] = { 'reactions.love': user_id };
+                updateQuery['$push'] = { 'reactions.love': user_id };
+            } else if (reaction === 'haha') {
+                findQuery['$nin'] = { 'reactions.haha': user_id };
+                updateQuery['$push'] = { 'reactions.haha': user_id };
+            } else if (reaction === 'clap') {
+                console.log("clapppppppppppp")
+                findQuery['$nin'] = { 'reactions.clap': user_id };
+                updateQuery['$push'] = { 'reactions.clap': user_id };
+            } else if (reaction === 'sad') {
+                findQuery['$nin'] = { 'reactions.sad': user_id };
+                updateQuery['$push'] = { 'reactions.sad': user_id };
+            }
+        } else {
+            if (reaction === 'like') {
+                updateQuery['$pull'] = { 'reactions.like': user_id };
+            }
+            else if (reaction === 'love') {
+                updateQuery['$pull'] = { 'reactions.love': user_id };
+            }
+            else if (reaction === 'haha') {
+                updateQuery['$pull'] = { 'reactions.haha': user_id };
+            }
+            else if (reaction === 'clap') {
+                updateQuery['$pull'] = { 'reactions.clap': user_id };
+            }
+            else if (reaction === 'sad') {
+                updateQuery['$pull'] = { 'reactions.sad': user_id };
+            }
+        }
+
+        // if (reaction === 'like') {
+        //     updateQuery['$push'] = { 'reactions.like': user_id };
+
+        // } else if (reaction === 'dislike') {
+        //     updateQuery['$pull'] = { 'reactions.like': user_id };
+        // }
+        console.log("*************** findQuery ****************")
+        console.log(findQuery)
+        console.log("*************** updateQuery ****************")
+        console.log(updateQuery)
+        // const announcement = await userAnnouncementModel.findOneAndUpdate({
+        //     _id: announcement_id,
+        //     // "$reactions.clap" : { $nin: [user_id] }
+
+        //     // $nin:{
+        //     //     "user_id": user_id,
+        //     // },
+        // }, {
+        //     updateQuery
+        // }, {
+        //     new: true
+        // });
+
+        const announcement = await userAnnouncementModel.findOneAndUpdate(findQuery, updateQuery,
+            {
+                new: true
+            });
+        console.log("announcement------------------------", ({ "$reactions.clap": { $nin: [user_id] } }))
+        console.log("announcement------------------------", updateQuery)
+
+        return res.status(200).json({
+            success: true, message: 'Reaction updated successfully',
+            data: announcement
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };

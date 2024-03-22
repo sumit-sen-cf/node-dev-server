@@ -11,12 +11,14 @@ const { swaggerConfig } = require("./doc/swaggerConfig.js");
 const errorController = require('./controllers/errorController.js')
 const swaggerAccessManagement = require('./doc/customization_src/controller/swaggerAccessManagement.js');
 const { checkDevAuthentication } = require("./doc/customization_src/middleware/swaggerMiddleware.js");
+const cron = require("./common/cronjob.js");
 const path = require("path");
 // const axios = require("axios");
 require("./controllers/autoMail.js");
 require("./controllers/assetAutoMail.js");
 
 const app = express();
+cron.cronImplement();
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'doc/customization_src/doc_templates/pages'));
@@ -56,6 +58,7 @@ app.use("/api", routes);
 const docBackendRouter = require("./doc/customization_src/routes/backend_routes.js");
 const docFrontendRouter = require("./doc/customization_src/routes/frontend_routes.js");
 app.use("/", docBackendRouter);
+// app.use("/", cronImplement);
 app.use("/", docFrontendRouter);
 app.use(
   "/api-docs/:token",
