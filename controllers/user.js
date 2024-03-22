@@ -2514,6 +2514,13 @@ exports.addSeparation = async (req, res) => {
             reinstate_date: req.body.reinstate_date
         })
         const simv = await simc.save();
+
+        await userModel.findOneAndUpdate(
+            { user_id: simv.user_id },
+            { user_status: 'Exist' },
+            { new: true }
+        );
+
         res.send({ simv, status: 200 });
     } catch (err) {
         res.status(500).send({ error: err, sms: 'This separation cannot be created' })

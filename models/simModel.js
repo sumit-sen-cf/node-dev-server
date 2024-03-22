@@ -21,9 +21,13 @@ const simModel = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  status: {
+  status: {                                                                       //status:[Available,Allocated,Stolen,Lost,Send To Vendor,Scrap]
     type: String,
     default: "Available",
+  },
+  new_status: {
+    type: String,
+    required: false
   },
   s_type: {
     type: String,
@@ -156,6 +160,15 @@ const simModel = new mongoose.Schema({
   },
   asset_modal_id: {
     type: Number,
+    required: false
+  },
+  all_status_remark: {
+    type: String,
+    required: false,
+    default: ""
+  },
+  all_status_date: {
+    type: String,
     required: false
   }
 });
