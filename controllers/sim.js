@@ -161,6 +161,20 @@ exports.getSims = async (req, res) => {
             // preserveNullAndEmptyArrays: true,
           },
         },
+        {
+          $lookup: {
+            from: "assetvendorsummodels",
+            localField: "vendor_id",
+            foreignField: "vendor_id",
+            as: "vendorSumData",
+          },
+        },
+        {
+          $unwind: {
+            path: "$vendorSumData",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
         // {
         //   $lookup: {
         //     from: "usermodels",
@@ -260,6 +274,7 @@ exports.getSims = async (req, res) => {
             category_name: "$category.category_name",
             sub_category_name: "$subcategory.sub_category_name",
             vendor_name: "$vendor.vendor_name",
+            vendor_status: "$vendorSumData.vendor_status",
             // created_by_name: "$user.user_name",
             // allocated_username: "$allocated_username.user_name",
             // allocated_username: {
@@ -481,6 +496,8 @@ exports.editSim = async (req, res) => {
         depreciation_percentage: req.body.depreciation_percentage,
         asset_brand_id: req.body.asset_brand_id,
         asset_modal_id: req.body.asset_modal_id,
+        all_status_remark: req.body.all_status_remark,
+        all_status_date: req.body.all_status_date
       },
       { new: true }
     );

@@ -128,6 +128,7 @@ const phpVendorPurchasePaymentRequest = require("./controllers/phpVendorPurchase
 
 //Routes for Asset Repair and Return Summary Data
 const repairandreturnsumdata = require("./controllers/repairAndReturnSum.js");
+const assetVendorSum = require("./controllers/assetVendorSum.js");
 
 /* Task Mangement Controller Import */
 //const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1771,5 +1772,10 @@ router.delete("/delete_payment_mode/:_id", nodePhpVendorPaymentMode.deletePaymen
 // Payment Gateway Routes
 // router.post("/create_order", razorPay.createOrder);
 router.post("/process_payment", razorPay.processPayment);
+
+//Vendor Summary Data
+router.post("/vendorsum", assetVendorSum.addVendorSum);
+router.get("/vendorsum", assetVendorSum.getVendorSums);
+router.get("/get_all_hr", assetVendorSum.getAllHR);
 
 module.exports = router;
