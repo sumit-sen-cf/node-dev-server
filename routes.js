@@ -151,7 +151,7 @@ const { createPmsProfile, getProfileDetail, updateProfileType, getProfileList, d
 const { createPageMast, getPageMastDetail, updatePageMast, getPageMastList, deletePageMastData } = require("./controllers/PMS/pmsPageMastController.js");
 const { createPageOwner, getPageOwnerDetail, updatePageOwner, getPageOwnerList, deletePageOwnerData } = require("./controllers/PMS/pmsPageOwnershipController.js");
 const { createVendorPagePrice, getVendorPagePriceDetail, updateVendorPagePrice, getVendorPagePriceList, deleteVendorPagePriceData } = require("./controllers/PMS/pmsVendorPagePriceController.js");
-const { createUserAnnouncement, getUserAnnouncementDetail, updateUserAnnouncement, getUserAnnoncementList, deleteUserAnnouncementData, listAnnounce } = require("./controllers/Announcement/userAnnouncementController.js");
+const { createUserAnnouncement, getUserAnnouncementDetail, updateUserAnnouncement, getUserAnnoncementList, deleteUserAnnouncementData, listAnnounce, announcementUpdateData } = require("./controllers/Announcement/userAnnouncementController.js");
 const { createCustomerType, getcustomerTypeDetail, updateCustomerType, getCustomerTypeList, deleteCustomerType } = require("./controllers/Customer&Campaign/opsCustomerTypeController.js");
 const { createAccountType, getAccountTypeDetail, updateAccountType, getAccountTypeList, deleteAccountType } = require("./controllers/Customer&Campaign/opsAccountTypeController.js");
 const { createOwnership, getOwnershipDetail, updateOwnershipType, getOwnershipList, deleteOwnership } = require("./controllers/Customer&Campaign/opsOwnershipController.js");
@@ -1588,6 +1588,9 @@ router.put("/update_user_announcement/:id", updateUserAnnouncement);
 router.get("/get_all_user_announcement", getUserAnnoncementList);
 router.delete("/delete_user_announcement/:id", deleteUserAnnouncementData);
 
+router.put("/updatelike", announcementUpdateData);
+
+
 // --------------------------------------------------------------Page Mangements System all Routes------------------------------------------//
 
 router.post("/addVendor", createPmsVendor);
@@ -1729,6 +1732,8 @@ router.put("/updatePhpVendorPaymentRequestImage", upload1.single('evidence'), ph
 
 // router.get("/phpvendorpaymentList/:status", phpVendorPaymentRequest.getVendorPaymentRequestList);
 // router.get("/phpvendorpaymentmatchlist", phpVendorPaymentRequest.getVendorPaymentRequestMatchList);
+// router.get("/phpvendorpaymentList/:status", phpVendorPaymentRequest.getVendorPaymentRequestList);
+router.get("/phpvendorpaymentmatchlist", phpVendorPaymentRequest.getVendorPaymentRequestDayWiseListData);
 
 
 

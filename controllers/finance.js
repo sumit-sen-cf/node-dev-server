@@ -372,6 +372,7 @@ exports.setUtrData = async (req, res) => {
       }
     });
     for (const data of utrData) {
+      console.log("vvvvvvvvvvvvv", data)
       const { attendence_id, utr } = data;
       await financeModel.updateOne({ attendence_id }, { utr });
       await attendanceModel.findOneAndUpdate(
