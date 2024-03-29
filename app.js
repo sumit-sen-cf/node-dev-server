@@ -13,6 +13,7 @@ const swaggerAccessManagement = require('./doc/customization_src/controller/swag
 const { checkDevAuthentication } = require("./doc/customization_src/middleware/swaggerMiddleware.js");
 const cron = require("./common/cronjob.js");
 const path = require("path");
+const requireDirectory = require('require-directory');
 // const axios = require("axios");
 require("./controllers/autoMail.js");
 require("./controllers/assetAutoMail.js");
@@ -50,6 +51,13 @@ app.use(cors());
 
 app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use("/api", routes);
+
+//all seprate route files require
+var routesFile = requireDirectory(module, './routes');
+
+for (i in routesFile) {
+  app.use("/api/" + i, require("./routes/" + i));
+}
 
 // app.get('/*', function (req, res) {
 //   res.sendFile(path.join(__dirname, 'build', 'index.html'))
