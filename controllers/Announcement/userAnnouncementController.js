@@ -8,6 +8,7 @@ const path = require("path");
 const fs = require("fs");
 const ejs = require('ejs');
 const userModel = require("../../models/userModel.js");
+const commentAnnouncementModel = require("../../models/User_Announcement/commentAnnouncementModel.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -172,13 +173,19 @@ exports.getUserAnnouncementDetail = async (req, res) => {
                     last_updated_date: 1,
                     last_updated_by: 1,
                     image: {
-                        $concat: [imageUrl, "$image"],
+                        // $concat: [imageUrl, "$image"],
+                        $concat: [
+                            { $toString: "$imageUrl" },
+                            { $toString: "$image" },
+                        ],
                     },
                     attachment: {
-                        $concat: [imageUrl, "$attachment"],
+                        $concat: [{ $toString: "$imageUrl" },
+                        { $toString: "$attachment" }],
                     },
                     video: {
-                        $concat: [imageUrl, "$video"],
+                        $concat: [{ $toString: "$imageUrl" },
+                        { $toString: "$video" }],
                     },
                 },
             },
@@ -516,3 +523,86 @@ exports.announcementUpdateData = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 };
+
+
+
+//PUT - ADD-Comments
+exports.announcementWiseComment = async (req, res) => {
+    try {
+        const { announcement_id, user_id, comment } = req.body;
+        let announcementData = await userAnnouncementModel.findById(announcement_id);
+        let userIndex = announcementData.commentsHistory.findIndex(item => item.user_id === user_id);
+        if (userIndex !== -1) {
+            announcementData.commentsHistory[userIndex].comment.push(comment);
+        } else {
+            announcementData.commentsHistory.push({ user_id, comment: [comment] });
+        }
+        const announcementCommentsUpdated = await announcementData.save();
+        return res.status(200).json({
+            message: "Announcement_Comments data updated successfully!",
+            data: announcementCommentsUpdated,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+}
+
+//GET - Comments_List
+exports.getComments = async (req, res) => {
+    try {
+        const announcementCommentsList = await userAnnouncementModel.aggregate([{
+            $match: {
+                _id: mongoose.Types.ObjectId(req.params.announcementId)
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "user_id",
+                foreignField: "user_id",
+                as: "userData",
+            },
+        }, {
+            $unwind: {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+            },
+        }, {
+            $project: {
+                user_name: "$userData.user_name",
+                commentsHistory: 1
+            }
+        }]);
+
+        let totalCommentsCount = 0;
+        const aggregateData = announcementCommentsList[0]?.commentsHistory;
+        for (let commentsData of aggregateData) {
+            let dataLength = 0;
+            if (commentsData.comment && Array.isArray(commentsData.comment)) {
+                dataLength = commentsData.comment.length;
+            }
+            totalCommentsCount += dataLength;
+        }
+        let data = announcementCommentsList[0] || {};
+        data.totalCommentsCount = totalCommentsCount;
+
+        if (announcementCommentsList.length) {
+            return res.status(200).json({
+                status: 200,
+                message: "Announcement comments details successfully!",
+                data: data,
+            });
+        }
+        return res.status(404).json({
+            status: 404,
+            message: "Data not found!",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+}

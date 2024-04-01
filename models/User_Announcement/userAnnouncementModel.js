@@ -1,5 +1,18 @@
 const { default: mongoose } = require("mongoose");
 
+const commentsType = new mongoose.Schema({
+    user_id: {
+        type: Number,
+        required: true
+    },
+    comment: [{
+        type: String,
+        required: true,
+    }],
+}, {
+    timestamps: true
+});
+
 const userAnnouncementSchema = new mongoose.Schema({
     post_content: {
         type: String,
@@ -57,6 +70,9 @@ const userAnnouncementSchema = new mongoose.Schema({
         love: Array,
         clap: Array,
         sad: Array,
+    },
+    commentsHistory: {
+        type: [commentsType]
     },
     created_by: {
         type: Number,
