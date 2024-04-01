@@ -170,6 +170,8 @@ exports.getUserAnnouncementDetail = async (req, res) => {
                     created_date_time: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
+                    reactions: 1,
+                    commentsHistory: 1,
                     last_updated_date: 1,
                     last_updated_by: 1,
                     image: {
@@ -351,6 +353,8 @@ exports.getUserAnnoncementList = async (req, res) => {
                     created_date_time: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
+                    reactions: 1,
+                    commentsHistory: 1,
                     last_updated_date: 1,
                     last_updated_by: 1,
                     image: {
