@@ -1589,8 +1589,7 @@ router.put("/update_user_announcement/:id", updateUserAnnouncement);
 router.get("/get_all_user_announcement", getUserAnnoncementList);
 router.delete("/delete_user_announcement/:id", deleteUserAnnouncementData);
 
-router.put("/updatelike", announcementUpdateData);
-
+router.put("/announcement_post_like", announcementUpdateData);
 
 // --------------------------------------------------------------Page Mangements System all Routes------------------------------------------//
 

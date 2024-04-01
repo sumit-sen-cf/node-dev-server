@@ -345,6 +345,7 @@ exports.getCustomerMastList = async (req, res) => {
             {
                 $project: {
                     customer_type_id: 1,
+                    customer_id: 1,
                     account_type_id: 1,
                     ownership_id: 1,
                     industry_id: 1,
