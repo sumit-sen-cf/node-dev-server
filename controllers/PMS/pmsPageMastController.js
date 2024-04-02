@@ -86,8 +86,19 @@ exports.getPageMastDetail = async (req, res) => {
                     path: "$exepurchasemodelData",
                     preserveNullAndEmptyArrays: true,
                 },
-            },
-            {
+            }, {
+                $lookup: {
+                    from: "execounthismodels",
+                    localField: "exepurchasemodelData.p_id",
+                    foreignField: "p_id",
+                    as: "execounthismodelsData",
+                },
+            }, {
+                $unwind: {
+                    path: "$execounthismodelsData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            }, {
                 $project: {
                     page_user_name: 1,
                     pageMast_id: 1,
@@ -112,10 +123,10 @@ exports.getPageMastDetail = async (req, res) => {
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
                     last_updated_by: 1,
-                    exepurchasemodel: "$exepurchasemodelData"
+                    exepurchasemodel: "$exepurchasemodelData",
+                    execounthismodels: "$execounthismodelsData",
                 },
-            },
-        ])
+            }])
         if (pmsPageMastData) {
             return res.status(200).json({
                 status: 200,
