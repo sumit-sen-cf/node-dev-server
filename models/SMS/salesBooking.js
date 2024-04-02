@@ -104,19 +104,19 @@ const salesBooking = new mongoose.Schema({
         required: false,
     },
     old_sale_booking_id: {
-        type: Number,//0=Normal booking, old_sale_booking_id > 0 =renewd booking
+        type: Number,      //0=Normal booking, old_sale_booking_id > 0 =renewd booking
         required: false,
     },
     sale_booking_type: {
         type: String,
-        enum: ['normal_booking', 'renewed_booking'],//0=normal booking, 1=renewed_booking
+        enum: ['normal_booking', 'renewed_booking'],   //0=normal booking, 1=renewed_booking
     },
     service_taken_amount: {
         type: Number,
         required: false,
     },
     get_incentive_status: {
-        type: Boolean,//f=no incentive, t=incentive-applicable
+        type: Boolean,        //f=no incentive, t=incentive-applicable
         required: false,
     },
     incentive_amount: {
