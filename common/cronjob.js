@@ -1,9 +1,7 @@
 const cron = require('node-cron');
 const phpVendorPaymentRequestData = require("../controllers/phpVendorPaymentRequest");
 
-console.log("cron file calls");
 exports.cronImplement = async (req, res) => {
-    console.log("cron function calls");
     //cron is to used daily email send
     cron.schedule('0 0 * * *', async () => {
         console.log("cron is to used daily email send")
