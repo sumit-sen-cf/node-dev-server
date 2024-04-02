@@ -368,6 +368,8 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
         }
 
+        let empId = await generateEmpId(req.body.dept_id);
+
         //user data obj create 
         const simc = new userModel({
             //for personal information
@@ -399,6 +401,7 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
             upi_Id: req.body.upi_Id,
+            emp_id: empId
         })
 
         if (req.files && req.files.image && req.files.image[0].originalname) {
