@@ -30,9 +30,9 @@ exports.createCustomerMast = [
                     message: "OPS customer-mast data alredy exist!",
                 });
             }
-            const { customer_type_id, account_type_id, ownership_id, industry_id, account_owner_id, parent_account_id, company_size, company_email
-                , primary_contact_no, alternative_no, website, turn_over, establishment_year, employees_Count, how_many_offices, company_gst_no,
-                company_pan_no, connected_office, connect_billing_street, connect_billing_city, connect_billing_state, connect_billing_country, head_office,
+            const { customer_type_id, account_type_id, ownership_id, industry_id, account_owner_id, parent_account_id, customer_name,
+                pin_code, gst_address, company_size, company_email, primary_contact_no, alternative_no, website, turn_over,
+                establishment_year, employees_Count, how_many_offices, company_gst_no, company_pan_no, connected_office, connect_billing_street, connect_billing_city, connect_billing_state, connect_billing_country, head_office,
                 head_billing_street, head_billing_city, head_billing_state, head_billing_country, description, created_by, last_updated_by } = req.body;
             const addAccountTypeData = new opsCustomerMastModel({
                 customer_type_id: customer_type_id,
@@ -41,6 +41,9 @@ exports.createCustomerMast = [
                 industry_id: industry_id,
                 account_owner_id: account_owner_id,
                 parent_account_id: parent_account_id,
+                customer_name: customer_name,
+                pin_code: pin_code,
+                gst_address: gst_address,
                 company_size: company_size,
                 company_email: company_email,
                 primary_contact_no: primary_contact_no,
@@ -129,6 +132,9 @@ exports.getCustomerMastDetail = async (req, res) => {
                     industry_id: 1,
                     account_owner_id: 1,
                     parent_account_id: 1,
+                    customer_name: 1,
+                    pin_code: 1,
+                    gst_address: 1,
                     company_size: 1,
                     company_email: 1,
                     primary_contact_no: 1,
@@ -188,8 +194,8 @@ exports.updateCustomerMast = [
     async (req, res) => {
         try {
             const { id } = req.params;
-            const { customer_type_id, account_type_id, ownership_id, industry_id, account_owner_id, company_size, company_email
-                , primary_contact_no, alternative_no, website, turn_over, establishment_year, employees_Count, how_many_offices, company_gst_no,
+            const { customer_type_id, account_type_id, ownership_id, industry_id, account_owner_id, customer_name, pin_code,
+                gst_address, company_size, company_email, primary_contact_no, alternative_no, website, turn_over, establishment_year, employees_Count, how_many_offices, company_gst_no,
                 company_pan_no, connected_office, connect_billing_street, connect_billing_city, connect_billing_state, connect_billing_country, head_office,
                 head_billing_street, head_billing_city, head_billing_state, head_billing_country, description, created_by, last_updated_by } = req.body;
             const customerMastData = await opsCustomerMastModel.findOne({ _id: id });
@@ -227,6 +233,9 @@ exports.updateCustomerMast = [
                     ownership_id,
                     industry_id,
                     account_owner_id,
+                    customer_name,
+                    pin_code,
+                    gst_address,
                     company_size,
                     company_email,
                     primary_contact_no,
@@ -351,6 +360,9 @@ exports.getCustomerMastList = async (req, res) => {
                     industry_id: 1,
                     account_owner_id: 1,
                     parent_account_id: 1,
+                    customer_name: 1,
+                    pin_code: 1,
+                    gst_address: 1,
                     company_size: 1,
                     company_email: 1,
                     primary_contact_no: 1,
@@ -384,7 +396,7 @@ exports.getCustomerMastList = async (req, res) => {
                     },
                     Customer_type_data: {
                         customer_type_id: "$customertype._id",
-                        customer_id:"$customertype.customer_id",
+                        customer_id: "$customertype.customer_id",
                         customer_type_name: "$customertype.customer_type_name",
                         description_type: "$customertype.description",
                         created_by: "$customertype.created_by",
