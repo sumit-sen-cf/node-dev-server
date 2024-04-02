@@ -526,6 +526,126 @@ exports.announcementUpdateData = async (req, res) => {
     }
 };
 
+//GET - Reactions Details
+exports.announcementWiseGetReactionDetails = async (req, res) => {
+    try {
+
+        //get reactions details
+        const userAnnouncementReactionsList = await userAnnouncementModel.aggregate([{
+            $match: {
+                _id: mongoose.Types.ObjectId(req.params.announcementId)
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "reactions.like",
+                foreignField: "user_id",
+                as: "likeUsers"
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "reactions.haha",
+                foreignField: "user_id",
+                as: "hahaUsers"
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "reactions.love",
+                foreignField: "user_id",
+                as: "loveUsers"
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "reactions.clap",
+                foreignField: "user_id",
+                as: "clapUsers"
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "reactions.sad",
+                foreignField: "user_id",
+                as: "sadUsers"
+            }
+        }, {
+            $project: {
+                _id: 1,
+                reactionsData: {
+                    likeUsers: {
+                        $map: {
+                            input: "$likeUsers",
+                            as: "user",
+                            in: {
+                                user_name: "$$user.user_name",
+                                user_id: "$$user.user_id",
+                                dept_id: "$$user.dept_id",
+                            }
+                        }
+                    },
+                    hahaUsers: {
+                        $map: {
+                            input: "$hahaUsers",
+                            as: "user",
+                            in: {
+                                user_name: "$$user.user_name",
+                                user_id: "$$user.user_id",
+                                dept_id: "$$user.dept_id",
+                            }
+                        }
+                    },
+                    loveUsers: {
+                        $map: {
+                            input: "$loveUsers",
+                            as: "user",
+                            in: {
+                                user_name: "$$user.user_name",
+                                user_id: "$$user.user_id",
+                                dept_id: "$$user.dept_id",
+                            }
+                        }
+                    },
+                    clapUsers: {
+                        $map: {
+                            input: "$clapUsers",
+                            as: "user",
+                            in: {
+                                user_name: "$$user.user_name",
+                                user_id: "$$user.user_id",
+                                dept_id: "$$user.dept_id",
+                            }
+                        }
+                    },
+                    sadUsers: {
+                        $map: {
+                            input: "$sadUsers",
+                            as: "user",
+                            in: {
+                                user_name: "$$user.user_name",
+                                user_id: "$$user.user_id",
+                                dept_id: "$$user.dept_id",
+                            }
+                        }
+                    }
+                }
+            }
+        }]);
+
+        //success data res send
+        return res.status(200).json({
+            status: 200,
+            message: "Announcement Reaction details get successfully!",
+            data: userAnnouncementReactionsList,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+}
 
 
 //POST - ADD-Comments
