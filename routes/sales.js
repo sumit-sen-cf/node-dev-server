@@ -8,7 +8,10 @@ const salesInvoiceType = require("../controllers/SMS/salesInvoiceTypeController"
 const salesBookingInvoiceRequest = require("../controllers/SMS/salesBookingInvoiceRequestController");
 const reasonCreditApproval = require("../controllers/SMS/reasonCreditApprovalController");
 const salesBookingRefund = require("../controllers/SMS/salesBookingRefundController");
-const salesService = require("../controllers/SMS/salesServiceController");
+const salesServiceMaster = require("../controllers/SMS/salesServiceMasterController");
+const incentivePlan = require("../controllers/SMS/incentivePlanController");
+const recordServiceMaster = require("../controllers/SMS/recordServiceMasterController");
+
 
 router.get("/", (req, res) => {
     res.send({ message: "Welcome to Sales module." });
@@ -95,8 +98,30 @@ router.get("/getlist_sale_booking_refund",salesBookingRefund.salesBookingRefundL
 router.delete("/delete_sale_booking_refund/:id",salesBookingRefund.deleteSalesBookingRefund);
 
 /**
- * sales service request routes
+ * sales service master request routes
  */ 
-router.post("/add_sale_service",salesService.createSalesService); 
+router.post("/add_sale_service_master",salesServiceMaster.createSalesServiceMaster); 
+router.get("/get_sale_service_master/:id",salesServiceMaster.getSalesServiceMasterDetails); 
+router.put("/update_sale_service_master/:id",salesServiceMaster.updateSalesServiceMasterDetails); 
+router.get("/getlist_sale_service_master",salesServiceMaster.getSalesServiceMasterList); 
+router.delete("/delete_sale_service_master/:id",salesServiceMaster.deleteSalesServiceMaster); 
+
+/**
+ * incentive plan request routes
+ */ 
+router.post("/add_incentive_plan",incentivePlan.createIncentivePlan); 
+router.get("/get_incentive_plan/:id",incentivePlan.getIncentivePlanDetails); 
+router.put("/update_incentive_plan/:id",incentivePlan.updateIncentivePlan); 
+router.get("/getlist_incentive_plan",incentivePlan.getIncentivePlanList); 
+router.delete("/delete_incentive_plan/:id",incentivePlan.deleteIncentivePlan); 
+
+/**
+ * record service master request routes
+ */ 
+router.post("/add_record_service_master",recordServiceMaster.createRecordServiceMaster); 
+router.get("/get_record_service_master/:id",recordServiceMaster.getRecordServiceMasterDetail); 
+router.put("/update_record_service_master/:id",recordServiceMaster.updateRecordServiceMaster); 
+router.get("/get_record_service_master",recordServiceMaster.getRecordServiceMasterList); 
+router.delete("/delete_record_service_master/:id",recordServiceMaster.deleteRecordServiceMaster); 
 
 module.exports = router;
