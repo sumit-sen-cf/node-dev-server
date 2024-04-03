@@ -1,4 +1,5 @@
 const userAnnouncementModel = require("../../models/User_Announcement/userAnnouncementModel");
+const userAnnouncementCommentsModel = require("../../models/User_Announcement/userAnnouncementCommentsModel.js");
 const multer = require("multer");
 const vari = require("../../variables.js");
 const { storage } = require('../../common/uploadFile.js');
@@ -8,7 +9,6 @@ const path = require("path");
 const fs = require("fs");
 const ejs = require('ejs');
 const userModel = require("../../models/userModel.js");
-const commentAnnouncementModel = require("../../models/User_Announcement/commentAnnouncementModel.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -30,8 +30,8 @@ exports.createUserAnnouncement = [
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                    user: "ankigupta1254@gmail.com",
-                    pass: "ptxbqtjmcaghogcg",
+                    user: "demo1245@gmail.com",
+                    pass: "ptxogcg",
                 }
             });
             const sendMail = async (to, subject, text) => {
@@ -44,8 +44,8 @@ exports.createUserAnnouncement = [
                 });
                 try {
                     await transporter.sendMail({
-                        from: "ankigupta1254@gmail.com",
-                        to: "ankigupta1254@gmail.com",
+                        from: "demo54@gmail.com",
+                        to: "demo45@gmail.com",
                         subject: subject,
                         html: html
                     });
@@ -92,14 +92,6 @@ exports.createUserAnnouncement = [
                 });
                 blobStream2.end(req.files.video[0].buffer);
             }
-            // if (req.files.attachment && req.files.attachment[0].originalname) {
-            //     const blob2 = bucket.file(req.files.attachment[0].originalname);
-            //     addUserAnnouncementData.attachment = blob2.name;
-            //     const blobStream2 = blob2.createWriteStream();
-            //     blobStream2.on("finish", () => {
-            //     });
-            //     blobStream2.end(req.files.attachment[0].buffer);
-            // }
             if (req.files['attachment']) {
                 const attachmentsPromises = req.files['attachment'].map(async (attachmentFile) => {
                     if (attachmentFile.originalname) {
@@ -171,7 +163,6 @@ exports.getUserAnnouncementDetail = async (req, res) => {
                     created_by: 1,
                     created_by_name: "$user.user_name",
                     reactions: 1,
-                    commentsHistory: 1,
                     last_updated_date: 1,
                     last_updated_by: 1,
                     image: {
@@ -354,7 +345,6 @@ exports.getUserAnnoncementList = async (req, res) => {
                     created_by: 1,
                     created_by_name: "$user.user_name",
                     reactions: 1,
-                    commentsHistory: 1,
                     last_updated_date: 1,
                     last_updated_by: 1,
                     image: {
@@ -528,23 +518,149 @@ exports.announcementUpdateData = async (req, res) => {
     }
 };
 
+//GET - Reactions Details
+exports.announcementWiseGetReactionDetails = async (req, res) => {
+    try {
+
+        //get reactions details
+        const userAnnouncementReactionsList = await userAnnouncementModel.aggregate([{
+            $match: {
+                _id: mongoose.Types.ObjectId(req.params.announcementId)
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "reactions.like",
+                foreignField: "user_id",
+                as: "likeUsers"
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "reactions.haha",
+                foreignField: "user_id",
+                as: "hahaUsers"
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "reactions.love",
+                foreignField: "user_id",
+                as: "loveUsers"
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "reactions.clap",
+                foreignField: "user_id",
+                as: "clapUsers"
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "reactions.sad",
+                foreignField: "user_id",
+                as: "sadUsers"
+            }
+        }, {
+            $project: {
+                _id: 1,
+                reactionsData: {
+                    likeUsers: {
+                        $map: {
+                            input: "$likeUsers",
+                            as: "user",
+                            in: {
+                                user_name: "$$user.user_name",
+                                user_id: "$$user.user_id",
+                                dept_id: "$$user.dept_id",
+                            }
+                        }
+                    },
+                    hahaUsers: {
+                        $map: {
+                            input: "$hahaUsers",
+                            as: "user",
+                            in: {
+                                user_name: "$$user.user_name",
+                                user_id: "$$user.user_id",
+                                dept_id: "$$user.dept_id",
+                            }
+                        }
+                    },
+                    loveUsers: {
+                        $map: {
+                            input: "$loveUsers",
+                            as: "user",
+                            in: {
+                                user_name: "$$user.user_name",
+                                user_id: "$$user.user_id",
+                                dept_id: "$$user.dept_id",
+                            }
+                        }
+                    },
+                    clapUsers: {
+                        $map: {
+                            input: "$clapUsers",
+                            as: "user",
+                            in: {
+                                user_name: "$$user.user_name",
+                                user_id: "$$user.user_id",
+                                dept_id: "$$user.dept_id",
+                            }
+                        }
+                    },
+                    sadUsers: {
+                        $map: {
+                            input: "$sadUsers",
+                            as: "user",
+                            in: {
+                                user_name: "$$user.user_name",
+                                user_id: "$$user.user_id",
+                                dept_id: "$$user.dept_id",
+                            }
+                        }
+                    }
+                }
+            }
+        }]);
+
+        //success data res send
+        return res.status(200).json({
+            status: 200,
+            message: "Announcement Reaction details get successfully!",
+            data: userAnnouncementReactionsList,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+}
 
 
-//PUT - ADD-Comments
+//POST - ADD-Comments
 exports.announcementWiseComment = async (req, res) => {
     try {
         const { announcement_id, user_id, comment } = req.body;
-        let announcementData = await userAnnouncementModel.findById(announcement_id);
-        let userIndex = announcementData.commentsHistory.findIndex(item => item.user_id === user_id);
-        if (userIndex !== -1) {
-            announcementData.commentsHistory[userIndex].comment.push(comment);
-        } else {
-            announcementData.commentsHistory.push({ user_id, comment: [comment] });
+
+        //check announcement id is available
+        if (!announcement_id) {
+            return res.status(404).json({ success: false, message: 'Announcement Id not found.' });
         }
-        const announcementCommentsUpdated = await announcementData.save();
+
+        //comments data store in DB collection
+        const announcementData = await userAnnouncementCommentsModel.create({
+            announcement_id: announcement_id,
+            user_id: user_id,
+            comment: comment
+        });
+
+        //return success response
         return res.status(200).json({
-            message: "Announcement_Comments data updated successfully!",
-            data: announcementCommentsUpdated,
+            message: "User Announcement Comments data created successfully!",
+            data: announcementData,
         });
     } catch (error) {
         return res.status(500).json({
@@ -555,11 +671,12 @@ exports.announcementWiseComment = async (req, res) => {
 }
 
 //GET - Comments_List
-exports.getComments = async (req, res) => {
+exports.announcementWisegetCommentsList = async (req, res) => {
     try {
-        const announcementCommentsList = await userAnnouncementModel.aggregate([{
+        //comments data store in DB collection
+        const userAnnouncementCommentsList = await userAnnouncementCommentsModel.aggregate([{
             $match: {
-                _id: mongoose.Types.ObjectId(req.params.announcementId)
+                announcement_id: mongoose.Types.ObjectId(req.params.announcementId)
             }
         }, {
             $lookup: {
@@ -575,33 +692,23 @@ exports.getComments = async (req, res) => {
             },
         }, {
             $project: {
+                announcement_id: 1,
+                user_id: 1,
                 user_name: "$userData.user_name",
-                commentsHistory: 1
+                comment: 1,
+                createdAt: 1
+            }
+        }, {
+            $sort: {
+                createdAt: -1
             }
         }]);
 
-        let totalCommentsCount = 0;
-        const aggregateData = announcementCommentsList[0]?.commentsHistory;
-        for (let commentsData of aggregateData) {
-            let dataLength = 0;
-            if (commentsData.comment && Array.isArray(commentsData.comment)) {
-                dataLength = commentsData.comment.length;
-            }
-            totalCommentsCount += dataLength;
-        }
-        let data = announcementCommentsList[0] || {};
-        data.totalCommentsCount = totalCommentsCount;
-
-        if (announcementCommentsList.length) {
-            return res.status(200).json({
-                status: 200,
-                message: "Announcement comments details successfully!",
-                data: data,
-            });
-        }
-        return res.status(404).json({
-            status: 404,
-            message: "Data not found!",
+        //success data res send
+        return res.status(200).json({
+            status: 200,
+            message: "Announcement comments details get successfully!",
+            data: userAnnouncementCommentsList,
         });
     } catch (error) {
         return res.status(500).json({

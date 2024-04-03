@@ -29,14 +29,25 @@ const customerMastSchema = new mongoose.Schema({
     account_owner_id: {
         type: Number,      //user_id
         required: true,
-      //  ref: "userModel"
+    },
+    customer_name: {
+        type: String,
+        required: false
+    },
+    pin_code: {
+        type: Number,
+        required: false
+    },
+    gst_address: {
+        type: String,
+        required: false
     },
     parent_account_id: {
         type: Number,
         required: false,
     },
     company_size: {
-        type: Number,
+        type: String,
         required: false,
     },
     company_email: {
