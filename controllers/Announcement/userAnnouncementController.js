@@ -30,8 +30,8 @@ exports.createUserAnnouncement = [
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                    user: "ankigupta1254@gmail.com",
-                    pass: "ptxbqtjmcaghogcg",
+                    user: "demo1245@gmail.com",
+                    pass: "ptxogcg",
                 }
             });
             const sendMail = async (to, subject, text) => {
@@ -44,8 +44,8 @@ exports.createUserAnnouncement = [
                 });
                 try {
                     await transporter.sendMail({
-                        from: "ankigupta1254@gmail.com",
-                        to: "ankigupta1254@gmail.com",
+                        from: "demo54@gmail.com",
+                        to: "demo45@gmail.com",
                         subject: subject,
                         html: html
                     });
@@ -92,14 +92,6 @@ exports.createUserAnnouncement = [
                 });
                 blobStream2.end(req.files.video[0].buffer);
             }
-            // if (req.files.attachment && req.files.attachment[0].originalname) {
-            //     const blob2 = bucket.file(req.files.attachment[0].originalname);
-            //     addUserAnnouncementData.attachment = blob2.name;
-            //     const blobStream2 = blob2.createWriteStream();
-            //     blobStream2.on("finish", () => {
-            //     });
-            //     blobStream2.end(req.files.attachment[0].buffer);
-            // }
             if (req.files['attachment']) {
                 const attachmentsPromises = req.files['attachment'].map(async (attachmentFile) => {
                     if (attachmentFile.originalname) {
