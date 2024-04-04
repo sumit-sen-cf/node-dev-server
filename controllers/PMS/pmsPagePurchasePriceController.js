@@ -1,31 +1,27 @@
-const response = require('../../common/response');
+const pmsPagePurchasePriceModel = require("../../models/PMS/pmsPagePurchasePriceModel");
 const { message } = require("../../common/message");
 const mongoose = require("mongoose");
-const pmsVendorPagePriceModel = require('../../models/PMS/pmsVendorPagePriceModel');
 
-//POST- PMS_Vendor_Page_Price
-exports.createVendorPagePrice = async (req, res) => {
+exports.createPagePurchasePrice = async (req, res) => {
     try {
-        const { platform_price_id, pageMast_id, vendorMast_id, price_type_id, price_cal_type, variable_type, Sale_price,
-            variable_type_rate, description, created_by, last_updated_by } = req.body;
-        const addVendorPagePriceData = new pmsVendorPagePriceModel({
+        const { platform_price_id, pageMast_id, price_type_id, price_cal_type, variable_type, variable_type_rate, Purchase_price, description, created_by, last_updated_by } = req.body;
+        const addPagePurchasePriceData = new pmsPagePurchasePriceModel({
             platform_price_id: platform_price_id,
             pageMast_id: pageMast_id,
-            vendorMast_id: vendorMast_id,
             price_type_id: price_type_id,
             price_cal_type: price_cal_type,
             variable_type: variable_type,
-            Sale_price: Sale_price,
             variable_type_rate: variable_type_rate,
+            Purchase_price: Purchase_price,
             description: description,
             created_by: created_by,
             last_updated_by: last_updated_by
         });
-        await addVendorPagePriceData.save();
+        await addPagePurchasePriceData.save();
         return res.status(200).json({
             status: 200,
-            message: "PMS vendor page price data added successfully!",
-            data: addVendorPagePriceData,
+            message: "PMS page purchase price data added successfully!",
+            data: addPagePurchasePriceData,
         });
     } catch (error) {
         return res.status(500).json({
@@ -35,10 +31,10 @@ exports.createVendorPagePrice = async (req, res) => {
     }
 };
 
-//GET - PMS_VendorPagePrice-By-ID
-exports.getVendorPagePriceDetail = async (req, res) => {
+
+exports.getPagePurchasePrice = async (req, res) => {
     try {
-        const pmsVendorPageData = await pmsVendorPagePriceModel.aggregate([
+        const pagePurchasePriceData = await pmsPagePurchasePriceModel.aggregate([
             {
                 $match: { _id: mongoose.Types.ObjectId(req.params.id) },
             },
@@ -60,12 +56,11 @@ exports.getVendorPagePriceDetail = async (req, res) => {
                 $project: {
                     platform_price_id: 1,
                     pageMast_id: 1,
-                    vendorMast_id: 1,
                     price_type_id: 1,
                     price_cal_type: 1,
                     variable_type: 1,
-                    Sale_price: 1,
                     variable_type_rate: 1,
+                    Purchase_price: 1,
                     description: 1,
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
@@ -73,11 +68,11 @@ exports.getVendorPagePriceDetail = async (req, res) => {
                 },
             },
         ])
-        if (pmsVendorPageData) {
+        if (pagePurchasePriceData) {
             return res.status(200).json({
                 status: 200,
-                message: "PMS vendor page price details successfully!",
-                data: pmsVendorPageData,
+                message: "PMS page purchase price details successfully!",
+                data: pagePurchasePriceData,
             });
         }
         return res.status(404).json({
@@ -92,27 +87,24 @@ exports.getVendorPagePriceDetail = async (req, res) => {
     }
 };
 
-//PUT- VendorPAgePrice
-exports.updateVendorPagePrice = async (req, res) => {
+exports.updatePagePurchasePrice = async (req, res) => {
     try {
         const { id } = req.params;
-        const { platform_price_id, pageMast_id, vendorMast_id, price_type_id, price_cal_type, variable_type, Sale_price,
-            variable_type_rate, description, created_by, last_updated_by } = req.body;
-        const vendorPagePriceData = await pmsVendorPagePriceModel.findOne({ _id: id });
-        if (!vendorPagePriceData) {
-            return res.send("Invalid vendor page price Id...");
+        const { platform_price_id, pageMast_id, price_type_id, price_cal_type, variable_type, variable_type_rate, Purchase_price, description, created_by, last_updated_by } = req.body;
+        const pagePurchasePriceData = await pmsPagePurchasePriceModel.findOne({ _id: id });
+        if (!pagePurchasePriceData) {
+            return res.send("Invalid page purchase price Id...");
         }
-        await vendorPagePriceData.save();
-        const vendorPagePriceUpdate = await pmsVendorPagePriceModel.findOneAndUpdate({ _id: id }, {
+        await pagePurchasePriceData.save();
+        const pagePurchasePriceUpdate = await pmsPagePurchasePriceModel.findOneAndUpdate({ _id: id }, {
             $set: {
                 platform_price_id,
                 pageMast_id,
-                vendorMast_id,
                 price_type_id,
                 price_cal_type,
                 variable_type,
-                Sale_price,
                 variable_type_rate,
+                Purchase_price,
                 description,
                 created_by,
                 last_updated_by
@@ -121,8 +113,8 @@ exports.updateVendorPagePrice = async (req, res) => {
             { new: true }
         );
         return res.status(200).json({
-            message: "PMS vendor page price data updated successfully!",
-            data: vendorPagePriceUpdate,
+            message: "PMS page purchase price data updated successfully!",
+            data: pagePurchasePriceUpdate,
         });
     } catch (error) {
         return res.status(500).json({
@@ -131,11 +123,11 @@ exports.updateVendorPagePrice = async (req, res) => {
     }
 };
 
-//GET - PMS_VendorPagePrice_List
-exports.getVendorPagePriceList = async (req, res) => {
+
+exports.getPagePurchasePriceList = async (req, res) => {
     try {
 
-        const vendorPagePriceData = await pmsVendorPagePriceModel.aggregate([
+        const pagePurchasePriceData = await pmsPagePurchasePriceModel.aggregate([
             {
                 $lookup: {
                     from: "pmsplatformprices",
@@ -161,20 +153,6 @@ exports.getVendorPagePriceList = async (req, res) => {
             {
                 $unwind: {
                     path: "$pmspagemast",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "pmsvendormasts",
-                    localField: "pmsvendormast_id",
-                    foreignField: "pmsvendormast_id",
-                    as: "pmsvendormast",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$pmsvendormast",
                     preserveNullAndEmptyArrays: true,
                 },
             },
@@ -224,12 +202,11 @@ exports.getVendorPagePriceList = async (req, res) => {
                 $project: {
                     platform_price_id: 1,
                     pageMast_id: 1,
-                    vendorMast_id: 1,
                     price_type_id: 1,
                     price_cal_type: 1,
                     variable_type: 1,
-                    Sale_price: 1,
                     variable_type_rate: 1,
+                    Purchase_price: 1,
                     description: 1,
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
@@ -262,28 +239,6 @@ exports.getVendorPagePriceList = async (req, res) => {
                         created_by_name: "$user.user_name",
                         last_updated_by: "$pmspagemast.last_updated_by",
                     },
-                    PMS_VendorMasts_data: {
-                        vendorMast_id: "$pmsvendormast._id",
-                        vendorMast_name: "$pmsvendormast.vendorMast_name",
-                        country_code: "$pmsvendormast.country_code",
-                        mobile: "$pmsvendormast.mobile",
-                        alternate_mobile: "$pmsvendormast.alternate_mobile",
-                        email: "$pmsvendormast.email",
-                        personal_address: "$pmsvendormast.personal_address",
-                        pan_no: "$pmsvendormast.pan_no",
-                        gst_no: "$pmsvendormast.gst_no",
-                        comapny_name: "$pmsvendormast.comapny_name",
-                        company_address: "$pmsvendormast.company_address",
-                        company_city: "$pmsvendormast.company_city",
-                        company_pincode: "$pmsvendormast.company_pincode",
-                        company_state: "$pmsvendormast.company_state",
-                        threshold_limit: "$pmsvendormast.threshold_limit",
-                        home_address: "$pmsvendormast.home_address",
-                        home_city: "$pmsvendormast.home_city",
-                        home_state: "$pmsvendormast.home_state",
-                        created_by: "$pmsvendormast.created_by",
-                        last_updated_by: "$pmsvendormast.last_updated_by",
-                    },
                     PMS_Price_data: {
                         price_type_id: "$pmspricetype._id",
                         price_type: "$pmspricetype.price_type",
@@ -302,16 +257,16 @@ exports.getVendorPagePriceList = async (req, res) => {
                 $replaceRoot: { newRoot: "$data" }
             }
         ])
-        if (!vendorPagePriceData) {
+        if (!pagePurchasePriceData) {
             return res.status(500).send({
                 succes: true,
-                message: "PMS vendor page price data list not found!",
+                message: "PMS page purchase price data list not found!",
             });
         }
         return res.status(200).send({
             succes: true,
-            message: "PMS vendor page price data list successfully!",
-            data: vendorPagePriceData
+            message: "PMS page purchase price data list successfully!",
+            data: pagePurchasePriceData
         });
     } catch (error) {
         return res.status(500).json({
@@ -320,22 +275,21 @@ exports.getVendorPagePriceList = async (req, res) => {
     }
 };
 
-//DELETE - PMS_Vendor_page_Price- By-ID
-exports.deleteVendorPagePriceData = async (req, res) => {
+exports.deletePagePurchasePriceData = async (req, res) => {
     try {
         const { params } = req;
         const { id } = params;
-        const vendorPagePriceData = await pmsVendorPagePriceModel.findOne({ _id: id });
-        if (!vendorPagePriceData) {
+        const pagePurchasePriceData = await pmsPagePurchasePriceModel.findOne({ _id: id });
+        if (!pagePurchasePriceData) {
             return res.status(404).json({
                 status: 404,
                 message: message.DATA_NOT_FOUND,
             });
         }
-        await pmsVendorPagePriceModel.deleteOne({ _id: id });
+        await pmsPagePurchasePriceModel.deleteOne({ _id: id });
         return res.status(200).json({
             status: 200,
-            message: "PMS vendor page-price data deleted successfully!",
+            message: "PMS page purchase price data deleted successfully!",
         });
     } catch (error) {
         return res.status(500).json({

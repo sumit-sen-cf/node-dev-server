@@ -1,24 +1,20 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const pmsVendorPagePriceSchema = new Schema({
+const pmsPagePurchasePrice = new Schema({
     platform_price_id: {
         type: Schema.Types.ObjectId,
         required: true,
-      ref: "pmsPlatformPrice"
+        ref: "pmsPlatformPrice"
     },
     pageMast_id: {
-        type: Number,
-        required: true,
-    },
-    vendorMast_id: {
         type: Number,
         required: true,
     },
     price_type_id: {
         type: Schema.Types.ObjectId,
         required: true,
-         ref: "pmsPriceType"
+        ref: "pmsPriceType"
     },
     price_cal_type: {
         type: String,
@@ -28,11 +24,11 @@ const pmsVendorPagePriceSchema = new Schema({
         type: String,
         required: false,
     },
-    Sale_price: {                           // price_fixed(Sale_price)
+    variable_type_rate: {
         type: Number,
         required: true,
     },
-    variable_type_rate: {                   //price_variable(variable_type_rate)
+    Purchase_price: {
         type: Number,
         required: true,
     },
@@ -59,6 +55,4 @@ const pmsVendorPagePriceSchema = new Schema({
         default: 0
     }
 });
-
-const pmsVendorPagePriceModel = mongoose.model("pmsVendorPagePrice", pmsVendorPagePriceSchema);
-module.exports = pmsVendorPagePriceModel;
+module.exports = mongoose.model('pmsPagePurchasePrice', pmsPagePurchasePrice);
