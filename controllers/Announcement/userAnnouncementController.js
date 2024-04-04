@@ -536,10 +536,24 @@ exports.announcementWiseGetReactionDetails = async (req, res) => {
             }
         }, {
             $lookup: {
+                from: "designationmodels",
+                localField: "likeUsers.user_designation",
+                foreignField: "desi_id",
+                as: "likeUsersDesignationData"
+            }
+        }, {
+            $lookup: {
                 from: "usermodels",
                 localField: "reactions.haha",
                 foreignField: "user_id",
                 as: "hahaUsers"
+            }
+        }, {
+            $lookup: {
+                from: "designationmodels",
+                localField: "hahaUsers.user_designation",
+                foreignField: "desi_id",
+                as: "hahaUsersDesignationData"
             }
         }, {
             $lookup: {
@@ -550,6 +564,13 @@ exports.announcementWiseGetReactionDetails = async (req, res) => {
             }
         }, {
             $lookup: {
+                from: "designationmodels",
+                localField: "loveUsers.user_designation",
+                foreignField: "desi_id",
+                as: "loveUsersDesignationData"
+            }
+        }, {
+            $lookup: {
                 from: "usermodels",
                 localField: "reactions.clap",
                 foreignField: "user_id",
@@ -557,10 +578,24 @@ exports.announcementWiseGetReactionDetails = async (req, res) => {
             }
         }, {
             $lookup: {
+                from: "designationmodels",
+                localField: "clapUsers.user_designation",
+                foreignField: "desi_id",
+                as: "clapUsersDesignationData"
+            }
+        }, {
+            $lookup: {
                 from: "usermodels",
                 localField: "reactions.sad",
                 foreignField: "user_id",
                 as: "sadUsers"
+            }
+        }, {
+            $lookup: {
+                from: "designationmodels",
+                localField: "sadUsers.user_designation",
+                foreignField: "desi_id",
+                as: "sadUsersDesignationData"
             }
         }, {
             $project: {
@@ -573,7 +608,16 @@ exports.announcementWiseGetReactionDetails = async (req, res) => {
                             in: {
                                 user_name: "$$user.user_name",
                                 user_id: "$$user.user_id",
-                                dept_id: "$$user.dept_id",
+                                image: { $concat: [vari.IMAGE_URL, "$$user.image"] },
+                                user_designation_id: "$$user.user_designation",
+                                desi_name: {
+                                    $arrayElemAt: [
+                                        "$likeUsersDesignationData.desi_name",
+                                        {
+                                            $indexOfArray: ["$likeUsersDesignationData.desi_id", "$$user.user_designation"]
+                                        }
+                                    ]
+                                }
                             }
                         }
                     },
@@ -584,7 +628,16 @@ exports.announcementWiseGetReactionDetails = async (req, res) => {
                             in: {
                                 user_name: "$$user.user_name",
                                 user_id: "$$user.user_id",
-                                dept_id: "$$user.dept_id",
+                                image: { $concat: [vari.IMAGE_URL, "$$user.image"] },
+                                user_designation_id: "$$user.user_designation",
+                                desi_name: {
+                                    $arrayElemAt: [
+                                        "$hahaUsersDesignationData.desi_name",
+                                        {
+                                            $indexOfArray: ["$hahaUsersDesignationData.desi_id", "$$user.user_designation"]
+                                        }
+                                    ]
+                                }
                             }
                         }
                     },
@@ -595,7 +648,16 @@ exports.announcementWiseGetReactionDetails = async (req, res) => {
                             in: {
                                 user_name: "$$user.user_name",
                                 user_id: "$$user.user_id",
-                                dept_id: "$$user.dept_id",
+                                image: { $concat: [vari.IMAGE_URL, "$$user.image"] },
+                                user_designation_id: "$$user.user_designation",
+                                desi_name: {
+                                    $arrayElemAt: [
+                                        "$loveUsersDesignationData.desi_name",
+                                        {
+                                            $indexOfArray: ["$loveUsersDesignationData.desi_id", "$$user.user_designation"]
+                                        }
+                                    ]
+                                }
                             }
                         }
                     },
@@ -606,7 +668,16 @@ exports.announcementWiseGetReactionDetails = async (req, res) => {
                             in: {
                                 user_name: "$$user.user_name",
                                 user_id: "$$user.user_id",
-                                dept_id: "$$user.dept_id",
+                                image: { $concat: [vari.IMAGE_URL, "$$user.image"] },
+                                user_designation_id: "$$user.user_designation",
+                                desi_name: {
+                                    $arrayElemAt: [
+                                        "$clapUsersDesignationData.desi_name",
+                                        {
+                                            $indexOfArray: ["$clapUsersDesignationData.desi_id", "$$user.user_designation"]
+                                        }
+                                    ]
+                                }
                             }
                         }
                     },
@@ -617,7 +688,16 @@ exports.announcementWiseGetReactionDetails = async (req, res) => {
                             in: {
                                 user_name: "$$user.user_name",
                                 user_id: "$$user.user_id",
-                                dept_id: "$$user.dept_id",
+                                image: { $concat: [vari.IMAGE_URL, "$$user.image"] },
+                                user_designation_id: "$$user.user_designation",
+                                desi_name: {
+                                    $arrayElemAt: [
+                                        "$sadUsersDesignationData.desi_name",
+                                        {
+                                            $indexOfArray: ["$sadUsersDesignationData.desi_id", "$$user.user_designation"]
+                                        }
+                                    ]
+                                }
                             }
                         }
                     }
