@@ -1,3 +1,4 @@
+const response = require("../common/response.js");
 const phpPaymentAccListModel = require("../models/phpPaymentAccListModel.js");
 const phpFinanceModel = require("../models/phpFinanceModel.js");
 const axios = require('axios');
@@ -108,6 +109,29 @@ exports.pendingApprovalUpdate = async (req, res) => {
             );
         }
         return response.returnTrue(200, req, res, "Updation Successfully", editPendingApprovalData);
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
+
+exports.updateHideStatusForPhpPaymentAccData = async (req, res) => {
+    try {
+        //fields update in the collection
+        const editHideStatusForPhpPaymentAccData = await phpPaymentAccListModel.findOneAndUpdate({
+            _id: req.params.id
+        }, {
+            is_hide: req.body.is_hide
+        }, {
+            new: true
+        });
+
+        //if not found check
+        if (!editHideStatusForPhpPaymentAccData) {
+            return response.returnFalse(200, req, res, "No Reord Found ", {});
+        }
+
+        //success response send
+        return response.returnTrue(200, req, res, "Updation Successfully", editHideStatusForPhpPaymentAccData);
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }

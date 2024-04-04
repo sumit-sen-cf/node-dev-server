@@ -27,6 +27,11 @@ const phpPaymentAccListModel = new mongoose.Schema({
         type: String,
         required: false
     },
+    is_hide: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
     created_at: {
         type: String,
         required: false
