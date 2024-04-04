@@ -183,7 +183,7 @@ exports.editExeSum = async (req, res) => {
             sale_booking_id: req.body.sale_booking_id,
             execution_remark: req.body.execution_remark,
             execution_status: req.body.execution_status,
-            start_date_: req.body.start_date_,
+            start_date: req.body.start_date,
             end_date: req.body.end_date
         }, { new: true })
         if (!editinsta) {
