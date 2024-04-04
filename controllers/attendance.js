@@ -39,12 +39,64 @@ function monthNameToNumber(monthName) {
   return monthIndex !== -1 ? monthIndex + 1 : null;
 }
 
-let attendanceIdCounter = 1;
-const getNextAttendanceId = () => {
-  return new Promise((resolve) => {
-    resolve(attendanceIdCounter++);
-  });
+// const attMax = attendanceModel.findOne().sort({ attendence_id: -1 });
+// console.log(attMax);
+// let attendanceIdCounter = 1;
+// const getNextAttendanceId = () => {
+//   // const attMax = attendanceModel.findOne().sort({attendence_id:-1});
+//   // console.log(attMax);
+//   return new Promise((resolve) => {
+//     resolve(attendanceIdCounter++);
+//   });
+// };
+
+
+const getLatestAttendanceId = async () => {
+  try {
+    const latestAttendance = await attendanceModel.findOne().sort({ attendence_id: -1 });
+    console.log("latestAttendance", latestAttendance);
+    if (latestAttendance) {
+      return latestAttendance.attendence_id;
+    }
+    return 0;
+  } catch (error) {
+    console.error("Error finding latest attendance ID:", error);
+    throw error;
+  }
 };
+
+let attendanceIdCounter;
+
+const initializeAttendanceIdCounter = async () => {
+  try {
+    const latestAttendanceId = await getLatestAttendanceId();
+    attendanceIdCounter = latestAttendanceId + 1;
+  } catch (error) {
+    console.error("Error initializing attendanceIdCounter:", error);
+    throw error;
+  }
+};
+
+initializeAttendanceIdCounter();
+
+const getNextAttendanceId = () => {
+  if (attendanceIdCounter === undefined) {
+    throw new Error("attendanceIdCounter is not initialized. Call initializeAttendanceIdCounter() first.");
+  }
+  return attendanceIdCounter++;
+};
+
+function getLastDateOfMonth(month, year) {
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthIndex = monthNames.indexOf(month);
+  if (monthIndex === -1) {
+    throw new Error('Invalid month name');
+  }
+
+  let nextMonth = new Date(year, monthIndex + 1, 1);
+  let lastDateOfMonth = new Date(nextMonth - 1);
+  return lastDateOfMonth.getDate();
+}
 
 exports.addAttendance = async (req, res) => {
   try {
@@ -71,6 +123,9 @@ exports.addAttendance = async (req, res) => {
         message: "Please Added First Billing Header For This Department",
       });
     }
+
+    const monthLastValue = getLastDateOfMonth(month, year);
+    console.log("monthLastValue", monthLastValue);
 
     const attendanceData = await userModel.aggregate([
       {
@@ -117,7 +172,8 @@ exports.addAttendance = async (req, res) => {
         const check2 = await userModel.find({
           job_type: "WFHD",
           dept_id: req.body.dept,
-          att_status: 'onboarded'
+          att_status: 'onboarded',
+          user_status: "Active"
         });
 
         let filteredUserData = check2.map(user => {
@@ -155,12 +211,12 @@ exports.addAttendance = async (req, res) => {
             const monthNumber = monthNameToNumber(month);
             const mergeJoining1 = `${monthNumber}` + `${year}`;
             if (mergeJoining == mergeJoining1) {
-              work_days = 30 - extractDate - noOfabsent;
+              work_days = monthLastValue - extractDate - noOfabsent;
             } else if (user.status == "Resigned") {
-              work_days = (30 - resignExtractDate) - noOfabsent;
+              work_days = (monthLastValue - resignExtractDate) - noOfabsent;
             }
             else {
-              work_days = 30 - noOfabsent;
+              work_days = monthLastValue - noOfabsent;
             }
             const bodymonth = `${year}` + `${monthNumber}`;
 
@@ -333,12 +389,12 @@ exports.addAttendance = async (req, res) => {
           const monthNumber = monthNameToNumber(month);
           const mergeJoining1 = `${monthNumber}` + `${year}`;
           if (mergeJoining == mergeJoining1) {
-            work_days = 30 - extractDate - noOfabsent;
+            work_days = monthLastValue - extractDate - noOfabsent;
           } else if (findSeparationData?.status == "Resigned") {
-            work_days = (30 - resignExtractDate) - noOfabsent;
+            work_days = (monthLastValue - resignExtractDate) - noOfabsent;
           }
           else {
-            work_days = 30 - absent;
+            work_days = monthLastValue - absent;
           }
 
           const present_days = work_days;
@@ -381,7 +437,7 @@ exports.addAttendance = async (req, res) => {
             },
             { new: true }
           ).sort({ attendence_id: 1 });
-          console.log("edit", editsim)
+          // console.log("edit", editsim)
           return res.send({ status: 200 });
         }
       }
@@ -1025,7 +1081,7 @@ exports.totalSalary = async (req, res) => {
 exports.updateSalary = async (req, res) => {
   try {
     const editsim = await attendanceModel.findOneAndUpdate(
-      { attendence_id: req.body.attendence_id },
+      { attendence_id: req.body.attendence_id, month: req.body.month },
       {
         sendToFinance: req.body.sendToFinance,
       },

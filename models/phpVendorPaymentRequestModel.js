@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const phpVendorPaymentRequestModel = new mongoose.Schema({
     request_id: {
         type: Number,
-        required: true,
-        unique: true
+        required: true
     },
     vendor_id: {
         type: Number,
@@ -146,10 +145,10 @@ const phpVendorPaymentRequestModel = new mongoose.Schema({
         required: false,
         default: 0
     },
-    is_email_send:{
-        type:Boolean,
-        required:false,
-        default:"false"
+    is_email_send: {
+        type: Boolean,
+        required: false,
+        default: "false"
     }
 });
 

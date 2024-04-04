@@ -25,6 +25,14 @@ const assetVendorSumModel = new mongoose.Schema({
     vendor_status: {
         type: String,
         required: false,
+        default: "0"
+    },
+    vendor_recieve_date: {
+        type: Date,
+    },
+    vendor_recieve_remark: {
+        type: String,
+        required: false,
         default: ""
     },
     created_at: {

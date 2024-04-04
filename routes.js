@@ -1779,5 +1779,6 @@ router.post("/process_payment", razorPay.processPayment);
 router.post("/vendorsum", assetVendorSum.addVendorSum);
 router.get("/vendorsum", assetVendorSum.getVendorSums);
 router.get("/get_all_hr", assetVendorSum.getAllHR);
+router.put("/vendorsum", assetVendorSum.editVendorSum);
 
 module.exports = router;

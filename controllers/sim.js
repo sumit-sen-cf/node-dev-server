@@ -164,8 +164,8 @@ exports.getSims = async (req, res) => {
         {
           $lookup: {
             from: "assetvendorsummodels",
-            localField: "vendor_id",
-            foreignField: "vendor_id",
+            localField: "sim_id",
+            foreignField: "sim_id",
             as: "vendorSumData",
           },
         },
@@ -1482,7 +1482,7 @@ exports.getAssetUsersDepartment = async (req, res) => {
       {
         $lookup: {
           from: 'simmodels',
-          localField: 'sim_id', // Adjust this field if necessary
+          localField: 'sim_id',
           foreignField: 'sim_id',
           as: 'simDetails',
         },
@@ -2089,6 +2089,20 @@ exports.showAssetDataToHR = async (req, res) => {
           },
         },
         {
+          $lookup: {
+            from: "assetvendorsummodels",
+            localField: "sim_id",
+            foreignField: "sim_id",
+            as: "vendorSimData",
+          },
+        },
+        {
+          $unwind: {
+            path: "$vendorSimData",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           $project: {
             _id: "$_id",
             sim_id: "$sim_id",
@@ -2131,7 +2145,8 @@ exports.showAssetDataToHR = async (req, res) => {
             img4: {
               $concat: [imageUrl, "$repair.img4"]
             },
-            req_date: "$repair.repair_request_date_time"
+            req_date: "$repair.repair_request_date_time",
+            vendor_status: "$vendorSimData.vendor_status"
           },
         },
       ])
