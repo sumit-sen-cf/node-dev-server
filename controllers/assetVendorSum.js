@@ -111,3 +111,46 @@ exports.getAllHR = async (req, res) => {
     }
 };
 
+exports.editVendorSum = async (req, res) => {
+    try {
+
+        if (req.body.id) {
+            const editVendorSum = await assetVendorSumModel.findOneAndUpdate(
+                { sim_id: req.body.id },
+                {
+                    vendor_status: req.body.vendor_status,
+                    vendor_recieve_date: req.body.vendor_recieve_date,
+                    vendor_recieve_remark: req.body.vendor_recieve_remark
+                },
+                { new: true }
+            );
+            if (!editVendorSum) {
+                res.status(500).send({ success: false });
+            }
+
+            return res.status(200).send({ success: true, data: editVendorSum });
+        } else {
+            const assetVendorSum = new assetVendorSumModel({
+                sim_id: req.body.sim_id,
+                vendor_id: req.body.vendor_id,
+                send_date: req.body.send_date,
+                send_by: req.body.send_by,
+                expected_date_of_repair: req.body.expected_date_of_repair,
+                vendor_status: req.body.vendor_status
+            });
+            const assetVendorSumData = await assetVendorSum.save();
+            return response.returnTrue(
+                200,
+                req,
+                res,
+                "Asset Vendor Summary added Successfully",
+                assetVendorSumData
+            );
+        }
+
+    } catch (err) {
+        return res
+            .status(500)
+            .send({ error: err.message, sms: "Error updating vendor sum details" });
+    }
+};
