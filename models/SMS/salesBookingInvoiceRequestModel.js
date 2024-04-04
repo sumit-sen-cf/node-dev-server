@@ -24,6 +24,10 @@ const salesBookingInvoiceRequest = new Schema({
         type: Number,
         required: false,
     },
+    po_upload: {
+        type: String,
+        required: false
+    },
     invoice_number: {
         type: Number,
         required: false,
@@ -38,12 +42,12 @@ const salesBookingInvoiceRequest = new Schema({
     },
     invoice_requested_date: {
         type: Date,
-      //  default: Date.now
+        //  default: Date.now
     },
 
     invoice_uploaded_date: {
         type: Date,
-      //  default: Date.now
+        //  default: Date.now
     },
 
     invoice_creation_status: {

@@ -15,51 +15,51 @@ const salesServiceMaster = new Schema({
         enu: ["calculated", "input"],
     },
     is_excel_upload: {
-        type: Boolean,
+        type: String,
         required: false
     },
     no_of_hours_status: {
-        type: Boolean,
+        type: String,
         required: false
     },
     goal_status: {
-        type: Boolean,
+        type: String,
         required: false
     },
     day_status: {
-        type: Boolean,
+        type: String,
         required: false
     },
     quantity_status: {
-        type: Boolean,
+        type: String,
         required: false
     },
     brand_name_status: {
-        type: Boolean,
+        type: String,
         required: false
     },
     hashtag: {
-        type: Boolean,
+        type: String,
         required: false
     },
     indiviual_amount_status: {
-        type: Boolean,
+        type: String,
         required: false
     },
     start_end_date_status: {
-        type: Boolean,
+        type: String,
         required: false
     },
     per_month_amount_status: {
-        type: Boolean,
+        type: String,
         required: false
     },
     no_of_creators: {
-        type: Boolean,
+        type: String,
         required: false
     },
     deliverables_info: {
-        type: Boolean,
+        type: String,
         required: false
     },
     remarks: {

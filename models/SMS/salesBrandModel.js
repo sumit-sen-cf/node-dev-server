@@ -1,17 +1,13 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const paymentDeatils = new Schema({
-    title: {
+const salesBrand = new Schema({
+    brand_name: {
         type: String,
         required: false
     },
-    details: {
+    remarks: {
         type: String,
-        required: false
-    },
-    gst_bank: {
-        type: Boolean,         //1,0 = check if bank is gst or non gst_amount
         required: false
     },
     managed_by: {
@@ -19,7 +15,7 @@ const paymentDeatils = new Schema({
         required: false
     },
     created_by: {
-        type: Number,
+        type: Number, 
         required: true,
         default: 0,
     },
@@ -31,4 +27,4 @@ const paymentDeatils = new Schema({
 },
     { timestamps: true },
 );
-module.exports = mongoose.model('paymentDeatils', paymentDeatils);
+module.exports = mongoose.model('salesBrand', salesBrand);

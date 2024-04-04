@@ -12,6 +12,10 @@ const pmsPlatformPriceSchema = new Schema({
         required: true,
         ref: "pmsPriceType"
     },
+    platform_price_name: {
+        type: String,
+        required: false
+    },
     description: {
         type: String,
         required: false
