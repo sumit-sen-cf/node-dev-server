@@ -131,7 +131,7 @@ exports.getRecordServiceMasterDetail = async (req, res) => {
                     deliverables_info: 1,
                     remarks: 1,
                     sale_executive_id: 1,
-                    sale_executive_by_id: "$user.user_id",
+                    sale_executive_by_name: "$user.user_name",
                     created_date_time: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
@@ -429,8 +429,8 @@ exports.deleteRecordServiceMaster = async (req, res) => {
     try {
         const { params } = req;
         const { id } = params;
-        const recordServiceMasterelete = await recordServiceMasterModel.findOne({ _id: id });
-        if (!recordServiceMasterelete) {
+        const recordServiceMasterDelete = await recordServiceMasterModel.findOne({ _id: id });
+        if (!recordServiceMasterDelete) {
             return res.status(404).json({
                 status: 404,
                 message: message.DATA_NOT_FOUND,

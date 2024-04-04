@@ -160,6 +160,7 @@ const { createCustomerMast, getCustomerMastDetail, updateCustomerMast, getCustom
 const { createCustomerContact, getCustomerContactDetail, updateCustomerContact, getCustomerContactList, deleteCustomerContact } = require("./controllers/Customer&Campaign/opsCustomerContactController.js");
 const { createDocMast, getDocMastDetail, updateDocMast, getDocMastList, deleteDocMast } = require("./controllers/Customer&Campaign/opsDocMastController.js");
 const { createCustomerDocument, getcustomerDocumentDetail, updateCustomerDocument, getCustomerDocumentList, deleteCustomerDocument } = require("./controllers/Customer&Campaign/opsCustomerDocumentController.js");
+const { createPagePurchasePrice, getPagePurchasePrice, updatePagePurchasePrice, getPagePurchasePriceList, deletePagePurchasePriceData } = require("./controllers/PMS/pmsPagePurchasePriceController.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1681,6 +1682,15 @@ router.get("/getVendorPagePrice/:id", getVendorPagePriceDetail);
 router.put("/updateVendorPagePrice/:id", updateVendorPagePrice);
 router.get("/getVendorPagePriceList", getVendorPagePriceList);
 router.delete("/deleteVendorPagePrice/:id", deleteVendorPagePriceData);
+
+
+router.post("/add_page_purchase_price",createPagePurchasePrice);
+router.get("/get_page_purchase_price/:id",getPagePurchasePrice);
+router.put("/update_page_purchase_price/:id",updatePagePurchasePrice);
+router.get("/getlist_page_purchase_price",getPagePurchasePriceList);
+router.delete("/delete_page_purchase_price/:id",deletePagePurchasePriceData);
+
+
 
 // --------------------------------------------------------------Task Mangements all Routes------------------------------------------//
 router.post("/addSubStatus", createTmsSubStatusMast);

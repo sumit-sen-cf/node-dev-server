@@ -1,27 +1,25 @@
-const paymentDetailsModel = require("../../models/SMS/paymentDetailsModel");
+const salesBrandModel = require("../../models/SMS/salesBrandModel");
 const { message } = require("../../common/message")
 const mongoose = require("mongoose");
 
-
 /**
- * Api is to used for the payment_details data add in the DB collection.
+ * Api is to used for the sales_brand data add in the DB collection.
  */
-exports.createPaymentDetails = async (req, res) => {
+exports.createSalesBrand = async (req, res) => {
     try {
-        const { title, details, gst_bank, managed_by, created_by, last_updated_by } = req.body;
-        const addPaymentDetails = new paymentDetailsModel({
-            title: title,
-            details: details,
-            gst_bank: gst_bank,
+        const { brand_name, remarks, managed_by, created_by, last_updated_by } = req.body;
+        const addSalesBrand = new salesBrandModel({
+            brand_name: brand_name,
+            remarks: remarks,
             managed_by: managed_by,
             created_by: created_by,
             last_updated_by: last_updated_by
         });
-        await addPaymentDetails.save();
+        await addSalesBrand.save();
         return res.status(200).json({
             status: 200,
-            message: "Payment details data added successfully!",
-            data: addPaymentDetails,
+            message: "Sales brand data added successfully!",
+            data: addSalesBrand,
         });
     } catch (error) {
         return res.status(500).json({
@@ -31,12 +29,13 @@ exports.createPaymentDetails = async (req, res) => {
     }
 };
 
+
 /**
- * Api is to used for the payment_details data get_ByID in the DB collection.
+ * Api is to used for the sales_brand data get_ByID in the DB collection.
  */
-exports.getPaymentDetails = async (req, res) => {
+exports.getSalesBrand = async (req, res) => {
     try {
-        const paymentDetailsData = await paymentDetailsModel.aggregate([
+        const salesBrandData = await salesBrandModel.aggregate([
             {
                 $match: { _id: mongoose.Types.ObjectId(req.params.id) },
             },
@@ -55,11 +54,25 @@ exports.getPaymentDetails = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "managed_by",
+                    foreignField: "user_id",
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
-                    title: 1,
-                    details: 1,
-                    gst_bank: 1,
+                    brand_name: 1,
+                    remarks: 1,
                     managed_by: 1,
+                    managed_by_name: "$user.user_name",
                     created_date_time: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
@@ -68,11 +81,11 @@ exports.getPaymentDetails = async (req, res) => {
                 },
             },
         ])
-        if (paymentDetailsData) {
+        if (salesBrandData) {
             return res.status(200).json({
                 status: 200,
-                message: "Payment details successfully!",
-                data: paymentDetailsData,
+                message: "Sales brand data successfully!",
+                data: salesBrandData,
             });
         }
         return res.status(404).json({
@@ -87,23 +100,23 @@ exports.getPaymentDetails = async (req, res) => {
     }
 };
 
+
 /**
- * Api is to used for the payment_details data update in the DB collection.
+ * Api is to used for the sales_brand data update in the DB collection.
  */
-exports.updatePaymentDetails = async (req, res) => {
+exports.updateSalesBrand = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, details, gst_bank, managed_by, created_by, last_updated_by } = req.body;
-        const paymentDetailData = await paymentDetailsModel.findOne({ _id: id });
-        if (!paymentDetailData) {
-            return res.send("Invalid payment_details Id...");
+        const { brand_name, remarks, managed_by, created_by, last_updated_by } = req.body;
+        const salesBrandData = await salesBrandModel.findOne({ _id: id });
+        if (!salesBrandData) {
+            return res.send("Invalid sales_brand Id...");
         }
-        await paymentDetailData.save();
-        const paymentDetailsUpdatedData = await paymentDetailsModel.findOneAndUpdate({ _id: id }, {
+        await salesBrandData.save();
+        const salesBrandUpdatedData = await salesBrandModel.findOneAndUpdate({ _id: id }, {
             $set: {
-                title,
-                details,
-                gst_bank,
+                brand_name,
+                remarks,
                 managed_by,
                 created_by,
                 last_updated_by
@@ -112,8 +125,8 @@ exports.updatePaymentDetails = async (req, res) => {
             { new: true }
         );
         return res.status(200).json({
-            message: "Payment_details data updated successfully!",
-            data: paymentDetailsUpdatedData,
+            message: "Sales brand data updated successfully!",
+            data: salesBrandUpdatedData,
         });
     } catch (error) {
         return res.status(500).json({
@@ -124,11 +137,11 @@ exports.updatePaymentDetails = async (req, res) => {
 
 
 /**
- * Api is to used for the payment_details data get_list in the DB collection.
+ * Api is to used for the sales_brand data get_list in the DB collection.
  */
-exports.getPaymentDetailList = async (req, res) => {
+exports.getSalesBrandList = async (req, res) => {
     try {
-        const paymentDetailListData = await paymentDetailsModel.aggregate([
+        const salesBrandListData = await salesBrandModel.aggregate([
             {
                 $lookup: {
                     from: "usermodels",
@@ -144,11 +157,25 @@ exports.getPaymentDetailList = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "managed_by",
+                    foreignField: "user_id",
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
-                    title: 1,
-                    details: 1,
-                    gst_bank: 1,
+                    brand_name: 1,
+                    remarks: 1,
                     managed_by: 1,
+                    managed_by_name: "$user.user_name",
                     created_date_time: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
@@ -157,11 +184,11 @@ exports.getPaymentDetailList = async (req, res) => {
                 },
             },
         ])
-        if (paymentDetailListData) {
+        if (salesBrandListData) {
             return res.status(200).json({
                 status: 200,
-                message: "Payment details list successfully!",
-                data: paymentDetailListData,
+                message: "Sales brand list successfully!",
+                data: salesBrandListData,
             });
         }
         return res.status(404).json({
@@ -177,23 +204,23 @@ exports.getPaymentDetailList = async (req, res) => {
 };
 
 /**
- * Api is to used for the payment_details data delete in the DB collection.
+ * Api is to used for the sales_brand data delete in the DB collection.
  */
-exports.deletePaymentDetails = async (req, res) => {
+exports.deleteSalesBrand = async (req, res) => {
     try {
         const { params } = req;
         const { id } = params;
-        const paymentDetailsDataDelete = await paymentDetailsModel.findOne({ _id: id });
+        const paymentDetailsDataDelete = await salesBrandModel.findOne({ _id: id });
         if (!paymentDetailsDataDelete) {
             return res.status(404).json({
                 status: 404,
                 message: message.DATA_NOT_FOUND,
             });
         }
-        await paymentDetailsModel.deleteOne({ _id: id });
+        await salesBrandModel.deleteOne({ _id: id });
         return res.status(200).json({
             status: 200,
-            message: "Payment_details data deleted successfully!",
+            message: "Sales brand data deleted successfully!",
         });
     } catch (error) {
         return res.status(500).json({

@@ -226,7 +226,7 @@ exports.updateCustomerMast = [
                 blobStream2.end(req.files.gst_upload[0].buffer);
             }
             await customerMastData.save();
-            const vendorData = await opsCustomerMastModel.findOneAndUpdate({ _id: id }, {
+            const customerMastUpdatedData = await opsCustomerMastModel.findOneAndUpdate({ _id: id }, {
                 $set: {
                     customer_type_id,
                     account_type_id,
@@ -266,7 +266,7 @@ exports.updateCustomerMast = [
             );
             return res.status(200).json({
                 message: "PMS customer-mast data updated successfully!",
-                data: vendorData,
+                data: customerMastUpdatedData,
             });
         } catch (error) {
             return res.status(500).json({

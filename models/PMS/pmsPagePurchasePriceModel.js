@@ -1,24 +1,40 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const pmsPlatformPriceSchema = new Schema({
-    platform_id: {
+const pmsPagePurchasePrice = new Schema({
+    platform_price_id: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: "pmsPlatform"
+        ref: "pmsPlatformPrice"
+    },
+    pageMast_id: {
+        type: Number,
+        required: true,
     },
     price_type_id: {
         type: Schema.Types.ObjectId,
         required: true,
         ref: "pmsPriceType"
     },
-    platform_price_name: {
+    price_cal_type: {
         type: String,
-        required: false
+        required: true,
+    },
+    variable_type: {
+        type: String,
+        required: false,
+    },
+    variable_type_rate: {
+        type: Number,
+        required: true,
+    },
+    Purchase_price: {
+        type: Number,
+        required: true,
     },
     description: {
         type: String,
-        required: false
+        required: false,
     },
     created_date_time: {
         type: Date,
@@ -39,5 +55,4 @@ const pmsPlatformPriceSchema = new Schema({
         default: 0
     }
 });
-const pmsPlatformPriceModel = mongoose.model("pmsPlatformPrice", pmsPlatformPriceSchema);
-module.exports = pmsPlatformPriceModel;
+module.exports = mongoose.model('pmsPagePurchasePrice', pmsPagePurchasePrice);

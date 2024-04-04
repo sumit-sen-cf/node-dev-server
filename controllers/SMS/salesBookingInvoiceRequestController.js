@@ -8,7 +8,9 @@ const { message } = require("../../common/message")
 const upload = multer({
     storage: multer.memoryStorage()
 }).fields([
-    { name: "invoice_file", maxCount: 1 }
+    { name: "invoice_file", maxCount: 1 },
+    { name: "po_upload", maxCount: 1 }
+
 ]);
 
 /**
@@ -56,6 +58,15 @@ exports.createSalesBookingInvoiceRequest = [
                 });
                 blobStream1.end(req.files.invoice_file[0].buffer);
             }
+            if (req.files.po_upload && req.files.po_upload[0].originalname) {
+                const blob1 = bucket.file(req.files.po_upload[0].originalname);
+                addSalesBookingInvoiceRequestData.po_upload = blob1.name;
+                const blobStream1 = blob1.createWriteStream();
+                blobStream1.on("finish", () => {
+                });
+                blobStream1.end(req.files.po_upload[0].buffer);
+            }
+
             await addSalesBookingInvoiceRequestData.save();
             return res.status(200).json({
                 status: 200,
@@ -118,6 +129,9 @@ exports.getSalesBookingInvoiceRequest = async (req, res) => {
                     invoice_file: {
                         $concat: [imageUrl, "$invoice_file"],
                     },
+                    po_upload: {
+                        $concat: [imageUrl, "$po_upload"],
+                    }
                 },
             },
         ])
@@ -167,6 +181,14 @@ exports.updateSalesBookingInvoiceRequest = [
                 blobStream1.on("finish", () => {
                 });
                 blobStream1.end(req.files.invoice_file[0].buffer);
+            }
+            if (req.files?.po_upload && req.files?.po_upload[0].originalname) {
+                const blob1 = bucket.file(req.files.po_upload[0].originalname);
+                salesBookingInvoiceRequestData.po_upload = blob1.name;
+                const blobStream1 = blob1.createWriteStream();
+                blobStream1.on("finish", () => {
+                });
+                blobStream1.end(req.files.po_upload[0].buffer);
             }
             await salesBookingInvoiceRequestData.save();
             const salesBookingInvoiceRequestUpdatedData = await salesBookingInvoiceRequestModel.findOneAndUpdate({ _id: id }, {
@@ -287,6 +309,9 @@ exports.salesBookingInvoiceRequestList = async (req, res) => {
                     last_updated_by: 1,
                     invoice_file: {
                         $concat: [imageUrl, "$invoice_file"],
+                    },
+                    po_upload: {
+                        $concat: [imageUrl, "$po_upload"],
                     },
                     Sales_Booking: {
                         sales_booking_id: "$salesbooking.sale_booking_id",
