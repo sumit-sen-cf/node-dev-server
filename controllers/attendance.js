@@ -54,7 +54,7 @@ function monthNameToNumber(monthName) {
 const getLatestAttendanceId = async () => {
   try {
     const latestAttendance = await attendanceModel.findOne().sort({ attendence_id: -1 });
-    console.log("latestAttendance", latestAttendance);
+    // console.log("latestAttendance", latestAttendance);
     if (latestAttendance) {
       return latestAttendance.attendence_id;
     }
@@ -125,7 +125,6 @@ exports.addAttendance = async (req, res) => {
     }
 
     const monthLastValue = getLastDateOfMonth(month, year);
-    console.log("monthLastValue", monthLastValue);
 
     const attendanceData = await userModel.aggregate([
       {
@@ -232,7 +231,7 @@ exports.addAttendance = async (req, res) => {
               );
               if (!userExistsInAttendance) {
                 const presentDays = work_days - 0;
-                const perdaysal = user.salary / 30;
+                const perdaysal = user.salary / monthLastValue;
                 const totalSalary = perdaysal * presentDays;
                 const Bonus = bonus == undefined ? 0 : req.body.bonus;
                 const netSalary = totalSalary + Bonus;
@@ -313,9 +312,9 @@ exports.addAttendance = async (req, res) => {
             const monthNumber = monthNameToNumber(month);
             const mergeJoining1 = `${monthNumber}` + `${year}`;
             if (mergeJoining == mergeJoining1) {
-              work_days = 30 - extractDate;
+              work_days = monthLastValue - extractDate;
             } else {
-              work_days = 30;
+              work_days = monthLastValue;
             }
             const userExistsInAttendance = await doesUserExistInAttendance(
               user.user_id,
@@ -324,7 +323,7 @@ exports.addAttendance = async (req, res) => {
             );
             if (!userExistsInAttendance) {
               const presentDays = work_days - 0;
-              const perdaysal = user.salary / 30;
+              const perdaysal = user.salary / monthLastValue;
               const totalSalary = perdaysal * presentDays;
               const Bonus = bonus || 0;
               const netSalary = totalSalary + Bonus;
@@ -398,7 +397,7 @@ exports.addAttendance = async (req, res) => {
           }
 
           const present_days = work_days;
-          const perdaysal = results4[0].salary / 30;
+          const perdaysal = results4[0].salary / monthLastValue;
           const totalSalary = perdaysal * present_days;
           const Bonus = bonus == undefined ? 0 : req.body.bonus;
           const netSalary = (totalSalary + parseInt(Bonus)) - salaryDeduction;
