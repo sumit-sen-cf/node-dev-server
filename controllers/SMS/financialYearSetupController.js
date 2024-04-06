@@ -1,27 +1,25 @@
-const incentivePlanModel = require("../../models/SMS/incentivePlanModel");
+const financialYearSetupModel = require("../../models/SMS/financialYearSetupModel");
 const { message } = require("../../common/message")
 const mongoose = require("mongoose");
 
 /**
- * Api is to used for the incentive_plan data add in the DB collection.
+ * Api is to used for the financial_year_setup data add in the DB collection.
  */
-exports.createIncentivePlan = async (req, res) => {
+exports.createFinancialYearSetup = async (req, res) => {
     try {
-        const { sales_service_master_id, incentive_type, value, remarks, managed_by, created_by, last_updated_by } = req.body;
-        const addIncentivePlanDetails = new incentivePlanModel({
-            sales_service_master_id: sales_service_master_id,
-            incentive_type: incentive_type,
-            value: value,
-            remarks: remarks,
+        const { start_date, end_date, managed_by, created_by, last_updated_by } = req.body;
+        const addFinancialYearSetup = new financialYearSetupModel({
+            start_date: start_date,
+            end_date: end_date,
             managed_by: managed_by,
             created_by: created_by,
             last_updated_by: last_updated_by
         });
-        await addIncentivePlanDetails.save();
+        await addFinancialYearSetup.save();
         return res.status(200).json({
             status: 200,
-            message: "Incentive plan details data added successfully!",
-            data: addIncentivePlanDetails,
+            message: "Financial year setup data added successfully!",
+            data: addFinancialYearSetup,
         });
     } catch (error) {
         return res.status(500).json({
@@ -31,12 +29,13 @@ exports.createIncentivePlan = async (req, res) => {
     }
 };
 
+
 /**
- * Api is to used for the incentive_plan data get_ByID in the DB collection.
+ * Api is to used for the financial_year_setup data get_ByID in the DB collection.
  */
-exports.getIncentivePlanDetails = async (req, res) => {
+exports.getFinancialYearSetupDetails = async (req, res) => {
     try {
-        const incentivePlanData = await incentivePlanModel.aggregate([
+        const financialYearSetupData = await financialYearSetupModel.aggregate([
             {
                 $match: { _id: mongoose.Types.ObjectId(req.params.id) },
             },
@@ -70,10 +69,8 @@ exports.getIncentivePlanDetails = async (req, res) => {
             },
             {
                 $project: {
-                    sales_service_master_id: 1,
-                    incentive_type: 1,
-                    value: 1,
-                    remarks: 1,
+                    start_date: 1,
+                    end_date: 1,
                     managed_by: 1,
                     created_by: 1,
                     last_updated_by: 1,
@@ -84,11 +81,11 @@ exports.getIncentivePlanDetails = async (req, res) => {
                 },
             },
         ])
-        if (incentivePlanData) {
+        if (financialYearSetupData) {
             return res.status(200).json({
                 status: 200,
-                message: "Incentive plan details successfully!",
-                data: incentivePlanData,
+                message: "Financial year setup details successfully!",
+                data: financialYearSetupData,
             });
         }
         return res.status(404).json({
@@ -103,26 +100,23 @@ exports.getIncentivePlanDetails = async (req, res) => {
     }
 };
 
-
 /**
- * Api is to used for the incentive_plan data update in the DB collection.
+ * Api is to used for the financial_yaer_setup data update in the DB collection.
  */
-exports.updateIncentivePlan = async (req, res) => {
+exports.updateFinancialYearSetup = async (req, res) => {
     try {
         const { id } = req.params;
-        const { sales_service_master_id, incentive_type, value, remarks, managed_by, created_by, last_updated_by } = req.body;
-        const incentivePlanData = await incentivePlanModel.findOne({ _id: id });
-        if (!incentivePlanData) {
-            return res.send("Invalid incentive_plan Id...");
+        const { start_date, end_date, managed_by, created_by, last_updated_by } = req.body;
+        const financialYearSetupData = await financialYearSetupModel.findOne({ _id: id });
+        if (!financialYearSetupData) {
+            return res.send("Invalid financial_yaer_setup Id...");
         }
-        await incentivePlanData.save();
-        const incentivePlanUpdated = await incentivePlanModel.findOneAndUpdate({ _id: id }, {
+        await financialYearSetupData.save();
+        const financialYearSetupUpdated = await financialYearSetupModel.findOneAndUpdate({ _id: id }, {
             $set: {
-                sales_service_master_id,
-                incentive_type,
-                value,
+                start_date,
+                end_date,
                 managed_by,
-                remarks,
                 created_by,
                 last_updated_by
             },
@@ -130,8 +124,8 @@ exports.updateIncentivePlan = async (req, res) => {
             { new: true }
         );
         return res.status(200).json({
-            message: "Incentive plan data updated successfully!",
-            data: incentivePlanUpdated,
+            message: "Financial year setup data updated successfully!",
+            data: financialYearSetupUpdated,
         });
     } catch (error) {
         return res.status(500).json({
@@ -141,11 +135,11 @@ exports.updateIncentivePlan = async (req, res) => {
 };
 
 /**
- * Api is to used for the incentive_plan data get_list in the DB collection.
+ * Api is to used for the financial_year_setup data get_list in the DB collection.
  */
-exports.getIncentivePlanList = async (req, res) => {
+exports.getFinancialYearSetupList = async (req, res) => {
     try {
-        const incentivePlanListData = await incentivePlanModel.aggregate([
+        const financialYearSetupListData = await financialYearSetupModel.aggregate([
             {
                 $lookup: {
                     from: "usermodels",
@@ -159,8 +153,7 @@ exports.getIncentivePlanList = async (req, res) => {
                     path: "$user",
                     preserveNullAndEmptyArrays: true,
                 },
-            },
-            {
+            }, {
                 $lookup: {
                     from: "usermodels",
                     localField: "managed_by",
@@ -174,27 +167,10 @@ exports.getIncentivePlanList = async (req, res) => {
                     preserveNullAndEmptyArrays: true,
                 },
             },
-
-            {
-                $lookup: {
-                    from: "salesservicemasters",
-                    localField: "sales_service_master_id",
-                    foreignField: "_id",
-                    as: "salesservicemaster",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$salesservicemaster",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
             {
                 $project: {
-                    sales_service_master_id: 1,
-                    incentive_type: 1,
-                    value: 1,
-                    remarks: 1,
+                    start_date: 1,
+                    end_date: 1,
                     managed_by: 1,
                     managed_by_name: "$user.user_name",
                     created_date_time: 1,
@@ -202,19 +178,14 @@ exports.getIncentivePlanList = async (req, res) => {
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
                     last_updated_by: 1,
-                    Sales_Service_Master: {
-                        Sales_Service_Master_id:"$salesservicemaster._id",
-                        service_name: "$salesservicemaster.service_name",
-                        post_type: "$salesservicemaster.post_type",
-                    }
                 },
             },
         ])
-        if (incentivePlanListData) {
+        if (financialYearSetupListData) {
             return res.status(200).json({
                 status: 200,
-                message: "Incentive plan details list successfully!",
-                data: incentivePlanListData,
+                message: "Financial year setup details list successfully!",
+                data: financialYearSetupListData,
             });
         }
         return res.status(404).json({
@@ -231,23 +202,23 @@ exports.getIncentivePlanList = async (req, res) => {
 
 
 /**
- * Api is to used for the incentive_plan data delete in the DB collection.
+ * Api is to used for the financial_year_setup data delete in the DB collection.
  */
-exports.deleteIncentivePlan = async (req, res) => {
+exports.deleteFinancialYearSetup = async (req, res) => {
     try {
         const { params } = req;
         const { id } = params;
-        const incentivePlanDelete = await incentivePlanModel.findOne({ _id: id });
-        if (!incentivePlanDelete) {
+        const financialYearSetupDelete = await financialYearSetupModel.findOne({ _id: id });
+        if (!financialYearSetupDelete) {
             return res.status(404).json({
                 status: 404,
                 message: message.DATA_NOT_FOUND,
             });
         }
-        await incentivePlanModel.deleteOne({ _id: id });
+        await financialYearSetupModel.deleteOne({ _id: id });
         return res.status(200).json({
             status: 200,
-            message: "Incentive plan data deleted successfully!",
+            message: "Financial year setup data deleted successfully!",
         });
     } catch (error) {
         return res.status(500).json({

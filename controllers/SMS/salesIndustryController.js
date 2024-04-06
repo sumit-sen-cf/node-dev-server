@@ -1,30 +1,25 @@
-const response = require('../../common/response');
-const { message } = require("../../common/message");
+const salesIndustryModel = require("../../models/SMS/salesIndustryModel");
+const { message } = require("../../common/message")
 const mongoose = require("mongoose");
-const pmsPriceTypeModel = require('../../models/PMS/pmsPriceTypeModel');
 
-//POST- PMS_Price-type
-exports.createPriceType = async (req, res) => {
+/**
+ * Api is to used for the sales_industry data add in the DB collection.
+ */
+exports.createSalesIndustry = async (req, res) => {
     try {
-        const checkDuplicacy = await pmsPriceTypeModel.findOne({ price_type: req.body.price_type });
-        if (checkDuplicacy) {
-            return res.status(403).json({
-                status: 403,
-                message: "PMS price type alredy exist!",
-            });
-        }
-        const { price_type, description, created_by, last_updated_by } = req.body;
-        const addPriceData = new pmsPriceTypeModel({
-            price_type: price_type,
-            description: description,
+        const { industry_name, remarks, managed_by, created_by, last_updated_by } = req.body;
+        const addSalesIndustry = new salesIndustryModel({
+            industry_name: industry_name,
+            remarks: remarks,
+            managed_by: managed_by,
             created_by: created_by,
             last_updated_by: last_updated_by
         });
-        await addPriceData.save();
+        await addSalesIndustry.save();
         return res.status(200).json({
             status: 200,
-            message: "PMS price data added successfully!",
-            data: addPriceData,
+            message: "Sales industry data added successfully!",
+            data: addSalesIndustry,
         });
     } catch (error) {
         return res.status(500).json({
@@ -34,10 +29,12 @@ exports.createPriceType = async (req, res) => {
     }
 };
 
-//GET - PMS_Price-By-ID
-exports.getPriceDetail = async (req, res) => {
+/**
+ * Api is to used for the sales_industry data get_ByID in the DB collection.
+ */
+exports.getSalesIndustry = async (req, res) => {
     try {
-        const pmsPriceTypeData = await pmsPriceTypeModel.aggregate([
+        const salesBrandIndustry = await salesIndustryModel.aggregate([
             {
                 $match: { _id: mongoose.Types.ObjectId(req.params.id) },
             },
@@ -56,10 +53,25 @@ exports.getPriceDetail = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "managed_by",
+                    foreignField: "user_id",
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
-                    price_id: 1,
-                    price_type: 1,
-                    description: 1,
+                    industry_name: 1,
+                    remarks: 1,
+                    managed_by: 1,
+                    managed_by_name: "$user.user_name",
                     created_date_time: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
@@ -68,11 +80,11 @@ exports.getPriceDetail = async (req, res) => {
                 },
             },
         ])
-        if (pmsPriceTypeData) {
+        if (salesBrandIndustry) {
             return res.status(200).json({
                 status: 200,
-                message: "PMS price type details successfully!",
-                data: pmsPriceTypeData,
+                message: "Sales industry data successfully!",
+                data: salesBrandIndustry,
             });
         }
         return res.status(404).json({
@@ -87,20 +99,23 @@ exports.getPriceDetail = async (req, res) => {
     }
 };
 
-//PUT - updatePriceType_By-ID
-exports.updatePriceType = async (req, res) => {
+/**
+ * Api is to used for the sales_industry data update in the DB collection.
+ */
+exports.updateSalesIndustry = async (req, res) => {
     try {
         const { id } = req.params;
-        const { price_type, description, created_by, last_updated_by } = req.body;
-        const priceTypeData = await pmsPriceTypeModel.findOne({ _id: id });
-        if (!priceTypeData) {
-            return res.send("Invalid price Id...");
+        const { industry_name, remarks, managed_by, created_by, last_updated_by } = req.body;
+        const salesIndustryData = await salesIndustryModel.findOne({ _id: id });
+        if (!salesIndustryData) {
+            return res.send("Invalid sales_industry Id...");
         }
-        await priceTypeData.save();
-        const priceUpdate = await pmsPriceTypeModel.findOneAndUpdate({ _id: id }, {
+        await salesIndustryData.save();
+        const salesIndustryUpdatedData = await salesIndustryModel.findOneAndUpdate({ _id: id }, {
             $set: {
-                price_type,
-                description,
+                industry_name,
+                remarks,
+                managed_by,
                 created_by,
                 last_updated_by
             },
@@ -108,8 +123,8 @@ exports.updatePriceType = async (req, res) => {
             { new: true }
         );
         return res.status(200).json({
-            message: "PMS price data updated successfully!",
-            data: priceUpdate,
+            message: "Sales industry data updated successfully!",
+            data: salesIndustryUpdatedData,
         });
     } catch (error) {
         return res.status(500).json({
@@ -118,10 +133,12 @@ exports.updatePriceType = async (req, res) => {
     }
 };
 
-//GET - PMS_Price_List
-exports.getPriceList = async (req, res) => {
+/**
+ * Api is to used for the sales_industry data get_list in the DB collection.
+ */
+exports.getSalesIndustryList = async (req, res) => {
     try {
-        const pmsPriceData = await pmsPriceTypeModel.aggregate([
+        const salesIndustryListData = await salesIndustryModel.aggregate([
             {
                 $lookup: {
                     from: "usermodels",
@@ -139,65 +156,68 @@ exports.getPriceList = async (req, res) => {
             {
                 $lookup: {
                     from: "usermodels",
-                    localField: "last_updated_by",
+                    localField: "managed_by",
                     foreignField: "user_id",
-                    as: "user_data",
+                    as: "user",
                 },
             },
             {
                 $unwind: {
-                    path: "$user_data",
+                    path: "$user",
                     preserveNullAndEmptyArrays: true,
                 },
             },
             {
                 $project: {
-                    price_type_id: 1,
-                    price_type: 1,
-                    description: 1,
+                    industry_name: 1,
+                    remarks: 1,
+                    managed_by: 1,
+                    managed_by_name: "$user.user_name",
                     created_date_time: 1,
                     created_by: 1,
-                    last_updated_by_name: "$user_data.user_name",
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
                     last_updated_by: 1,
-                }
-            }
+                },
+            },
         ])
-        if (!pmsPriceData) {
-            return res.status(500).send({
-                succes: true,
-                message: "PMS price data list not found!",
+        if (salesIndustryListData) {
+            return res.status(200).json({
+                status: 200,
+                message: "Sales industry list successfully!",
+                data: salesIndustryListData,
             });
         }
-        return res.status(200).send({
-            succes: true,
-            message: "PMS price data list successfully!",
-            data: pmsPriceData
+        return res.status(404).json({
+            status: 404,
+            message: message.DATA_NOT_FOUND,
         });
     } catch (error) {
         return res.status(500).json({
+            status: 500,
             message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
 
-//DELETE - PMS_Price_Type_ By-ID
-exports.deletePriceType = async (req, res) => {
+/**
+ * Api is to used for the sales_industry data delete in the DB collection.
+ */
+exports.deleteSalesIndustry = async (req, res) => {
     try {
         const { params } = req;
         const { id } = params;
-        const priceDataDelete = await pmsPriceTypeModel.findOne({ _id: id });
-        if (!priceDataDelete) {
+        const salesIndustryDataDelete = await salesIndustryModel.findOne({ _id: id });
+        if (!salesIndustryDataDelete) {
             return res.status(404).json({
                 status: 404,
                 message: message.DATA_NOT_FOUND,
             });
         }
-        await pmsPriceTypeModel.deleteOne({ _id: id });
+        await salesIndustryModel.deleteOne({ _id: id });
         return res.status(200).json({
             status: 200,
-            message: "PMS price data deleted successfully!",
+            message: "Sales industry data deleted successfully!",
         });
     } catch (error) {
         return res.status(500).json({

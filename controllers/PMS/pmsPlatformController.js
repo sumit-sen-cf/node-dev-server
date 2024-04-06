@@ -58,7 +58,7 @@ exports.getPlatformDetail = async (req, res) => {
             {
                 $project: {
                     type_id: 1,
-                    type_name: 1,
+                    platform_name: 1,
                     description: 1,
                     created_date_time: 1,
                     created_by: 1,

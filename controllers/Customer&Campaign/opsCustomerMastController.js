@@ -386,7 +386,8 @@ exports.getCustomerMastList = async (req, res) => {
                     head_billing_country: 1,
                     description: 1,
                     created_by: 1,
-                    created_by_name: "$user.user_name",
+                    account_owner_id_name: "$user_data.user_name",
+                    created_by_name: "$user_data.user_name",
                     last_updated_by: 1,
                     pan_upload: {
                         $concat: [imageUrl, "$pan_upload"],
@@ -469,6 +470,71 @@ exports.customerMastDelete = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+};
+
+
+
+
+exports.getListCustomerContactData = async (req, res) => {
+    try {
+        const imageUrl = vari.IMAGE_URL;
+        const customerContactDataList = await opsCustomerContactModel.aggregate([
+            {
+                $match: { _id: mongoose.Types.ObjectId(req.params.id) },
+            },
+            {
+                $lookup: {
+                    from: "customermasts",
+                    localField: "customer_id",
+                    foreignField: "customer_id",
+                    as: "customermast_data",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$customermast_data",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    customer_id: 1,
+                    closed_by: "$closed_by",
+                    closed_by_id: "$user_data.user_id",
+                    contact_name: 1,
+                    contact_no: 1,
+                    alternative_contact_no: 1,
+                    email_Id: 1,
+                    department: 1,
+                    designation: 1,
+                    description: 1,
+                    created_date_time: 1,
+                    created_by: 1,
+                    last_updated_by_name: "$user_data.user_name",
+                    created_by_name: "$user.user_name",
+                    last_updated_date: 1,
+                    last_updated_by: 1,
+                    
+                }
+            }
+        ])
+        if (!customerContactDataList) {
+            return res.status(500).send({
+                succes: true,
+                message: "OPS customer-contact data list not found!",
+            });
+        }
+        return res.status(200).send({
+            succes: true,
+            message: "OPS customer-contact data list successfully!",
+            data: customerContactDataList
+        });
+    } catch (error) {
+        return res.status(500).json({
             message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
