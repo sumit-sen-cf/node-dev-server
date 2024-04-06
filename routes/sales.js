@@ -13,6 +13,10 @@ const incentivePlan = require("../controllers/SMS/incentivePlanController");
 const recordServiceMaster = require("../controllers/SMS/recordServiceMasterController");
 const recordServicePages = require("../controllers/SMS/recordServicePageController");
 const salesBrand = require("../controllers/SMS/salesBrandController");
+const salesIndustry = require("../controllers/SMS/salesIndustryController");
+const salesBadgesMaster = require("../controllers/SMS/salesBadgesMasterController");
+const financialYearSetup = require("../controllers/SMS/financialYearSetupController");
+const salesRoleBadgeAssignedRate = require("../controllers/SMS/salesRoleBadgeAssignedRateController");
 
 router.get("/", (req, res) => {
     res.send({ message: "Welcome to Sales module." });
@@ -143,5 +147,39 @@ router.put("/update_sales_brand/:id", salesBrand.updateSalesBrand);
 router.get("/getlist_sales_brand", salesBrand.getSalesBrandList);
 router.delete("/delete_sales_brand/:id", salesBrand.deleteSalesBrand);
 
+/**
+ * sales industry request routes
+ */
+router.post("/add_sales_industry", salesIndustry.createSalesIndustry);
+router.get("/get_sales_industry/:id", salesIndustry.getSalesIndustry);
+router.put("/update_sales_industry/:id", salesIndustry.updateSalesIndustry);
+router.get("/getlist_sales_industry", salesIndustry.getSalesIndustryList);
+router.delete("/delete_sales_industry/:id", salesIndustry.deleteSalesIndustry);
 
-module.exports = router;
+/**
+ * sales badges request routes
+ */
+router.post("/add_sales_badges", salesBadgesMaster.createSalesBadgesMaster);
+router.get("/get_sales_badges/:id", salesBadgesMaster.getSalesBadgesMaster);
+router.put("/update_sales_badges/:id", salesBadgesMaster.updateSalesBadgesMaster);
+router.get("/getlist_sales_badges", salesBadgesMaster.getSalesBadgesMasterList);
+router.delete("/delete_sales_badges/:id", salesBadgesMaster.deleteSalesBadgesMaster);
+
+/**
+ * financial yaer setup request routes
+ */
+router.post("/add_financial_year_setup", financialYearSetup.createFinancialYearSetup);
+router.get("/get_financial_year_setup/:id", financialYearSetup.getFinancialYearSetupDetails);
+router.put("/update_financial_year_setup/:id", financialYearSetup.updateFinancialYearSetup);
+router.get("/getlist_financial_year_setup", financialYearSetup.getFinancialYearSetupList);
+
+/**
+ * sales role badges assigned rate request routes
+ */
+router.post("/add_sale_role_badges_assigned_rate", salesRoleBadgeAssignedRate.createSalesRoleBadgeAssignedRate);
+router.get("/get_sale_role_badges_assigned_rate/:id", salesRoleBadgeAssignedRate.getSalesRoleBadgeAssigned);
+router.put("/update_sale_role_badges_assigned_rate/:id", salesRoleBadgeAssignedRate.updateSalesRoleBadgeAssignedRate);
+router.get("/getlist_sale_role_badges_assigned_rate", salesRoleBadgeAssignedRate.getSalesRoleBadgeAssignedRateList);
+router.delete("/delete_sale_role_badges_assigned_rate/:id", salesRoleBadgeAssignedRate.deleteSalesRoleBadgeAssigned);
+
+module.exports = router; 

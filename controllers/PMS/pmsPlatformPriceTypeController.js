@@ -16,10 +16,10 @@ exports.createPlatformPrice = async (req, res) => {
                 message: "PMS platform-price alredy exist!",
             });
         }
-        const { platform_id,platform_price_name, description, price_type_id, created_by, last_updated_by } = req.body;
+        const { platform_id, platform_price_name, description, price_type_id, created_by, last_updated_by } = req.body;
         const addPlatformPriceData = new pmsPlatformPriceModel({
             platform_id: platform_id,
-            platform_price_name:platform_price_name,
+            platform_price_name: platform_price_name,
             price_type_id: price_type_id,
             description: description,
             created_by: created_by,
@@ -65,7 +65,7 @@ exports.getPlatformPriceDetail = async (req, res) => {
                     platform_id: 1,
                     price_type_id: 1,
                     type_name: 1,
-                    platform_price_name:1,
+                    platform_price_name: 1,
                     description: 1,
                     created_date_time: 1,
                     created_by: 1,
@@ -98,7 +98,7 @@ exports.getPlatformPriceDetail = async (req, res) => {
 exports.updatePlatformPriceData = async (req, res) => {
     try {
         const { id } = req.params;
-        const { platform_id,platform_price_name, description, price_type_id, created_by, last_updated_by } = req.body;
+        const { platform_id, platform_price_name, description, price_type_id, created_by, last_updated_by } = req.body;
         const PlatformPrice = await pmsPlatformPriceModel.findOne({ _id: id });
         if (!PlatformPrice) {
             return res.send("Invalid Platform-price Id...");
@@ -189,7 +189,7 @@ exports.getPlatformPriceList = async (req, res) => {
             },
             {
                 $project: {
-                    platform_price_name:1,
+                    platform_price_name: 1,
                     description: 1,
                     created_date_time: 1,
                     created_by: 1,
@@ -233,7 +233,7 @@ exports.deletePlatformPriceData = async (req, res) => {
     try {
         const { params } = req;
         const { id } = params;
-        const platformPriceData = await pmsPlatformPriceModel.findOne({ _id: id }); 
+        const platformPriceData = await pmsPlatformPriceModel.findOne({ _id: id });
         if (!platformPriceData) {
             return res.status(404).json({
                 status: 404,
