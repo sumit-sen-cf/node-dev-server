@@ -129,6 +129,7 @@ const phpVendorPurchasePaymentRequest = require("./controllers/phpVendorPurchase
 //Routes for Asset Repair and Return Summary Data
 const repairandreturnsumdata = require("./controllers/repairAndReturnSum.js");
 const assetVendorSum = require("./controllers/assetVendorSum.js");
+const pmsPageAssignment = require("./controllers/PMS/pmsPageAssignment.js");
 
 /* Task Mangement Controller Import */
 //const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1569,7 +1570,7 @@ router.post("/add_customer_contact", createCustomerContact);
 router.get("/get_customer_contact/:id", getCustomerContactDetail);
 router.put("/update_customer_contact/:id", updateCustomerContact);
 router.get("/get_all_customer_contact", getCustomerContactList);
- router.get("/get_list_customer_contact/:id", getListCustomerContactData);
+router.get("/get_list_customer_contact/:id", getListCustomerContactData);
 
 router.delete("/delete_customer_contact/:id", deleteCustomerContact);
 
@@ -1687,14 +1688,21 @@ router.get("/getVendorPagePriceList", getVendorPagePriceList);
 router.delete("/deleteVendorPagePrice/:id", deleteVendorPagePriceData);
 
 
-router.post("/add_page_purchase_price",createPagePurchasePrice);
-router.get("/get_page_purchase_price/:id",getPagePurchasePrice);
-router.put("/update_page_purchase_price/:id",updatePagePurchasePrice);
-router.get("/getlist_page_purchase_price",getPagePurchasePriceList);
-router.get("/getAll_page_purchase_price/:id",getAllPagePurchasePriceList);
-router.delete("/delete_page_purchase_price/:id",deletePagePurchasePriceData);
+router.post("/add_page_purchase_price", createPagePurchasePrice);
+router.get("/get_page_purchase_price/:id", getPagePurchasePrice);
+router.put("/update_page_purchase_price/:id", updatePagePurchasePrice);
+router.get("/getlist_page_purchase_price", getPagePurchasePriceList);
+router.get("/getAll_page_purchase_price/:id", getAllPagePurchasePriceList);
+router.delete("/delete_page_purchase_price/:id", deletePagePurchasePriceData);
 
+//pms page assignment APi's
+router.post("/add_page_assignment", pmsPageAssignment.createPageAssignment);
+router.put("/update_page_assignment/:id", pmsPageAssignment.updatePageAssignment);
+router.get("/get_page_assignment/:id", pmsPageAssignment.getPageAssignmentDetail);
+router.get("/get_list_page_assignment", pmsPageAssignment.getPageAssignmentList);
+router.delete("/delete_page_assignment/:id", pmsPageAssignment.deletePageAssignmentData);
 
+router.get("/get_list_page_assignment_history", pmsPageAssignment.getPageAssignmentHistoryList);
 
 // --------------------------------------------------------------Task Mangements all Routes------------------------------------------//
 router.post("/addSubStatus", createTmsSubStatusMast);
