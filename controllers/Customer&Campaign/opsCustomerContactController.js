@@ -269,6 +269,120 @@ exports.getCustomerContactList = async (req, res) => {
     }
 };
 
+
+
+exports.getListCustomerContactData = async (req, res) => {
+    try {
+        const imageUrl = vari.IMAGE_URL;
+        const customerContactDataList = await opsCustomerContactModel.aggregate([
+            {
+                $match: { customer_id: Number(req.params.id) },
+            },
+
+            {
+                $lookup: {
+                    from: "customermasts",
+                    localField: "customer_id",
+                    foreignField: "customer_id",
+                    as: "customermast_data",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$customermast_data",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    customer_id: 1,
+                    closed_by: "$closed_by",
+                    closed_by_id: "$user_data.user_id",
+                    contact_name: 1,
+                    contact_no: 1,
+                    alternative_contact_no: 1,
+                    email_Id: 1,
+                    department: 1,
+                    designation: 1,
+                    description: 1,
+                    created_date_time: 1,
+                    created_by: 1,
+                    last_updated_by_name: "$user_data.user_name",
+                    created_by_name: "$user.user_name",
+                    last_updated_date: 1,
+                    last_updated_by: 1,
+                    OPS_CustomerMast_data: {
+                        _id: "$customermast_data._id",
+                        customermast_id: "$customermast_data.customer_id",
+                        customer_id: "$customermast_data.customer_id",
+                        account_type_id: "$customermast_data.account_type_id",
+                        ownership_id: "$customermast_data.ownership_id",
+                        industry_id: "$customermast_data.industry_id",
+                        customer_name: "$customermast_data.customer_name",
+                        pin_code: "$customermast_data.pin_code",
+                        gst_address: "$customermast_data.gst_address",
+                        account_owner_id: "$customermast_data.account_owner_id",
+                        parent_account_id: "$customermast_data.parent_account_id",
+                        company_size: "$customermast_data.company_size",
+                        company_email: "$customermast_data.company_email",
+                        primary_contact_no: "$customermast_data.primary_contact_no",
+                        alternative_no: "$customermast_data.alternative_no",
+                        website: "$customermast_data.website",
+                        turn_over: "$customermast_data.turn_over",
+                        establishment_year: "$customermast_data.establishment_year",
+                        employees_Count: "$customermast_data.employees_Count",
+                        how_many_offices: "$customermast_data.how_many_offices",
+                        company_gst_no: "$customermast_data.company_gst_no",
+                        company_pan_no: "$customermast_data.company_pan_no",
+                        connected_office: "$customermast_data.connected_office",
+                        connect_billing_street: "$customermast_data.connect_billing_street",
+                        connect_billing_city: "$customermast_data.connect_billing_city",
+                        connect_billing_state: "$customermast_data.connect_billing_state",
+                        connect_billing_country: "$customermast_data.connect_billing_country",
+                        head_office: "$customermast_data.head_office",
+                        head_billing_street: "$customermast_data.head_billing_street",
+                        head_billing_city: "$customermast_data.head_billing_city",
+                        head_billing_state: "$customermast_data.head_billing_state",
+                        head_billing_country: "$customermast_data.head_billing_country",
+                        description: "$customermast_data.description",
+                        created_by: "$customermast_data.created_by",
+                        created_by_name: "$user.user_name",
+                        last_updated_by: "$customermast_data.last_updated_by",
+                        pan_upload: {
+                            $concat: [imageUrl, "$customermast_data.pan_upload"],
+                        },
+                        gst_upload: {
+                            $concat: [imageUrl, "$customermast_data.gst_upload"],
+                        },
+                    },
+                }
+            }
+        ])
+        if (!customerContactDataList) {
+            return res.status(500).send({
+                succes: true,
+                message: "OPS customer-contact data list not found!",
+            });
+        }
+        return res.status(200).send({
+            succes: true,
+            message: "OPS customer-contact data list successfully!",
+            data: customerContactDataList
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+};
+
+
+
+
+
+
+
 //DELETE - OPS_CustomerConatct- By-ID
 exports.deleteCustomerContact = async (req, res) => {
     try {
