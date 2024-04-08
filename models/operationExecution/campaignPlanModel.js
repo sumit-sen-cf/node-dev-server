@@ -78,7 +78,7 @@ const campaignPlanSchema = new mongoose.Schema({
         default: 'inactive',
         enum: ['active', 'inactive', 'replaced', 'replacement', 'pending', 'rejected']
     },
-    delete_id:{
+    delete_id: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'pageDeleteRecordModel',
     },
@@ -96,12 +96,13 @@ const campaignPlanSchema = new mongoose.Schema({
         default: 'N/A',
     },
     replacement_id: {
-        type: mongoose.SchemaTypes.ObjectId,
-        ref: 'pageReplacementRecordModel',
+        type: String,
+        // type: mongoose.SchemaTypes.ObjectId,
+        // ref: 'pageReplacementRecordModel',
 
     },
-    isExecuted:{
-        type:Boolean,
+    isExecuted: {
+        type: Boolean,
         default: false,
     }
 
@@ -109,13 +110,13 @@ const campaignPlanSchema = new mongoose.Schema({
 
 campaignPlanSchema.pre('save', async function (next) {
     if (!this.plan_id) {
-      const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'plan_id': -1 } });
-  
-      if (lastAgency && lastAgency.plan_id) {
-        this.plan_id = lastAgency.plan_id + 1;
-      } else {
-        this.plan_id = 1;
-      }
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'plan_id': -1 } });
+
+        if (lastAgency && lastAgency.plan_id) {
+            this.plan_id = lastAgency.plan_id + 1;
+        } else {
+            this.plan_id = 1;
+        }
     }
     next();
 });
@@ -127,7 +128,7 @@ campaignPlanSchema.pre(/^find/, async function (next) {
     })
 
     this.populate({
-        path:'delete_id'
+        path: 'delete_id'
     })
 
     next()
