@@ -12,24 +12,24 @@ const campaignPhaseModel = require('../../models/operationExecution/campaignPhas
 const PageDeleteRecordModel = require('../../models/operationExecution/pageDeleteRecordModel.js')
 const pageReplacementRecordModel = require('../../models/operationExecution/pageReplacementRecordModel.js')
 const PhaseCommitmentModel = require('../../models/operationExecution/phaseCommitmentModel.js')
-const CampaignPhaseModel=require('../../models/operationExecution/campaignPhaseModel.js')
-const preAssignmentModel=require('../../models/operationExecution/preAssignmentModel.js')
+const CampaignPhaseModel = require('../../models/operationExecution/campaignPhaseModel.js')
+const preAssignmentModel = require('../../models/operationExecution/preAssignmentModel.js')
 
 
 
 exports.createPlan = catchAsync(async (req, res, next) => {
     //will receive array of objects(pages),campaignId,vendor,campaignName,pageName
-    
+
     const { pages, campaignId, campaignName, planName } = req.body
 
-    for(let i = 0; i < pages.length; i++) {
-       if(!pages[i].postPerPage || !pages[i].storyPerPage){
-            next(new appError(500,"all pages should contain storyPerPage and postPerPage"))
+    for (let i = 0; i < pages.length; i++) {
+        if (!pages[i].postPerPage || !pages[i].storyPerPage) {
+            next(new appError(500, "all pages should contain storyPerPage and postPerPage"))
         }
     }
     for (let i = 0; i < pages.length; i++) {
 
-        
+
         let data = {
             planName,
             campaignId,
@@ -40,7 +40,7 @@ exports.createPlan = catchAsync(async (req, res, next) => {
             ...pages[i]
 
         }
-       
+
         const result = await CampaignPlanModel.create(data)
 
 
@@ -54,7 +54,7 @@ exports.createPlan = catchAsync(async (req, res, next) => {
 //to get all plan 
 exports.getPlan = catchAsync(async (req, res, next) => {
     const id = req.params.id
-    const result = await CampaignPlanModel.find({ campaignId: id,delete_status:"inactive" })
+    const result = await CampaignPlanModel.find({ campaignId: id })
     if (!result) {
         return next(new appError(404, "plans not found"))
     }
@@ -115,12 +115,12 @@ exports.singlePlanUpdate = catchAsync(async (req, res, next) => {
 
 })
 exports.updatePlan = catchAsync(async (req, res, next) => {
-    const { campaignId, p_id,postPerPage,storyPerPage } = req.body
+    const { campaignId, p_id, postPerPage, storyPerPage } = req.body
     const filter = { campaignId, p_id };
-    const data={postPerPage,storyPerPage,postRemaining:postPerPage,storyRemaining:storyPerPage}
+    const data = { postPerPage, storyPerPage, postRemaining: postPerPage, storyRemaining: storyPerPage }
 
-    const phaseExist=await CampaignPhaseModel.find({campaignId})
-    if(phaseExist.length>0) {
+    const phaseExist = await CampaignPhaseModel.find({ campaignId })
+    if (phaseExist.length > 0) {
         return next(new appError(200, "Can't update , phase already Exist"))
     }
 
@@ -132,7 +132,7 @@ exports.updatePlan = catchAsync(async (req, res, next) => {
         new: true, // Return the modified document rather than the original
     };
 
-    const result = await CampaignPlanModel.findOneAndUpdate(filter,data, options2);
+    const result = await CampaignPlanModel.findOneAndUpdate(filter, data, options2);
     if (!result) {
         const data = new CampaignPlanModel({
             ...req.body
@@ -151,36 +151,36 @@ exports.updatePlan = catchAsync(async (req, res, next) => {
 
 })
 
-exports.deleteSinglePlan=catchAsync(async (req,res,next) => {
-    const {page,deletion_request_by}=req.body
+exports.deleteSinglePlan = catchAsync(async (req, res, next) => {
+    const { page, deletion_request_by } = req.body
 
-    const DataForDeleteRecord={
-        plan_id:page?.plan_id,
-        plan_name:page?.plan_name,
-        campaignId:page?.campaignId,
-        campaignName:page?.campaignName,
+    const DataForDeleteRecord = {
+        plan_id: page?.plan_id,
+        plan_name: page?.plan_name,
+        campaignId: page?.campaignId,
+        campaignName: page?.campaignName,
         deletion_request_by,
-        deleted_page:page?.p_id,
-        deletion_stage:"plan",
-        page_name:page?.page_name,
+        deleted_page: page?.p_id,
+        deletion_stage: "plan",
+        page_name: page?.page_name,
     }
 
-    const deleteRecord=await PageDeleteRecordModel.create(DataForDeleteRecord)
-    const data={delete_id:deleteRecord._id,delete_status:"active"}
-    const option={new:true}
-    const updatePlan=await CampaignPlanModel.findOneAndUpdate({campaignId:page.campaignId,plan_id:page.plan_id,p_id:page.p_id},data,option)
-    const updateAssignment=await AssignmentModel.findOneAndUpdate({campaignId:page.campaignId,plan_id:page.plan_id,p_id:page.p_id},data,option)
-    const updatePhasePage=await PhasePageModel.findOneAndUpdate({campaignId:page.campaignId,plan_id:page.plan_id,p_id:page.p_id},data,option)
-    const deletePreAssignment=await preAssignmentModel.deleteMany({campaignId:page.campaignId})
+    const deleteRecord = await PageDeleteRecordModel.create(DataForDeleteRecord)
+    const data = { delete_id: deleteRecord._id, delete_status: "active" }
+    const option = { new: true }
+    const updatePlan = await CampaignPlanModel.findOneAndUpdate({ campaignId: page.campaignId, plan_id: page.plan_id, p_id: page.p_id }, data, option)
+    const updateAssignment = await AssignmentModel.findOneAndUpdate({ campaignId: page.campaignId, plan_id: page.plan_id, p_id: page.p_id }, data, option)
+    const updatePhasePage = await PhasePageModel.findOneAndUpdate({ campaignId: page.campaignId, plan_id: page.plan_id, p_id: page.p_id }, data, option)
+    const deletePreAssignment = await preAssignmentModel.deleteMany({ campaignId: page.campaignId })
     res.status(200).json({
         updatePlan,
-        
+
         updatePhasePage,
         updateAssignment
     })
 
 
-    
+
 })
 
 exports.deleteEntirePlan = catchAsync(async (req, res, next) => {
