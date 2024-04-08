@@ -81,7 +81,8 @@ const salesBooking = new mongoose.Schema({
     booking_status: {
         type: Number,//refers to the sales booking status model
         required: false,
-        default: 0
+        default: 0,
+        ref: "salesBookingStatus"
     },
     incentive_sharing_user_id: {
         type: Number,
@@ -137,6 +138,10 @@ const salesBooking = new mongoose.Schema({
     payment_type: {
         type: String,
         enum: ['partial', 'full'],
+    },
+    final_invoice: {
+        type: String,
+        required: false,
     },
     created_by: {
         type: Number,
