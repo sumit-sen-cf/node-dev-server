@@ -201,7 +201,7 @@ exports.executionGraph = async (req, res) => {
             {
                 $match: {
                     // $or: [{ execution_status: 1 }, { execution_status: 0 }],
-                    execution_status: { $in: [0, 1, 2, 3] } // Match any of these statuses
+                    execution_status: { $in: [0, 1, 2, 3, 4] } // Match any of these statuses
                 },
             },
         ];
