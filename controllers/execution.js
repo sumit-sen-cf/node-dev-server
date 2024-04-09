@@ -98,7 +98,7 @@ exports.exeSumPost = async (req, res) => {
                     invoice_id: data.invoice_id,
                     start_date: data.start_date,
                     end_date: data.end_date,
-                    execution_status: data.execution_status,
+                    execution_status: parseInt(data.execution_status),
                     execution_time: data.execution_time,
                     execution_date_time: data.execution_date_time,
                     execution_excel: data.execution_excel,
@@ -182,7 +182,7 @@ exports.editExeSum = async (req, res) => {
             loggedin_user_id: req.body.loggedin_user_id,
             sale_booking_id: req.body.sale_booking_id,
             execution_remark: req.body.execution_remark,
-            execution_status: req.body.execution_status,
+            execution_status: parseInt(req.body.execution_status),
             start_date: req.body.start_date,
             end_date: req.body.end_date
         }, { new: true })
@@ -200,7 +200,8 @@ exports.executionGraph = async (req, res) => {
         const pipeline = [
             {
                 $match: {
-                    $or: [{ execution_status: 1 }, { execution_status: 0 }],
+                    // $or: [{ execution_status: 1 }, { execution_status: 0 }],
+                    execution_status: { $in: [0, 1, 2, 3] } // Match any of these statuses
                 },
             },
         ];
