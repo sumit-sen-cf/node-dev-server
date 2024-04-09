@@ -80,11 +80,15 @@ exports.updatePageAssignment = async (req, res) => {
             new: true
         });
 
-        if (pageAssignmentData && pageAssignmentUpdated) {
-            const pageAssignmentHistoryData = await pmsPageAssignmentHistoryModel.findOne({
-                page_id: pageAssignmentData.page_id,
-                assignment_to: pageAssignmentData.assignment_to
-            })
+        let pageId = Number(req.body && req.body.page_id) || 0;
+        let assignmentTo = Number(req.body && req.body.assignment_to) || 0;
+
+        const pageAssignmentHistoryData = await pmsPageAssignmentHistoryModel.findOne({
+            page_id: pageAssignmentData.page_id,
+            assignment_to: pageAssignmentData.assignment_to
+        })
+
+        if (pageAssignmentHistoryData && pageAssignmentHistoryData.page_id == pageId && pageAssignmentHistoryData.assignment_to == assignmentTo && pageAssignmentUpdated) {
             const start_date = moment((pageAssignmentHistoryData && pageAssignmentHistoryData.start_date));
             const end_date = moment(new Date());
 
@@ -100,6 +104,18 @@ exports.updatePageAssignment = async (req, res) => {
                     end_date: end_date,
                 }
             })
+        } else {
+            //current date find
+            const currentDate = new Date();
+            let historyDataObj = {
+                page_id: pageId,
+                assignment_by: req.body.assignment_by,
+                assignment_to: assignmentTo,
+                start_date: currentDate,
+            }
+
+            //pms page assignment history data create in DB collection
+            await pmsPageAssignmentHistoryModel.create(historyDataObj);
         }
         //return success response send
         return res.status(200).json({
