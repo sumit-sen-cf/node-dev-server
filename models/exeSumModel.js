@@ -93,9 +93,9 @@ const exeSumModel = new mongoose.Schema({
         default: 0
     },
     execution_status: {
-        type: String,
+        type: Number,
         required: false,
-        default: ""
+        default: 0
     },
     payment_update_id: {
         type: Number,
