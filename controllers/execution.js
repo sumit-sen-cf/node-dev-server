@@ -263,6 +263,12 @@ exports.executionGraph = async (req, res) => {
                             if (!groupedData[weeklyKey]['Weekly']) groupedData[weeklyKey]['Weekly'] = {};
                             if (!groupedData[weeklyKey]['Weekly'][executionStatus]) groupedData[weeklyKey]['Weekly'][executionStatus] = 0;
                             groupedData[weeklyKey]['Weekly'][executionStatus]++;
+                        } else {
+                            const weeklyKey = `${currentWeekStartDate.toISOString().slice(0, 10)} - ${currentWeekEndDate.toISOString().slice(0, 10)}`;
+                            if (!groupedData[weeklyKey]) groupedData[weeklyKey] = {};
+                            if (!groupedData[weeklyKey]['Weekly']) groupedData[weeklyKey]['Weekly'] = {};
+                            if (!groupedData[weeklyKey]['Weekly'][executionStatus]) groupedData[weeklyKey]['Weekly'][executionStatus] = 0;
+                            groupedData[weeklyKey]['Weekly'][executionStatus] = 0;
                         }
                     });
 
