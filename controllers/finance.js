@@ -445,3 +445,23 @@ exports.getWFHDTDSUsers = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Error getting all data.', error: err.message });
   }
 };
+
+exports.updateDataFinance = async (req, res) => {
+  try {
+    const editsim = await attendanceModel.findOneAndUpdate(
+      { attendence_id: parseInt(req.body.attendence_id) },
+      { attendence_status_flow: 'Pending From Finance' },
+      { new: true }
+    );
+
+    await financeModel.findOneAndUpdate(
+      { attendence_id: req.body.attendence_id },
+      { status_: 0 },
+      { new: true }
+    );
+
+    res.status(200).send({ success: true, data: editsim })
+  } catch (err) {
+    res.status(500).send({ error: err, sms: 'Error updating Fianance details' })
+  }
+};
