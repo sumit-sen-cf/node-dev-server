@@ -220,7 +220,8 @@ exports.getSingleRecord = catchAsync(async (req, res, next) => {
         {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
-            }
+            },
+            timeout: 5000
         })
 
     console.log(oldpage)
@@ -231,7 +232,8 @@ exports.getSingleRecord = catchAsync(async (req, res, next) => {
                 {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
-                    }
+                    },
+                    timeout: 5000
                 })
             return { ...x.data.body[0] }
         })
