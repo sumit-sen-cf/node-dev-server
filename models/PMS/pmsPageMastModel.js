@@ -82,6 +82,23 @@ const pmsPageMastSchema = new Schema({
         type: String,
         required: false
     },
+    price_type_id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        // ref: "pmsPriceType"
+    },
+    price_cal_type: {
+        type: String,
+        required: true,
+    },
+    variable_type: {
+        type: String,
+        required: false,
+    },
+    purchase_price: {
+        type: Number,
+        required: true,
+    },
     created_date_time: {
         type: Date,
         default: Date.now,

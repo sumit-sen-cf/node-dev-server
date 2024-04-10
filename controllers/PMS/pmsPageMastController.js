@@ -15,7 +15,8 @@ exports.createPageMast = async (req, res) => {
         }
         const { page_user_name, link, platform_id, page_catg_id, tag_category, page_level, page_status, page_closed_by,
             page_name_type, content_creation, ownership_type, vendorMast_id, followers_count, profile_type_id, platform_active_on,
-            engagment_rate, description, created_by, last_updated_by, page_user_id } = req.body;
+            engagment_rate, description, created_by, last_updated_by, page_user_id, price_type_id, price_cal_type,
+            variable_type, purchase_price } = req.body;
         const pageMastData = new pmsPageMastModel({
             page_user_name: page_user_name,
             link: link,
@@ -34,6 +35,10 @@ exports.createPageMast = async (req, res) => {
             platform_active_on: platform_active_on,
             engagment_rate: engagment_rate,
             description: description,
+            price_type_id: price_type_id,
+            price_cal_type: price_cal_type,
+            variable_type: variable_type,
+            purchase_price: purchase_price,
             page_user_id: page_user_id,
             created_by: created_by,
             last_updated_by: last_updated_by
@@ -99,6 +104,18 @@ exports.getPageMastDetail = async (req, res) => {
                     preserveNullAndEmptyArrays: true,
                 },
             }, {
+                $lookup: {
+                    from: "pmspricetypes",
+                    localField: "price_type_id",
+                    foreignField: "_id",
+                    as: "pmspricetypesData",
+                },
+            }, {
+                $unwind: {
+                    path: "$pmspricetypesData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            }, {
                 $project: {
                     page_user_name: 1,
                     pageMast_id: 1,
@@ -119,12 +136,17 @@ exports.getPageMastDetail = async (req, res) => {
                     platform_active_on: 1,
                     engagment_rate: 1,
                     description: 1,
+                    price_type_id: 1,
+                    price_cal_type: 1,
+                    variable_type: 1,
+                    purchase_price: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
                     last_updated_by: 1,
                     exepurchasemodel: "$exepurchasemodelData",
                     execounthismodels: "$execounthismodelsData",
+                    pmspricetypesData: "$pmspricetypesData"
                 },
             }])
         if (pmsPageMastData) {
@@ -153,7 +175,8 @@ exports.updatePageMast = async (req, res) => {
         const { id } = req.params;
         const { page_user_name, link, platform_id, page_catg_id, tag_category, page_level, page_status, page_closed_by,
             page_name_type, content_creation, ownership_type, vendorMast_id, followers_count, profile_type_id, platform_active_on,
-            engagment_rate, description, created_by, last_updated_by, page_user_id } = req.body;
+            engagment_rate, description, created_by, last_updated_by, page_user_id,
+            price_type_id, price_cal_type, variable_type, purchase_price } = req.body;
         const pageMastData = await pmsPageMastModel.findOne({ _id: id });
         if (!pageMastData) {
             return res.send("Invalid page-mast Id...");
@@ -178,6 +201,10 @@ exports.updatePageMast = async (req, res) => {
                 platform_active_on,
                 engagment_rate,
                 description,
+                price_type_id,
+                price_cal_type,
+                variable_type,
+                purchase_price,
                 page_user_id,
                 created_by,
                 last_updated_by
@@ -243,6 +270,19 @@ exports.getPageMastList = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "pmspricetypes",
+                    localField: "price_type_id",
+                    foreignField: "_id",
+                    as: "pmspricetypesData",
+                },
+            }, {
+                $unwind: {
+                    path: "$pmspricetypesData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     page_user_name: 1,
                     pageMast_id: 1,
@@ -262,12 +302,17 @@ exports.getPageMastList = async (req, res) => {
                     platform_active_on: 1,
                     engagment_rate: 1,
                     description: 1,
+                    price_type_id: 1,
+                    price_cal_type: 1,
+                    variable_type: 1,
+                    purchase_price: 1,
                     page_user_id: 1,
                     created_by: 1,
                     last_updated_by_name: "$user_data.user_name",
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
                     last_updated_by: 1,
+                    pmspricetypesData: "$pmspricetypesData",
                     PMS_paform_data: {
                         platform_id: "$pmsplatform._id",
                         platform_name: "$pmsplatform.platform_name",
