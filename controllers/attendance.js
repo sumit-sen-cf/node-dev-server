@@ -201,6 +201,7 @@ exports.addAttendance = async (req, res) => {
             const resignMonthYear = `${resignYear}` + `${resignMonthNum}`;
 
             var work_days;
+            const absent = noOfabsent == undefined ? 0 : req.body.noOfabsent;
             const joining = user.joining_date;
             const convertDate = new Date(joining);
             const extractDate = convertDate.getDate() - 1;
@@ -210,12 +211,12 @@ exports.addAttendance = async (req, res) => {
             const monthNumber = monthNameToNumber(month);
             const mergeJoining1 = `${monthNumber}` + `${year}`;
             if (mergeJoining == mergeJoining1) {
-              work_days = monthLastValue - extractDate - noOfabsent;
+              work_days = monthLastValue - extractDate - absent;
             } else if (user.status == "Resigned") {
-              work_days = (monthLastValue - resignExtractDate) - noOfabsent;
+              work_days = (monthLastValue - resignExtractDate) - absent;
             }
             else {
-              work_days = monthLastValue - noOfabsent;
+              work_days = monthLastValue - absent;
             }
             const bodymonth = `${year}` + `${monthNumber}`;
 
@@ -247,7 +248,7 @@ exports.addAttendance = async (req, res) => {
                   user_id: user.user_id,
                   invoiceNo: invoiceNo,
                   user_name: user.user_name,
-                  noOfabsent: noOfabsent,
+                  noOfabsent: absent,
                   present_days: presentDays,
                   month_salary: totalSalary && totalSalary.toFixed(2),
                   month: req.body.month,
@@ -388,9 +389,9 @@ exports.addAttendance = async (req, res) => {
           const monthNumber = monthNameToNumber(month);
           const mergeJoining1 = `${monthNumber}` + `${year}`;
           if (mergeJoining == mergeJoining1) {
-            work_days = monthLastValue - extractDate - noOfabsent;
+            work_days = monthLastValue - extractDate - absent;
           } else if (findSeparationData?.status == "Resigned") {
-            work_days = (monthLastValue - resignExtractDate) - noOfabsent;
+            work_days = (monthLastValue - resignExtractDate) - absent;
           }
           else {
             work_days = monthLastValue - absent;
@@ -416,7 +417,7 @@ exports.addAttendance = async (req, res) => {
             {
               dept: req.body.dept,
               user_id: req.body.user_id,
-              noOfabsent: No_of_absent,
+              noOfabsent: absent,
               month: req.body.month,
               year: req.body.year,
               bonus: Bonus,
@@ -1192,38 +1193,134 @@ exports.updateAttendenceStatus = async (req, res) => {
 //   }
 // };
 
+// exports.getMonthYearData = async (req, res) => {
+//   try {
+//     // const currentDate = new Date();
+//     // const currentYear = currentDate.getFullYear();
+//     // const currentMonthIndex = currentDate.getMonth() + 1;
+//     // const numberOfMonths = 6;
+//     // const months = [
+//     //   "April",
+//     //   "May",
+//     //   "June",
+//     //   "July",
+//     //   "August",
+//     //   "September",
+//     //   "October",
+//     //   "November",
+//     //   "December",
+//     //   "January",
+//     //   "February",
+//     //   "March",
+//     // ];
+
+//     // const monthYearArray = months.map((month) => ({
+//     //   month,
+//     //   year:
+//     //     month === "January" || month === "February" || month === "March"
+//     //       ? currentYear + 1
+//     //       : currentYear,
+//     // }));
+//     const currentDate = new Date();
+//     const currentYear = currentDate.getFullYear();
+//     const currentMonthIndex = currentDate.getMonth() + 1;
+//     const numberOfMonths = 6;
+//     const months = [
+//       "April",
+//       "May",
+//       "June",
+//       "July",
+//       "August",
+//       "September",
+//       "October",
+//       "November",
+//       "December",
+//       "January",
+//       "February",
+//       "March",
+//     ];
+
+//     let startYear = currentYear;
+//     let startMonthIndex = currentMonthIndex;
+
+//     if (startMonthIndex <= months.indexOf("March")) {
+//       startYear--;
+//     }
+
+//     const monthYearArray = months.map((month, index) => {
+//       const loopMonthIndex = ((startMonthIndex + index - 1) % 12) + 1;
+//       const loopYear =
+//         startYear + Math.floor((startMonthIndex + index - 1) / 12);
+
+//       return {
+//         month,
+//         year:
+//           loopMonthIndex <= currentMonthIndex
+//             ? loopYear
+//             : parseInt(loopYear) +
+//             parseInt(
+//               month == "January" || month == "February" || month == "March"
+//                 ? 1
+//                 : 0
+//             ),
+//       };
+//     });
+
+//     const aggregationPipeline = [
+//       {
+//         $group: {
+//           _id: {
+//             month: "$month",
+//             year: "$year",
+//             dept: "$dept"
+//           },
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             month: "$_id.month",
+//             year: "$_id.year"
+//           },
+//           deptCount: { $sum: 1 }
+//         }
+//       }
+//     ];
+
+//     const dbResult = await attendanceModel.aggregate(aggregationPipeline);
+
+//     const dbSet = new Set(
+//       dbResult.map((item) => `${item._id.month}-${item._id.year}`)
+//     );
+
+//     const actualExistingResult = monthYearArray.map((item) => {
+//       const dateStr = `${item.month}-${item.year}`;
+//       const existingData = dbSet.has(dateStr) ? 1 : 0;
+
+//       const deptCount = dbResult.find(entry => entry._id.month === item.month && entry._id.year === item.year)?.deptCount || 0;
+
+//       item.deptCount = deptCount;
+//       item.atdGenerated = existingData;
+
+//       return item;
+//     });
+
+//     const response = { data: [...actualExistingResult] };
+//     res.status(200).json(response);
+//   } catch (error) {
+//     return res.send({
+//       error: error.message,
+//       status: 500,
+//       sms: "error getting data",
+//     });
+//   }
+// };
+
 exports.getMonthYearData = async (req, res) => {
   try {
-    // const currentDate = new Date();
-    // const currentYear = currentDate.getFullYear();
-    // const currentMonthIndex = currentDate.getMonth() + 1;
-    // const numberOfMonths = 6;
-    // const months = [
-    //   "April",
-    //   "May",
-    //   "June",
-    //   "July",
-    //   "August",
-    //   "September",
-    //   "October",
-    //   "November",
-    //   "December",
-    //   "January",
-    //   "February",
-    //   "March",
-    // ];
-
-    // const monthYearArray = months.map((month) => ({
-    //   month,
-    //   year:
-    //     month === "January" || month === "February" || month === "March"
-    //       ? currentYear + 1
-    //       : currentYear,
-    // }));
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
     const currentMonthIndex = currentDate.getMonth() + 1;
-    const numberOfMonths = 6;
     const months = [
       "April",
       "May",
@@ -1246,24 +1343,21 @@ exports.getMonthYearData = async (req, res) => {
       startYear--;
     }
 
-    const monthYearArray = months.map((month, index) => {
-      const loopMonthIndex = ((startMonthIndex + index - 1) % 12) + 1;
-      const loopYear =
-        startYear + Math.floor((startMonthIndex + index - 1) / 12);
+    const monthYearArray = [];
 
-      return {
-        month,
-        year:
-          loopMonthIndex <= currentMonthIndex
-            ? loopYear
-            : parseInt(loopYear) +
-            parseInt(
-              month == "January" || month == "February" || month == "March"
-                ? 1
-                : 0
-            ),
-      };
-    });
+    // Generating data for the current year and the next year
+    for (let i = 0; i < 24; i++) {
+      const loopMonthIndex = ((startMonthIndex + i - 1) % 12) + 1;
+      const loopYear =
+        startYear + Math.floor((startMonthIndex + i - 1) / 12);
+
+      monthYearArray.push({
+        month: months[loopMonthIndex - 1],
+        year: loopYear,
+        deptCount: 0,
+        atdGenerated: 0
+      });
+    }
 
     const aggregationPipeline = [
       {
@@ -1292,19 +1386,17 @@ exports.getMonthYearData = async (req, res) => {
       dbResult.map((item) => `${item._id.month}-${item._id.year}`)
     );
 
-    const actualExistingResult = monthYearArray.map((item) => {
+    // Merging database results with generated months data
+    monthYearArray.forEach((item) => {
       const dateStr = `${item.month}-${item.year}`;
       const existingData = dbSet.has(dateStr) ? 1 : 0;
 
-      const deptCount = dbResult.find(entry => entry._id.month === item.month && entry._id.year === item.year)?.deptCount || 0;
-
-      item.deptCount = deptCount;
+      const dbEntry = dbResult.find(entry => entry._id.month === item.month && entry._id.year === item.year);
+      item.deptCount = dbEntry ? dbEntry.deptCount : 0;
       item.atdGenerated = existingData;
-
-      return item;
     });
 
-    const response = { data: [...actualExistingResult] };
+    const response = { data: [...monthYearArray] };
     res.status(200).json(response);
   } catch (error) {
     return res.send({
@@ -1314,6 +1406,7 @@ exports.getMonthYearData = async (req, res) => {
     });
   }
 };
+
 
 
 

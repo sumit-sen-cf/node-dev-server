@@ -591,7 +591,8 @@ router.put(
 router.put("/edit_finance_utr", finance.editFinanceUtr);
 router.delete("/delete_finance", finance.deleteFinance);
 router.post("/set_utr_data", upload1.single("excel"), finance.setUtrData)
-router.post("/get_wfhd_tds_users", finance.getWFHDTDSUsers)
+router.post("/get_wfhd_tds_users", finance.getWFHDTDSUsers);
+router.put("/update_finance_data", finance.updateDataFinance);
 
 /* Sitting Routes */
 router.post("/add_sitting", sitting.addSitting);
@@ -1369,6 +1370,8 @@ router.put(
 // router.post("/get_user_doc/:id", userDocManagement.getUserDoc);
 router.post("/get_user_doc", userDocManagement.getUserDoc);
 router.delete("/delete_user_doc/:id", userDocManagement.deleteDoc);
+router.get("/get_doc_by_userid/:user_id", userDocManagement.getDocsByUserID);
+router.put("/update_doc_user", userDocManagement.updateUserDoc);
 
 //Swagger Route
 router.post("/add_dev_data", swaggerAccessManagement.addDevData);

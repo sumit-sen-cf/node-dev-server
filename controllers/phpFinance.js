@@ -325,14 +325,42 @@ exports.getAllphpFinanceData = async (req, res) => {
     }
 }
 
+// exports.getAllphpFinanceDataPending = async (req, res) => {
+//     try {
+//         const getData = await phpFinanceModel.find({ payment_approval_status: 0 });
+//         res.status(200).send({ data: getData })
+//     } catch (error) {
+//         res.status(500).send({ error: error.message, sms: "error getting php payment refund data" })
+//     }
+// }
+
 exports.getAllphpFinanceDataPending = async (req, res) => {
     try {
-        const getData = await phpFinanceModel.find({ payment_approval_status: 0 });
-        res.status(200).send({ data: getData })
+        const getData = await phpFinanceModel.aggregate([
+            {
+                $match: { payment_approval_status: "0" }
+            },
+            {
+                $group: {
+                    _id: "$payment_update_id",
+                    data: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$data" }
+            }
+        ]);
+
+        if (getData && getData.length > 0) {
+            res.status(200).send({ data: getData });
+        } else {
+            res.status(404).send({ sms: "No pending php payment refund data found" });
+        }
     } catch (error) {
-        res.status(500).send({ error: error.message, sms: "error getting php payment refund data" })
+        console.error("Error in getAllphpFinanceDataPending:", error);
+        res.status(500).send({ error: error.message, sms: "Error getting php payment refund data" });
     }
-}
+};
 
 exports.deletePhpFinanceData = async (req, res) => {
     const id = req.params.id;
