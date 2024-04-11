@@ -1,27 +1,24 @@
-const incentivePlanModel = require("../../models/SMS/incentivePlanModel");
 const { message } = require("../../common/message")
 const mongoose = require("mongoose");
+const salesPaymentModeModel = require("../../models/SMS/salesPaymentModeModel");
 
 /**
- * Api is to used for the incentive_plan data add in the DB collection.
+ * Api is to used for the sales_payment_mode data add in the DB collection.
  */
-exports.createIncentivePlan = async (req, res) => {
+exports.createSalesPaymentmode = async (req, res) => {
     try {
-        const { sales_service_master_id, incentive_type, value, remarks, managed_by, created_by, last_updated_by } = req.body;
-        const addIncentivePlanDetails = new incentivePlanModel({
-            sales_service_master_id: sales_service_master_id,
-            incentive_type: incentive_type,
-            value: value,
-            remarks: remarks,
+        const { payment_mode_name, managed_by, created_by, last_updated_by } = req.body;
+        const addSalesPaymentModeDetails = new salesPaymentModeModel({
+            payment_mode_name: payment_mode_name,
             managed_by: managed_by,
             created_by: created_by,
             last_updated_by: last_updated_by
         });
-        await addIncentivePlanDetails.save();
+        await addSalesPaymentModeDetails.save();
         return res.status(200).json({
             status: 200,
-            message: "Incentive plan details data added successfully!",
-            data: addIncentivePlanDetails,
+            message: "Sales payment mode details data added successfully!",
+            data: addSalesPaymentModeDetails,
         });
     } catch (error) {
         return res.status(500).json({
@@ -32,11 +29,11 @@ exports.createIncentivePlan = async (req, res) => {
 };
 
 /**
- * Api is to used for the incentive_plan data get_ByID in the DB collection.
+ * Api is to used for the sales_payment_mode data get_ByID in the DB collection.
  */
-exports.getIncentivePlanDetails = async (req, res) => {
+exports.getSalesPaymentMode = async (req, res) => {
     try {
-        const incentivePlanData = await incentivePlanModel.aggregate([
+        const salesPaymentModeData = await salesPaymentModeModel.aggregate([
             {
                 $match: { _id: mongoose.Types.ObjectId(req.params.id) },
             },
@@ -70,10 +67,7 @@ exports.getIncentivePlanDetails = async (req, res) => {
             },
             {
                 $project: {
-                    sales_service_master_id: 1,
-                    incentive_type: 1,
-                    value: 1,
-                    remarks: 1,
+                    payment_mode_name: 1,
                     managed_by: 1,
                     created_by: 1,
                     last_updated_by: 1,
@@ -84,11 +78,11 @@ exports.getIncentivePlanDetails = async (req, res) => {
                 },
             },
         ])
-        if (incentivePlanData) {
+        if (salesPaymentModeData) {
             return res.status(200).json({
                 status: 200,
-                message: "Incentive plan details successfully!",
-                data: incentivePlanData,
+                message: "Sales payment mode details successfully!",
+                data: salesPaymentModeData,
             });
         }
         return res.status(404).json({
@@ -102,25 +96,24 @@ exports.getIncentivePlanDetails = async (req, res) => {
         });
     }
 };
+
+
 /**
- * Api is to used for the incentive_plan data update in the DB collection.
+ * Api is to used for the sales_payment_mode data update in the DB collection.
  */
-exports.updateIncentivePlan = async (req, res) => {
+exports.updateSalesPaymentMode = async (req, res) => {
     try {
         const { id } = req.params;
-        const { sales_service_master_id, incentive_type, value, remarks, managed_by, created_by, last_updated_by } = req.body;
-        const incentivePlanData = await incentivePlanModel.findOne({ _id: id });
-        if (!incentivePlanData) {
-            return res.send("Invalid incentive_plan Id...");
+        const { payment_mode_name, managed_by, created_by, last_updated_by } = req.body;
+        const salesPaymentModeData = await salesPaymentModeModel.findOne({ _id: id });
+        if (!salesPaymentModeData) {
+            return res.send("Invalid sales_payment_mode Id...");
         }
-        await incentivePlanData.save();
-        const incentivePlanUpdated = await incentivePlanModel.findOneAndUpdate({ _id: id }, {
+        await salesPaymentModeData.save();
+        const salesPaymentModeUpdated = await salesPaymentModeModel.findOneAndUpdate({ _id: id }, {
             $set: {
-                sales_service_master_id,
-                incentive_type,
-                value,
+                payment_mode_name,
                 managed_by,
-                remarks,
                 created_by,
                 last_updated_by
             },
@@ -128,8 +121,8 @@ exports.updateIncentivePlan = async (req, res) => {
             { new: true }
         );
         return res.status(200).json({
-            message: "Incentive plan data updated successfully!",
-            data: incentivePlanUpdated,
+            message: "Sales payment mode data updated successfully!",
+            data: salesPaymentModeUpdated,
         });
     } catch (error) {
         return res.status(500).json({
@@ -139,11 +132,11 @@ exports.updateIncentivePlan = async (req, res) => {
 };
 
 /**
- * Api is to used for the incentive_plan data get_list in the DB collection.
+ * Api is to used for the sales_payment_mode data get_list in the DB collection.
  */
-exports.getIncentivePlanList = async (req, res) => {
+exports.getSalesPaymentModeList = async (req, res) => {
     try {
-        const incentivePlanListData = await incentivePlanModel.aggregate([
+        const salesPaymentModeListData = await salesPaymentModeModel.aggregate([
             {
                 $lookup: {
                     from: "usermodels",
@@ -172,27 +165,9 @@ exports.getIncentivePlanList = async (req, res) => {
                     preserveNullAndEmptyArrays: true,
                 },
             },
-
-            {
-                $lookup: {
-                    from: "salesservicemasters",
-                    localField: "sales_service_master_id",
-                    foreignField: "_id",
-                    as: "salesservicemaster",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$salesservicemaster",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
             {
                 $project: {
-                    sales_service_master_id: 1,
-                    incentive_type: 1,
-                    value: 1,
-                    remarks: 1,
+                    payment_mode_name: 1,
                     managed_by: 1,
                     managed_by_name: "$user.user_name",
                     created_date_time: 1,
@@ -200,19 +175,14 @@ exports.getIncentivePlanList = async (req, res) => {
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
                     last_updated_by: 1,
-                    Sales_Service_Master: {
-                        Sales_Service_Master_id:"$salesservicemaster._id",
-                        service_name: "$salesservicemaster.service_name",
-                        post_type: "$salesservicemaster.post_type",
-                    }
                 },
             },
         ])
-        if (incentivePlanListData) {
+        if (salesPaymentModeListData) {
             return res.status(200).json({
                 status: 200,
-                message: "Incentive plan details list successfully!",
-                data: incentivePlanListData,
+                message: "Sales payment mode details list successfully!",
+                data: salesPaymentModeListData,
             });
         }
         return res.status(404).json({
@@ -226,24 +196,25 @@ exports.getIncentivePlanList = async (req, res) => {
         });
     }
 };
+
 /**
- * Api is to used for the incentive_plan data delete in the DB collection.
+ * Api is to used for the sales_payment_mode data delete in the DB collection.
  */
-exports.deleteIncentivePlan = async (req, res) => {
+exports.deleteSalesPaymentMode = async (req, res) => {
     try {
         const { params } = req;
         const { id } = params;
-        const incentivePlanDelete = await incentivePlanModel.findOne({ _id: id });
-        if (!incentivePlanDelete) {
+        const salesPaymentModeDelete = await salesPaymentModeModel.findOne({ _id: id });
+        if (!salesPaymentModeDelete) {
             return res.status(404).json({
                 status: 404,
                 message: message.DATA_NOT_FOUND,
             });
         }
-        await incentivePlanModel.deleteOne({ _id: id });
+        await salesPaymentModeModel.deleteOne({ _id: id });
         return res.status(200).json({
             status: 200,
-            message: "Incentive plan data deleted successfully!",
+            message: "Sales payment mode data deleted successfully!",
         });
     } catch (error) {
         return res.status(500).json({

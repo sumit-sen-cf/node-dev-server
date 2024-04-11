@@ -211,6 +211,7 @@ exports.getCustomerContactList = async (req, res) => {
                         _id: "$customermast_data._id",
                         customermast_id: "$customermast_data.customer_id",
                         customer_id: "$customermast_data.customer_id",
+                        customer_name:"$customermast_data.customer_name",
                         account_type_id: "$customermast_data.account_type_id",
                         ownership_id: "$customermast_data.ownership_id",
                         industry_id: "$customermast_data.industry_id",
@@ -268,8 +269,6 @@ exports.getCustomerContactList = async (req, res) => {
         });
     }
 };
-
-
 
 exports.getListCustomerContactData = async (req, res) => {
     try {
@@ -376,12 +375,6 @@ exports.getListCustomerContactData = async (req, res) => {
         });
     }
 };
-
-
-
-
-
-
 
 //DELETE - OPS_CustomerConatct- By-ID
 exports.deleteCustomerContact = async (req, res) => {

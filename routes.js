@@ -160,7 +160,7 @@ const { createOwnership, getOwnershipDetail, updateOwnershipType, getOwnershipLi
 const { createCustomerMast, getCustomerMastDetail, updateCustomerMast, getCustomerMastList, customerMastDelete } = require("./controllers/Customer&Campaign/opsCustomerMastController.js");
 const { createCustomerContact, getCustomerContactDetail, updateCustomerContact, getCustomerContactList, deleteCustomerContact, getListCustomerContactData } = require("./controllers/Customer&Campaign/opsCustomerContactController.js");
 const { createDocMast, getDocMastDetail, updateDocMast, getDocMastList, deleteDocMast } = require("./controllers/Customer&Campaign/opsDocMastController.js");
-const { createCustomerDocument, getcustomerDocumentDetail, updateCustomerDocument, getCustomerDocumentList, deleteCustomerDocument } = require("./controllers/Customer&Campaign/opsCustomerDocumentController.js");
+const { createCustomerDocument, getcustomerDocumentDetail, updateCustomerDocument, getCustomerDocumentList, deleteCustomerDocument, getAllCustomerDocumentList } = require("./controllers/Customer&Campaign/opsCustomerDocumentController.js");
 const { createPagePurchasePrice, getPagePurchasePrice, updatePagePurchasePrice, getPagePurchasePriceList, deletePagePurchasePriceData, getAllPagePurchasePriceList } = require("./controllers/PMS/pmsPagePurchasePriceController.js");
 
 router.get("/", (req, res) => {
@@ -187,6 +187,10 @@ router.put('/updatePlan', campaignPlanController.updatePlan)
 router.put('/updatePhase', campaignPhaseController.updatePhase)
 router.put('/updateAssignment', assignmentController.updateAssignment)
 // router.get('/campaignplan/:id', campaignPlanController.getPlan)
+
+router.get("/operation_dashboard_api", campaignPlanController.getCampaignPlanDataList);
+
+
 
 router.post('/campaignphase', campaignPhaseController.createPhase)
 router.get('/campaignphase/:id', campaignPhaseController.getAllPhase)
@@ -1587,6 +1591,8 @@ router.post("/add_customer_document", createCustomerDocument);
 router.get("/get_customer_document/:id", getcustomerDocumentDetail);
 router.put("/update_customer_document/:id", updateCustomerDocument);
 router.get("/get_all_customer_document", getCustomerDocumentList);
+router.get("/getlist_customer_document/:id", getAllCustomerDocumentList);
+
 router.delete("/delete_customer_document/:id", deleteCustomerDocument);
 
 // --------------------------------------------------------------User_Announcement------------------------------------------//
