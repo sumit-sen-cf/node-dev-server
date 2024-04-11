@@ -17,6 +17,9 @@ const salesIndustry = require("../controllers/SMS/salesIndustryController");
 const salesBadgesMaster = require("../controllers/SMS/salesBadgesMasterController");
 const financialYearSetup = require("../controllers/SMS/financialYearSetupController");
 const salesRoleBadgeAssignedRate = require("../controllers/SMS/salesRoleBadgeAssignedRateController");
+const salesPaymentMode = require("../controllers/SMS/salesPaymentModeController");
+const autoIncentiveCalculation = require("../controllers/SMS/autoIncentiveCalculationController");
+const salesIncentiveSettelmentGst = require("../controllers/SMS/autoIncentiveCalculationController");
 
 router.get("/", (req, res) => {
     res.send({ message: "Welcome to Sales module." });
@@ -181,5 +184,28 @@ router.get("/get_sale_role_badges_assigned_rate/:id", salesRoleBadgeAssignedRate
 router.put("/update_sale_role_badges_assigned_rate/:id", salesRoleBadgeAssignedRate.updateSalesRoleBadgeAssignedRate);
 router.get("/getlist_sale_role_badges_assigned_rate", salesRoleBadgeAssignedRate.getSalesRoleBadgeAssignedRateList);
 router.delete("/delete_sale_role_badges_assigned_rate/:id", salesRoleBadgeAssignedRate.deleteSalesRoleBadgeAssigned);
+
+/**
+ * sales payment mode rate request routes
+ */
+router.post("/add_sale_payment_mode", salesPaymentMode.createSalesPaymentmode);
+router.get("/get_sale_payment_mode/:id", salesPaymentMode.getSalesPaymentMode);
+router.put("/update_sale_payment_mode/:id", salesPaymentMode.updateSalesPaymentMode);
+router.get("/getlist_sale_payment_mode", salesPaymentMode.getSalesPaymentModeList);
+router.delete("/delete_sale_payment_mode/:id", salesPaymentMode.deleteSalesPaymentMode);
+
+/**
+ * auto incentive calculation request routes
+ */
+router.post("/add_auto_incentive_calculation", autoIncentiveCalculation.createAutoIncentiveCalculation);
+router.get("/get_auto_incentive_calculation/:id", autoIncentiveCalculation.getAutoIncentiveCalculationDetails);
+router.put("/update_auto_incentive_calculation/:id", autoIncentiveCalculation.updateAutoIncentiveCalculation);
+router.get("/getlist_auto_incentive_calculation", autoIncentiveCalculation.getAutoIncentiveCalculationList);
+router.delete("/delete_auto_incentive_calculation/:id", autoIncentiveCalculation.deleteAutoIncentiveCalculation);
+
+/**
+ * sales incentive settelment gst request routes
+ */
+router.post("/add_sales_incentive_settelment_gst",salesIncentiveSettelmentGst.createAutoIncentiveCalculation);
 
 module.exports = router; 
