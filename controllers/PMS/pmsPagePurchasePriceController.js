@@ -4,17 +4,16 @@ const mongoose = require("mongoose");
 
 exports.createPagePurchasePrice = async (req, res) => {
     try {
-        // const checkDuplicacy = await pmsPagePurchasePriceModel.findOne({
-        //     pageMast_id: req.body.pageMast_id,
-        //     price_type_id: req.body.price_type_id
-        // });
-        // console.log("checkDuplicacy", checkDuplicacy)
-        // if (checkDuplicacy) {
-        //     return res.status(403).json({
-        //         status: 403,
-        //         message: "PMS page-purchase price data alredy exist!",
-        //     });
-        // }
+        const checkDuplicacy = await pmsPagePurchasePriceModel.findOne({
+            platform_id: req.body.platform_id,
+        });
+        console.log("checkDuplicacy", checkDuplicacy)
+        if (checkDuplicacy) {
+            return res.status(403).json({
+                status: 403,
+                message: "PMS platform_id data alredy exist!",
+            });
+        }
         const { platform_id, pageMast_id, price_type_id, price_cal_type, variable_type, purchase_price, description, created_by, last_updated_by } = req.body;
         const addPagePurchasePriceData = new pmsPagePurchasePriceModel({
             platform_id: platform_id,
@@ -296,6 +295,7 @@ exports.getPagePurchasePriceList = async (req, res) => {
                     },
                     PMS_Price_data: {
                         price_type_id: "$pmspricetype._id",
+                        platform_id: "$platform._id",
                         price_type: "$pmspricetype.price_type",
                         description: "$pmspricetype.description",
                         created_by: "$pmspricetype.created_by"
@@ -330,14 +330,180 @@ exports.getPagePurchasePriceList = async (req, res) => {
     }
 };
 
+// exports.getAllPagePurchasePriceList = async (req, res) => {
+//     try {
+
+//         const pagePurchasePriceGetData = await pmsPagePurchasePriceModel.aggregate([
+//             {
+//                 // $match: { _id: mongoose.Types.ObjectId(req.params.id) },
+//                 $match: { platform_id: mongoose.Types.ObjectId(req.params.id) },
+//             },
+//             {
+//                 $lookup: {
+//                     from: "pmsplatforms",
+//                     localField: "platform_id",
+//                     foreignField: "_id",
+//                     as: "pmsplatform",
+//                 },
+//             },
+//             {
+//                 $unwind: {
+//                     path: "$pmsplatform",
+//                     preserveNullAndEmptyArrays: true,
+//                 },
+//             },
+//             {
+//                 $lookup: {
+//                     from: "pmspricetypes",
+//                     localField: "price_type_id",
+//                     foreignField: "_id",
+//                     as: "pmspricetype",
+//                 },
+//             },
+//             {
+//                 $unwind: {
+//                     path: "$pmspricetype",
+//                     preserveNullAndEmptyArrays: true,
+//                 },
+//             },
+//             {
+//                 $lookup: {
+//                     from: "usermodels",
+//                     localField: "created_by",
+//                     foreignField: "user_id",
+//                     as: "user",
+//                 },
+//             },
+//             {
+//                 $unwind: {
+//                     path: "$user",
+//                     preserveNullAndEmptyArrays: true,
+//                 },
+//             },
+//             {
+//                 $lookup: {
+//                     from: "usermodels",
+//                     localField: "last_updated_by",
+//                     foreignField: "user_id",
+//                     as: "user_data",
+//                 },
+//             },
+//             {
+//                 $unwind: {
+//                     path: "$user_data",
+//                     preserveNullAndEmptyArrays: true,
+//                 },
+//             },
+//             {
+//                 $lookup: {
+//                     from: "pmsplatforms", // Lookup again in the pmsplatforms collection
+//                     localField: "pmspricetype.platform_id", // Use the platform_id from pmspricetypes
+//                     foreignField: "_id",
+//                     as: "platform",
+//                 },
+//             },
+//             {
+//                 $unwind: {
+//                     path: "$platform",
+//                     preserveNullAndEmptyArrays: true,
+//                 },
+//             },
+//             {
+//                 $project: {
+//                     platform_id: 1,
+//                     pageMast_id: 1,
+//                     price_type_id: 1,
+//                     price_cal_type: 1,
+//                     variable_type: 1,
+//                     purchase_price: 1,
+//                     description: 1,
+//                     created_by_name: "$user.user_name",
+//                     last_updated_date: 1,
+//                     last_updated_by: 1,
+//                     PMS_Platforms_data: {
+//                         platform_id: "$pmsplatform.platform_id",
+//                         platform_name: "$pmsplatform.platform_name",
+//                         description: "$pmsplatform.description",
+//                         created_by: "$pmsplatform.created_by",
+//                         price_type_id: "$pmspricetype._id",
+//                         price_type: "$pmspricetype.price_type",
+//                         description: "$pmspricetype.description",
+//                         created_by: "$pmspricetype.created_by"
+//                     },
+//                     PMS_Price_data: {
+//                         price_type_id: "$pmspricetype._id",
+//                         price_type: "$pmspricetype.price_type",
+//                         platform_id: "$platform_id",
+//                         platform_name: "$pmsplatform.platform_name",
+//                         description: "$pmspricetype.description",
+//                         created_by: "$pmspricetype.created_by"
+//                     }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$pmspricetype.price_type_id",
+//                     data: { $first: "$$ROOT" }
+//                 }
+//             },
+//             {
+//                 $replaceRoot: { newRoot: "$data" }
+//             }
+//         ])
+//         if (!pagePurchasePriceGetData) {
+//             return res.status(500).send({
+//                 succes: true,
+//                 message: "PMS all page purchase price data list not found!",
+//             });
+//         }
+//         return res.status(200).send({
+//             succes: true,
+//             message: "PMS all page purchase price data list successfully!",
+//             data: pagePurchasePriceGetData
+//         });
+//     } catch (error) {
+//         return res.status(500).json({
+//             message: error.message ? error.message : message.ERROR_MESSAGE,
+//         });
+//     }
+// };
+
+
+
+exports.deletePagePurchasePriceData = async (req, res) => {
+    try {
+        const { params } = req;
+        const { id } = params;
+        const pagePurchasePriceData = await pmsPagePurchasePriceModel.findOne({ _id: id });
+        if (!pagePurchasePriceData) {
+            return res.status(404).json({
+                status: 404,
+                message: message.DATA_NOT_FOUND,
+            });
+        }
+        await pmsPagePurchasePriceModel.deleteOne({ _id: id });
+        return res.status(200).json({
+            status: 200,
+            message: "PMS page purchase price data deleted successfully!",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+};
+
+
+
 exports.getAllPagePurchasePriceList = async (req, res) => {
     try {
 
         const pagePurchasePriceGetData = await pmsPagePurchasePriceModel.aggregate([
-            {
-                // $match: { _id: mongoose.Types.ObjectId(req.params.id) },
-                $match: { platform_id: mongoose.Types.ObjectId(req.params.id) },
-            },
+            // {
+            //     // $match: { _id: mongoose.Types.ObjectId(req.params.id) },
+            //     $match: { platform_id: mongoose.Types.ObjectId(req.params.id) },
+            // },
             {
                 $lookup: {
                     from: "pmsplatforms",
@@ -367,30 +533,20 @@ exports.getAllPagePurchasePriceList = async (req, res) => {
                 },
             },
             {
+                // $match: { _id: mongoose.Types.ObjectId(req.params.id) },
+                $match: { "pmspricetype.platform_id": mongoose.Types.ObjectId(req.params.id) },
+            },
+            {
                 $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
+                    from: "pmsplatforms",
+                    localField: "pmspricetype.platform_id",
+                    foreignField: "_id",
+                    as: "platformModel",
                 },
             },
             {
                 $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "last_updated_by",
-                    foreignField: "user_id",
-                    as: "user_data",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user_data",
+                    path: "$platformModel",
                     preserveNullAndEmptyArrays: true,
                 },
             },
@@ -416,12 +572,14 @@ exports.getAllPagePurchasePriceList = async (req, res) => {
                         description: "$pmspricetype.description",
                         created_by: "$pmspricetype.created_by"
                     },
-                    // PMS_Price_data: {
-                    //     price_type_id: "$pmspricetype._id",
-                    //     price_type: "$pmspricetype.price_type",
-                    //     description: "$pmspricetype.description",
-                    //     created_by: "$pmspricetype.created_by"
-                    // }
+                    PMS_Price_data: {
+                        price_type_id: "$pmspricetype._id",
+                        price_type: "$pmspricetype.price_type",
+                        platform_id: "$pmspricetype.platform_id",
+                        platform_name: "$platformModel.platform_name",
+                        description: "$pmspricetype.description",
+                        created_by: "$pmspricetype.created_by"
+                    }
                 }
             },
             {
@@ -434,12 +592,6 @@ exports.getAllPagePurchasePriceList = async (req, res) => {
                 $replaceRoot: { newRoot: "$data" }
             }
         ])
-        if (!pagePurchasePriceGetData) {
-            return res.status(500).send({
-                succes: true,
-                message: "PMS all page purchase price data list not found!",
-            });
-        }
         return res.status(200).send({
             succes: true,
             message: "PMS all page purchase price data list successfully!",
