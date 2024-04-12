@@ -163,12 +163,86 @@ exports.getPageMastDetail = async (req, res) => {
                     execounthismodels: "$execounthismodelsData",
                     pmspricetypesData: "$pmspricetypesData"
                 },
-            }])
-        if (pmsPageMastData) {
+            },
+            {
+                $group: {
+                    _id: "$pageMast_id",
+                    pmsPageMastData: { $first: "$$ROOT" },
+                    latestEntry: { $last: "$execounthismodels" },
+                },
+            },
+        ])
+        if (pmsPageMastData.length > 0) {
+            const latestEntry = pmsPageMastData[0].latestEntry;
+
+            let count = 0;
+            const relevantFields = [
+                'reach',
+                'impression',
+                'engagement',
+                'story_view',
+                'stats_for',
+                'start_date',
+                'end_date',
+                'reach_upload_image',
+                'impression_upload_image',
+                'engagement_upload_image',
+                'story_view_upload_image',
+                'story_view_upload_video',
+                'city1_name',
+                'city2_name',
+                'city3_name',
+                'city4_name',
+                'city5_name',
+                'percentage_city1_name',
+                'percentage_city2_name',
+                'percentage_city3_name',
+                'percentage_city4_name',
+                'percentage_city5_name',
+                'city_image_upload',
+                'male_percent',
+                'female_percent',
+                'Age_13_17_percent',
+                'Age_upload',
+                'Age_18_24_percent',
+                'Age_25_34_percent',
+                'Age_35_44_percent',
+                'Age_45_54_percent',
+                'Age_55_64_percent',
+                'Age_65_plus_percent',
+                'quater',
+                'profile_visit',
+                'country1_name',
+                'country2_name',
+                'country3_name',
+                'country4_name',
+                'country5_name',
+                'percentage_country1_name',
+                'percentage_country2_name',
+                'percentage_country3_name',
+                'percentage_country4_name',
+                'percentage_country5_name',
+                'country_image_upload'
+            ];
+
+            for (const field of relevantFields) {
+                if (
+                    latestEntry[field] !== null &&
+                    latestEntry[field] !== '' &&
+                    latestEntry[field] !== 0
+                ) {
+                    count++;
+                }
+            }
+
+            const totalPercentage = (count / relevantFields.length) * 100;
+
             return res.status(200).json({
                 status: 200,
                 message: "PMS page type details successfully!",
-                data: pmsPageMastData,
+                data: pmsPageMastData[0].pmsPageMastData,
+                totalPercentage: totalPercentage.toFixed(2),
+                latestEntry: latestEntry
             });
         }
         return res.status(404).json({

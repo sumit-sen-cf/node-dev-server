@@ -43,6 +43,7 @@ exports.createCustomerDocument = [
                 data: addCustomerDocumentData,
             });
         } catch (error) {
+            console.log("error--------------------------",error)
             return res.status(500).json({
                 status: 500,
                 message: error.message ? error.message : message.ERROR_MESSAGE,
@@ -235,6 +236,7 @@ exports.getCustomerDocumentList = async (req, res) => {
                         _id: "$customermast_data._id",
                         customermast_id: "$customermast_data.customer_id",
                         customer_type_id: "$customermast_data.customer_type_id",
+                        customer_name:"$customermast_data.customer_name",
                         account_type_id: "$customermast_data.account_type_id",
                         ownership_id: "$customermast_data.ownership_id",
                         industry_id: "$customermast_data.industry_id",
@@ -299,6 +301,137 @@ exports.getCustomerDocumentList = async (req, res) => {
         });
     }
 };
+
+exports.getAllCustomerDocumentList = async (req, res) => {
+    try {
+        const imageUrl = vari.IMAGE_URL;
+        const customerDocumentAllDataList = await opsCustomerDocumentModel.aggregate([
+            {
+                $match: { customer_id: Number(req.params.id) },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "created_by",
+                    foreignField: "user_id",
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "last_updated_by",
+                    foreignField: "user_id",
+                    as: "user_data",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user_data",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "customermasts",
+                    localField: "customer_id",
+                    foreignField: "customer_id",
+                    as: "customermast_data",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$customermast_data",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    customer_id: 1,
+                    doc_id: 1,
+                    doc_no: 1,
+                    description: 1,
+                    created_date_time: 1,
+                    created_by: 1,
+                    last_updated_by_name: "$user_data.user_name",
+                    created_by_name: "$user.user_name",
+                    last_updated_date: 1,
+                    last_updated_by: 1,
+                    doc_upload: {
+                        $concat: [imageUrl, "$doc_upload"],
+                    },
+                    OPS_CustomerMast_data: {
+                        _id: "$customermast_data._id",
+                        customermast_id: "$customermast_data.customer_id",
+                        customer_type_id: "$customermast_data.customer_type_id",
+                        customer_name:"$customermast_data.customer_name",
+                        account_type_id: "$customermast_data.account_type_id",
+                        ownership_id: "$customermast_data.ownership_id",
+                        industry_id: "$customermast_data.industry_id",
+                        account_owner_id: "$customermast_data.account_owner_id",
+                        parent_account_id: "$customermast_data.parent_account_id",
+                        company_size: "$customermast_data.company_size",
+                        company_email: "$customermast_data.company_email",
+                        primary_contact_no: "$customermast_data.primary_contact_no",
+                        alternative_no: "$customermast_data.alternative_no",
+                        website: "$customermast_data.website",
+                        turn_over: "$customermast_data.turn_over",
+                        establishment_year: "$customermast_data.establishment_year",
+                        employees_Count: "$customermast_data.employees_Count",
+                        how_many_offices: "$customermast_data.how_many_offices",
+                        company_gst_no: "$customermast_data.company_gst_no",
+                        company_pan_no: "$customermast_data.company_pan_no",
+                        connected_office: "$customermast_data.connected_office",
+                        connect_billing_street: "$customermast_data.connect_billing_street",
+                        connect_billing_city: "$customermast_data.connect_billing_city",
+                        connect_billing_state: "$customermast_data.connect_billing_state",
+                        connect_billing_country: "$customermast_data.connect_billing_country",
+                        head_office: "$customermast_data.head_office",
+                        head_billing_street: "$customermast_data.head_billing_street",
+                        head_billing_city: "$customermast_data.head_billing_city",
+                        head_billing_state: "$customermast_data.head_billing_state",
+                        head_billing_country: "$customermast_data.head_billing_country",
+                        description: "$customermast_data.description",
+                        created_by: "$customermast_data.created_by",
+                        created_by_name: "$user.user_name",
+                        last_updated_by: "$customermast_data.last_updated_by",
+                        pan_upload: {
+                            $concat: [imageUrl, "$customermast_data.pan_upload"],
+                        },
+                        gst_upload: {
+                            $concat: [imageUrl, "$customermast_data.gst_upload"],
+                        },
+                    },
+                }
+            }
+        ])
+        if (!customerDocumentAllDataList) {
+            return res.status(500).send({
+                succes: true,
+                message: "OPS customer all document data list not found!",
+            });
+        }
+        return res.status(200).send({
+            succes: true,
+            message: "OPS customer all document data list successfully!",
+            data: customerDocumentAllDataList
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+};
+
+
+
 
 //DELETE - OPS_CustomerDocument- By-ID
 exports.deleteCustomerDocument = async (req, res) => {

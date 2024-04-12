@@ -1,4 +1,5 @@
 const CampaignPlanModel = require('../../models/operationExecution/campaignPlanModel')
+const registerCampaignModel = require('../../models/registerCamapignModel.js')
 const appError = require('../../helper/appError');
 const catchAsync = require('../../helper/catchAsync');
 
@@ -13,7 +14,11 @@ const PageDeleteRecordModel = require('../../models/operationExecution/pageDelet
 const pageReplacementRecordModel = require('../../models/operationExecution/pageReplacementRecordModel.js')
 const PhaseCommitmentModel = require('../../models/operationExecution/phaseCommitmentModel.js')
 const CampaignPhaseModel = require('../../models/operationExecution/campaignPhaseModel.js')
-const preAssignmentModel = require('../../models/operationExecution/preAssignmentModel.js')
+const preAssignmentModel = require('../../models/operationExecution/preAssignmentModel.js');
+const campaignPlanModel = require('../../models/operationExecution/campaignPlanModel');
+const mongoose = require("mongoose");
+const moment = require('moment');
+
 
 
 
@@ -54,7 +59,7 @@ exports.createPlan = catchAsync(async (req, res, next) => {
 //to get all plan 
 exports.getPlan = catchAsync(async (req, res, next) => {
     const id = req.params.id
-    const result = await CampaignPlanModel.find({ campaignId: id })
+    const result = await CampaignPlanModel.find({ campaignId: id, delete_status: "inactive" })
     if (!result) {
         return next(new appError(404, "plans not found"))
     }
@@ -201,3 +206,207 @@ exports.deleteEntirePlan = catchAsync(async (req, res, next) => {
         message: "success"
     })
 })
+
+
+exports.getCampaignPlanDataList = async (req, res) => {
+    try {
+        const searchDate = req.query?.date;
+
+        // let date = new Date(searchDate);
+        // date.setDate(date.getUTCDate()); // Setting utc date, Only useful if you're region is behind UTC
+        // sdate = new Date(date.setHours(0, 0, 0, 0)) // This overrides hours generated with 23:59:59 - which is what exactly needed here.
+        // edate = new Date(date.setHours(23, 59, 59, 999)) // This overrides hours generated with 23:59:59 - which is what exactly needed here.
+        // console.log(sdate)
+        // console.log(edate)
+
+        console.log("searchDate", searchDate)
+        let startDate = moment(searchDate).format('YYYY-MM-DD 00:00:00');
+        console.log("startDate", startDate)
+
+        let endDate = moment(searchDate).format('YYYY-MM-DD 23:59:59');
+        console.log("endDate", endDate)
+
+        let matchQueryObj = {
+            $match: {
+                $expr: { $eq: ["$_id", "$$campaignId"] },
+            }
+        };
+        if (searchDate) {
+            matchQueryObj = {
+                $match: {
+                    $expr: { $eq: ["$_id", "$$campaignId"] },
+                    brnad_dt: {
+                        $gte: new Date(startDate),
+                        $lt: new Date(endDate)
+                    }
+                }
+            }
+        }
+
+        const campagianPlanListData = await registerCampaignModel.aggregate([{
+            $lookup: {
+                from: "campaignplanmodels",
+                let: { id: { $toString: "$_id" } },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: { $eq: ["$campaignId", "$$id"] },
+                        }
+                    }
+                ],
+                as: "campaignplansData"
+            }
+        },
+        // {
+        //     $unwind: "$campaignplansData"
+        // },
+        {
+            $lookup: {
+                from: "brandmodels",
+                localField: "brand_id",
+                foreignField: "brand_id",
+                as: "brandData"
+            }
+        }, {
+            $unwind: "$brandData"
+        }, {
+            $lookup: {
+                from: "execampaignmodels",
+                localField: "exeCmpId",
+                foreignField: "exeCmpId",
+                as: "execampaignData"
+            }
+        }, {
+            $unwind: "$execampaignData"
+        }, {
+            $lookup: {
+                from: "campaignphasemodels",
+                let: { id: { $toString: "$_id" } },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: { $eq: ["$campaignId", "$$id"] },
+                        }
+                    },
+                ],
+                as: "campaignphaseData"
+            }
+        }, {
+            $project: {
+                "registercampaign_Data": {
+                    "campaignName": "$execampaignData.exeCmpName",
+                    "brand_id": "$brand_id",
+                    "brnad_dt": "$brnad_dt",
+                    "excel_path": "$excel_path",
+                    "detailing": "$detailing",
+                    "captions": "$captions",
+                    "industry": "$industry",
+                    "agency": "$agency",
+                    "goal": "$goal",
+                    "hashtags": "$hashtags",
+                    "status": "$status",
+                    "exeCmpId": "$exeCmpId",
+                    "stage": "$stage",
+                    "commitment": "$commitment",
+                    "register_campaign_id": "$register_campaign_id",
+                    "brandData": "$brandData"
+                },
+                "campaignplansData": 1,
+                "campaignphaseData": 1,
+            }
+        }]);
+        // const campagianPlanListData = await campaignPlanModel.aggregate([{
+        //     $lookup: {
+        //         from: "registercampaignmodels",
+        //         let: { campaignId: { $toObjectId: "$campaignId" } },
+        //         pipeline: [
+        //             matchQueryObj,
+        //             {
+        //                 $lookup: {
+        //                     from: "brandmodels",
+        //                     localField: "brand_id",
+        //                     foreignField: "brand_id",
+        //                     as: "brandData"
+        //                 }
+        //             }, {
+        //                 $unwind: "$brandData"
+        //             },
+        //         ],
+        //         as: "registercampaign_Data"
+
+        //     }
+        // }, {
+        //     $unwind: "$registercampaign_Data"
+        // },
+        // {
+        //     $lookup: {
+        //         from: "campaignphasemodels",
+        //         localField: "campaignId",
+        //         foreignField: "campaignId",
+        //         as: "campaignphaseData"
+        //     }
+        // }, {
+        //     $unwind: "$campaignphaseData"
+        // },
+        // {
+        //     $project: {
+        //         "registercampaign_Data": 1,
+        //         "campaign_Plan": {
+        //             "plan_id": "$plan_id",
+        //             "planName": "$planName",
+        //             "vendor_id": "$vendor_id",
+        //             "campaignId": "$campaignId",
+        //             "campaignName": "$campaignName",
+        //             "storyRemaining": "$storyRemaining",
+        //             "createdAt": "$createdAt",
+        //             "modifiedAt": "$modifiedAt",
+        //             "delete_id": "$delete_id",
+        //             "page_data": {
+        //                 "p_id": "$p_id",
+        //                 "page_name": "$page_name",
+        //                 "follower_count": "$follower_count",
+        //                 "postPerPage": "$postPerPage",
+        //                 "postRemaining": "$postRemaining",
+        //                 "cat_name": "$cat_name",
+        //                 "storyPerPage": "$storyPerPage"
+        //             },
+        //             "platform": "$platform",
+        //             "page_link": "$page_link",
+        //             "modifiedBy": "$modifiedBy",
+        //             "replacement_status": "$replacement_status",
+        //             "delete_status": "$delete_status",
+        //             "replaced_by": "$replaced_by",
+        //             "replaced_with": "$replaced_with",
+        //             "replacement_id": "$replacement_id",
+        //             "isExecuted": "$isExecuted",
+        //         },
+        //         "campaignphaseData": 1
+        //     }
+        // },
+        // {
+        //     $group: {
+        //         _id: "$campaign_Plan.campaignName",
+        //         registercampaign_Data: { $first: "$registercampaign_Data" },
+        //         campaign_Plan: { $push: "$campaign_Plan" },
+        //         campaignphaseData: { $first: "$campaignphaseData" }
+        //     }
+        // }
+        // ]);
+        if (campagianPlanListData) {
+            return res.status(200).json({
+                status: 200,
+                message: "Campagian plan data details list successfully!",
+                data: campagianPlanListData,
+            });
+        }
+        return res.status(404).json({
+            status: 404,
+            message: message.DATA_NOT_FOUND,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+};
