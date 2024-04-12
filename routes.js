@@ -146,7 +146,7 @@ const { createPayCycle, getPayCycleDetail, updatePayCycle, getAllPayCycleList, d
 const { createGroupLink, getGroupLinkDetail, updateGroupLink, getAllGroupLinkList, deleteGroupLinkData } = require("./controllers/PMS/pmsGroupLinkTypeController.js");
 const { createPmsVendorMast, getVendorMastDetail, updateVendorMast, getAllVendorkMastList, getAllVendorMastList, vendorMastDelete } = require("./controllers/PMS/pmsVendorMastController.js");
 const { createVendorGroup, getVendorGroupDetail, updateVendorGroup, getAllVendorGroupList, deleteVendorGroupData } = require("./controllers/PMS/pmsVendorGroupLinkController.js");
-const { createPriceType, getPriceDetail, updatePriceType, getPriceList, deletePriceType, getAllPriceTypeList } = require("./controllers/PMS/pmsPriceTypeController.js");
+const { createPriceType, getPriceDetail, updatePriceType, getPriceList, deletePriceType, getAllPriceTypeList, getAllPagePurchasePriceList } = require("./controllers/PMS/pmsPriceTypeController.js");
 const { createPlatformPrice, getPlatformPriceDetail, updatePlatformPriceData, getPlatformPriceList, deletePlatformPriceData } = require("./controllers/PMS/pmsPlatformPriceTypeController.js");
 const { createPageCatg, getPageCatgDetail, updatePageCatg, getPageCatgList, deletePageCatgData } = require("./controllers/PMS/pmsPageCategoryController.js");
 const { createPmsProfile, getProfileDetail, updateProfileType, getProfileList, deleteProfileType } = require("./controllers/PMS/pmsProfileTypeController.js");
@@ -1658,6 +1658,11 @@ router.put("/updatePrice/:id", updatePriceType);
 router.get("/getPriceList", getPriceList);
 router.delete("/deletePrice/:id", deletePriceType);
 
+
+router.get("/getAll_page_purchase_price/:id", getAllPagePurchasePriceList);
+
+
+
 router.post("/addPlatformPrice", createPlatformPrice);
 router.get("/getPlatformPriceDetail/:id", getPlatformPriceDetail);
 router.put("/updatePlatformPrice/:id", updatePlatformPriceData);
@@ -1701,7 +1706,7 @@ router.post("/add_page_purchase_price", createPagePurchasePrice);
 router.get("/get_page_purchase_price/:id", getPagePurchasePrice);
 router.put("/update_page_purchase_price/:id", updatePagePurchasePrice);
 router.get("/getlist_page_purchase_price", getPagePurchasePriceList);
-router.get("/getAll_page_purchase_price/:id", getAllPagePurchasePriceList);
+//router.get("/getAll_page_purchase_price/:id", getAllPagePurchasePriceList);
 router.delete("/delete_page_purchase_price/:id", deletePagePurchasePriceData);
 
 //pms page assignment APi's

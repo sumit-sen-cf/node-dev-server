@@ -10,6 +10,10 @@ const pmsPriceTypeSchema = new Schema({
         type: String,
         required: false
     },
+    platform_id: {
+        type: Schema.Types.ObjectId,
+        required: false
+    },
     created_date_time: {
         type: Date,
         default: Date.now,

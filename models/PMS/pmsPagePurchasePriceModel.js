@@ -5,7 +5,7 @@ const pmsPagePurchasePrice = new Schema({
     platform_id: {
         type: Schema.Types.ObjectId,
         required: true,
-      //  ref: "pmsPlatform"
+        //  ref: "pmsPlatform"
     },
     pageMast_id: {
         type: Number,
@@ -14,7 +14,7 @@ const pmsPagePurchasePrice = new Schema({
     price_type_id: {
         type: Schema.Types.ObjectId,
         required: true,
-       // ref: "pmsPriceType"
+        // ref: "pmsPriceType"
     },
     price_cal_type: {
         type: String,

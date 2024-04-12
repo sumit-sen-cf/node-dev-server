@@ -2,6 +2,7 @@ const response = require('../../common/response');
 const { message } = require("../../common/message");
 const mongoose = require("mongoose");
 const pmsPageMastModel = require('../../models/PMS/pmsPageMastModel');
+const pmsPagePurchasePriceModel = require('../../models/PMS/pmsPagePurchasePriceModel');
 
 //POST- PMS_Page_Mast
 exports.createPageMast = async (req, res) => {
@@ -43,7 +44,21 @@ exports.createPageMast = async (req, res) => {
             created_by: created_by,
             last_updated_by: last_updated_by
         });
-        await pageMastData.save();
+        const pageData = await pageMastData.save();
+
+        const pmsPagePurchasePriceData = new pmsPagePurchasePriceModel({
+            platform_id: platform_id,
+            pageMast_id: pageData.pageMast_id,
+            price_type_id: price_type_id,
+            price_cal_type: price_cal_type,
+            variable_type: variable_type,
+            purchase_price: purchase_price,
+            description: description,
+            created_by: created_by,
+            last_updated_by: last_updated_by
+        })
+        await pmsPagePurchasePriceData.save();
+
         return res.status(200).json({
             status: 200,
             message: "PMS page-mast data added successfully!",
