@@ -717,7 +717,11 @@ const userModel = new mongoose.Schema({
         type: Number,
         required: false,
         default: 0
-    }
+    },
+    created_date_time: {
+        type: Date,
+        default: Date.now,
+    },
 });
 
 userModel.pre('save', async function (next) {
