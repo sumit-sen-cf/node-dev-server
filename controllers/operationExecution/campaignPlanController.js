@@ -1,4 +1,5 @@
 const CampaignPlanModel = require('../../models/operationExecution/campaignPlanModel')
+const registerCampaignModel = require('../../models/registerCamapignModel.js')
 const appError = require('../../helper/appError');
 const catchAsync = require('../../helper/catchAsync');
 
@@ -242,82 +243,159 @@ exports.getCampaignPlanDataList = async (req, res) => {
             }
         }
 
-        const campagianPlanListData = await campaignPlanModel.aggregate([{
+        const campagianPlanListData = await registerCampaignModel.aggregate([{
             $lookup: {
-                from: "registercampaignmodels",
-                let: { campaignId: { $toObjectId: "$campaignId" } },
+                from: "campaignplanmodels",
+                let: { id: { $toString: "$_id" } },
                 pipeline: [
-                    matchQueryObj,
                     {
-                        $lookup: {
-                            from: "brandmodels",
-                            localField: "brand_id",
-                            foreignField: "brand_id",
-                            as: "brandData"
+                        $match: {
+                            $expr: { $eq: ["$campaignId", "$$id"] },
                         }
-                    }, {
-                        $unwind: "$brandData"
-                    },
+                    }
                 ],
-                // as: "campaign"
-                as: "registercampaign_Data"
-
+                as: "campaignplansData"
+            }
+        },
+        // {
+        //     $unwind: "$campaignplansData"
+        // },
+        {
+            $lookup: {
+                from: "brandmodels",
+                localField: "brand_id",
+                foreignField: "brand_id",
+                as: "brandData"
             }
         }, {
-            // $unwind: "$campaign"
-            $unwind: "$registercampaign_Data"
-        },
-        {
+            $unwind: "$brandData"
+        }, {
+            $lookup: {
+                from: "execampaignmodels",
+                localField: "exeCmpId",
+                foreignField: "exeCmpId",
+                as: "execampaignData"
+            }
+        }, {
+            $unwind: "$execampaignData"
+        }, {
             $lookup: {
                 from: "campaignphasemodels",
-                localField: "planName",
-                foreignField: "planName",
-                as: "campaignphase_Data"
+                let: { id: { $toString: "$_id" } },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: { $eq: ["$campaignId", "$$id"] },
+                        }
+                    },
+                ],
+                as: "campaignphaseData"
             }
         }, {
-            $unwind: "$campaignphase_Data"
-        },
-        {
             $project: {
-                "registercampaign_Data": 1,
-                "campaign_Plan": {
-                    "plan_id": "$plan_id",
-                    "planName": "$planName",
-                    "page_data": {
-                        "p_id": "$p_id",
-                        "page_name": "$page_name",
-                        "follower_count": "$follower_count",
-                        "postPerPage": "$postPerPage",
-                        "postRemaining": "$postRemaining",
-                        "cat_name": "$cat_name",
-                        "storyPerPage": "$storyPerPage"
-                    },
-                    "platform": "$platform",
-                    "page_link": "$page_link",
-                    "modifiedBy": "$modifiedBy",
-                    "replacement_status": "$replacement_status",
-                    "delete_status": "$delete_status",
-                    "replaced_by": "$replaced_by",
-                    "replaced_with": "$replaced_with",
-                    "replacement_id": "$replacement_id",
-                    "isExecuted": "$isExecuted",
+                "registercampaign_Data": {
+                    "campaignName": "$execampaignData.exeCmpName",
+                    "brand_id": "$brand_id",
+                    "brnad_dt": "$brnad_dt",
+                    "excel_path": "$excel_path",
+                    "detailing": "$detailing",
+                    "captions": "$captions",
+                    "industry": "$industry",
+                    "agency": "$agency",
+                    "goal": "$goal",
+                    "hashtags": "$hashtags",
+                    "status": "$status",
+                    "exeCmpId": "$exeCmpId",
+                    "stage": "$stage",
+                    "commitment": "$commitment",
+                    "register_campaign_id": "$register_campaign_id",
+                    "brandData": "$brandData"
                 },
-                "campaignphase_Data": 1
+                "campaignplansData": 1,
+                "campaignphaseData": 1,
             }
-        },
-        {
-            $group: {
-                _id: "$campaign_Plan.planName",
-                registercampaign_Data: { $first: "$registercampaign_Data" },
-                campaign_Plan: { $push: "$campaign_Plan" },
-                campaignphase_Data: { $first: "$campaignphase_Data" }
-            }
-        }
-        ]);
+        }]);
+        // const campagianPlanListData = await campaignPlanModel.aggregate([{
+        //     $lookup: {
+        //         from: "registercampaignmodels",
+        //         let: { campaignId: { $toObjectId: "$campaignId" } },
+        //         pipeline: [
+        //             matchQueryObj,
+        //             {
+        //                 $lookup: {
+        //                     from: "brandmodels",
+        //                     localField: "brand_id",
+        //                     foreignField: "brand_id",
+        //                     as: "brandData"
+        //                 }
+        //             }, {
+        //                 $unwind: "$brandData"
+        //             },
+        //         ],
+        //         as: "registercampaign_Data"
+
+        //     }
+        // }, {
+        //     $unwind: "$registercampaign_Data"
+        // },
+        // {
+        //     $lookup: {
+        //         from: "campaignphasemodels",
+        //         localField: "campaignId",
+        //         foreignField: "campaignId",
+        //         as: "campaignphaseData"
+        //     }
+        // }, {
+        //     $unwind: "$campaignphaseData"
+        // },
+        // {
+        //     $project: {
+        //         "registercampaign_Data": 1,
+        //         "campaign_Plan": {
+        //             "plan_id": "$plan_id",
+        //             "planName": "$planName",
+        //             "vendor_id": "$vendor_id",
+        //             "campaignId": "$campaignId",
+        //             "campaignName": "$campaignName",
+        //             "storyRemaining": "$storyRemaining",
+        //             "createdAt": "$createdAt",
+        //             "modifiedAt": "$modifiedAt",
+        //             "delete_id": "$delete_id",
+        //             "page_data": {
+        //                 "p_id": "$p_id",
+        //                 "page_name": "$page_name",
+        //                 "follower_count": "$follower_count",
+        //                 "postPerPage": "$postPerPage",
+        //                 "postRemaining": "$postRemaining",
+        //                 "cat_name": "$cat_name",
+        //                 "storyPerPage": "$storyPerPage"
+        //             },
+        //             "platform": "$platform",
+        //             "page_link": "$page_link",
+        //             "modifiedBy": "$modifiedBy",
+        //             "replacement_status": "$replacement_status",
+        //             "delete_status": "$delete_status",
+        //             "replaced_by": "$replaced_by",
+        //             "replaced_with": "$replaced_with",
+        //             "replacement_id": "$replacement_id",
+        //             "isExecuted": "$isExecuted",
+        //         },
+        //         "campaignphaseData": 1
+        //     }
+        // },
+        // {
+        //     $group: {
+        //         _id: "$campaign_Plan.campaignName",
+        //         registercampaign_Data: { $first: "$registercampaign_Data" },
+        //         campaign_Plan: { $push: "$campaign_Plan" },
+        //         campaignphaseData: { $first: "$campaignphaseData" }
+        //     }
+        // }
+        // ]);
         if (campagianPlanListData) {
             return res.status(200).json({
                 status: 200,
-                message: "Campagian paln data details list successfully!",
+                message: "Campagian plan data details list successfully!",
                 data: campagianPlanListData,
             });
         }
