@@ -212,7 +212,7 @@ exports.deletePriceType = async (req, res) => {
     }
 };
 
-exports.getAllPagePurchasePriceList = async (req, res) => {
+exports.getAllPagePurchasePriceListData = async (req, res) => {
     try {
 
         const pagePurchasePriceGetData = await pmsPriceTypeModel.aggregate([
@@ -242,12 +242,12 @@ exports.getAllPagePurchasePriceList = async (req, res) => {
                     as: "pmspagepurchasepriceData",
                 },
             },
-            // {
-            //     $unwind: {
-            //         path: "$pmspagepurchasepriceData",
-            //         preserveNullAndEmptyArrays: true,
-            //     },
-            // },
+            {
+                $unwind: {
+                    path: "$pmspagepurchasepriceData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
             {
                 $project: {
                     price_type: 1,

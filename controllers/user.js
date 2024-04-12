@@ -401,7 +401,9 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
             upi_Id: req.body.upi_Id,
-            emp_id: empId
+            emp_id: empId,
+            created_by: created_by,
+            created_date_time: created_date_time,
         })
 
         if (req.files && req.files.image && req.files.image[0].originalname) {
@@ -1094,6 +1096,19 @@ exports.getAllUsers = async (req, res) => {
             //     }
             // },
             {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "created_by",
+                    foreignField: "user_id",
+                    as: "createdByUserData",
+                }
+            }, {
+                $unwind: {
+                    path: "$createdByUserData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     user_id: "$user_id",
                     user_name: "$user_name",
@@ -1241,6 +1256,9 @@ exports.getAllUsers = async (req, res) => {
                     document_percentage_non_mandatory: "$document_percentage_non_mandatory",
                     document_percentage: "$document_percentage",
                     upi_Id: "$upi_Id",
+                    created_by: "$created_by",
+                    created_by_name: "$createdByUserData.user_name",
+                    created_date_time:"$created_date_time"
                     // documentPercentage: {
                     //     $multiply: [
                     //         {
