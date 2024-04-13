@@ -82,11 +82,11 @@ const pmsPageMastSchema = new Schema({
         type: String,
         required: false
     },
-    price_type_id: {
+    price_type_id: [{
         type: Schema.Types.ObjectId,
         required: true,
         // ref: "pmsPriceType"
-    },
+    }],
     price_cal_type: {
         type: String,
         required: true,

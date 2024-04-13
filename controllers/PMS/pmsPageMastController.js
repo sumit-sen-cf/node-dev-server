@@ -250,6 +250,7 @@ exports.getPageMastDetail = async (req, res) => {
             message: message.DATA_NOT_FOUND,
         });
     } catch (error) {
+        console.log("error-------------------------------------------------", error)
         return res.status(500).json({
             status: 500,
             message: error.message ? error.message : message.ERROR_MESSAGE,

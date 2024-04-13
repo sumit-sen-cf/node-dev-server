@@ -146,7 +146,7 @@ const { createPayCycle, getPayCycleDetail, updatePayCycle, getAllPayCycleList, d
 const { createGroupLink, getGroupLinkDetail, updateGroupLink, getAllGroupLinkList, deleteGroupLinkData } = require("./controllers/PMS/pmsGroupLinkTypeController.js");
 const { createPmsVendorMast, getVendorMastDetail, updateVendorMast, getAllVendorkMastList, getAllVendorMastList, vendorMastDelete } = require("./controllers/PMS/pmsVendorMastController.js");
 const { createVendorGroup, getVendorGroupDetail, updateVendorGroup, getAllVendorGroupList, deleteVendorGroupData } = require("./controllers/PMS/pmsVendorGroupLinkController.js");
-const { createPriceType, getPriceDetail, updatePriceType, getPriceList, deletePriceType, getAllPriceTypeList, getAllPagePurchasePriceListData } = require("./controllers/PMS/pmsPriceTypeController.js");
+const { createPriceType, getPriceDetail, updatePriceType, getPriceList, deletePriceType, getAllPriceTypeList } = require("./controllers/PMS/pmsPriceTypeController.js");
 const { createPlatformPrice, getPlatformPriceDetail, updatePlatformPriceData, getPlatformPriceList, deletePlatformPriceData } = require("./controllers/PMS/pmsPlatformPriceTypeController.js");
 const { createPageCatg, getPageCatgDetail, updatePageCatg, getPageCatgList, deletePageCatgData } = require("./controllers/PMS/pmsPageCategoryController.js");
 const { createPmsProfile, getProfileDetail, updateProfileType, getProfileList, deleteProfileType } = require("./controllers/PMS/pmsProfileTypeController.js");
@@ -161,7 +161,7 @@ const { createCustomerMast, getCustomerMastDetail, updateCustomerMast, getCustom
 const { createCustomerContact, getCustomerContactDetail, updateCustomerContact, getCustomerContactList, deleteCustomerContact, getListCustomerContactData } = require("./controllers/Customer&Campaign/opsCustomerContactController.js");
 const { createDocMast, getDocMastDetail, updateDocMast, getDocMastList, deleteDocMast } = require("./controllers/Customer&Campaign/opsDocMastController.js");
 const { createCustomerDocument, getcustomerDocumentDetail, updateCustomerDocument, getCustomerDocumentList, deleteCustomerDocument, getAllCustomerDocumentList } = require("./controllers/Customer&Campaign/opsCustomerDocumentController.js");
-const { createPagePurchasePrice, getPagePurchasePrice, updatePagePurchasePrice, getPagePurchasePriceList, deletePagePurchasePriceData, getAllPagePurchasePriceList } = require("./controllers/PMS/pmsPagePurchasePriceController.js");
+const { createPagePurchasePrice, getPagePurchasePrice, updatePagePurchasePrice, getPagePurchasePriceList, deletePagePurchasePriceData, getAllPagePurchasePriceList, getAllDataList, getAllListData } = require("./controllers/PMS/pmsPagePurchasePriceController.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1657,7 +1657,6 @@ router.get("/getPrice/:id", getPriceDetail);
 router.put("/updatePrice/:id", updatePriceType);
 router.get("/getPriceList", getPriceList);
 router.delete("/deletePrice/:id", deletePriceType);
-router.get("/getAllPagePurchasePriceListData/:id",getAllPagePurchasePriceListData)
 
 router.post("/addPlatformPrice", createPlatformPrice);
 router.get("/getPlatformPriceDetail/:id", getPlatformPriceDetail);
@@ -1702,8 +1701,11 @@ router.post("/add_page_purchase_price", createPagePurchasePrice);
 router.get("/get_page_purchase_price/:id", getPagePurchasePrice);
 router.put("/update_page_purchase_price/:id", updatePagePurchasePrice);
 router.get("/getlist_page_purchase_price", getPagePurchasePriceList);
-router.get("/getAll_page_purchase_price/:id", getAllPagePurchasePriceList);
+// router.get("/getAll_page_purchase_price/:id", getAllPagePurchasePriceList);
 router.delete("/delete_page_purchase_price/:id", deletePagePurchasePriceData);
+router.get("/data/:_id", getAllDataList);
+router.get("/get_all_data_list", getAllListData);
+
 
 //pms page assignment APi's
 router.post("/add_page_assignment", pmsPageAssignment.createPageAssignment);

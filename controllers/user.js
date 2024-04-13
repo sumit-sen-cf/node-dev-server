@@ -76,7 +76,10 @@ const upload = multer({
     { name: "bankPassBook_Cheque", maxCount: 1 },
     { name: "joining_extend_document", maxCount: 1 },
     { name: "digital_signature_image", maxCount: 1 },
-    { name: "annexure_pdf", maxCount: 1 }
+    { name: "annexure_pdf", maxCount: 1 },
+
+    { name: "bank_proof_image", maxCount: 10 }
+
 ]);
 
 // let userCounter = 0;
@@ -657,13 +660,28 @@ exports.updateUserInformation = async (req, res) => {
     }
 };
 
-exports.updateBankInformation = async (req, res) => {
+//changes - multiple images
+exports.updateBankInformation = [upload, async (req, res) => {
     try {
         const { bank_name, account_no, ifsc_code, beneficiary, account_type, branch_name, upi_id } = req.body;
         const updateBankProfile = await userModel.findOne({ user_id: req.params.user_id });
         if (!updateBankProfile) {
-            return res.status(404).send("User not found");
+            return res.status(404).send("User not found!");
         }
+        if (req.files) {
+            updateBankProfile.bank_proof_image = req.files["bank_proof_image"] ? req.files["bank_proof_image"][0].filename : updateBankProfile.bank_proof_image;
+        }
+        const bucketName = vari.BUCKET_NAME;
+        const bucket = storage.bucket(bucketName);
+        if (req.files?.bank_proof_image && req.files?.bank_proof_image[0].originalname) {
+            const blob1 = bucket.file(req.files.bank_proof_image[0].originalname);
+            updateBankProfile.bank_proof_image = blob1.name;
+            const blobStream1 = blob1.createWriteStream();
+            blobStream1.on("finish", () => {
+            });
+            blobStream1.end(req.files.bank_proof_image[0].buffer);
+        }
+        await updateBankProfile.save();
         const bankprofileUpdate = await userModel.findOneAndUpdate({
             user_id: req.params.user_id
         }, {
@@ -674,7 +692,7 @@ exports.updateBankInformation = async (req, res) => {
                 beneficiary: beneficiary,
                 account_type: account_type,
                 branch_name: branch_name,
-                upi_Id: upi_id
+                upi_Id: upi_id,
             }
         }, {
             new: true
@@ -690,7 +708,7 @@ exports.updateBankInformation = async (req, res) => {
             message: "Unexpected error,please try again later!",
         });
     }
-};
+}];
 
 exports.updateUser = [upload, async (req, res) => {
     try {
@@ -1258,7 +1276,7 @@ exports.getAllUsers = async (req, res) => {
                     upi_Id: "$upi_Id",
                     created_by: "$created_by",
                     created_by_name: "$createdByUserData.user_name",
-                    created_date_time:"$created_date_time"
+                    created_date_time: "$created_date_time"
                     // documentPercentage: {
                     //     $multiply: [
                     //         {
