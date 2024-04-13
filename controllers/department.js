@@ -1,6 +1,7 @@
 const response = require("../common/response.js");
 const departmentModel = require("../models/departmentModel.js");
 const subDepartmentModel = require("../models/subDepartmentModel.js");
+const userModel = require("../models/userModel.js");
 
 exports.addDepartment = async (req, res) => {
   try {
@@ -92,12 +93,12 @@ exports.getSingleDepartment = async (req, res) => {
 
 exports.editDepartment = async (req, res) => {
   try {
-    const checkDuplicacy = await departmentModel.findOne({dept_name: req.body.dept_name})
-    if(checkDuplicacy){
+    const checkDuplicacy = await departmentModel.findOne({ dept_name: req.body.dept_name })
+    if (checkDuplicacy) {
       return res.status(409).send({
         data: [],
         message: "department name already exist",
-    });
+      });
     }
     const editsim = await departmentModel.findOneAndUpdate(
       { dept_id: parseInt(req.body.dept_id) },
@@ -122,31 +123,65 @@ exports.editDepartment = async (req, res) => {
     }
     return response.returnTrue(200, req, res, "Updation Successfully", editsim);
   } catch (err) {
-      return response.returnFalse(500, req, res, err.message, {});
+    return response.returnFalse(500, req, res, err.message, {});
   }
 };
 
-exports.deleteDepartment = async (req, res) => {
-  departmentModel.deleteOne({ dept_id: req.params.id }).then(item => {
+// exports.deleteDepartment = async (req, res) => {
+//   departmentModel.deleteOne({ dept_id: req.params.id }).then(item => {
 
-    if (item?.deletedCount !== 0) {
-      return res.status(200).json({ success: true, message: 'Department deleted' })
-    } else {
-      return res.status(404).json({ success: false, message: 'Department not found' })
+//     if (item?.deletedCount !== 0) {
+//       return res.status(200).json({ success: true, message: 'Department deleted' })
+//     } else {
+//       return res.status(404).json({ success: false, message: 'Department not found' })
+//     }
+//   }).catch(err => {
+//     return res.status(400).json({ success: false, message: err })
+//   })
+// };
+
+
+//Delete - Users are assigned to this department
+exports.deleteDepartment = async (req, res) => {
+  try {
+    const usersInDepartment = await userModel.find({ dept_id: req.params.id });
+    // console.log("usersInDepartment", usersInDepartment)
+
+    if (usersInDepartment.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete department. Users are assigned to this department.'
+      });
     }
-  }).catch(err => {
-    return res.status(400).json({ success: false, message: err })
-  })
-};
+    const deletionResult = await departmentModel.deleteOne({ dept_id: req.params.id });
+    if (deletionResult.deletedCount !== 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'Department deleted!'
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: 'Department not found!'
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+}
+
 
 exports.addSubDepartment = async (req, res) => {
   try {
-    const checkDuplicacy = await subDepartmentModel.findOne({sub_dept_name: req.body.sub_dept_name})
-    if(checkDuplicacy){
+    const checkDuplicacy = await subDepartmentModel.findOne({ sub_dept_name: req.body.sub_dept_name })
+    if (checkDuplicacy) {
       return res.status(409).send({
         data: [],
         message: "Sub department name already exist",
-    });
+      });
     }
     const simc = new subDepartmentModel({
       sub_dept_name: req.body.sub_dept_name,
@@ -170,8 +205,8 @@ exports.addSubDepartment = async (req, res) => {
 
 exports.editSubDepartment = async (req, res) => {
   try {
-    const checkDuplicacy = await subDepartmentModel.findOne({sub_dept_name: req.body.sub_dept_name})
-    if(checkDuplicacy){
+    const checkDuplicacy = await subDepartmentModel.findOne({ sub_dept_name: req.body.sub_dept_name })
+    if (checkDuplicacy) {
       return res.status(409).send({
         data: [],
         message: "Sub department name already exist",

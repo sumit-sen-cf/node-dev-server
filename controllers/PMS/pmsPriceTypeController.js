@@ -12,7 +12,7 @@ exports.createPriceType = async (req, res) => {
         if (checkDuplicacy) {
             return res.status(403).json({
                 status: 403,
-                message: "PMS price type alredy exist for this platform!",
+                message: "Price type alredy exist for this platform!",
             });
         }
         const { price_type, description, platform_id, created_by, last_updated_by } = req.body;
@@ -212,68 +212,3 @@ exports.deletePriceType = async (req, res) => {
     }
 };
 
-exports.getAllPagePurchasePriceListData = async (req, res) => {
-    try {
-
-        const pagePurchasePriceGetData = await pmsPriceTypeModel.aggregate([
-            {
-                // $match: { _id: mongoose.Types.ObjectId(req.params.id) },
-                $match: { platform_id: mongoose.Types.ObjectId(req.params.id) },
-            },
-            {
-                $lookup: {
-                    from: "pmsplatforms",
-                    localField: "platform_id",
-                    foreignField: "_id",
-                    as: "pmsplatform",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$pmsplatform",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "pmspagepurchaseprices",
-                    localField: "_id",
-                    foreignField: "price_type_id",
-                    as: "pmspagepurchasepriceData",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$pmspagepurchasepriceData",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $project: {
-                    price_type: 1,
-                    description: 1,
-                    platform_id: 1,
-                    created_by: 1,
-                    last_updated_by: 1,
-                    PMS_Platforms_data: {
-                        platform_id: "$pmsplatform._id",
-                        platform_name: "$pmsplatform.platform_name",
-                        description: "$pmsplatform.description",
-                        created_by: "$pmsplatform.created_by",
-                    },
-                    pmspagepurchasepriceData: "$pmspagepurchasepriceData"
-                }
-            }
-
-        ])
-        return res.status(200).send({
-            succes: true,
-            message: "PMS all page purchase price data list successfully!",
-            data: pagePurchasePriceGetData
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
-    }
-};

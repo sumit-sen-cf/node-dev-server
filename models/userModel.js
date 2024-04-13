@@ -710,6 +710,10 @@ const userModel = new mongoose.Schema({
         required: false,
         default: ''
     },
+    bank_proof_image: {
+        type:String,
+        required: false
+    },
     att_status: {
         type: String
     },
