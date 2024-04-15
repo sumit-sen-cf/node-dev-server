@@ -339,7 +339,6 @@ exports.getUserAnnoncementList = async (req, res) => {
                     job_type: 1,
                     notify_by_user_email: 1,
                     email_response: 1,
-                    reactions: 1,
                     //target_audience_count: 1,
                     created_date_time: 1,
                     created_by: 1,
@@ -422,6 +421,94 @@ exports.getUserAnnoncementList = async (req, res) => {
             message: "User_Announcement list created successfully!",
             Announcement_data: totalUserAnnouncementList, userAnnouncementList,
             desiWiseUserCounts: usersByDesiInAnnouncements,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+};
+
+//GET - User_Announcement_List
+exports.getAllLoginUserAnnoncementListData = async (req, res) => {
+    try {
+        const userId = Number(req.params?.id);
+        const userAnnouncementList = await userAnnouncementModel.aggregate([{
+            $lookup: {
+                from: "usermodels",
+                localField: "created_by",
+                foreignField: "user_id",
+                as: "userData",
+            }
+        }, {
+            $unwind: {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "userannouncementcommentsmodels",
+                localField: "_id",
+                foreignField: "announcement_id",
+                as: "userannouncementcommentsData",
+            }
+        }, {
+            $project: {
+                "reactionsCount": {
+                    "sad": { $size: "$reactions.sad" },
+                    "love": { $size: "$reactions.love" },
+                    "clap": { $size: "$reactions.clap" },
+                    "haha": { $size: "$reactions.haha" },
+                    "like": { $size: "$reactions.like" },
+                },
+                "currentUserReaction": {
+                    $cond: {
+                        if: { $in: [userId, "$reactions.like"] },
+                        then: "like",
+                        else: {
+                            $cond: {
+                                if: { $in: [userId, "$reactions.haha"] },
+                                then: "haha",
+                                else: {
+                                    $cond: {
+                                        if: { $in: [userId, "$reactions.love"] },
+                                        then: "love",
+                                        else: {
+                                            $cond: {
+                                                if: { $in: [userId, "$reactions.clap"] },
+                                                then: "clap",
+                                                else: {
+                                                    $cond: {
+                                                        if: { $in: [userId, "$reactions.sad"] },
+                                                        then: "sad",
+                                                        else: ""
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                post_content: 1,
+                post_subject: 1,
+                created_at: 1,
+                created_by: 1,
+                created_by_name: "$userData.user_name",
+                login_user_image: { $concat: [vari.IMAGE_URL, "$userData.image"] },
+                // announcement_Document: { $concat: [vari.IMAGE_URL, "$image"] },
+                last_updated_date: 1,
+                last_updated_by: 1,
+                totalCommentsCounts: { $size: "$userannouncementcommentsData" }
+            }
+        }]);
+
+        return res.status(200).send({
+            succes: true,
+            message: "User_Announcement list fetched successfully!",
+            data: userAnnouncementList,
         });
     } catch (error) {
         return res.status(500).json({
@@ -775,6 +862,7 @@ exports.announcementWisegetCommentsList = async (req, res) => {
                 announcement_id: 1,
                 user_id: 1,
                 user_name: "$userData.user_name",
+                image: { $concat: [vari.IMAGE_URL, "$userData.image"] },
                 comment: 1,
                 createdAt: 1
             }
