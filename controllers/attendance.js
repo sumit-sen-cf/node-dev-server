@@ -54,7 +54,7 @@ function monthNameToNumber(monthName) {
 const getLatestAttendanceId = async () => {
   try {
     const latestAttendance = await attendanceModel.findOne().sort({ attendence_id: -1 });
-    console.log("latestAttendance", latestAttendance);
+    // console.log("latestAttendance", latestAttendance);
     if (latestAttendance) {
       return latestAttendance.attendence_id;
     }
@@ -186,29 +186,24 @@ exports.addAttendance = async (req, res) => {
 
         filteredUserData?.length > 0 &&
           filteredUserData.map(async (user) => {
-
-            // const currentDate = new Date();
-            // const extractCurrDate = currentDate.getDate();
-            // const extractCurrMonth = currentDate.getMonth() + 1;
             //logic for separation
             const resignDate = user.resignation_date;
-            // console.log("resignDate", resignDate)
+
             const resignConvertDate = new Date(resignDate);
-            // console.log("resignConvertDate", resignConvertDate)
+
             const resignMonth = resignConvertDate.toLocaleString('default', { month: 'long' });
-            // console.log("resignMonth", resignMonth)
+
             const resignMonthNum = resignConvertDate.getUTCMonth() + 1;
-            // console.log("resignMonthNum", resignMonthNum)
+
             const resignYear = String(resignConvertDate.getUTCFullYear());
             const resignExtractDate = resignConvertDate.getDate();
-            // console.log("resignExtractDate", resignExtractDate);
             const resignMonthYear = `${resignYear}` + `${resignMonthNum}`;
 
             var work_days;
             const absent = noOfabsent == undefined ? 0 : req.body.noOfabsent;
             const joining = user.joining_date;
             const convertDate = new Date(joining);
-            const extractJodDate = convertDate.getDate();
+            // const extractJodDate = convertDate.getDate() - 1;
             const extractDate = convertDate.getDate() - 1;
             const joiningMonth = String(convertDate.getUTCMonth() + 1);
             const joiningYear = String(convertDate.getUTCFullYear());
@@ -217,7 +212,7 @@ exports.addAttendance = async (req, res) => {
             const mergeJoining1 = `${monthNumber}` + `${year}`;
             if (mergeJoining == mergeJoining1) {
               if (extractDate < 15) {
-                work_days = 15 - absent
+                work_days = 15 - extractDate - absent;
               } else {
                 work_days = 30 - extractDate - absent;
               }
@@ -240,12 +235,18 @@ exports.addAttendance = async (req, res) => {
                 req.body.year
               );
               if (!userExistsInAttendance) {
-                const presentDays = work_days - 0;
-                const perdaysal = user.salary / work_days;
+                const presentDays = work_days;
+
+                const perdaysal = user.salary / 30;
+
                 const totalSalary = perdaysal * presentDays;
+
                 const Bonus = bonus == undefined ? 0 : req.body.bonus;
+
                 const netSalary = totalSalary + Bonus;
+
                 const tdsDeduction = (netSalary * user.tds_per) / 100;
+
                 const ToPay = netSalary - tdsDeduction;
                 const salary = user.salary;
                 let invoiceNo = await createNextInvoiceNumber(user.user_id, month, year);
@@ -276,7 +277,6 @@ exports.addAttendance = async (req, res) => {
                   salary_deduction: req.body.salary_deduction
                 });
 
-                // console.log("dddddddddd", creators)
                 if (user.status == "Resigned" && resignMonthYear < bodymonth) {
                   console.log("User Exist ");
                 } else {
