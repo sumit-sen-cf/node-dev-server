@@ -163,14 +163,38 @@ async function checkIfDataExistsInExecutionPurchase(p_id) {
     return result !== null;
 }
 
+// exports.getExeSum = async (req, res) => {
+//     try {
+//         const getcreators = await exeSum.find();
+//         if (!getcreators) {
+//             res.status(500).send({ success: false });
+//         }
+//         res.status(200).send(getcreators);
+//     } catch (err) {
+//         res.status(500).send({ error: err, sms: 'Error getting all execution summary' });
+//     }
+// };
+
 exports.getExeSum = async (req, res) => {
     try {
-        const getcreators = await exeSum.find();
-        if (!getcreators) {
-            res.status(500).send({ success: false });
+        const getcreators = await exeSum.aggregate([
+            {
+                $group: {
+                    _id: "$sale_booking_execution_id",
+                    data: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$data" }
+            }
+        ]);
+
+        if (getcreators && getcreators.length > 0) {
+            res.status(200).send(getcreators);
+        } else {
+            res.status(404).send({ sms: "Error getting all execution summary" });
         }
-        res.status(200).send(getcreators);
-    } catch (err) {
+    } catch (error) {
         res.status(500).send({ error: err, sms: 'Error getting all execution summary' });
     }
 };

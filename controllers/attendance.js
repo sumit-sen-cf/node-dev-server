@@ -54,7 +54,7 @@ function monthNameToNumber(monthName) {
 const getLatestAttendanceId = async () => {
   try {
     const latestAttendance = await attendanceModel.findOne().sort({ attendence_id: -1 });
-    // console.log("latestAttendance", latestAttendance);
+    console.log("latestAttendance", latestAttendance);
     if (latestAttendance) {
       return latestAttendance.attendence_id;
     }
@@ -86,17 +86,17 @@ const getNextAttendanceId = () => {
   return attendanceIdCounter++;
 };
 
-function getLastDateOfMonth(month, year) {
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const monthIndex = monthNames.indexOf(month);
-  if (monthIndex === -1) {
-    throw new Error('Invalid month name');
-  }
+// function getLastDateOfMonth(month, year) {
+//   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+//   const monthIndex = monthNames.indexOf(month);
+//   if (monthIndex === -1) {
+//     throw new Error('Invalid month name');
+//   }
 
-  let nextMonth = new Date(year, monthIndex + 1, 1);
-  let lastDateOfMonth = new Date(nextMonth - 1);
-  return lastDateOfMonth.getDate();
-}
+//   let nextMonth = new Date(year, monthIndex + 1, 1);
+//   let lastDateOfMonth = new Date(nextMonth - 1);
+//   return lastDateOfMonth.getDate();
+// }
 
 exports.addAttendance = async (req, res) => {
   try {
@@ -124,7 +124,7 @@ exports.addAttendance = async (req, res) => {
       });
     }
 
-    const monthLastValue = getLastDateOfMonth(month, year);
+    // const monthLastValue = getLastDateOfMonth(month, year);
 
     const attendanceData = await userModel.aggregate([
       {
@@ -186,6 +186,10 @@ exports.addAttendance = async (req, res) => {
 
         filteredUserData?.length > 0 &&
           filteredUserData.map(async (user) => {
+
+            // const currentDate = new Date();
+            // const extractCurrDate = currentDate.getDate();
+            // const extractCurrMonth = currentDate.getMonth() + 1;
             //logic for separation
             const resignDate = user.resignation_date;
             // console.log("resignDate", resignDate)
@@ -204,6 +208,7 @@ exports.addAttendance = async (req, res) => {
             const absent = noOfabsent == undefined ? 0 : req.body.noOfabsent;
             const joining = user.joining_date;
             const convertDate = new Date(joining);
+            const extractJodDate = convertDate.getDate();
             const extractDate = convertDate.getDate() - 1;
             const joiningMonth = String(convertDate.getUTCMonth() + 1);
             const joiningYear = String(convertDate.getUTCFullYear());
@@ -211,12 +216,16 @@ exports.addAttendance = async (req, res) => {
             const monthNumber = monthNameToNumber(month);
             const mergeJoining1 = `${monthNumber}` + `${year}`;
             if (mergeJoining == mergeJoining1) {
-              work_days = monthLastValue - extractDate - absent;
+              if (extractDate < 15) {
+                work_days = 15 - absent
+              } else {
+                work_days = 30 - extractDate - absent;
+              }
             } else if (user.status == "Resigned") {
-              work_days = (monthLastValue - resignExtractDate) - absent;
+              work_days = (30 - resignExtractDate) - absent;
             }
             else {
-              work_days = monthLastValue - absent;
+              work_days = 30 - absent;
             }
             const bodymonth = `${year}` + `${monthNumber}`;
 
@@ -232,7 +241,7 @@ exports.addAttendance = async (req, res) => {
               );
               if (!userExistsInAttendance) {
                 const presentDays = work_days - 0;
-                const perdaysal = user.salary / monthLastValue;
+                const perdaysal = user.salary / work_days;
                 const totalSalary = perdaysal * presentDays;
                 const Bonus = bonus == undefined ? 0 : req.body.bonus;
                 const netSalary = totalSalary + Bonus;
@@ -267,6 +276,7 @@ exports.addAttendance = async (req, res) => {
                   salary_deduction: req.body.salary_deduction
                 });
 
+                // console.log("dddddddddd", creators)
                 if (user.status == "Resigned" && resignMonthYear < bodymonth) {
                   console.log("User Exist ");
                 } else {
@@ -323,8 +333,8 @@ exports.addAttendance = async (req, res) => {
               req.body.year
             );
             if (!userExistsInAttendance) {
-              const presentDays = work_days - 0;
-              const perdaysal = user.salary / monthLastValue;
+              const presentDays = work_days;
+              const perdaysal = user.salary / work_days;
               const totalSalary = perdaysal * presentDays;
               const Bonus = bonus || 0;
               const netSalary = totalSalary + Bonus;
@@ -398,7 +408,7 @@ exports.addAttendance = async (req, res) => {
           }
 
           const present_days = work_days;
-          const perdaysal = results4[0].salary / monthLastValue;
+          const perdaysal = results4[0].salary / work_days;
           const totalSalary = perdaysal * present_days;
           const Bonus = bonus == undefined ? 0 : req.body.bonus;
           const netSalary = (totalSalary + parseInt(Bonus)) - salaryDeduction;
