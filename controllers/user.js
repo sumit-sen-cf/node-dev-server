@@ -3826,59 +3826,98 @@ function monthNameToNumber(monthName) {
 //     }
 // };
 
+// exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
+//     try {
+//         let month = req.body.month;
+//         let year = req.body.year;
+//         let deptId = req.body.dept_id;
+//         const monthNumber = monthNameToNumber(month);
+//         const joiningMonth = String(monthNumber).padStart(
+//             2,
+//             "0"
+//         );
+//         const bodyMonthYear = `${year}${joiningMonth}`;
+//         const findData = await userModel.aggregate([
+//             {
+//                 $match: {
+//                     job_type: "WFHD",
+//                     dept_id: deptId,
+//                     att_status: "onboarded",
+//                     $expr: {
+//                         $lte: [
+//                             {
+//                                 $dateToString: {
+//                                     date: "$joining_date",
+//                                     format: "%Y%m"
+//                                 }
+//                             },
+//                             bodyMonthYear
+//                         ]
+//                     }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     user_id: "$user_id",
+//                     user_name: "$user_name"
+//                 }
+//             }
+//         ]);
+
+//         const separationData = await separationModel.find({}).select({ user_id: 1, resignation_date: 1 });
+
+//         const filteredSeparationData = separationData.filter(data => {
+//             const resignationMonthYear = `${data.resignation_date.getFullYear()}${String(data.resignation_date.getMonth() + 1).padStart(2, "0")}`;
+//             return resignationMonthYear !== bodyMonthYear;
+//         });
+
+//         const separatedUserIds = filteredSeparationData.map(data => data.user_id);
+
+//         const filteredData = findData.filter(data => !separatedUserIds.includes(data.user_id));
+
+//         const count = filteredData.length;
+
+
+//         return response.returnTrue(200, req, res, count);
+//     } catch (err) {
+//         return response.returnFalse(500, req, res, err.message, {});
+//     }
+// };
+
+
 exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
     try {
         let month = req.body.month;
         let year = req.body.year;
         let deptId = req.body.dept_id;
+
+        // Convert month name to number
         const monthNumber = monthNameToNumber(month);
-        const joiningMonth = String(monthNumber).padStart(
-            2,
-            "0"
-        );
+
+        // Pad month number with zero if needed
+        const joiningMonth = String(monthNumber).padStart(2, "0");
+
+        // Concatenate year and month for comparison
         const bodyMonthYear = `${year}${joiningMonth}`;
-        const findData = await userModel.aggregate([
-            {
-                $match: {
-                    job_type: "WFHD",
-                    dept_id: deptId,
-                    att_status: "onboarded",
-                    $expr: {
-                        $lte: [
-                            {
-                                $dateToString: {
-                                    date: "$joining_date",
-                                    format: "%Y%m"
-                                }
-                            },
-                            bodyMonthYear
-                        ]
-                    }
-                }
-            },
-            {
-                $project: {
-                    user_id: "$user_id",
-                    user_name: "$user_name"
-                }
-            }
-        ]);
 
-        const separationData = await separationModel.find({}).select({ user_id: 1, resignation_date: 1 });
+        // Find users with joining date, active status, onboarded attendance status, and matching department ID
+        const users = await userModel.find({
+            dept_id: deptId,
+            user_status: 'Active',
+            att_status: 'onboarded'
+        }, { joining_date: 1 });
+        // console.log("users", users)
 
-        const filteredSeparationData = separationData.filter(data => {
-            const resignationMonthYear = `${data.resignation_date.getFullYear()}${String(data.resignation_date.getMonth() + 1).padStart(2, "0")}`;
-            return resignationMonthYear !== bodyMonthYear;
-        });
+        // Filter users based on joining month and year
+        const usersCount = users.filter(user => {
+            const userJoiningDate = new Date(user.joining_date);
+            const userMonthYear = userJoiningDate.getFullYear().toString() +
+                String(userJoiningDate.getMonth() + 1).padStart(2, '0');
+            console.log("userMonthYear", userMonthYear)
+            return userMonthYear <= bodyMonthYear;
+        }).length;
 
-        const separatedUserIds = filteredSeparationData.map(data => data.user_id);
-
-        const filteredData = findData.filter(data => !separatedUserIds.includes(data.user_id));
-
-        const count = filteredData.length;
-
-
-        return response.returnTrue(200, req, res, count);
+        return response.returnTrue(200, req, res, { count: usersCount });
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
