@@ -212,16 +212,17 @@ exports.getCampaignPlanDataList = async (req, res) => {
     try {
         //query to get date
         let searchDate = req.query?.date;
-        //date convert to new date Obj
-        searchDate = new Date(searchDate);
-
-        //start end date calculate from search date
-        let startDate = moment(searchDate).format('YYYY-MM-DD 00:00:00');
-        let endDate = moment(searchDate).format('YYYY-MM-DD 23:59:59');
-
         let matchQueryObj = {};
         //check if search date
         if (searchDate) {
+            //date convert to new date Obj
+            searchDate = new Date(searchDate);
+
+            //start end date calculate from search date
+            let startDate = moment(searchDate).format('YYYY-MM-DD 00:00:00');
+            let endDate = moment(searchDate).format('YYYY-MM-DD 23:59:59');
+
+            //match query obj create
             matchQueryObj = {
                 brnad_dt: {
                     $gte: new Date(startDate),
