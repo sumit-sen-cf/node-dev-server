@@ -210,40 +210,30 @@ exports.deleteEntirePlan = catchAsync(async (req, res, next) => {
 
 exports.getCampaignPlanDataList = async (req, res) => {
     try {
-        const searchDate = req.query?.date;
+        //query to get date
+        let searchDate = req.query?.date;
+        //date convert to new date Obj
+        searchDate = new Date(searchDate);
 
-        // let date = new Date(searchDate);
-        // date.setDate(date.getUTCDate()); // Setting utc date, Only useful if you're region is behind UTC
-        // sdate = new Date(date.setHours(0, 0, 0, 0)) // This overrides hours generated with 23:59:59 - which is what exactly needed here.
-        // edate = new Date(date.setHours(23, 59, 59, 999)) // This overrides hours generated with 23:59:59 - which is what exactly needed here.
-        // console.log(sdate)
-        // console.log(edate)
-
-        console.log("searchDate", searchDate)
+        //start end date calculate from search date
         let startDate = moment(searchDate).format('YYYY-MM-DD 00:00:00');
-        console.log("startDate", startDate)
-
         let endDate = moment(searchDate).format('YYYY-MM-DD 23:59:59');
-        console.log("endDate", endDate)
 
-        let matchQueryObj = {
-            $match: {
-                $expr: { $eq: ["$_id", "$$campaignId"] },
-            }
-        };
+        let matchQueryObj = {};
+        //check if search date
         if (searchDate) {
             matchQueryObj = {
-                $match: {
-                    $expr: { $eq: ["$_id", "$$campaignId"] },
-                    brnad_dt: {
-                        $gte: new Date(startDate),
-                        $lt: new Date(endDate)
-                    }
+                brnad_dt: {
+                    $gte: new Date(startDate),
+                    $lt: new Date(endDate)
                 }
             }
         }
 
+        //register campaign data find from aggregation
         const campagianPlanListData = await registerCampaignModel.aggregate([{
+            $match: matchQueryObj
+        }, {
             $lookup: {
                 from: "campaignplanmodels",
                 let: { id: { $toString: "$_id" } },
@@ -315,87 +305,11 @@ exports.getCampaignPlanDataList = async (req, res) => {
                 "campaignphaseData": 1,
             }
         }]);
-        // const campagianPlanListData = await campaignPlanModel.aggregate([{
-        //     $lookup: {
-        //         from: "registercampaignmodels",
-        //         let: { campaignId: { $toObjectId: "$campaignId" } },
-        //         pipeline: [
-        //             matchQueryObj,
-        //             {
-        //                 $lookup: {
-        //                     from: "brandmodels",
-        //                     localField: "brand_id",
-        //                     foreignField: "brand_id",
-        //                     as: "brandData"
-        //                 }
-        //             }, {
-        //                 $unwind: "$brandData"
-        //             },
-        //         ],
-        //         as: "registercampaign_Data"
-
-        //     }
-        // }, {
-        //     $unwind: "$registercampaign_Data"
-        // },
-        // {
-        //     $lookup: {
-        //         from: "campaignphasemodels",
-        //         localField: "campaignId",
-        //         foreignField: "campaignId",
-        //         as: "campaignphaseData"
-        //     }
-        // }, {
-        //     $unwind: "$campaignphaseData"
-        // },
-        // {
-        //     $project: {
-        //         "registercampaign_Data": 1,
-        //         "campaign_Plan": {
-        //             "plan_id": "$plan_id",
-        //             "planName": "$planName",
-        //             "vendor_id": "$vendor_id",
-        //             "campaignId": "$campaignId",
-        //             "campaignName": "$campaignName",
-        //             "storyRemaining": "$storyRemaining",
-        //             "createdAt": "$createdAt",
-        //             "modifiedAt": "$modifiedAt",
-        //             "delete_id": "$delete_id",
-        //             "page_data": {
-        //                 "p_id": "$p_id",
-        //                 "page_name": "$page_name",
-        //                 "follower_count": "$follower_count",
-        //                 "postPerPage": "$postPerPage",
-        //                 "postRemaining": "$postRemaining",
-        //                 "cat_name": "$cat_name",
-        //                 "storyPerPage": "$storyPerPage"
-        //             },
-        //             "platform": "$platform",
-        //             "page_link": "$page_link",
-        //             "modifiedBy": "$modifiedBy",
-        //             "replacement_status": "$replacement_status",
-        //             "delete_status": "$delete_status",
-        //             "replaced_by": "$replaced_by",
-        //             "replaced_with": "$replaced_with",
-        //             "replacement_id": "$replacement_id",
-        //             "isExecuted": "$isExecuted",
-        //         },
-        //         "campaignphaseData": 1
-        //     }
-        // },
-        // {
-        //     $group: {
-        //         _id: "$campaign_Plan.campaignName",
-        //         registercampaign_Data: { $first: "$registercampaign_Data" },
-        //         campaign_Plan: { $push: "$campaign_Plan" },
-        //         campaignphaseData: { $first: "$campaignphaseData" }
-        //     }
-        // }
-        // ]);
+        //check response data send
         if (campagianPlanListData) {
             return res.status(200).json({
                 status: 200,
-                message: "Campagian plan data details list successfully!",
+                message: "Register Campagian data details list fetched successfully!",
                 data: campagianPlanListData,
             });
         }

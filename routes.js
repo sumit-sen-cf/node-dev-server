@@ -130,6 +130,7 @@ const phpVendorPurchasePaymentRequest = require("./controllers/phpVendorPurchase
 const repairandreturnsumdata = require("./controllers/repairAndReturnSum.js");
 const assetVendorSum = require("./controllers/assetVendorSum.js");
 const pmsPageAssignment = require("./controllers/PMS/pmsPageAssignment.js");
+const dynamicTablesModel = require("./controllers/dynamicTables.js");
 
 /* Task Mangement Controller Import */
 //const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1814,5 +1815,9 @@ router.post("/vendorsum", assetVendorSum.addVendorSum);
 router.get("/vendorsum", assetVendorSum.getVendorSums);
 router.get("/get_all_hr", assetVendorSum.getAllHR);
 router.put("/vendorsum", assetVendorSum.editVendorSum);
+
+//Dynamic table routes
+router.post("/add_dynamic_table_data", dynamicTablesModel.addDynamicTablesData);
+router.get("/get_dynamic_table_data/:id", dynamicTablesModel.getSingleDynamicTablesData);
 
 module.exports = router;
