@@ -154,7 +154,7 @@ const { createPmsProfile, getProfileDetail, updateProfileType, getProfileList, d
 const { createPageMast, getPageMastDetail, updatePageMast, getPageMastList, deletePageMastData } = require("./controllers/PMS/pmsPageMastController.js");
 const { createPageOwner, getPageOwnerDetail, updatePageOwner, getPageOwnerList, deletePageOwnerData } = require("./controllers/PMS/pmsPageOwnershipController.js");
 const { createVendorPagePrice, getVendorPagePriceDetail, updateVendorPagePrice, getVendorPagePriceList, deleteVendorPagePriceData } = require("./controllers/PMS/pmsVendorPagePriceController.js");
-const { createUserAnnouncement, getUserAnnouncementDetail, updateUserAnnouncement, getUserAnnoncementList, deleteUserAnnouncementData, announcementUpdateData, announcementWiseGetReactionDetails, announcementWisegetCommentsList, announcementWiseComment } = require("./controllers/Announcement/userAnnouncementController.js");
+const { createUserAnnouncement, getUserAnnouncementDetail, updateUserAnnouncement, getUserAnnoncementList, deleteUserAnnouncementData, announcementUpdateData, announcementWiseGetReactionDetails, announcementWisegetCommentsList, announcementWiseComment, getAllLoginUserAnnoncementListData } = require("./controllers/Announcement/userAnnouncementController.js");
 const { createCustomerType, getcustomerTypeDetail, updateCustomerType, getCustomerTypeList, deleteCustomerType } = require("./controllers/Customer&Campaign/opsCustomerTypeController.js");
 const { createAccountType, getAccountTypeDetail, updateAccountType, getAccountTypeList, deleteAccountType } = require("./controllers/Customer&Campaign/opsAccountTypeController.js");
 const { createOwnership, getOwnershipDetail, updateOwnershipType, getOwnershipList, deleteOwnership } = require("./controllers/Customer&Campaign/opsOwnershipController.js");
@@ -1602,6 +1602,7 @@ router.post("/add_announcement", createUserAnnouncement);
 router.get("/get_user_announcement/:id", getUserAnnouncementDetail);
 router.put("/update_user_announcement/:id", updateUserAnnouncement);
 router.get("/get_all_user_announcement", getUserAnnoncementList);
+router.get("/get_all_user_login_announcement/:id", getAllLoginUserAnnoncementListData);
 router.delete("/delete_user_announcement/:id", deleteUserAnnouncementData);
 
 router.put("/announcement_post_like", announcementUpdateData);
