@@ -19,10 +19,11 @@ exports.createPagePurchasePrice = async (req, res) => {
         const addPagePurchasePriceData = new pmsPagePurchasePriceModel({
             platform_id: platform_id,
             pageMast_id: pageMast_id,
-            price_type_id: price_type_id,
+            // price_type_id: price_type_id,
             price_cal_type: price_cal_type,
             variable_type: variable_type,
             purchase_price: purchase_price,
+            // purchase_price: purchase_price,
             description: description,
             created_by: created_by,
             last_updated_by: last_updated_by
@@ -493,7 +494,8 @@ exports.getAllDataList = async (req, res) => {
                     platform_name: 1,
                     price_type_id: "$pmsData._id",
                     price_type: "$pmsData.price_type",
-                    platform_id: 1
+                    platform_id: 1,
+
                 },
             },
         ]).exec();

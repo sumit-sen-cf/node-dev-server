@@ -1684,13 +1684,11 @@ router.put("/updatePage/:id", updatePageMast);
 router.get("/getPageMastList", getPageMastList);
 router.delete("/deletePageMast/:id", deletePageMastData);
 
-
 router.post("/addPageOwner", createPageOwner);
 router.get("/getPageOwner/:id", getPageOwnerDetail);
 router.put("/updatePageOwner/:id", updatePageOwner);
 router.get("/getPageOwnerList", getPageOwnerList);
 router.delete("/deletePageOwner/:id", deletePageOwnerData);
-
 
 router.post("/addVendorPagePrice", createVendorPagePrice);
 router.get("/getVendorPagePrice/:id", getVendorPagePriceDetail);
@@ -1715,7 +1713,6 @@ router.put("/update_page_assignment/:id", pmsPageAssignment.updatePageAssignment
 router.get("/get_page_assignment/:id", pmsPageAssignment.getPageAssignmentDetail);
 router.get("/get_list_page_assignment", pmsPageAssignment.getPageAssignmentList);
 router.delete("/delete_page_assignment/:id", pmsPageAssignment.deletePageAssignmentData);
-
 router.get("/get_list_page_assignment_history", pmsPageAssignment.getPageAssignmentHistoryList);
 
 // --------------------------------------------------------------Task Mangements all Routes------------------------------------------//

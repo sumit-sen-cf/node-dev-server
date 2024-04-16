@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const pmsPageMastSchema = new Schema({
+const pmsPageData = new Schema({
     pageMast_id: {
         type: Number,
         required: false,
@@ -29,10 +29,10 @@ const pmsPageMastSchema = new Schema({
         required: true,
         ref: "pmsPageCategory"
     },
-    tag_category: {
-        type: Array,
-        required: false,
-    },
+    tag_category: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "pmsPageCategory"
+    }],
     page_level: {
         type: String,
         required: true,
@@ -70,10 +70,10 @@ const pmsPageMastSchema = new Schema({
         required: true,
         ref: "pmsProfileType"
     },
-    platform_active_on: {
-        type: String,
-        required: true,
-    },
+    platform_active_on: [{
+        type: Schema.Types.ObjectId,
+        ref: "pmsPlatform",
+    }],
     engagment_rate: {
         type: Number,
         required: true,
@@ -82,11 +82,6 @@ const pmsPageMastSchema = new Schema({
         type: String,
         required: false
     },
-    price_type_id: [{
-        type: Schema.Types.ObjectId,
-        required: true,
-        // ref: "pmsPriceType"
-    }],
     price_cal_type: {
         type: String,
         required: true,
@@ -95,10 +90,16 @@ const pmsPageMastSchema = new Schema({
         type: String,
         required: false,
     },
-    purchase_price: {
-        type: Number,
-        required: true,
-    },
+    purchase_price: [{
+        price_type_id: {
+            type: Schema.Types.ObjectId,
+            required: true,
+        },
+        price: {
+            type: Number,
+            required: true
+        }
+    }],
     created_date_time: {
         type: Date,
         default: Date.now,
@@ -118,7 +119,7 @@ const pmsPageMastSchema = new Schema({
         default: 0
     }
 });
-pmsPageMastSchema.pre('save', async function (next) {
+pmsPageData.pre('save', async function (next) {
     if (!this.pageMast_id) {
         const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'pageMast_id': -1 } });
 
@@ -131,5 +132,5 @@ pmsPageMastSchema.pre('save', async function (next) {
     next();
 });
 
-const pmsPageMastModel = mongoose.model("pmsPageMast", pmsPageMastSchema);
+const pmsPageMastModel = mongoose.model("pmsPageData", pmsPageData);
 module.exports = pmsPageMastModel;

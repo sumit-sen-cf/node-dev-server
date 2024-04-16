@@ -11,10 +11,15 @@ const pmsPagePurchasePrice = new Schema({
         type: Number,
         required: true,
     },
-    price_type_id: [{
-        type: Schema.Types.ObjectId,
-        required: true,
-        // ref: "pmsPriceType"
+    purchase_price: [{
+        price_type_id: {
+            type: Schema.Types.ObjectId,
+            required: true,
+        },
+        price: {
+            type: Number,
+            required: true
+        }
     }],
     price_cal_type: {
         type: String,
@@ -23,10 +28,6 @@ const pmsPagePurchasePrice = new Schema({
     variable_type: {
         type: String,
         required: false,
-    },
-    purchase_price: {
-        type: Number,
-        required: true,
     },
     description: {
         type: String,

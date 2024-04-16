@@ -49,7 +49,8 @@ exports.createPageMast = async (req, res) => {
         const pmsPagePurchasePriceData = new pmsPagePurchasePriceModel({
             platform_id: platform_id,
             pageMast_id: pageData.pageMast_id,
-            price_type_id: price_type_id,
+            //  price_type_id: price_type_id,
+            // purchase_price:purchase_price,
             price_cal_type: price_cal_type,
             variable_type: variable_type,
             purchase_price: purchase_price,
@@ -224,19 +225,18 @@ exports.getPageMastDetail = async (req, res) => {
                 'percentage_country5_name',
                 'country_image_upload'
             ];
-
             for (const field of relevantFields) {
-                if (
-                    latestEntry[field] !== null &&
-                    latestEntry[field] !== '' &&
-                    latestEntry[field] !== 0
-                ) {
+                // if (
+                //     latestEntry[field] !== null &&
+                //     latestEntry[field] !== '' &&
+                //     latestEntry[field] !== 0
+                if (latestEntry && latestEntry[field] !== null && latestEntry[field] !== '' && latestEntry[field] !== 0)
+                //  ) 
+                {
                     count++;
                 }
             }
-
             const totalPercentage = (count / relevantFields.length) * 100;
-
             return res.status(200).json({
                 status: 200,
                 message: "PMS page type details successfully!",
@@ -244,13 +244,14 @@ exports.getPageMastDetail = async (req, res) => {
                 totalPercentage: totalPercentage.toFixed(2),
                 latestEntry: latestEntry
             });
+            //  }
+        } else {
+            return res.status(404).json({
+                status: 404,
+                message: "Latest entry not found or incomplete!.",
+            });
         }
-        return res.status(404).json({
-            status: 404,
-            message: message.DATA_NOT_FOUND,
-        });
     } catch (error) {
-        console.log("error-------------------------------------------------", error)
         return res.status(500).json({
             status: 500,
             message: error.message ? error.message : message.ERROR_MESSAGE,
@@ -415,6 +416,15 @@ exports.getPageMastList = async (req, res) => {
                         created_by: "$pmspagecategorie.created_by"
                     }
                 }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    data: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$data" }
             }
         ])
         if (!pmsPageMastData) {
