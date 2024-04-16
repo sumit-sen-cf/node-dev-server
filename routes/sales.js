@@ -19,7 +19,8 @@ const financialYearSetup = require("../controllers/SMS/financialYearSetupControl
 const salesRoleBadgeAssignedRate = require("../controllers/SMS/salesRoleBadgeAssignedRateController");
 const salesPaymentMode = require("../controllers/SMS/salesPaymentModeController");
 const autoIncentiveCalculation = require("../controllers/SMS/autoIncentiveCalculationController");
-const salesIncentiveSettelmentGst = require("../controllers/SMS/autoIncentiveCalculationController");
+const salesIncentiveSettelmentGst = require("../controllers/SMS/salesIncentiveSettelmentGstController");
+const salesIncentiveSettelmentNonGst = require("../controllers/SMS/salesIncentiveSettelmentNonGstController");
 
 router.get("/", (req, res) => {
     res.send({ message: "Welcome to Sales module." });
@@ -206,6 +207,20 @@ router.delete("/delete_auto_incentive_calculation/:id", autoIncentiveCalculation
 /**
  * sales incentive settelment gst request routes
  */
-router.post("/add_sales_incentive_settelment_gst",salesIncentiveSettelmentGst.createAutoIncentiveCalculation);
+router.post("/add_sales_incentive_settelment_gst", salesIncentiveSettelmentGst.createSalesIncentiveGst);
+router.get("/get_sales_incentive_settelment_gst/:id", salesIncentiveSettelmentGst.getSalesIncentiveSettelmentGst);
+router.put("/update_sales_incentive_settelment_gst/:id", salesIncentiveSettelmentGst.updateSalesInsentiveSettelmentGst);
+router.get("/getlist_sales_incentive_settelment_gst", salesIncentiveSettelmentGst.getSalesIncentiveSettelmentGstList);
+router.delete("/delete_sales_incentive_settelment_gst/:id", salesIncentiveSettelmentGst.deleteSalesInsentiveSettelmentGst);
+
+/**
+ * sales incentive settelment non gst request routes
+ */
+router.post("/add_sales_incentive_settelment_non_gst",salesIncentiveSettelmentNonGst.createSalesIncentiveSettelmentNonGst);
+router.get("/get_sales_incentive_settelment_non_gst/:id",salesIncentiveSettelmentNonGst.getSalesIncentiveSettelmentNonGstDetail);
+router.put("/update_sales_incentive_settelment_non_gst/:id",salesIncentiveSettelmentNonGst.updateSalesIncentiveNonGst);
+router.get("/getlist_sales_incentive_settelment_non_gst",salesIncentiveSettelmentNonGst.getSalesIncentiveSettelmentNonGstList);
+router.delete("/delete_sales_incentive_settelment_non_gst",salesIncentiveSettelmentNonGst.deleteSalesIncentiveSettelmentNonGst);
+
 
 module.exports = router; 

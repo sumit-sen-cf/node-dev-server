@@ -77,9 +77,7 @@ const upload = multer({
     { name: "joining_extend_document", maxCount: 1 },
     { name: "digital_signature_image", maxCount: 1 },
     { name: "annexure_pdf", maxCount: 1 },
-
-    { name: "bank_proof_image", maxCount: 10 }
-
+    { name: "bank_proof_image", maxCount: 5 },
 ]);
 
 // let userCounter = 0;
@@ -405,8 +403,8 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             room_id: req.body.room_id,
             upi_Id: req.body.upi_Id,
             emp_id: empId,
-            created_by: created_by,
-            created_date_time: created_date_time,
+            created_by: req.body.created_by,
+            created_date_time: req.body.created_date_time,
         })
 
         if (req.files && req.files.image && req.files.image[0].originalname) {
@@ -668,18 +666,22 @@ exports.updateBankInformation = [upload, async (req, res) => {
         if (!updateBankProfile) {
             return res.status(404).send("User not found!");
         }
-        if (req.files) {
-            updateBankProfile.bank_proof_image = req.files["bank_proof_image"] ? req.files["bank_proof_image"][0].filename : updateBankProfile.bank_proof_image;
-        }
         const bucketName = vari.BUCKET_NAME;
         const bucket = storage.bucket(bucketName);
-        if (req.files?.bank_proof_image && req.files?.bank_proof_image[0].originalname) {
-            const blob1 = bucket.file(req.files.bank_proof_image[0].originalname);
-            updateBankProfile.bank_proof_image = blob1.name;
-            const blobStream1 = blob1.createWriteStream();
-            blobStream1.on("finish", () => {
+        if (req.files['bank_proof_image']) {
+            // Change to map through files directly
+            const imagesPromises = req.files['bank_proof_image'].map(async (bank_proof_image) => {
+                if (bank_proof_image.originalname) {
+                    const blob = bucket.file(bank_proof_image.originalname);
+                    updateBankProfile.bank_proof_image.push(blob.name);
+                    const blobStream = blob.createWriteStream();
+                    blobStream.on("finish", () => {
+                        console.log('Image uploaded successfully');
+                    });
+                    blobStream.end(bank_proof_image.buffer);
+                }
             });
-            blobStream1.end(req.files.bank_proof_image[0].buffer);
+            await Promise.all(imagesPromises);
         }
         await updateBankProfile.save();
         const bankprofileUpdate = await userModel.findOneAndUpdate({

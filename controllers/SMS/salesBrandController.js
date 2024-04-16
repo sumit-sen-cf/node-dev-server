@@ -99,8 +99,6 @@ exports.getSalesBrand = async (req, res) => {
         });
     }
 };
-
-
 /**
  * Api is to used for the sales_brand data update in the DB collection.
  */
