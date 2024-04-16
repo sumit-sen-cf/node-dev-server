@@ -367,7 +367,8 @@ exports.getPageMastList = async (req, res) => {
                     foreignField: "_id",
                     as: "pmspricetypesData",
                 },
-            }, {
+            },
+            {
                 $unwind: {
                     path: "$pmspricetypesData",
                     preserveNullAndEmptyArrays: true,
@@ -407,26 +408,26 @@ exports.getPageMastList = async (req, res) => {
                     PMS_paform_data: {
                         platform_id: "$pmsplatform._id",
                         platform_name: "$pmsplatform.platform_name",
-                        description: "$pmsplatform.description"
+                        description: "$pmsplatform.description",
                     },
                     PMS_Pagecategories: {
                         page_catg_id: "$pmspagecategorie._id",
                         page_category: "$pmspagecategorie.page_category",
                         description: "$pmspagecategorie.description",
-                        created_by: "$pmspagecategorie.created_by"
-                    }
-                }
+                        created_by: "$pmspagecategorie.created_by",
+                    },
+                },
             },
             {
                 $group: {
                     _id: "$_id",
-                    data: { $first: "$$ROOT" }
-                }
+                    pmsPageMastData: { $first: "$$ROOT" },
+                },
             },
             {
-                $replaceRoot: { newRoot: "$data" }
-            }
-        ])
+                $replaceRoot: { newRoot: "$pmsPageMastData" },
+            },
+        ]);
         if (!pmsPageMastData) {
             return res.status(500).send({
                 succes: true,
@@ -436,7 +437,7 @@ exports.getPageMastList = async (req, res) => {
         return res.status(200).send({
             succes: true,
             message: "PMS page-mast data list successfully!",
-            data: pmsPageMastData
+            data: pmsPageMastData,
         });
     } catch (error) {
         return res.status(500).json({
@@ -444,6 +445,19 @@ exports.getPageMastList = async (req, res) => {
         });
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //DELETE - PMS_Page_Catg-By-ID
 exports.deletePageMastData = async (req, res) => {

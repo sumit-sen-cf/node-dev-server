@@ -114,6 +114,7 @@ exports.getSalesIncentiveSettelmentNonGstList = async (req, res) => {
         });
     }
 };
+
 /**
  * Api is to used for the sales_insentive_settelment_non_gst data delete 
  * 
@@ -133,7 +134,7 @@ exports.deleteSalesIncentiveSettelmentNonGst = async (req, res) => {
         await salesIncentiveSettlementNonGstModel.deleteOne({ _id: id });
         return res.status(200).json({
             status: 200,
-            message: "Sales brand data deleted successfully!",
+            message: "Sales incentive settelment non gst delete successfully!",
         });
     } catch (error) {
         return res.status(500).json({

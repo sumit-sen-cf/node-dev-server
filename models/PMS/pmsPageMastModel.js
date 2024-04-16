@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const pmsPageData = new Schema({
+const pmsPageMastSchema = new Schema({
     pageMast_id: {
         type: Number,
         required: false,
@@ -119,7 +119,7 @@ const pmsPageData = new Schema({
         default: 0
     }
 });
-pmsPageData.pre('save', async function (next) {
+pmsPageMastSchema.pre('save', async function (next) {
     if (!this.pageMast_id) {
         const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'pageMast_id': -1 } });
 
@@ -132,5 +132,5 @@ pmsPageData.pre('save', async function (next) {
     next();
 });
 
-const pmsPageMastModel = mongoose.model("pmsPageData", pmsPageData);
+const pmsPageMastModel = mongoose.model("pmsPageMast", pmsPageMastSchema);
 module.exports = pmsPageMastModel;
