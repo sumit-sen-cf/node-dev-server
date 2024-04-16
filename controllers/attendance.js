@@ -399,16 +399,21 @@ exports.addAttendance = async (req, res) => {
           const monthNumber = monthNameToNumber(month);
           const mergeJoining1 = `${monthNumber}` + `${year}`;
           if (mergeJoining == mergeJoining1) {
-            work_days = monthLastValue - extractDate - absent;
+            if (extractDate < 15) {
+              work_days = 15 - extractDate - absent;
+            } else {
+              work_days = 30 - extractDate - absent;
+            }
+            // work_days = monthLastValue - extractDate - absent;
           } else if (findSeparationData?.status == "Resigned") {
-            work_days = (monthLastValue - resignExtractDate) - absent;
+            work_days = (30 - resignExtractDate) - absent;
           }
           else {
-            work_days = monthLastValue - absent;
+            work_days = 30 - absent;
           }
 
           const present_days = work_days;
-          const perdaysal = results4[0].salary / work_days;
+          const perdaysal = results4[0].salary / 30;
           const totalSalary = perdaysal * present_days;
           const Bonus = bonus == undefined ? 0 : req.body.bonus;
           const netSalary = (totalSalary + parseInt(Bonus)) - salaryDeduction;
