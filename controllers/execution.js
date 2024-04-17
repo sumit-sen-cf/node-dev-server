@@ -1067,7 +1067,27 @@ exports.exeForPurchase = async (req, res) => {
                     platform: data.platform,
                     follower_count: parseInt(data.follower_count),
                     page_link: data.page_link,
-                    vendor_id: parseInt(data.vendor_id)
+                    vendor_id: parseInt(data.vendor_id),
+                    page_level: data.page_level,
+                    page_status: data.page_status,
+                    page_category: parseInt(data.page_category),
+                    tag_category: data.tag_category,
+                    price_type: data.price_type,
+                    story: parseInt(data.story),
+                    post: parseInt(data.post),
+                    both_: parseInt(data.both_),
+                    multiple_cost: data.multiple_cost,
+                    otherstory: parseInt(data.otherstory),
+                    otherpost: parseInt(data.otherpost),
+                    otherboth: parseInt(data.otherboth),
+                    promotion_type: data.promotion_type,
+                    page_ownership: data.page_ownership,
+                    page_closed_by: parseInt(data.page_closed_by),
+                    page_name_type: parseInt(data.page_name_type),
+                    content_creation: parseInt(data.content_creation),
+                    created_by: data.created_by,
+                    update_date: data.update_date,
+                    updated_by: data.updated_by
                 });
                 return creators.save();
             } else {

@@ -888,6 +888,7 @@ router.get("/get_all_userS_with_invoiceno", user.getAllUsersWithInvoiceNo);
 router.get("/users", user.getUsers);
 router.post("/get_all_users_counts_with_joining_date", user.getAllUsersCountsWithJoiningDate);
 router.get("/get_users_without_digital_signature_image", user.getAllWithDigitalSignatureImageUsers);
+router.put("/rejoin_user", user.rejoinUser);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 

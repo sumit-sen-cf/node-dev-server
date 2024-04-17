@@ -3969,3 +3969,20 @@ exports.getAllWithDigitalSignatureImageUsers = async (req, res) => {
 };
 
 
+exports.rejoinUser = async (req, res) => {
+    try {
+        const userData = await userModel.findOneAndUpdate({ user_id: req.body.user_id }, {
+            user_status: "Active",
+            joining_date: req.body.joining_date
+        }, { new: true })
+        if (!userData) {
+            res.status(200).send({ success: false })
+        }
+        res.status(200).send({ success: true, data: userData })
+    } catch (err) {
+        return res.status(500).send({
+            error: err.message,
+            message: "Error  in user rejoin",
+        });
+    }
+};
