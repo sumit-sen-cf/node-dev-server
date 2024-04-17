@@ -39,17 +39,6 @@ function monthNameToNumber(monthName) {
   return monthIndex !== -1 ? monthIndex + 1 : null;
 }
 
-// const attMax = attendanceModel.findOne().sort({ attendence_id: -1 });
-// console.log(attMax);
-// let attendanceIdCounter = 1;
-// const getNextAttendanceId = () => {
-//   // const attMax = attendanceModel.findOne().sort({attendence_id:-1});
-//   // console.log(attMax);
-//   return new Promise((resolve) => {
-//     resolve(attendanceIdCounter++);
-//   });
-// };
-
 
 const getLatestAttendanceId = async () => {
   try {
