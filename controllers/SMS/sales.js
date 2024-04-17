@@ -26,6 +26,7 @@ exports.addSalesBooking = [upload, async (req, res) => {
             description: req.body.description,
             credit_approval_status: req.body.credit_approval_status,
             reason_credit_approval: req.body.reason_credit_approval,
+            reason_credit_approval_own_reason: req.body.reason_credit_approval_own_reason || "",
             balance_payment_ondate: req.body.balance_payment_ondate,
             gst_status: req.body.gst_status,
             tds_status: req.body.tds_status,
@@ -101,6 +102,7 @@ exports.editSalesBooking = [upload, async (req, res) => {
             description: req.body.description,
             credit_approval_status: req.body.credit_approval_status,
             reason_credit_approval: req.body.reason_credit_approval,
+            reason_credit_approval_own_reason: req.body.reason_credit_approval_own_reason || "",
             balance_payment_ondate: req.body.balance_payment_ondate,
             gst_status: req.body.gst_status,
             tds_status: req.body.tds_status,
@@ -200,8 +202,21 @@ exports.getAllSalesBooking = async (req, res) => {
                 preserveNullAndEmptyArrays: true,
             },
         }, {
+            $lookup: {
+                from: "customermasts",
+                localField: "customer_id",
+                foreignField: "customer_id",
+                as: "customermastsData",
+            },
+        }, {
+            $unwind: {
+                path: "$customermastsData",
+                preserveNullAndEmptyArrays: true,
+            },
+        }, {
             $project: {
                 customer_id: 1,
+                customer_name: "$customermastsData.customer_name",
                 sale_booking_date: 1,
                 campaign_amount: 1,
                 base_amount: 1,
@@ -209,6 +224,7 @@ exports.getAllSalesBooking = async (req, res) => {
                 description: 1,
                 credit_approval_status: 1,
                 reason_credit_approval: 1,
+                reason_credit_approval_own_reason: 1,
                 balance_payment_ondate: 1,
                 gst_status: 1,
                 tds_status: 1,

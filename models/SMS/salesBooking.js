@@ -35,6 +35,10 @@ const salesBooking = new mongoose.Schema({
             'admin_approved', 'admin_rejected', 'self_credit_used'],//0-6
     },
     reason_credit_approval: {
+        type: mongoose.Types.ObjectId,
+        required: false,
+    },
+    reason_credit_approval_own_reason: {
         type: String,
         required: false,
     },

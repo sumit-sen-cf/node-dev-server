@@ -722,6 +722,11 @@ const userModel = new mongoose.Schema({
         required: false,
         default: 0
     },
+    user_credit_limit: {
+        type: Number,
+        required: false,
+        default: 0
+    },
     created_date_time: {
         type: Date,
         default: Date.now,

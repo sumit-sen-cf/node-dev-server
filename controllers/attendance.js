@@ -1320,6 +1320,185 @@ exports.getMonthYearData = async (req, res) => {
   }
 };
 
+const getMonthYearDataFunc = async function () {
+  try {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonthIndex = currentDate.getMonth() + 1;
+    const numberOfMonths = 6;
+    const months = [
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+      "January",
+      "February",
+      "March",
+    ];
+
+    let startYear = currentYear;
+    let startMonthIndex = currentMonthIndex;
+
+    if (startMonthIndex <= months.indexOf("March")) {
+      startYear--;
+    }
+
+    const monthYearArray = months.map((month, index) => {
+      const loopMonthIndex = ((startMonthIndex + index - 1) % 12) + 1;
+      const loopYear =
+        startYear + Math.floor((startMonthIndex + index - 1) / 12);
+
+      return {
+        month,
+        year:
+          loopMonthIndex <= currentMonthIndex
+            ? loopYear
+            : parseInt(loopYear) +
+            parseInt(
+              month == "January" || month == "February" || month == "March"
+                ? 1
+                : 0
+            ),
+      };
+    });
+
+    const aggregationPipeline = [
+      {
+        $group: {
+          _id: {
+            month: "$month",
+            year: "$year",
+            dept: "$dept"
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: "$_id.month",
+            year: "$_id.year"
+          },
+          deptCount: { $sum: 1 }
+        }
+      }
+    ];
+
+    const dbResult = await attendanceModel.aggregate(aggregationPipeline);
+
+    const dbSet = new Set(
+      dbResult.map((item) => `${item._id.month}-${item._id.year}`)
+    );
+
+    const actualExistingResult = monthYearArray.map((item) => {
+      const dateStr = `${item.month}-${item.year}`;
+      const existingData = dbSet.has(dateStr) ? 1 : 0;
+
+      const deptCount = dbResult.find(entry => entry._id.month === item.month && entry._id.year === item.year)?.deptCount || 0;
+
+      item.deptCount = deptCount;
+      item.atdGenerated = existingData;
+
+      return item;
+    });
+
+    const response = { data: [...actualExistingResult] };
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const getMonthYearDataCurrentFy = async function () {
+  try {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonthIndex = currentDate.getMonth() + 1;
+    const numberOfMonths = 6;
+    const months = [
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+      "January",
+      "February",
+      "March",
+    ];
+    let startYear = currentYear;
+    let startMonthIndex = currentMonthIndex;
+    // Adjusting the start year if the current month is January to March
+    if (startMonthIndex >= months.indexOf("January") + 1 && startMonthIndex <= months.indexOf("March") + 1) {
+      startYear--;
+    }
+    const monthYearArray = months.map((month, index) => {
+      const loopMonthIndex = ((startMonthIndex + index - 1) % 12) + 1;
+      const loopYear =
+        startYear + Math.floor((startMonthIndex + index - 1) / 12);
+      return {
+        month,
+        year: loopYear,
+      };
+    });
+    const aggregationPipeline = [
+      {
+        $group: {
+          _id: {
+            month: "$month",
+            year: "$year",
+            dept: "$dept"
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: "$_id.month",
+            year: "$_id.year"
+          },
+          deptCount: { $sum: 1 }
+        }
+      }
+    ];
+    const dbResult = await attendanceModel.aggregate(aggregationPipeline);
+    const dbSet = new Set(
+      dbResult.map((item) => `${item._id.month}-${item._id.year}`)
+    );
+    const actualExistingResult = monthYearArray.map((item) => {
+      const dateStr = `${item.month}-${item.year}`;
+      const existingData = dbSet.has(dateStr) ? 1 : 0;
+      const deptCount = dbResult.find(entry => entry._id.month === item.month && entry._id.year === item.year)?.deptCount || 0;
+      item.deptCount = deptCount;
+      item.atdGenerated = existingData;
+      return item;
+    });
+    const response = { data: [...actualExistingResult] };
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.getMonthYearDataMerged = async (req, res) => {
+  try {
+    //get data from 2023 fy 
+    let data1 = await getMonthYearDataFunc();
+    //get data from current fy 
+    let data2 = await getMonthYearDataCurrentFy();
+    const response = { data: [...data1.data, ...data2.data] };
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(500).json({ error: error.message, sms: "error getting data" });
+  }
+}
 
 exports.getDistinctDepts = async (req, res) => {
   try {

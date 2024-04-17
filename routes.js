@@ -943,6 +943,7 @@ router.get("/get_total_salary", attendance.totalSalary);
 router.put("/update_salary", attendance.updateSalary);
 router.put("/update_attendence_status", attendance.updateAttendenceStatus);
 router.get("/get_month_year_data", attendance.getMonthYearData);
+router.get("/get_month_year_merged_data", attendance.getMonthYearDataMerged);
 router.post("/get_distinct_depts", attendance.getDistinctDepts);
 router.post("/check_salary_status", attendance.checkSalaryStatus);
 router.get("/all_departments_of_wfh", attendance.allDeptsOfWfh);
@@ -1818,5 +1819,6 @@ router.put("/vendorsum", assetVendorSum.editVendorSum);
 //Dynamic table routes
 router.post("/add_dynamic_table_data", dynamicTablesModel.addDynamicTablesData);
 router.get("/get_dynamic_table_data/:id", dynamicTablesModel.getSingleDynamicTablesData);
+router.put("/edit_dynamic_table_data", dynamicTablesModel.editDynamicTablesData);
 
 module.exports = router;

@@ -230,7 +230,8 @@ exports.addUser = [upload, async (req, res) => {
             document_percentage_non_mandatory: req.body.document_percentage_non_mandatory,
             document_percentage: req.body.document_percentage,
             bank_type: req.body.bank_type,
-            upi_Id: req.body.upi_Id
+            upi_Id: req.body.upi_Id,
+            user_credit_limit: req.body.user_credit_limit
         })
 
         if (req.files.image && req.files.image[0].originalname) {
@@ -403,7 +404,7 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             room_id: req.body.room_id,
             upi_Id: req.body.upi_Id,
             emp_id: empId,
-            created_by: req.body.created_by,
+            user_credit_limit: req.body.user_credit_limit,
             created_date_time: req.body.created_date_time,
         })
 
@@ -542,6 +543,7 @@ exports.updateUserForGeneralInformation = [upload, async (req, res) => {
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
             upi_Id: req.body.upi_Id,
+            user_credit_limit: req.body.user_credit_limit
         }, { new: true });
 
         if (!editsim) {
@@ -864,6 +866,7 @@ exports.updateUser = [upload, async (req, res) => {
             show_rocket: req.body.show_rocket,
             bank_type: req.body.bank_type,
             upi_Id: req.body.upi_Id,
+            user_credit_limit: req.body.user_credit_limit
         }, { new: true });
 
         if (!editsim) {
@@ -1132,6 +1135,7 @@ exports.getAllUsers = async (req, res) => {
                 $project: {
                     user_id: "$user_id",
                     user_name: "$user_name",
+                    user_credit_limit: "$user_credit_limit",
                     account_type: "$account_type",
                     branch_name: "$branch_name",
                     offer_later_status: "$offer_later_status",
@@ -1612,7 +1616,8 @@ exports.getSingleUser = async (req, res) => {
                     bank_type: "$bank_type",
                     account_type: "$account_type",
                     branch_name: "$branch_name",
-                    upi_Id: "$upi_Id"
+                    upi_Id: "$upi_Id",
+                    user_credit_limit: "$user_credit_limit"
                 }
             }
         ]).exec();
@@ -3915,7 +3920,7 @@ exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
             const userJoiningDate = new Date(user.joining_date);
             const userMonthYear = userJoiningDate.getFullYear().toString() +
                 String(userJoiningDate.getMonth() + 1).padStart(2, '0');
-            console.log("userMonthYear", userMonthYear)
+            // console.log("userMonthYear", userMonthYear)
             return userMonthYear <= bodyMonthYear;
         }).length;
 
