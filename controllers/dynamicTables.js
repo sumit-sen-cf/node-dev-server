@@ -29,3 +29,28 @@ exports.getSingleDynamicTablesData = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 };
+
+
+exports.editDynamicTablesData = async (req, res) => {
+    try {
+        const editDynamicData = await dynamicTablesModel.findOneAndUpdate(
+            { _id: req.body._id },
+            {
+                column_order_Obj: req.body.column_order_Obj,
+            },
+            { new: true }
+        );
+        if (!editDynamicData) {
+            return response.returnFalse(
+                200,
+                req,
+                res,
+                "No Reord Found ",
+                {}
+            );
+        }
+        return response.returnTrue(200, req, res, "Updation Successfully", editDynamicData);
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
