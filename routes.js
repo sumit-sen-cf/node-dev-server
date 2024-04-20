@@ -856,6 +856,12 @@ router.put(
   user.getUserOtherFields
 );
 
+router.get("/get_user_time_line/:id", user.getUserTimeLine);
+router.post("/l1l2l3_users_by_dept", user.l1l2l3UsersByDept);
+
+router.get("/report_l1_users_data/:id",user.reportl1UsersData);
+
+
 router.post("/login_user_data", user.loginUserData);
 router.post("/add_reason", user.addReason);
 router.get("/get_all_reasons", user.getAllReasons);
