@@ -72,7 +72,7 @@ exports.getPaymentDetails = async (req, res) => {
             return res.status(200).json({
                 status: 200,
                 message: "Payment details successfully!",
-                data: paymentDetailsData,
+                data: paymentDetailsData[0],
             });
         }
         return res.status(404).json({
