@@ -4204,12 +4204,50 @@ exports.reportl1UsersData = async (req, res) => {
                 path: "$Report_L1N",
                 preserveNullAndEmptyArrays: true
             }
+        }, {
+            $lookup: {
+                from: 'departmentmodels',
+                localField: 'dept_id',
+                foreignField: 'dept_id',
+                as: 'department'
+            }
+        },
+        {
+            $unwind: {
+                path: "$department",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: "designationmodels",
+                localField: "user_designation",
+                foreignField: "desi_id",
+                as: "designation"
+            }
+        },
+        {
+            $unwind: {
+                path: "$designation",
+                preserveNullAndEmptyArrays: true
+            }
         },
         {
             $project: {
                 user_id: 1,
+                emp_id: 1,
+                user_status: 1,
+                user_login_id: 1,
+                user_contact_no: 1,
+                dept_id: 1,
+                job_type: 1,
+                document_percentage: 1,
+                user_designation: 1,
+                user_email_id: 1,
                 user_name: 1,
                 Report_L1: 1,
+                department_name: "$department.dept_name",
+                designation_name: "$designation.desi_name",
                 Report_L1N: {
                     $cond: {
                         if: { $eq: ["$Report_L1N.user_id", userId] },
