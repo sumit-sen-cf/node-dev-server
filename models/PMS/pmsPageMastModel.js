@@ -67,7 +67,7 @@ const pmsPageMastSchema = new Schema({
     },
     profile_type_id: {
         type: Schema.Types.ObjectId,
-        required: true,
+        required: false,
         ref: "pmsProfileType"
     },
     platform_active_on: [{

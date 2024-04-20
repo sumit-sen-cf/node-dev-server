@@ -82,7 +82,7 @@ exports.getSalesPaymentMode = async (req, res) => {
             return res.status(200).json({
                 status: 200,
                 message: "Sales payment mode details successfully!",
-                data: salesPaymentModeData,
+                data: salesPaymentModeData[0],
             });
         }
         return res.status(404).json({
@@ -104,7 +104,7 @@ exports.getSalesPaymentMode = async (req, res) => {
 exports.updateSalesPaymentMode = async (req, res) => {
     try {
         const { id } = req.params;
-        const { payment_mode_name, managed_by, created_by, last_updated_by } = req.body;
+        const { payment_mode_name, managed_by, last_updated_by } = req.body;
         const salesPaymentModeData = await salesPaymentModeModel.findOne({ _id: id });
         if (!salesPaymentModeData) {
             return res.send("Invalid sales_payment_mode Id...");
@@ -114,7 +114,6 @@ exports.updateSalesPaymentMode = async (req, res) => {
             $set: {
                 payment_mode_name,
                 managed_by,
-                created_by,
                 last_updated_by
             },
         },
