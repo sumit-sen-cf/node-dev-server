@@ -3737,10 +3737,53 @@ exports.getAllUsersWithInvoiceNo = async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: "departmentmodels",
+                    localField: "dept_id",
+                    foreignField: "dept_id",
+                    as: "department"
+                }
+            },
+            {
+                $unwind: "$department"
+            },
+            {
+                $lookup: {
+                    from: "designationmodels",
+                    localField: "user_designation",
+                    foreignField: "desi_id",
+                    as: "designation"
+                }
+            },
+            {
+                $unwind: "$designation"
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "Report_L1",
+                    foreignField: "user_id",
+                    as: "userData"
+                }
+            },
+            {
+                $unwind: "$userData"
+            },
+            {
                 $group: {
                     _id: "$invoice_template_no",
                     count: { $sum: 1 },
-                    users: { $push: "$$ROOT" }
+                    users: {
+                        $push: {
+                            user_name: "$user_name",
+                            dept_id: "$dept_id",
+                            dept_name: "$department.dept_name",
+                            desi_id: "$user_designation",
+                            desi_name: "$designation.desi_name",
+                            Report_L1: "$Report_L1",
+                            ReportL1_N: "$userData.user_name"
+                        }
+                    },
                 }
             }
         ]);
