@@ -3737,10 +3737,53 @@ exports.getAllUsersWithInvoiceNo = async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: "departmentmodels",
+                    localField: "dept_id",
+                    foreignField: "dept_id",
+                    as: "department"
+                }
+            },
+            {
+                $unwind: "$department"
+            },
+            {
+                $lookup: {
+                    from: "designationmodels",
+                    localField: "user_designation",
+                    foreignField: "desi_id",
+                    as: "designation"
+                }
+            },
+            {
+                $unwind: "$designation"
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "Report_L1",
+                    foreignField: "user_id",
+                    as: "userData"
+                }
+            },
+            {
+                $unwind: "$userData"
+            },
+            {
                 $group: {
                     _id: "$invoice_template_no",
                     count: { $sum: 1 },
-                    users: { $push: "$$ROOT" }
+                    users: {
+                        $push: {
+                            user_name: "$user_name",
+                            dept_id: "$dept_id",
+                            dept_name: "$department.dept_name",
+                            desi_id: "$user_designation",
+                            desi_name: "$designation.desi_name",
+                            Report_L1: "$Report_L1",
+                            ReportL1_N: "$userData.user_name"
+                        }
+                    },
                 }
             }
         ]);
@@ -3991,3 +4034,244 @@ exports.rejoinUser = async (req, res) => {
         });
     }
 };
+
+exports.getUserTimeLine = async (req, res) => {
+    try {
+        const userId = parseInt(req.params.id);
+        const userData = await userModel.findOne({ user_id: userId });
+        if (!userData) {
+            return res.status(404).json({ error: "User not found!" });
+        }
+        const joiningDate = userData.joining_date;
+        const DOB = userData.DOB;
+        if (!joiningDate) {
+            return res.status(400).json({ error: "Joining date not found for the user" });
+        }
+        const probationEndDate = new Date(joiningDate);
+        probationEndDate.setMonth(probationEndDate.getMonth() + 3);
+        const today = new Date();
+        const yearsOfWork = today.getFullYear() - joiningDate.getFullYear();
+        return res.status(200).json({
+            status: 200,
+            message: "User timeline data fetched successfully!",
+            joiningDate: joiningDate,
+            DOB: DOB,
+            probationEndDate: probationEndDate,
+            probationMonthValue: "3 Months",
+            workAnniversaryYears: {
+                Date: joiningDate,
+                Work_Anniversary_Years: yearsOfWork <= 1 ? "1 year" : `${yearsOfWork} years`
+            }
+        });
+    } catch (err) {
+        console.error("Error:", err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+
+exports.l1l2l3UsersByDept = async (req, res) => {
+    const dept_id = req.body.dept_id;
+    try {
+        const allData = await userModel.aggregate([
+            {
+                $match: {
+                    dept_id: dept_id
+                }
+            },
+            {
+                $lookup: {
+                    from: "designationmodels",
+                    localField: "user_designation",
+                    foreignField: "desi_id",
+                    as: "designation"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$designation",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "user_id",
+                    foreignField: "Report_L1",
+                    as: "Report_L1N"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$Report_L1N",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "user_id",
+                    foreignField: "Report_L2",
+                    as: "Report_L2N"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$Report_L2N",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "user_id",
+                    foreignField: "Report_L3",
+                    as: "Report_L3N"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$Report_L3N",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    user_id: 1,
+                    user_name: 1,
+                    dept_id: 1,
+                    Report_L1: 1,
+                    Report_L1N: "$Report_L1N.user_name",
+                    Report_L2: 1,
+                    Report_L2N: "$Report_L2N.user_name",
+                    Report_L3: 1,
+                    Report_L3N: "$Report_L3N.user_name",
+                    dept_name: "$department.dept_name"
+                }
+            },
+            {
+                $group: {
+                    _id: "$user_id",
+                    data: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: {
+                    newRoot: "$data"
+                }
+            }
+        ]);
+        res.send({ data: allData });
+    } catch (error) {
+        return res.status(500).send({
+            error: error.message,
+            message: "Error in user rejoin",
+        });
+    }
+}
+
+
+exports.reportl1UsersData = async (req, res) => {
+    const userId = parseInt(req.params.id);
+    try {
+        const allData = await userModel.aggregate([{
+            $match: {
+                Report_L1: userId
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "Report_L1",
+                foreignField: "user_id",
+                as: "Report_L1N"
+            }
+        }, {
+            $unwind: {
+                path: "$Report_L1N",
+                preserveNullAndEmptyArrays: true
+            }
+        }, {
+            $lookup: {
+                from: 'departmentmodels',
+                localField: 'dept_id',
+                foreignField: 'dept_id',
+                as: 'department'
+            }
+        },
+        {
+            $unwind: {
+                path: "$department",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: "designationmodels",
+                localField: "user_designation",
+                foreignField: "desi_id",
+                as: "designation"
+            }
+        },
+        {
+            $unwind: {
+                path: "$designation",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $project: {
+                user_id: 1,
+                emp_id: 1,
+                user_status: 1,
+                user_login_id: 1,
+                user_contact_no: 1,
+                dept_id: 1,
+                job_type: 1,
+                document_percentage: 1,
+                user_designation: 1,
+                user_email_id: 1,
+                user_name: 1,
+                Report_L1: 1,
+                department_name: "$department.dept_name",
+                designation_name: "$designation.desi_name",
+                Report_L1N: {
+                    $cond: {
+                        if: { $eq: ["$Report_L1N.user_id", userId] },
+                        then: "$Report_L1N.user_name",
+                        else: "$user_name"
+                    }
+                }
+            }
+        }
+        ]);
+        if (allData.length === 0) {
+            return res.status(404).send({
+                message: "No data found for the provided criteria."
+            });
+        }
+        return res.status(200).json({
+            status: 200,
+            message: "Report_l1 users data successfully!",
+            data: allData
+        });
+    } catch (error) {
+        return res.status(500).send({
+            error: error.message,
+            message: "Error in user rejoin",
+        });
+    }
+}

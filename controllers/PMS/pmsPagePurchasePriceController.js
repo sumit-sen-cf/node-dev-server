@@ -8,7 +8,6 @@ exports.createPagePurchasePrice = async (req, res) => {
         const checkDuplicacy = await pmsPagePurchasePriceModel.findOne({
             platform_id: req.body.platform_id,
         });
-        console.log("checkDuplicacy", checkDuplicacy)
         if (checkDuplicacy) {
             return res.status(403).json({
                 status: 403,
@@ -79,6 +78,20 @@ exports.getPagePurchasePrice = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "pmsplatforms",
+                    localField: "platform_id",
+                    foreignField: "_id",
+                    as: "pmsplatform",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$pmsplatform",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     platform_price_id: 1,
                     pageMast_id: 1,
@@ -112,6 +125,12 @@ exports.getPagePurchasePrice = async (req, res) => {
                         created_by: "$pmspagemast.created_by",
                         created_by_name: "$user.user_name",
                         last_updated_by: "$pmspagemast.last_updated_by",
+                        PMS_Platforms_data: {
+                            platform_id: "$pmsplatform.platform_id",
+                            platform_name: "$pmsplatform.platform_name",
+                            description: "$pmsplatform.description",
+                            created_by: "$pmsplatform.created_by",
+                        },
                     },
                 },
             },
@@ -546,7 +565,6 @@ exports.getAllListData = async (req, res) => {
             data: pagePurchasePriceGetData
         });
     } catch (error) {
-        console.log("pagePurchasePriceGetData-------------", pagePurchasePriceGetData)
         return res.status(500).json({
             message: error.message ? error.message : message.ERROR_MESSAGE,
         });

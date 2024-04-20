@@ -173,9 +173,9 @@ exports.getPageMastDetail = async (req, res) => {
                 },
             },
         ])
+
         if (pmsPageMastData.length > 0) {
             const latestEntry = pmsPageMastData[0].latestEntry;
-
             let count = 0;
             const relevantFields = [
                 'reach',
@@ -375,6 +375,32 @@ exports.getPageMastList = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "exepurchasemodels",
+                    localField: "link",
+                    foreignField: "page_link",
+                    as: "exepurchasemodelData",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$exepurchasemodelData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            }, {
+                $lookup: {
+                    from: "execounthismodels",
+                    localField: "exepurchasemodelData.p_id",
+                    foreignField: "p_id",
+                    as: "execounthismodelsData",
+                },
+            }, {
+                $unwind: {
+                    path: "$execounthismodelsData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     page_user_name: 1,
                     pageMast_id: 1,
@@ -405,6 +431,11 @@ exports.getPageMastList = async (req, res) => {
                     last_updated_date: 1,
                     last_updated_by: 1,
                     pmspricetypesData: "$pmspricetypesData",
+
+                    //changes 2 fields
+                    exepurchasemodel: "$exepurchasemodelData",
+                    execounthismodels: "$execounthismodelsData",
+
                     PMS_paform_data: {
                         platform_id: "$pmsplatform._id",
                         platform_name: "$pmsplatform.platform_name",
@@ -422,42 +453,204 @@ exports.getPageMastList = async (req, res) => {
                 $group: {
                     _id: "$_id",
                     pmsPageMastData: { $first: "$$ROOT" },
+                    // latestEntry: { $first: "$execounthismodels" },
                 },
             },
             {
                 $replaceRoot: { newRoot: "$pmsPageMastData" },
             },
         ]);
-        if (!pmsPageMastData) {
-            return res.status(500).send({
-                succes: true,
-                message: "PMS page-mast data list not found!",
+        //changes
+        // if (pmsPageMastData.length > 0) {
+        //     const latestEntry = pmsPageMastData[0].execounthismodels;
+        //     const latestEntryArray = [];
+        //     pmsPageMastData.forEach(element => {
+        //         console.log("element");
+        //         console.log(element);
+        //         console.log("element.execounthismodels");
+        //         console.log(element.execounthismodels);
+        //         if (element && element.execounthismodels) {
+        //             latestEntryArray.push(element.execounthismodels)
+        //         }
+        //     });
+
+        // if (pmsPageMastData.length > 0) {
+        //     const latestEntryArray = [];
+        //     console.log("latestEntryArray", latestEntryArray)
+        //     let totalCount = 0;
+        //     pmsPageMastData.forEach(entry => {
+        //         // Check if the entry has execounthismodels
+        //         if (entry && entry.execounthismodels) {
+        //             const latestEntry = entry.execounthismodels;
+        //             let count = 0;
+        //             const relevantFields = [
+        //                 'reach',
+        //                 'impression',
+        //                 'engagement',
+        //                 'story_view',
+        //                 'stats_for',
+        //                 'start_date',
+        //                 'end_date',
+        //                 'reach_upload_image',
+        //                 'impression_upload_image',
+        //                 'engagement_upload_image',
+        //                 'story_view_upload_image',
+        //                 'story_view_upload_video',
+        //                 'city1_name',
+        //                 'city2_name',
+        //                 'city3_name',
+        //                 'city4_name',
+        //                 'city5_name',
+        //                 'percentage_city1_name',
+        //                 'percentage_city2_name',
+        //                 'percentage_city3_name',
+        //                 'percentage_city4_name',
+        //                 'percentage_city5_name',
+        //                 'city_image_upload',
+        //                 'male_percent',
+        //                 'female_percent',
+        //                 'Age_13_17_percent',
+        //                 'Age_upload',
+        //                 'Age_18_24_percent',
+        //                 'Age_25_34_percent',
+        //                 'Age_35_44_percent',
+        //                 'Age_45_54_percent',
+        //                 'Age_55_64_percent',
+        //                 'Age_65_plus_percent',
+        //                 'quater',
+        //                 'profile_visit',
+        //                 'country1_name',
+        //                 'country2_name',
+        //                 'country3_name',
+        //                 'country4_name',
+        //                 'country5_name',
+        //                 'percentage_country1_name',
+        //                 'percentage_country2_name',
+        //                 'percentage_country3_name',
+        //                 'percentage_country4_name',
+        //                 'percentage_country5_name',
+        //                 'country_image_upload'
+        //             ];
+        //             for (const field of relevantFields) {
+        //                 if (latestEntry && latestEntry[field] !== null && latestEntry[field] !== '' && latestEntry[field] !== 0) {
+        //                     count++;
+        //                 }
+        //             }
+        //             const totalPercentage = (count / relevantFields.length) * 100;
+        //             totalCount += totalPercentage;
+        //             latestEntryArray.push({ ...latestEntry, totalPercentage: totalPercentage.toFixed(2) });
+        //         }
+        //     });
+        //     // Calculate average totalPercentage
+        //     const averageTotalPercentage = totalCount / latestEntryArray.length;
+
+        //     return res.status(200).json({
+        //         status: 200,
+        //         message: "PMS page mast type list successfully!",
+        //         data: pmsPageMastData,
+        //         latestEntryArray: latestEntryArray,
+        //         averageTotalPercentage: averageTotalPercentage.toFixed(2)
+        //     });
+        // } else {
+        //     return res.status(404).json({
+        //         status: 404,
+        //         message: "Latest entry not found or incomplete!.",
+        //     });
+        // }
+
+
+        if (pmsPageMastData.length > 0) {
+            const mergedData = pmsPageMastData.map(page => {
+                const latestEntry = page.execounthismodels;
+                let count = 0;
+                const relevantFields = [
+                    'reach',
+                    'impression',
+                    'engagement',
+                    'story_view',
+                    'stats_for',
+                    'start_date',
+                    'end_date',
+                    'reach_upload_image',
+                    'impression_upload_image',
+                    'engagement_upload_image',
+                    'story_view_upload_image',
+                    'story_view_upload_video',
+                    'city1_name',
+                    'city2_name',
+                    'city3_name',
+                    'city4_name',
+                    'city5_name',
+                    'percentage_city1_name',
+                    'percentage_city2_name',
+                    'percentage_city3_name',
+                    'percentage_city4_name',
+                    'percentage_city5_name',
+                    'city_image_upload',
+                    'male_percent',
+                    'female_percent',
+                    'Age_13_17_percent',
+                    'Age_upload',
+                    'Age_18_24_percent',
+                    'Age_25_34_percent',
+                    'Age_35_44_percent',
+                    'Age_45_54_percent',
+                    'Age_55_64_percent',
+                    'Age_65_plus_percent',
+                    'quater',
+                    'profile_visit',
+                    'country1_name',
+                    'country2_name',
+                    'country3_name',
+                    'country4_name',
+                    'country5_name',
+                    'percentage_country1_name',
+                    'percentage_country2_name',
+                    'percentage_country3_name',
+                    'percentage_country4_name',
+                    'percentage_country5_name',
+                    'country_image_upload'
+                ];
+
+                for (const field of relevantFields) {
+                    if (latestEntry && typeof latestEntry[field] !== 'undefined' && latestEntry[field] !== null && latestEntry[field] !== '' && latestEntry[field] !== 0) {
+                        count++;
+                    }
+                }
+
+                const totalPercentage = relevantFields.length > 0 ? (count / relevantFields.length) * 100 : 0;
+
+                return {
+                    ...page,
+                    latestEntry,
+                    totalPercentage: totalPercentage.toFixed(2)
+                };
+            });
+
+            // Calculate average totalPercentage
+            const totalPercentages = mergedData.map(entry => parseFloat(entry.totalPercentage)).filter(value => !isNaN(value));
+            const averageTotalPercentage = totalPercentages.length > 0 ? totalPercentages.reduce((acc, val) => acc + val, 0) / totalPercentages.length : 0;
+
+            return res.status(200).json({
+                status: 200,
+                message: "PMS page mast type list successfully!",
+                data: mergedData,
+                totalPercentage: totalPercentages.reduce((acc, val) => acc + val, 0).toFixed(2),
+                averageTotalPercentage: isNaN(averageTotalPercentage) ? 0 : averageTotalPercentage.toFixed(2)
+            });
+        } else {
+            return res.status(404).json({
+                status: 404,
+                message: "Latest entry not found or incomplete!.",
             });
         }
-        return res.status(200).send({
-            succes: true,
-            message: "PMS page-mast data list successfully!",
-            data: pmsPageMastData,
-        });
+        
     } catch (error) {
         return res.status(500).json({
             message: error.message ? error.message : message.ERROR_MESSAGE,
         });
     }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //DELETE - PMS_Page_Catg-By-ID
 exports.deletePageMastData = async (req, res) => {
