@@ -163,6 +163,7 @@ const { createCustomerContact, getCustomerContactDetail, updateCustomerContact, 
 const { createDocMast, getDocMastDetail, updateDocMast, getDocMastList, deleteDocMast } = require("./controllers/Customer&Campaign/opsDocMastController.js");
 const { createCustomerDocument, getcustomerDocumentDetail, updateCustomerDocument, getCustomerDocumentList, deleteCustomerDocument, getAllCustomerDocumentList } = require("./controllers/Customer&Campaign/opsCustomerDocumentController.js");
 const { createPagePurchasePrice, getPagePurchasePrice, updatePagePurchasePrice, getPagePurchasePriceList, deletePagePurchasePriceData, getAllPagePurchasePriceList, getAllDataList, getAllListData } = require("./controllers/PMS/pmsPagePurchasePriceController.js");
+const { addExeHistory, updateExeHistory, getExeHistoryList, getExeHistoryDetails, getAllExeData } = require("./controllers/PMS/exeHistoryController.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1713,6 +1714,14 @@ router.get("/getlist_page_purchase_price", getPagePurchasePriceList);
 router.delete("/delete_page_purchase_price/:id", deletePagePurchasePriceData);
 router.get("/data/:_id", getAllDataList);
 router.get("/get_all_data_list", getAllListData);
+
+// exe history Data
+router.post("/add_exe_history", addExeHistory);
+router.put("/update_exe_history/:id", updateExeHistory);
+router.get("/get_all_list_exe_history", getExeHistoryList);
+router.get("/get_exe_history/:pageMast_id", getExeHistoryDetails);
+
+router.get("/get_exe_historyData", getAllExeData );
 
 
 //pms page assignment APi's
