@@ -302,6 +302,7 @@ exports.getVendorPagePriceList = async (req, res) => {
                 $replaceRoot: { newRoot: "$data" }
             }
         ])
+        console.log("vendorPagePriceData--------------------------",vendorPagePriceData)
         if (!vendorPagePriceData) {
             return res.status(500).send({
                 succes: true,

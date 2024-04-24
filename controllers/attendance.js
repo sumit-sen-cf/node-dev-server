@@ -32,7 +32,7 @@ function monthNameToNumber(monthName) {
   ];
 
   const monthIndex = months.findIndex(
-    (m) => m.toLowerCase() === monthName.toLowerCase()
+    (m) => m.toLowerCase() === monthName?.toLowerCase()
   );
 
   // Adding 1 because months are zero-indexed in JavaScript (0-11)
@@ -1078,6 +1078,91 @@ exports.totalSalary = async (req, res) => {
       error: error.message,
       status: 500,
       sms: "error getting all salary",
+    });
+  }
+};
+
+exports.currentMonthAllDeptTotalSalary = async (req, res) => {
+  try {
+
+    //months name array create
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    //current date get
+    const currentDate = new Date();
+    const currentMonthNumber = currentDate.getMonth();
+    const currentMonthName = months[currentMonthNumber].toString();
+
+    //get data from the aggregation query
+    const query = await attendanceModel.aggregate([{
+      $match: {
+        month: currentMonthName
+      }
+    }, {
+      $group: {
+        _id: null,
+        totalSalary: { $sum: "$total_salary" },
+        totalBonus: { $sum: "$bonus" },
+        totalTdsDeduction: { $sum: "$tds_deduction" },
+        totalSalaryDeduction: { $sum: "$salary_deduction" }
+      }
+    }]).exec();
+
+    //success response send
+    res.send({ status: 200, data: query });
+  } catch (error) {
+    return res.send({
+      error: error.message,
+      status: 500,
+      sms: "Error in current month all department data."
+    });
+  }
+};
+
+exports.singleDeptWholeYearTotalSalary = async (req, res) => {
+  try {
+    //current date find
+    const currentDate = new Date();
+    //current date to year get
+    const currentYear = currentDate.getFullYear().toString();
+    //get dept id from params
+    const deptId = req.params?.id;
+    //aggregation through data get
+    const query = await attendanceModel.aggregate([{
+      $match: {
+        year: parseInt(currentYear),
+        dept: parseInt(deptId)
+      }
+    }, {
+      $group: {
+        _id: 0,
+        totalsalary: { $sum: "$total_salary" },
+        totalBonus: { $sum: "$bonus" },
+        totaltdsdeduction: { $sum: "$tds_deduction" },
+        totalsalarydeduction: { $sum: "$salary_deduction" },
+      }
+    }]).exec();
+
+    //send success response
+    res.send({ status: 200, data: query });
+  } catch (error) {
+    return res.send({
+      error: error.message,
+      status: 500,
+      sms: "error in single dept whole year getting all salary",
     });
   }
 };

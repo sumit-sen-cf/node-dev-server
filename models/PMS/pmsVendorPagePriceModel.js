@@ -30,7 +30,7 @@ const pmsVendorPagePriceSchema = new Schema({
     },
     Sale_price: {                           // price_fixed(Sale_price)
         type: Number,
-        required: true,
+        required: false,
     },
     variable_type_rate: {                   //price_variable(variable_type_rate)
         type: Number,
