@@ -946,6 +946,8 @@ router.post(
   attendance.deptIdWithWfh
 );
 router.get("/get_total_salary", attendance.totalSalary);
+router.get("/current_month_all_dept_total_salary", attendance.currentMonthAllDeptTotalSalary);
+router.get("/single_dept_whole_year_total_salary/:id", attendance.singleDeptWholeYearTotalSalary);
 // router.get("/get_all_dept_with_wfh", attendance.allDeptWithWfh)
 router.put("/update_salary", attendance.updateSalary);
 router.put("/update_attendence_status", attendance.updateAttendenceStatus);
