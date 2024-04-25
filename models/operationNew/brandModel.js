@@ -14,27 +14,30 @@ const brandSchema = new mongoose.Schema({
   },
   category_id: {
     type: Number,
-    // required: true,
+    required: false,
     default: 0,
   },
   sub_category_id: {
     type: Number,
-    // required: true,
+    required: false,
   },
- platform:{
-  type: mongoose.Schema.Types.Mixed,
-  required: true
- },
+  platform: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true
+  },
   website: {
     type: String,
+    required: false,
     default: "",
   },
   major_category: {
     type: String,
+    required: false,
     default: "",
   },
   user_id: {
     type: Number,
+    required: false,
   },
   updated_at: {
     type: Date,
