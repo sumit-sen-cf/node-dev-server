@@ -1,6 +1,5 @@
 const { default: mongoose } = require("mongoose");
 
-
 const agencySchema = new mongoose.Schema({
   name:{
     type:String,
@@ -26,11 +25,6 @@ const agencySchema = new mongoose.Schema({
     type:String
   }
 });
-
-
-
-
-
 
 module.exports = mongoose.model(
   "AgencyMaster",

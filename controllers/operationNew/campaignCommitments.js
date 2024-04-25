@@ -1,1 +1,0 @@
-// register campaign id pass for master array

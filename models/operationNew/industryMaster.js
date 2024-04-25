@@ -1,6 +1,5 @@
 const { default: mongoose } = require("mongoose");
 
-
 const industrySchema = new mongoose.Schema({
   name:{
     type:String,
@@ -11,11 +10,6 @@ const industrySchema = new mongoose.Schema({
     type:String,
   }
 });
-
-
-
-
-
 
 module.exports = mongoose.model(
   "IndustryMaster",
