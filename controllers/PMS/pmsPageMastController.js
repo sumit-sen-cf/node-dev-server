@@ -798,7 +798,91 @@ exports.getPageMastList = async (req, res) => {
                 message: "Latest entry not found or incomplete!.",
             });
         }
+    }catch(err){
+        return res.status(500).json({
+            message: err.message ? err.message : message.ERROR_MESSAGE,
+        });
+    }
+};
+exports.getTopPageMastList = async (req, res) => {
+    try {
+        const quary = req.query
+      let  shortKey = Object.keys(quary)[0]
+      let  shortValue = Object.values(quary)[0]
+      let  limit =quary.limit
+      let fromDate = quary.from_created_date_time
+        let toDate = quary.to_last_updated_date
 
+        let aggregate = [
+            {
+              $lookup: {
+                from: "pmsPagePurchasePrice",
+                localField: "pageMast_id",
+                foreignField: "pageMast_id",
+                as: "result"
+              }
+            }, 
+              {
+                $sort: {
+                    [shortKey]: Number(shortValue)
+                }
+              },
+            
+            //   {
+            //     brnad_dt: {
+            //         $gte: new Date(startDate),
+            //         $lt: new Date(endDate)
+            //     }
+            //   }            
+            
+          ]
+
+        if(limit){
+            aggregate.push(  {
+                $limit: Number(limit)
+              },)
+        }
+
+        if(fromDate && toDate){
+            aggregate.push( {
+                $match: {
+                    created_date_time: {
+                        $gte: new Date(fromDate),
+                        $lt: new Date(toDate)
+                    }
+                }
+              },)
+        }
+        let data = await pmsPageMastModel.aggregate(aggregate)
+          res.send({
+            status: 200,
+            message: "PMS page mast type list successfully!",
+            data
+          })
+        console.log("quary", quary)
+    }catch (error) {
+        console.log("error", error)
+    }
+
+}
+
+//DELETE - PMS_Page_Catg-By-ID
+exports.deletePageMastData = async (req, res) => {
+    try {
+        const { params } = req;
+        const { id } = params;
+        const pageMastData = await pmsPageMastModel.findOne({ _id: id });
+        if (!pageMastData) {
+            return res.status(404).json({
+                status: 404,
+                message: message.DATA_NOT_FOUND,
+            });
+        }
+        await pmsPageMastModel.deleteOne({ _id: id });
+        return res.status(200).json({
+            status: 200,
+            message: "PMS page-mast data deleted successfully!",
+        });
     } catch (error) {
         return res.status(500).json({
             message: error.message ? error.message : message.ERROR_MESSAGE,
@@ -1071,3 +1155,4 @@ exports.getPageMastList = async (req, res) => {
 //     }
 // };
 
+    
