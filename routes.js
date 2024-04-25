@@ -151,7 +151,7 @@ const { createPriceType, getPriceDetail, updatePriceType, getPriceList, deletePr
 const { createPlatformPrice, getPlatformPriceDetail, updatePlatformPriceData, getPlatformPriceList, deletePlatformPriceData } = require("./controllers/PMS/pmsPlatformPriceTypeController.js");
 const { createPageCatg, getPageCatgDetail, updatePageCatg, getPageCatgList, deletePageCatgData } = require("./controllers/PMS/pmsPageCategoryController.js");
 const { createPmsProfile, getProfileDetail, updateProfileType, getProfileList, deleteProfileType } = require("./controllers/PMS/pmsProfileTypeController.js");
-const { createPageMast, getPageMastDetail, updatePageMast, getPageMastList, deletePageMastData } = require("./controllers/PMS/pmsPageMastController.js");
+const { createPageMast, getPageMastDetail, updatePageMast, getPageMastList, deletePageMastData, getTopPageMastList } = require("./controllers/PMS/pmsPageMastController.js");
 const { createPageOwner, getPageOwnerDetail, updatePageOwner, getPageOwnerList, deletePageOwnerData } = require("./controllers/PMS/pmsPageOwnershipController.js");
 const { createVendorPagePrice, getVendorPagePriceDetail, updateVendorPagePrice, getVendorPagePriceList, deleteVendorPagePriceData } = require("./controllers/PMS/pmsVendorPagePriceController.js");
 const { createUserAnnouncement, getUserAnnouncementDetail, updateUserAnnouncement, getUserAnnoncementList, deleteUserAnnouncementData, announcementUpdateData, announcementWiseGetReactionDetails, announcementWisegetCommentsList, announcementWiseComment, getAllLoginUserAnnoncementListData } = require("./controllers/Announcement/userAnnouncementController.js");
@@ -1693,6 +1693,7 @@ router.post("/addPageMast", createPageMast);
 router.get("/getPageDetail/:id", getPageMastDetail);
 router.put("/updatePage/:id", updatePageMast);
 router.get("/getPageMastList", getPageMastList);
+router.get("/getPageMastListQ", getTopPageMastList);
 router.delete("/deletePageMast/:id", deletePageMastData);
 
 router.post("/addPageOwner", createPageOwner);

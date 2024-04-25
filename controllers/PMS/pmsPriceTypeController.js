@@ -7,8 +7,11 @@ const pmsPriceTypeModel = require('../../models/PMS/pmsPriceTypeModel');
 exports.createPriceType = async (req, res) => {
     try {
         const checkDuplicacy = await pmsPriceTypeModel.findOne({
-            platform_id: req.body.platform_id
+            platform_id: req.body.platform_id,
+            // price_type: req.body.price_type
+            price_type: { $regex: new RegExp(req.body.price_type, 'i') },
         });
+        
         if (checkDuplicacy) {
             return res.status(403).json({
                 status: 403,
