@@ -1,6 +1,5 @@
 const { default: mongoose } = require("mongoose");
 
-
 const serviceSchema = new mongoose.Schema({
   name:{
     type:String,
@@ -11,11 +10,6 @@ const serviceSchema = new mongoose.Schema({
     type:String,
   }
 });
-
-
-
-
-
 
 module.exports = mongoose.model(
   "ServiceMaster",
