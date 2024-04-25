@@ -2328,6 +2328,140 @@ exports.getSalarycalculationData = async (req, res) => {
   }
 };
 
+exports.getSalaryCalculationWithFilterData = async (req, res) => {
+  try {
+    let matchQueryObj = {};
+    const filterOption = req.query?.filterOption;
+
+    //check if query filter data is available
+    if (filterOption && filterOption != '') {
+      //current Quater data array for the months
+      let firstQuter = ["January", "February", "March"];
+      let secondQuter = ["April", "May", "June"];
+      let thirdQuter = ["July", "August", "September"];
+      let fourthQuter = ["October", "November", "December"];
+
+      //months name array create
+      const months = [...firstQuter, ...secondQuter, ...thirdQuter, ...fourthQuter]
+
+      //current date get
+      const currentDate = new Date();
+
+      //current date to year get
+      let currentYear = currentDate.getFullYear();
+      let previousYear = currentYear - 1;
+
+      //current date to month number get
+      let currentMonthNumber = currentDate.getMonth();
+      let previousMonthNumber = currentMonthNumber - 1;
+
+      //condition check for the months number
+      if (previousMonthNumber < 0) {
+        previousMonthNumber = 11;
+        currentYear = currentYear - 1;
+      }
+
+      //months number to name finds
+      const currentMonthName = months[currentMonthNumber].toString();
+      const prevoiusMonthName = months[previousMonthNumber].toString();
+
+      // Determine the current quarter based on the current month number
+      let currentQuarter;
+      if (currentMonthNumber >= 0 && currentMonthNumber <= 2) {
+        currentQuarter = firstQuter;
+      } else if (currentMonthNumber >= 3 && currentMonthNumber <= 5) {
+        currentQuarter = secondQuter;
+      } else if (currentMonthNumber >= 6 && currentMonthNumber <= 8) {
+        currentQuarter = thirdQuter;
+      } else {
+        currentQuarter = fourthQuter;
+      }
+
+      //current month data get condition
+      if (filterOption == "this_month") {
+        matchQueryObj = {
+          month: currentMonthName,
+          year: parseInt(currentYear)
+        }
+      }
+      //current quater data get condition
+      if (filterOption == "this_quater") {
+        matchQueryObj = {
+          month: {
+            $in: currentQuarter
+          },
+          year: parseInt(currentYear)
+        }
+      }
+      //current yesr data get condition
+      if (filterOption == "this_year") {
+        matchQueryObj = {
+          year: parseInt(currentYear)
+        }
+      }
+      //previous month data get condition
+      if (filterOption == "previous_month") {
+        matchQueryObj = {
+          month: prevoiusMonthName,
+          year: parseInt(currentYear)
+        }
+      }
+      //previous year data get condition
+      if (filterOption == "previous_year") {
+        matchQueryObj = {
+          year: parseInt(previousYear)
+        }
+      }
+    }
+
+    //filter condition wise data get from DB collection.
+    const groupedAttendanceData = await attendanceModel.aggregate([{
+      $match: matchQueryObj
+    }, {
+      $group: {
+        _id: {
+          dept: "$dept",
+          month: "$month",
+          year: "$year"
+        },
+        totalSalary: { $sum: "$total_salary" },
+        disbursedSalary: { $sum: "$disbursedSalary" },
+        totalUsers: { $sum: 1 },
+      }
+    }, {
+      $lookup: {
+        from: "departmentmodels",
+        localField: "_id.dept",
+        foreignField: "dept_id",
+        as: "department",
+      }
+    }, {
+      $unwind: "$department",
+    }, {
+      $project: {
+        _id: 0,
+        dept_id: "$_id.dept",
+        month: "$_id.month",
+        year: "$_id.year",
+        totalSalary: 1,
+        disbursedSalary: 1,
+        pendingAmount: { $subtract: ["$totalSalary", "$disbursedSalary"] },
+        dept_name: "$department.dept_name",
+        totalUsers: 1
+      }
+    }]);
+
+    //success response send
+    return res.status(200).send({ data: groupedAttendanceData });
+  } catch (error) {
+    return res.send({
+      error: error.message,
+      status: 500,
+      sms: "Error in getting grouped attendance data with filter",
+    });
+  }
+};
+
 exports.getUsersCountByDept = async (req, res) => {
   try {
     const groupedAttendanceData = await attendanceModel.aggregate([
