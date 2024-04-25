@@ -1,7 +1,7 @@
 const response = require("../common/response");
-const brandSchema = require("../../models/operationNew/brandModel");
-const projectxCategoryModel = require('../../models/operationNew/projectxCategoryModel')
-const projectxSubcategoryModel = require('../../models/operationNew/projectxSubCategoryModel')
+const brandSchema = require("../models/brandModel");
+const projectxCategoryModel = require('../models/projectxCategoryModel')
+const projectxSubcategoryModel = require('../models/projectxSubCategoryModel')
 
 exports.addBrand = async (req, res) => {
   try {
@@ -27,13 +27,12 @@ exports.addBrand = async (req, res) => {
       website,
     });
 
-    //save data in DB collection.
     const savedBrand = await brandObj.save();
-
-    //send success response
-    return res.send({ data: savedBrand, status: 200 });
+    res.send({ data: savedBrand, status: 200 });
   } catch (err) {
-    return res.status(500).send({ error: err.message, message: "This brand cannot be created" });
+    res
+      .status(500)
+      .send({ erroradd_brand: err.message, message: "This brand cannot be created" });
   }
 };
 

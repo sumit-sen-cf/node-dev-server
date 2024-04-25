@@ -1,19 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const brand = require("../controllers/operationNew/brand");
+const SMS = require("../controllers/SMS/sales");
 
 router.get("/", (req, res) => {
     res.send({ message: "Welcome to Operation module." });
 });
 
 /**
- * brand routes 
+ * sales booking routes
  */
-router.post("/add_brand", brand.addBrand);
-router.get("/get_brands", brand.getBrands);
-router.get("/check_unique_brand", brand.checkSubCatAndCat);
-router.get("/get_brand/:id", brand.getBrandById);
-router.put("/edit_brand", brand.editBrand);
-router.delete("/delete_brand/:id", brand.deleteBrand);
+router.post("/add_sales_booking", SMS.addSalesBooking);
+router.put("/edit_sales_booking/:id", SMS.editSalesBooking);
+router.get("/get_all_sales_booking", SMS.getAllSalesBooking);
+router.get("/get_single_sales_booking/:id", SMS.getSingleSalesBooking);
+router.delete("/delete_sales_booking/:id", SMS.deleteSalesBooking);
 
 module.exports = router; 

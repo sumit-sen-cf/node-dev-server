@@ -14,12 +14,12 @@ const brandSchema = new mongoose.Schema({
   },
   category_id: {
     type: Number,
-    required: false,
+    // required: true,
     default: 0,
   },
   sub_category_id: {
     type: Number,
-    required: false,
+    // required: true,
   },
   platform: {
     type: mongoose.Schema.Types.Mixed,
@@ -27,17 +27,14 @@ const brandSchema = new mongoose.Schema({
   },
   website: {
     type: String,
-    required: false,
     default: "",
   },
   major_category: {
     type: String,
-    required: false,
     default: "",
   },
   user_id: {
     type: Number,
-    required: false,
   },
   updated_at: {
     type: Date,
