@@ -150,3 +150,38 @@ exports.getAccListDataFromCustId = async (req, res) => {
         res.status(500).send({ error: error.message, sms: "error getting php payment account data of customer details" })
     }
 }
+
+exports.addAccListData = async (req, res) => {
+    try {
+        const title = await phpPaymentAccListModel.findOne({ title: req.body.title })
+        if (title) {
+            return response.returnFalse(409, req, res, "Department Name is already exist", {});
+        }
+
+        const latestId = await phpPaymentAccListModel.findOne().sort({ id: -1 }).select({ id: 1 });
+        const latestSno = await phpPaymentAccListModel.findOne().sort({ sno: -1 }).select({ sno: 1 });
+        const latestIdVal = latestId ? latestId.id : 0;
+        const latestSnoVal = latestSno ? latestSno.sno : 0;
+
+        const accData = new phpPaymentAccListModel({
+            id: latestIdVal + 1,
+            title: req.body.title,
+            detail: req.body.detail,
+            gst_bank: req.body.gst_bank,
+            payment_type: req.body.payment_type,
+            status: req.body.status,
+            created_at: req.body.created_at,
+            sno: latestSnoVal + 1
+        });
+        const result = await accData.save();
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "AccListData Created Successfully",
+            result
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
