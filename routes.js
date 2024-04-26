@@ -213,10 +213,12 @@ router.get('/assignment', assignmentController.getAllGodamnAssignments)
 router.get('/assignment/:id', assignmentController.getSingleAssignment)
 
 router.get('/assignment/all/:id', assignmentController.getAllAssignmentToExpertee)
+router.get('/assignments', assignmentController.getAllAssignments)
 router.get('/assignment/phase/:id', assignmentController.getAllAssignmentInPhase)
 router.get('/assignment/campaign/:id', assignmentController.getAllAssignmentInCampaign)
 router.post('/assignment/status', assignmentController.updateAssignmentStatus)
 router.get('/assignment/campaign_wise_counts/:id', assignmentController.getcampaignWiseCountsData)
+router.put('/assignment/post/details/update', assignmentController.updatePostDetails)
 router.post('/assignment/campaign/dashboard', assignmentDashboardController.AssignmentDashCampaign)
 
 router.post('/assignment/commit', assignmentCommitController.createAssComm)

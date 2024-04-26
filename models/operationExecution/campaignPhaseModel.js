@@ -7,8 +7,7 @@ const campaignPhaseSchema = new mongoose.Schema({
       required:[true,"Phase Name is required"]
     },
     phase_id:{
-      type:String,
-
+      type:Number,
     },
     campaignName:{
       type:String,
