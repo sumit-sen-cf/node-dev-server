@@ -155,6 +155,42 @@ const assignmentSchema = new mongoose.Schema({
   isExecuted: {
     type: Boolean,
     default: false,
+  },
+  post_link: {
+    type: String,
+    default: ''
+  },
+  post_date: {
+    type: Date,
+    default: null
+  },
+  post_type: {
+    type: String,
+    default: ''
+  },
+  post_like: {
+    type: Number,
+    default: 0
+  },
+  post_comment: {
+    type: Number,
+    default: 0
+  },
+  post_views: {
+    type: Number,
+    default: 0
+  },
+  post_captions: {
+    type: String,
+    default:''
+  },
+  post_media:{
+    type: String,
+    default:''
+  },
+  last_link_hit_date:{
+    type: Date,
+    default: null
   }
 
 });

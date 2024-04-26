@@ -3,7 +3,7 @@ const appError = require('../../helper/appError');
 const catchAsync = require('../../helper/catchAsync');
 const AssignmentModel = require('../../models/operationExecution/assignmentModel')
 const campaignPlanModel = require('../../models/operationExecution/campaignPlanModel');
-const PhasePageModel = require('../../models/operationExecution/phasePageModel')
+const PhasePageModel = require('../../models/operationExecution/phasePageModel');
 
 exports.createAssignment = catchAsync(async (req, res, next) => {
     const { ass_to, ass_by, page, ass_status, ass_id } = req.body
@@ -71,6 +71,7 @@ exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
             }
         })
     )
+
     res.status(200).json({
         data:results
     })
@@ -82,13 +83,6 @@ exports.getAllAssignmentToExpertee = catchAsync(async (req, res, next) => {
     const result=results.filter(page=>page.ass_to?.user_id==id)
     res.status(200).json({
         data: result
-    })
-})
-
-exports.getAllAssignments = catchAsync(async (req, res, next) => {
-    const results = await AssignmentModel.find()
-    res.status(200).json({
-        data: results
     })
 })
 
@@ -137,7 +131,7 @@ exports.updateAssignment = catchAsync(async (req, res, next) => {
     const filter2 = { campaignId, p_id };
 
     const options2 = {
-        new: true, // Return the modified document rather than the original
+        new: true, 
     };
 
     const result = await AssignmentModel.findOneAndUpdate(filter1, req.body, options2);
@@ -160,6 +154,7 @@ exports.updateAssignment = catchAsync(async (req, res, next) => {
         if (!savedData) {
             return next(new appError(200, "Something went wrong while creating plan data."))
         }
+
     }
     const result3 = await PhasePageModel.findOneAndUpdate(filter1, { ...req.body, updatedFrom: "Assignment" }, options2);
     return response.returnTrue(200, req, res, "Updation Operation Successfully.")

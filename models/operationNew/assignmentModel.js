@@ -8,15 +8,19 @@ const assignmentSchema = new mongoose.Schema({
   ass_to: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'ExpertiseModel',
+    // type: String,
   },
   exp_name: {
     type: String,
   },
   ass_by: {
+    // type:mongoose.SchemaTypes.ObjectId,
+    // ref:'userModels',
     type: String,
   },
   phase_id: {
     type: String,
+
   },
   phaseName: {
     type: String,
@@ -24,6 +28,7 @@ const assignmentSchema = new mongoose.Schema({
   },
   plan_id: {
     type: String,
+    // required: [true, "plan id is required"]
   },
   planName: {
     type: String,
@@ -31,6 +36,7 @@ const assignmentSchema = new mongoose.Schema({
   },
   vendor_id: {
     type: String,
+    // required: [true, "vendor is required"]
   },
   p_id: {
     type: String,
@@ -149,6 +155,33 @@ const assignmentSchema = new mongoose.Schema({
   isExecuted: {
     type: Boolean,
     default: false,
+  },
+  post_link: {
+    type: String
+  },
+  post_date: {
+    type: Date
+  },
+  post_type: {
+    type: String
+  },
+  post_like: {
+    type: Number
+  },
+  post_comment: {
+    type: Number
+  },
+  post_views: {
+    type: Number
+  },
+  post_captions: {
+    type: String
+  },
+  post_media:{
+    type: String
+  },
+  last_link_hit_date:{
+    type: Date
   }
 
 });
