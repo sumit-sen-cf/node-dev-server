@@ -149,8 +149,8 @@ exports.getPageOwnerList = async (req, res) => {
             {
                 $lookup: {
                     from: "pmsvendormasts",
-                    localField: "pmsvendormast_id",
-                    foreignField: "pmsvendormast_id",
+                    localField: "vendorMast_id",
+                    foreignField: "vendorMast_id",
                     as: "pmsvendormast",
                 },
             },
@@ -199,8 +199,9 @@ exports.getPageOwnerList = async (req, res) => {
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
                     last_updated_by: 1,
+                    pmspagemast_data:"$pmspagemast",
                     PMS_VendorMasts_data: {
-                        pmsvendor_id: "$vendorMast._id",
+                        pmsvendorMast_id: "$pmsvendormast._id",
                         vendorMast_name: "$pmsvendormast.vendorMast_name",
                         country_code: "$pmsvendormast.country_code",
                         mobile: "$pmsvendormast.mobile",
@@ -221,29 +222,6 @@ exports.getPageOwnerList = async (req, res) => {
                         created_by: "$pmsvendormast.created_by",
                         last_updated_by: "$pmsvendormast.last_updated_by",
                     },
-                    pmspagemast_data: {
-                        pmspageMast_id: "$pmspagemast._id",
-                        page_user_name: "$pmspagemast.page_user_name",
-                        link: "$pmspagemast.link",
-                        platform_id: "$pmspagemast.platform_id",
-                        page_catg_id: "$pmspagemast.page_catg_id",
-                        tag_category: "$pmspagemast.tag_category",
-                        page_level: "$pmspagemast.page_level",
-                        page_status: "$pmspagemast.page_status",
-                        page_closed_by_user_id: "$user.user_id",
-                        page_name_type: "$pmspagemast.page_name_type",
-                        content_creation: "$pmspagemast.content_creation",
-                        ownership_type: "$pmspagemast.ownership_type",
-                        vendorMast_id: "$pmspagemast.vendorMast_id",
-                        followers_count: "$pmspagemast.followers_count",
-                        profile_type_id: "$pmspagemast.platform_active_on",
-                        platform_active_on: "$pmspagemast.platform_active_on",
-                        engagment_rate: "$pmspagemast.engagment_rate",
-                        description: "$pmspagemast.description",
-                        created_by: "$pmspagemast.created_by",
-                        created_by_name: "$user.user_name",
-                        last_updated_by: "$pmspagemast.last_updated_by",
-                    }
                 }
             },
             {
