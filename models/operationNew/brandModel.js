@@ -21,10 +21,10 @@ const brandSchema = new mongoose.Schema({
     type: Number,
     // required: true,
   },
- platform:{
-  type: mongoose.Schema.Types.Mixed,
-  required: true
- },
+  platform: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true
+  },
   website: {
     type: String,
     default: "",

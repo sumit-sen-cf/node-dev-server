@@ -960,6 +960,7 @@ router.get("/dept_with_wfh", attendance.deptWithWFH);
 router.post("/save_all_depts_attendance", attendance.addAttendanceAllDepartments);
 router.get("/get_all_attendance_data", attendance.getAllAttendanceData);
 router.get("/get_salary_calculation_data", attendance.getSalarycalculationData);
+router.get("/get_salary_calculation_with_filter_data", attendance.getSalaryCalculationWithFilterData);
 router.post("/get_users_count_by_dept", attendance.getUsersCountByDept);
 router.put("/update_attendance", attendance.updateAttendance);
 // router.get("/get_all_disputes", attendance.allAttendanceDisputeDatas);
