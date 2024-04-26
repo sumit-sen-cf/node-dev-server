@@ -217,6 +217,7 @@ router.get('/assignments', assignmentController.getAllAssignments)
 router.get('/assignment/phase/:id', assignmentController.getAllAssignmentInPhase)
 router.get('/assignment/campaign/:id', assignmentController.getAllAssignmentInCampaign)
 router.post('/assignment/status', assignmentController.updateAssignmentStatus)
+router.get('/assignment/campaign_wise_counts/:id', assignmentController.getcampaignWiseCountsData)
 router.put('/assignment/post/details/update', assignmentController.updatePostDetails)
 router.post('/assignment/campaign/dashboard', assignmentDashboardController.AssignmentDashCampaign)
 
@@ -1728,7 +1729,7 @@ router.put("/update_exe_history/:id", updateExeHistory);
 router.get("/get_all_list_exe_history", getExeHistoryList);
 router.get("/get_exe_history/:pageMast_id", getExeHistoryDetails);
 
-router.get("/get_exe_historyData", getAllExeData );
+router.get("/get_exe_historyData", getAllExeData);
 
 
 //pms page assignment APi's

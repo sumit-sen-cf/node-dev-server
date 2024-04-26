@@ -189,3 +189,33 @@ exports.updatePostDetails = catchAsync(async (req, res, next) => {
         });
     res.status(200).json({ data: response })
 })
+
+exports.getcampaignWiseCountsData = async (req, res) => {
+    try {
+        //get campaign id from the query
+        let campaignId = req.params?.id
+
+        //counts get from the 
+        const assignmentModelData = await AssignmentModel.aggregate([{
+            $match: {
+                campaignId: campaignId
+            }
+        }, {
+            $group: {
+                _id: "$campaignId",
+                totalPost_comment: { $sum: "$post_comment" },
+                totalPost_like: { $sum: "$post_like" },
+                totalPost_views: { $sum: "$post_views" },
+            }
+        }]);
+
+        //succcess response send
+        res.status(200).send({ data: assignmentModelData });
+    } catch (error) {
+        return res.send({
+            error: error.message,
+            status: 500,
+            sms: "Error getting in campaign wise counts assignment get data",
+        });
+    }
+};
