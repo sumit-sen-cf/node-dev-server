@@ -21,6 +21,8 @@ const salesPaymentMode = require("../controllers/SMS/salesPaymentModeController"
 const autoIncentiveCalculation = require("../controllers/SMS/autoIncentiveCalculationController");
 const salesIncentiveSettelmentGst = require("../controllers/SMS/salesIncentiveSettelmentGstController");
 const salesIncentiveSettelmentNonGst = require("../controllers/SMS/salesIncentiveSettelmentNonGstController");
+const salesIncentiveSettelmentNonGstSb = require("../controllers/SMS/salesIncentiveSettledNonGstSbController");
+const salesBookingExecution = require("../controllers/SMS/salesBookingExecutionController");
 
 router.get("/", (req, res) => {
     res.send({ message: "Welcome to Sales module." });
@@ -222,5 +224,22 @@ router.put("/update_sales_incentive_settelment_non_gst/:id",salesIncentiveSettel
 router.get("/getlist_sales_incentive_settelment_non_gst",salesIncentiveSettelmentNonGst.getSalesIncentiveSettelmentNonGstList);
 router.delete("/delete_sales_incentive_settelment_non_gst",salesIncentiveSettelmentNonGst.deleteSalesIncentiveSettelmentNonGst);
 
+/**
+ * sales incentive settelment non gst sb request routes
+ */
+router.post("/add_sales_incentive_settelment_non_gst_sb",salesIncentiveSettelmentNonGstSb.createSalesIncentiveSettledNonGstSb);
+router.get("/get_sales_incentive_settelment_non_gst_sb/:id",salesIncentiveSettelmentNonGstSb.getSalesSettledNonGstSbDetails);
+router.put("/update_sales_incentive_settelment_non_gst_sb/:id",salesIncentiveSettelmentNonGstSb.updateSalesIncentiveSettelmentNonGstSb);
+router.get("/get_list_sales_incentive_settelment_non_gst_sb",salesIncentiveSettelmentNonGstSb.salesIncentiveSettledNonGstSbList);
+router.delete("/delete_list_sales_incentive_settelment_non_gst_sb/:id",salesIncentiveSettelmentNonGstSb.deleteSalesIncentiveSetteledNonGstSb);
+
+/**
+ * sales booking execution routes
+ */
+router.post("/add_sales_booking_execution",salesBookingExecution.createSalesBookingExecution);
+router.get("/get_sales_booking_execution/:id",salesBookingExecution.getSalesBookingExecutionDetails);
+router.put("/update_sales_booking_execution/:id",salesBookingExecution.updateSalesBookingExecution);
+router.get("/get_list_sales_booking_execution",salesBookingExecution.getSalesBookingExcutionList);
+router.delete("/delete_list_sales_booking_execution/:id",salesBookingExecution.deleteSalesBookingExecution);
 
 module.exports = router; 
