@@ -38,63 +38,63 @@ exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
         pages.map(async page => {
             let { _id, ...rest } = page
             let status
-            if(page.ass_to){
-                if(page.ass_status=='unassigned'){
+            if (page.ass_to) {
+                if (page.ass_status == 'unassigned') {
                     // console.log(page.page_name)
-                    status='assigned'
-                }else{
-                    status=page.ass_status
+                    status = 'assigned'
+                } else {
+                    status = page.ass_status
                 }
-            }else status='unassigned'
+            } else status = 'unassigned'
             console.log(status)
             const data = {
-                
+
                 ...rest,
                 ass_status: status,
             }
-    
+
             let result;
             if (!page.ass_id) {
-            
+
                 const assignment = await AssignmentModel.findOne({}, {}, { sort: { 'ass_id': 0 } });
                 const lastAssId = assignment ? assignment.ass_id : 0;
                 data.ass_id = lastAssId + 1;
                 result = await AssignmentModel.create(data);
-                return {...result}
+                return { ...result }
             } else {
-         
-                result = await AssignmentModel.findOneAndUpdate({ ass_id:page.ass_id }, data, {
+
+                result = await AssignmentModel.findOneAndUpdate({ ass_id: page.ass_id }, data, {
                     // upsert: true,
                     new: true
                 });
-                return {...result}
+                return { ...result }
             }
         })
     )
 
     res.status(200).json({
-        data:results
+        data: results
     })
 })
 // exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
 //     const { pages } = req.body;
-    
+
 
 //     const results = await Promise.all(pages.map(async (page) => {
-       
+
 //     }));
 
 //     res.status(200).json({  });
 // });
 // exports.createAssignmentBulk = catchAsync(async (req, res, next) => {
 //     const { pages } = req.body;
-   
+
 // });
 
 exports.getAllAssignmentToExpertee = catchAsync(async (req, res, next) => {
     const id = req.params.id
     const results = await AssignmentModel.find()
-    const result=results.filter(page=>page.ass_to?.user_id==id)
+    const result = results.filter(page => page.ass_to?.user_id == id)
     // if(!result) {
     //     return next(new appError(404,"assignment not found"))
     // }
@@ -113,10 +113,10 @@ exports.getSingleAssignment = catchAsync(async (req, res, next) => {
     })
 })
 
-exports.getAllGodamnAssignments=catchAsync(async (req,res,next)=>{
-    const result=await AssignmentModel.find()
+exports.getAllGodamnAssignments = catchAsync(async (req, res, next) => {
+    const result = await AssignmentModel.find()
     res.status(200).json({
-        data:result
+        data: result
     })
 })
 exports.getAllAssignmentInPhase = catchAsync(async (req, res, next) => {
@@ -132,11 +132,11 @@ exports.getAllAssignmentInPhase = catchAsync(async (req, res, next) => {
     })
 })
 
-exports.getAllAssignmentInCampaign=catchAsync(async(req,res,next)=>{
-    const id=req.params.id
-    const result=await AssignmentModel.find({campaignId:id})
+exports.getAllAssignmentInCampaign = catchAsync(async (req, res, next) => {
+    const id = req.params.id
+    const result = await AssignmentModel.find({ campaignId: id })
     res.status(200).json({
-        data:result
+        data: result
     })
 })
 
@@ -181,11 +181,41 @@ exports.updateAssignment = catchAsync(async (req, res, next) => {
     return response.returnTrue(200, req, res, "Updation Operation Successfully.")
 })
 
-exports.updateAssignmentStatus=catchAsync(async (req,res,next) => {
-    const {ass_status,campaignId,ass_id} = req.body
-    const response=await AssignmentModel.findOneAndUpdate({ass_id,campaignId},{ass_status:ass_status},{new:true})
-    res.status(200).json({data:response})
+exports.updateAssignmentStatus = catchAsync(async (req, res, next) => {
+    const { ass_status, campaignId, ass_id } = req.body
+    const response = await AssignmentModel.findOneAndUpdate({ ass_id, campaignId }, { ass_status: ass_status }, { new: true })
+    res.status(200).json({ data: response })
 })
 exports.deleteAssignment = catchAsync(async (req, res, next) => {
 
 })
+
+exports.getcampaignWiseCountsData = async (req, res) => {
+    try {
+        //get campaign id from the query
+        let campaignId = req.params?.id
+
+        //counts get from the 
+        const assignmentModelData = await AssignmentModel.aggregate([{
+            $match: {
+                campaignId: campaignId
+            }
+        }, {
+            $group: {
+                _id: "$campaignId",
+                totalPost_comment: { $sum: "$post_comment" },
+                totalPost_like: { $sum: "$post_like" },
+                totalPost_views: { $sum: "$post_views" },
+            }
+        }]);
+
+        //succcess response send
+        res.status(200).send({ data: assignmentModelData });
+    } catch (error) {
+        return res.send({
+            error: error.message,
+            status: 500,
+            sms: "Error getting in campaign wise counts assignment get data",
+        });
+    }
+};
