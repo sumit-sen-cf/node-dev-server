@@ -3,6 +3,7 @@ const appError = require('../../helper/appError');
 const catchAsync = require('../../helper/catchAsync');
 const AssignmentModel = require('../../models/operationExecution/assignmentModel')
 const campaignPlanModel = require('../../models/operationExecution/campaignPlanModel');
+const campaignPhaseModel = require('../../models/operationExecution/campaignPhaseModel')
 const PhasePageModel = require('../../models/operationExecution/phasePageModel')
 
 exports.createAssignment = catchAsync(async (req, res, next) => {
@@ -225,6 +226,18 @@ exports.getAllAssignmentsFromPhaseId = catchAsync(async (req, res, next) => {
     const result = await AssignmentModel.find({ phase_id: id });
     if(result.length == 0){
         return res.status(404).json({data:[],sms:'no data found from this phase id'})
+    }
+    res.status(200).json({
+        data: result
+    })
+})
+
+exports.getAllPhasesByCampId = catchAsync(async (req, res, next) => {
+    const id = req.params._id;
+    const result = await campaignPhaseModel.find({campaignId: id});
+    // const result = await AssignmentModel.find({ phase_id: id });
+    if(result.length == 0){
+        return res.status(404).json({data:[],sms:'no data found from this campaign id'})
     }
     res.status(200).json({
         data: result
