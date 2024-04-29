@@ -16,14 +16,17 @@ const salesBooking = new mongoose.Schema({
     campaign_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     base_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     gst_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     description: {
         type: String,
@@ -61,6 +64,7 @@ const salesBooking = new mongoose.Schema({
     tds_verified_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     tds_verified_remark: {
         type: String,
@@ -95,6 +99,7 @@ const salesBooking = new mongoose.Schema({
     incentive_sharing_percent: {
         type: Number,
         required: false,
+        default: 0,
     },
     bad_debt: {
         type: Boolean,
@@ -119,6 +124,7 @@ const salesBooking = new mongoose.Schema({
     service_taken_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     get_incentive_status: {
         type: Boolean,        //f=no incentive, t=incentive-applicable

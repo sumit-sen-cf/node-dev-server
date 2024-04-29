@@ -54,8 +54,6 @@ exports.addSalesBooking = [upload, async (req, res) => {
             created_by: req.body.created_by,
             managed_by: req.body.managed_by,
             last_updated_by: req.body.last_updated_by,
-            creation_date: req.body.creation_date,
-            last_updated_date: req.body.last_updated_date
         })
 
         if (req.files && req.files.plan_file && req.files.plan_file[0].originalname) {
@@ -131,8 +129,6 @@ exports.editSalesBooking = [upload, async (req, res) => {
             created_by: req.body.created_by,
             managed_by: req.body.managed_by,
             last_updated_by: req.body.last_updated_by,
-            creation_date: req.body.creation_date,
-            last_updated_date: req.body.last_updated_date
         }, {
             new: true
         });
@@ -255,8 +251,8 @@ exports.getAllSalesBooking = async (req, res) => {
                 managed_by_name: "$managedUserData.user_name",
                 last_updated_by: 1,
                 last_updated_by_name: "$lastUpdatedUserData.user_name",
-                creation_date: 1,
-                last_updated_date: 1
+                createdAt: 1,
+                updatedAt: 1
             }
         }]);
 
