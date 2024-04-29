@@ -18,8 +18,13 @@ exports.addDynamicTablesData = async (req, res) => {
 
 exports.getSingleDynamicTablesData = async (req, res) => {
     try {
+        let userId = parseInt(req.query?.userId);
+        let tableName = req.query?.tableName;
+
         const singleDynamicTableData = await dynamicTablesModel.find({
-            _id: req.params.id
+            // _id: req.params.id
+            user_id: userId,
+            table_name: tableName
         });
         if (!singleDynamicTableData) {
             return response.returnFalse(200, req, res, "No Reord Found...", {});
