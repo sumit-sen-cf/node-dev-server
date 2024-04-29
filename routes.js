@@ -1848,7 +1848,7 @@ router.put("/vendorsum", assetVendorSum.editVendorSum);
 
 //Dynamic table routes
 router.post("/add_dynamic_table_data", dynamicTablesModel.addDynamicTablesData);
-router.get("/get_dynamic_table_data/:id", dynamicTablesModel.getSingleDynamicTablesData);
+router.get("/get_dynamic_table_data", dynamicTablesModel.getSingleDynamicTablesData);
 router.put("/edit_dynamic_table_data", dynamicTablesModel.editDynamicTablesData);
 
 module.exports = router;

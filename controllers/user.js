@@ -2233,7 +2233,7 @@ exports.sendUserMail = async (req, res) => {
                 service: "gmail",
                 auth: {
                     user: "onboarding@creativefuel.io",
-                    pass: "gakatoehtvscfjep",
+                    pass: "zboiicwhuvakthth",
                 },
             });
 
@@ -2271,7 +2271,7 @@ exports.sendUserMail = async (req, res) => {
                 service: "gmail",
                 auth: {
                     user: "onboarding@creativefuel.io",
-                    pass: "gakatoehtvscfjep",
+                    pass: "zboiicwhuvakthth",
                 },
             });
 
@@ -2720,7 +2720,7 @@ exports.sendMailAllWfoUser = async (req, res) => {
                 service: "gmail",
                 auth: {
                     user: "onboarding@creativefuel.io",
-                    pass: "gakatoehtvscfjep",
+                    pass: "zboiicwhuvakthth",
                 },
             });
 
@@ -3035,7 +3035,7 @@ exports.forgotPass = async (req, res) => {
             service: "gmail",
             auth: {
                 user: "onboarding@creativefuel.io",
-                pass: "gakatoehtvscfjep",
+                pass: "zboiicwhuvakthth",
             },
         });
 

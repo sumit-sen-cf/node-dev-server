@@ -12,7 +12,7 @@ const PageDeleteRecordModel = require('../models/operationExecution/pageDeleteRe
 const pageReplacementRecordModel = require('../models/operationExecution/pageReplacementRecordModel.js')
 const PhaseCommitmentModel = require('../models/operationExecution/phaseCommitmentModel.js')
 const PhasePageModel = require('../models/operationExecution/phasePageModel.js')
-const PreAssignmentModel=require('../models/operationExecution/preAssignmentModel.js')
+const PreAssignmentModel = require('../models/operationExecution/preAssignmentModel.js')
 
 
 exports.addRegisterCampaign = catchAsync(async (req, res) => {
@@ -58,7 +58,43 @@ exports.addRegisterCampaign = catchAsync(async (req, res) => {
 )
 exports.getRegisterCampaigns = async (req, res) => {
   try {
-    const campaigns = await registerCamapign.find();
+    // const campaigns = await registerCamapign.find();
+    const campaigns = await registerCamapign.aggregate([
+      {
+        $lookup: {
+          from: "execampaignmodels",
+          localField: "exeCmpId",
+          foreignField: "exeCmpId",
+          as: "exeCamData",
+        },
+      },
+      {
+        $unwind: {
+          path: "$exeCamData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          brand_id: 1,
+          brnad_dt: 1,
+          excel_path: 1,
+          detailing: 1,
+          captions: 1,
+          industry: 1,
+          agency: 1,
+          goal: 1,
+          hashtags: 1,
+          status: 1,
+          exeCmpId: 1,
+          exeCmpName: "$exeCamData.exeCmpName",
+          stage: 1,
+          commitment: 1,
+          register_campaign_id: 1,
+        }
+      }
+    ])
 
     if (campaigns.length === 0) {
       res
@@ -67,7 +103,7 @@ exports.getRegisterCampaigns = async (req, res) => {
     } else {
       const url = `${constant.base_url}`;
       const dataWithFileUrls = campaigns.map((item) => ({
-        ...item.toObject(),
+        ...item,
         download_excel_file: item.excel_path ? url + item.excel_path : "",
       }));
       return res.status(200).send({ success: true, data: dataWithFileUrls });

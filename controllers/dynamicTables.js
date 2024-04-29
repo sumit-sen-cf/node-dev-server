@@ -39,7 +39,7 @@ exports.getSingleDynamicTablesData = async (req, res) => {
 exports.editDynamicTablesData = async (req, res) => {
     try {
         const editDynamicData = await dynamicTablesModel.findOneAndUpdate(
-            { _id: req.body._id },
+            { user_id: req.body.user_id, table_name: req.body.table_name },
             {
                 column_order_Obj: req.body.column_order_Obj,
             },
