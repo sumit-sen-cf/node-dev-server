@@ -220,6 +220,7 @@ router.post('/assignment/status', assignmentController.updateAssignmentStatus)
 router.get('/assignment/campaign_wise_counts/:id', assignmentController.getcampaignWiseCountsData)
 router.put('/assignment/post/details/update', assignmentController.updatePostDetails)
 router.post('/assignment/campaign/dashboard', assignmentDashboardController.AssignmentDashCampaign)
+router.get('/assignment/get_all_phases/:phase_id', assignmentController.getAllAssignmentsFromPhaseId)
 
 router.post('/assignment/commit', assignmentCommitController.createAssComm)
 router.post('/assignment/bulk', assignmentController.createAssignmentBulk)

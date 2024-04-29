@@ -219,3 +219,14 @@ exports.getcampaignWiseCountsData = async (req, res) => {
         });
     }
 };
+
+exports.getAllAssignmentsFromPhaseId = catchAsync(async (req, res, next) => {
+    const id = Number(req.params.phase_id);
+    const result = await AssignmentModel.find({ phase_id: id });
+    if(result.length == 0){
+        return res.status(404).json({data:[],sms:'no data found from this phase id'})
+    }
+    res.status(200).json({
+        data: result
+    })
+})
