@@ -237,6 +237,7 @@ exports.getAllSalesBooking = async (req, res) => {
                 bad_debt_reason: 1,
                 no_badge_achivement: 1,
                 old_sale_booking_id: 1,
+                sale_booking_id: 1,
                 sale_booking_type: 1,
                 service_taken_amount: 1,
                 get_incentive_status: 1,
@@ -275,7 +276,7 @@ exports.getSingleSalesBooking = async (req, res) => {
     try {
         //get data by id
         const SalesBookingData = await salesBooking.findOne({
-            _id: req.params.id
+            sale_booking_id: Number(req.params.id)
         });
 
         //if not found then error return
