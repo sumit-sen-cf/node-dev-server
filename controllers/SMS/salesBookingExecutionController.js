@@ -28,7 +28,7 @@ exports.createSalesBookingExecution = async (req, res) => {
         await addSalesBookingExecution.save();
         return res.status(200).json({
             status: 200,
-            message: "Sales booking data add successfully!",
+            message: "Sales booking execution data add successfully!",
             data: addSalesBookingExecution,
         });
     } catch (error) {
@@ -114,7 +114,7 @@ exports.getSalesBookingExecutionDetails = async (req, res) => {
 };
 
 /**
- * Api is to used for the sales_booking_execution data update in the DB collection.
+ * Api is to used for the sales_booking_execution data update_By-Id in the DB collection.
  */
 exports.updateSalesBookingExecution = async (req, res) => {
     try {
@@ -140,6 +140,8 @@ exports.updateSalesBookingExecution = async (req, res) => {
                 execution_remark,
                 commitment,
                 execution_sent_date,
+                created_by,
+                last_updated_by
             },
         },
             { new: true }
@@ -254,7 +256,7 @@ exports.getSalesBookingExcutionList = async (req, res) => {
 };
 
 /**
- * Api is to used for the sales_booking_execution data delete in the DB collection.
+ * Api is to used for the sales_booking_execution data delete_By-Id in the DB collection.
  */
 exports.deleteSalesBookingExecution = async (req, res) => {
     try {

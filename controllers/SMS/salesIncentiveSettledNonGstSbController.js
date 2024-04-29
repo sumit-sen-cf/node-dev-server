@@ -1,7 +1,6 @@
 const { message } = require("../../common/message")
 const mongoose = require("mongoose");
 const salesIncentiveSettledNonGstSbModel = require("../../models/SMS/salesIncentiveSettledNonGstSbModel");
-const { json } = require("body-parser");
 
 /**
  * Api is to used for the sales_incentive_settled_non_gst_sb data add in the DB collection.
@@ -196,7 +195,7 @@ exports.deleteSalesIncentiveSetteledNonGstSb = async (req, res) => {
         if (!salesIncentiveSettelmentNonGstSbData) {
             return res.status(404).json({
                 status: 404,
-                message: "Data not found!"
+                message: message.DATA_NOT_FOUND
             })
         }
         await salesBookingPaymentModel.deleteOne({ _id: id });
