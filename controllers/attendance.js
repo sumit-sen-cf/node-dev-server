@@ -2768,3 +2768,69 @@ exports.updateAttendance = async (req, res) => {
 //     res.status(500).send("Internal Server Error");
 //   }
 // };
+
+
+//delete api
+exports.deleteAttecndenceData = async (req, res) => {
+  try {
+    const { dept, month, year } = req.body;
+
+    if (!dept || !month || !year) {
+      return res.status(400).json({ error: 'Missing required parameters' });
+    }
+    const attendanceDataDeleted = await attendanceModel.deleteMany({
+      dept: dept,
+       year: year
+    });
+
+    if (attendanceDataDeleted.deletedCount === 0) {
+      return res.status(404).json({ error: 'No attendance data found for the provided criteria' });
+    }
+    return res.status(200).json({
+      status: 200,
+      message: 'Attendance data deleted successfully!',
+      data: attendanceDataDeleted
+    });
+  } catch (error) {
+    console.error('Error deleting attendance data:', error);
+    return res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+};
+
+
+
+
+// exports.deleteAttecndenceData = async (req, res) => {
+//   try {
+//     const { dept, month, year } = req.body;
+//     console.log("req.body------------------------------------", req.body)
+//     if (!dept || !month || !year) {
+//       return res.status(400).json({ error: 'Missing required parameters' });
+//     }
+//     const matchingDocuments = await attendanceModel.aggregate([{
+//       $match: {
+//         dept: dept,
+//         month: month,
+//         year: year
+//       }
+//     }]);
+//     const attendanceDataDeleted = await attendanceModel.deleteMany({
+//       dept: dept,
+//       month: month,
+//       year: year
+//     });
+
+//     return res.status(200).json({
+//       status: 200,
+//       message: 'Attendance data deleted successfully!',
+//       data: attendanceDataDeleted
+//     });
+//   } catch (error) {
+//     console.error('Error deleting attendance data:', error);
+//     return res.status(500).json({
+//       error: 'Internal server error'
+//     });
+//   }
+// }

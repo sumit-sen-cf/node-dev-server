@@ -4188,6 +4188,7 @@ exports.l1l2l3UsersByDept = async (req, res) => {
 exports.reportl1UsersData = async (req, res) => {
     const userId = parseInt(req.params.id);
     try {
+        const imageUrl = vari.IMAGE_URL;
         const allData = await userModel.aggregate([{
             $match: {
                 Report_L1: userId
@@ -4236,6 +4237,8 @@ exports.reportl1UsersData = async (req, res) => {
             $project: {
                 user_id: 1,
                 emp_id: 1,
+                image_url: 1,
+                image: 1,
                 user_status: 1,
                 user_login_id: 1,
                 user_contact_no: 1,
@@ -4248,6 +4251,12 @@ exports.reportl1UsersData = async (req, res) => {
                 Report_L1: 1,
                 department_name: "$department.dept_name",
                 designation_name: "$designation.desi_name",
+                image_url: {
+                    $concat: [imageUrl, "$image_url"],
+                },
+                image: {
+                    $concat: [imageUrl, "$image"],
+                },
                 Report_L1N: {
                     $cond: {
                         if: { $eq: ["$Report_L1N.user_id", userId] },
@@ -4269,6 +4278,64 @@ exports.reportl1UsersData = async (req, res) => {
             data: allData
         });
     } catch (error) {
+        return res.status(500).send({
+            error: error.message,
+            message: "Error in user rejoin",
+        });
+    }
+}
+
+
+exports.userHierarchy = async (req, res) => {
+    const dept_id = parseInt(req.params.id);
+
+    try {
+        const allData = await userModel.aggregate([{
+            $match: {
+                dept_id: parseInt(dept_id)
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "Report_L1",
+                foreignField: "user_id",
+                as: "Report_L1N"
+            }
+        }, {
+            $unwind: {
+                path: "$Report_L1N",
+                preserveNullAndEmptyArrays: true
+            }
+        }, {
+            $lookup: {
+                from: 'departmentmodels',
+                localField: 'dept_id',
+                foreignField: 'dept_id',
+                as: 'department'
+            }
+        }, {
+            $unwind: {
+                path: "$department",
+                preserveNullAndEmptyArrays: true
+            }
+        }, {
+            $group: {
+                _id: "$_id",
+                // data: { $first: "$$ROOT" },
+                Report_L1: { $first: '$Report_L1' },
+                Report_L1N: { $first: '$Report_L1N.user_name' },
+                user_id: { $first: '$user_id' },
+                user_name: { $first: '$user_name' },
+                department_name: { $first: '$department.dept_name' },
+            }
+        }]);
+        return res.status(200).json({
+            status: 200,
+            message: `Report_l1 users data for department ${dept_id} successfully!`,
+            data: allData
+        });
+    } catch (error) {
+        console.log("error-------------------------------------------->", error)
         return res.status(500).send({
             error: error.message,
             message: "Error in user rejoin",

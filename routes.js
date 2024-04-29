@@ -865,6 +865,8 @@ router.post("/l1l2l3_users_by_dept", user.l1l2l3UsersByDept);
 
 router.get("/report_l1_users_data/:id", user.reportl1UsersData);
 
+router.get("/user_hiearchy/:id", user.userHierarchy);
+
 
 router.post("/login_user_data", user.loginUserData);
 router.post("/add_reason", user.addReason);
@@ -968,6 +970,9 @@ router.post("/get_users_count_by_dept", attendance.getUsersCountByDept);
 router.put("/update_attendance", attendance.updateAttendance);
 // router.get("/get_all_disputes", attendance.allAttendanceDisputeDatas);
 // router.get("/get_all_disputes/:user_id", attendance.getUserAttendanceDisputeDatas);
+
+router.delete("/delete_all_attendance", attendance.deleteAttecndenceData);
+
 
 /* commitement */
 router.post("/add_commitment", cmtController.addCmt);
