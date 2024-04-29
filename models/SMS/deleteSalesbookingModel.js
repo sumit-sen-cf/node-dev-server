@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const salesBooking = new mongoose.Schema({
+const deletedSalesBookingHistoryData = new mongoose.Schema({
     sale_booking_id: {
         type: Number,//auto increment
         required: false,
@@ -153,15 +153,7 @@ const salesBooking = new mongoose.Schema({
         type: String,
         required: false,
     },
-    created_by: {
-        type: Number,
-        required: false,
-    },
-    managed_by: {
-        type: Number,
-        required: false,
-    },
-    last_updated_by: {
+    deleted_by: {
         type: Number,
         required: false,
     },
@@ -169,12 +161,12 @@ const salesBooking = new mongoose.Schema({
     timestamps: true
 });
 
-salesBooking.pre('save', async function (next) {
+deletedSalesBookingHistoryData.pre('save', async function (next) {
     if (!this.sale_booking_id) {
-        const salesBookingData = await this.constructor.findOne({}, {}, { sort: { 'sale_booking_id': -1 } });
+        const deletedSalesBookingHistoryData = await this.constructor.findOne({}, {}, { sort: { 'sale_booking_id': -1 } });
 
-        if (salesBookingData && salesBookingData.sale_booking_id) {
-            this.sale_booking_id = salesBookingData.sale_booking_id + 1;
+        if (deletedSalesBookingHistoryData && deletedSalesBookingHistoryData.sale_booking_id) {
+            this.sale_booking_id = deletedSalesBookingHistoryData.sale_booking_id + 1;
         } else {
             this.sale_booking_id = 1;
         }
@@ -182,4 +174,4 @@ salesBooking.pre('save', async function (next) {
     next();
 });
 
-module.exports = mongoose.model('salesBooking', salesBooking);
+module.exports = mongoose.model('deletedSalesBookingHistoryData', deletedSalesBookingHistoryData);

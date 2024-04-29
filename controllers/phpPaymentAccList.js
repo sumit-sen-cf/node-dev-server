@@ -153,6 +153,17 @@ exports.getAccListDataFromCustId = async (req, res) => {
 
 exports.addAccListData = async (req, res) => {
     try {
+        // const title = await phpPaymentAccListModel.findOne({ title: req.body.title })
+        // if (!title) {
+        //     return response.returnFalse(409, req, res, "Title Name is already exist", {});
+        // }
+
+
+        const existingTitle = await phpPaymentAccListModel.findOne({ title: req.body.title });
+        if (existingTitle) {
+            return response.returnFalse(409, req, res, "Title Name already exists", {});
+        }
+        console.log("existingTitle---------------------------------", existingTitle)
         const latestId = await phpPaymentAccListModel.findOne().sort({ id: -1 }).select({ id: 1 });
         const latestSno = await phpPaymentAccListModel.findOne().sort({ sno: -1 }).select({ sno: 1 });
         const latestIdVal = latestId ? latestId.id : 0;

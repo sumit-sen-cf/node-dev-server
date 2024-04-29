@@ -686,16 +686,22 @@ exports.getPageMastList = async (req, res) => {
                 pmspricetypesData: "$pmspricetypesData",
                 exepurchasemodel: "$exepurchasemodelData",
                 execounthismodels: "$execounthismodelsData",
-                PMS_paform_data: {
-                    platform_id: "$pmsplatform._id",
-                    platform_name: "$pmsplatform.platform_name",
-                    description: "$pmsplatform.description",
-                }, PMS_Pagecategories: {
-                    page_catg_id: "$pmspagecategorie._id",
-                    page_category: "$pmspagecategorie.page_category",
-                    description: "$pmspagecategorie.description",
-                    created_by: "$pmspagecategorie.created_by",
-                },
+                //changes------------------------------------------------------------------------------>
+                PMS_paform_data:"$pmsplatform",
+                PMS_Pagecategories: "$pmspagecategorie",
+
+
+                // PMS_paform_data: {
+                //     platform_id: "$pmsplatform._id",
+                //     platform_name: "$pmsplatform.platform_name",
+                //     description: "$pmsplatform.description",
+                // }, 
+                // PMS_Pagecategories: {
+                //     page_catg_id: "$pmspagecategorie._id",
+                //     page_category: "$pmspagecategorie.page_category",
+                //     description: "$pmspagecategorie.description",
+                //     created_by: "$pmspagecategorie.created_by",
+                // },
             },
         }, {
             $group: {

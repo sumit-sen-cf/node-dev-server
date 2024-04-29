@@ -2780,9 +2780,9 @@ exports.deleteAttecndenceData = async (req, res) => {
     }
     const attendanceDataDeleted = await attendanceModel.deleteMany({
       dept: dept,
-       year: year
+      month: month,
+      year: year
     });
-
     if (attendanceDataDeleted.deletedCount === 0) {
       return res.status(404).json({ error: 'No attendance data found for the provided criteria' });
     }
