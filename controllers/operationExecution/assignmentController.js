@@ -248,14 +248,35 @@ exports.getAllPhasesByCampId = catchAsync(async (req, res, next) => {
 exports.getCampCommits = catchAsync(async (req, res, next) => {
     const id = req.params._id;
     const result = await PhaseCommitmentModel.find({campaignId: id});
+
+    const resultnew = await AssignmentModel.aggregate([
+        {
+            $match: { campaignId: id }
+        },
+        {
+            $group: {
+                _id: null,
+                post_likes: { $sum: "$post_like" },
+                post_comments: { $sum: "$post_comment" },
+                post_views: { $sum: "$post_views" }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                post_likes: 1,
+                post_comments: 1,
+                post_views: 1
+            }
+        }
+    ]);
+
     const commitSum = {};
     result.forEach(commitment => {
         const {commitment: type, value} = commitment;
         commitSum[type] = (commitSum[type] || 0) + parseInt(value)
     })
-    res.status(200).json({
-        data: commitSum
-    })
+    res.status(200).json({ commitmentdata: commitSum, completedData: resultnew[0] })
 })
 
 exports.getPhaseCommits = catchAsync(async (req, res, next) => {
