@@ -36,6 +36,8 @@ router.put("/edit_sales_booking/:id", SMS.editSalesBooking);
 router.get("/get_all_sales_booking", SMS.getAllSalesBooking);
 router.get("/get_single_sales_booking/:id", SMS.getSingleSalesBooking);
 router.delete("/delete_sales_booking/:id", SMS.deleteSalesBooking);
+router.get("/get_all_new_deleted_data", SMS.getNewSalesBooking);
+
 
 /**
  * sales booking status routes
