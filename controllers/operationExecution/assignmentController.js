@@ -5,6 +5,7 @@ const AssignmentModel = require('../../models/operationExecution/assignmentModel
 const campaignPlanModel = require('../../models/operationExecution/campaignPlanModel');
 const campaignPhaseModel = require('../../models/operationExecution/campaignPhaseModel')
 const PhasePageModel = require('../../models/operationExecution/phasePageModel')
+const PhaseCommitmentModel = require('../../models/operationExecution/phaseCommitmentModel')
 
 exports.createAssignment = catchAsync(async (req, res, next) => {
     const { ass_to, ass_by, page, ass_status, ass_id } = req.body
@@ -243,3 +244,72 @@ exports.getAllPhasesByCampId = catchAsync(async (req, res, next) => {
         data: result
     })
 })
+
+exports.getCampCommits = catchAsync(async (req, res, next) => {
+    const id = req.params._id;
+    const result = await PhaseCommitmentModel.find({campaignId: id});
+
+    const resultnew = await AssignmentModel.aggregate([
+        {
+            $match: { campaignId: id }
+        },
+        {
+            $group: {
+                _id: null,
+                post_likes: { $sum: "$post_like" },
+                post_comments: { $sum: "$post_comment" },
+                post_views: { $sum: "$post_views" }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                post_likes: 1,
+                post_comments: 1,
+                post_views: 1
+            }
+        }
+    ]);
+
+    const commitSum = {};
+    result.forEach(commitment => {
+        const {commitment: type, value} = commitment;
+        commitSum[type] = (commitSum[type] || 0) + parseInt(value)
+    })
+    res.status(200).json({ commitmentdata: commitSum, completedData: resultnew[0] })
+})
+
+exports.getPhaseCommits = catchAsync(async (req, res, next) => {
+    const id = req.params.phase_id;
+    const result = await AssignmentModel.aggregate([
+        {
+            $match: { phase_id: id }
+        },
+        {
+            $group: {
+                _id: null,
+                post_likes: { $sum: "$post_like" },
+                post_comments: { $sum: "$post_comment" },
+                post_views: { $sum: "$post_views" }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                post_likes: 1,
+                post_comments: 1,
+                post_views: 1
+            }
+        }
+    ]);
+
+    if (result.length === 0) {
+        return res.status(404).json({
+            message: "No data found for the provided phase_id."
+        });
+    }
+
+    res.status(200).json({
+        data: result[0]
+    });
+});
