@@ -580,6 +580,30 @@ exports.salesBookingPaymentRejectedDetailsList = async (req, res) => {
                 preserveNullAndEmptyArrays: true,
             }
         }, {
+            $lookup: {
+                from: "salespaymentmodes",
+                localField: "payment_mode",
+                foreignField: "_id",
+                as: "salespaymentmodesData",
+            },
+        }, {
+            $unwind: {
+                path: "$salespaymentmodesData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "paymentdeatils",
+                localField: "payment_detail_id",
+                foreignField: "_id",
+                as: "paymentdeatil",
+            }
+        }, {
+            $unwind: {
+                path: "$paymentdeatil",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
             $project: {
                 payment_date: 1,
                 sale_booking_id: 1,
@@ -587,8 +611,10 @@ exports.salesBookingPaymentRejectedDetailsList = async (req, res) => {
                 customer_name: "$customermast_data.customer_name",
                 payment_amount: 1,
                 payment_mode: 1,
+                payment_mode_name: "$salespaymentmodesData.payment_mode_name",
                 payment_detail_id: 1,
                 payment_ref_no: 1,
+                payment_screenshot: 1,
                 payment_approval_status: 1,
                 sale_booking_data: {
                     sales_booking_id: "$salesbooking.sale_booking_id",
@@ -597,6 +623,16 @@ exports.salesBookingPaymentRejectedDetailsList = async (req, res) => {
                     base_amount: "$salesbooking.base_amount",
                     created_by: "$salesbooking.created_by",
                     createdAt: "$salesbooking.creation_date",
+                },
+                Payment_Deatils: {
+                    _id: "$paymentdeatil._id",
+                    title: "$paymentdeatil.title",
+                    details: "$paymentdeatil.details",
+                    gst_bank: "$paymentdeatil.gst_bank",
+                    payment_type: "$paymentdeatil.payment_type",
+                    managed_by: "$paymentdeatil.managed_by",
+                    created_by: "$paymentdeatil.created_by",
+                    created_by_name: "$user.user_name",
                 },
                 action_reason: 1,
                 remarks: 1,
@@ -608,6 +644,14 @@ exports.salesBookingPaymentRejectedDetailsList = async (req, res) => {
                     $concat: [imageUrl, "$payment_screenshot"],
                 }
             }
+        }, {
+            $group: {
+                _id: "$_id",
+                data: { $first: "$$ROOT" }
+            }
+        }, {
+            $replaceRoot: { newRoot: "$data" }
+
         }]);
         if (salesBookingPaymentListData) {
             return res.status(200).json({
