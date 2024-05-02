@@ -34,8 +34,13 @@ const salesBooking = new mongoose.Schema({
     },
     credit_approval_status: {
         type: String,
-        enum: ['manager_pending', 'manager_approved', 'manager_rejected', 'admin_pending',
-            'admin_approved', 'admin_rejected', 'self_credit_used'],//0-6
+        enum: ['pending', 'approved', 'rejected', 'self_credit_used'],
+        // enum: ['manager_pending', 'manager_approved', 'manager_rejected', 'admin_pending',
+        //     'admin_approved', 'admin_rejected', 'self_credit_used'],//0-6
+    },
+    credit_approval_by: {
+        type: Number,
+        required: false,
     },
     reason_credit_approval: {
         type: mongoose.Schema.Types.ObjectId,
@@ -55,7 +60,8 @@ const salesBooking = new mongoose.Schema({
     },
     tds_status: {
         type: String,
-        enum: ['open', 'close', 'tds_verified']//0-2
+        enum: ['open', 'close', 'tds_verified'],//0-2
+        default: 'open'
     },
     Booking_close_date: {
         type: Date,
@@ -89,7 +95,6 @@ const salesBooking = new mongoose.Schema({
     booking_status: {
         type: Number,//refers to the sales booking status model
         required: false,
-        // default: 0,
         ref: "salesBookingStatus"
     },
     incentive_sharing_user_id: {
@@ -120,6 +125,7 @@ const salesBooking = new mongoose.Schema({
     sale_booking_type: {
         type: String,
         enum: ['normal_booking', 'renewed_booking'],   //0=normal booking, 1=renewed_booking
+        default: 'normal_booking'
     },
     service_taken_amount: {
         type: Number,

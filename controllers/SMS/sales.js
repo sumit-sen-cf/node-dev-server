@@ -212,6 +212,18 @@ exports.getAllSalesBooking = async (req, res) => {
                     preserveNullAndEmptyArrays: true,
                 },
             }, {
+                $lookup: {
+                    from: "salesbookingstatuses",
+                    localField: "booking_status",
+                    foreignField: "status_id",
+                    as: "salesBookingStatusData",
+                }
+            }, {
+                $unwind: {
+                    path: "$salesBookingStatusData",
+                    preserveNullAndEmptyArrays: true,
+                }
+            }, {
                 $project: {
                     customer_id: 1,
                     customer_name: "$customermastsData.customer_name",
@@ -233,6 +245,7 @@ exports.getAllSalesBooking = async (req, res) => {
                     incentive_status: 1,
                     payment_credit_status: 1,
                     booking_status: 1,
+                    booking_status_name: "$salesBookingStatusData.status_name",
                     incentive_sharing_user_id: 1,
                     incentive_sharing_percent: 1,
                     bad_debt: 1,
@@ -478,7 +491,7 @@ exports.getNewSalesBooking = async (req, res) => {
         }
 
         //success response send
-        return response.returnTrue(200, req, res, "Sales Booking all data fatched Successfully", newDeleteSalesBokingData);
+        return response.returnTrue(200, req, res, "deleted Sales Booking all data fatched Successfully", newDeleteSalesBokingData);
     } catch (error) {
         return res.status(500).json({
             message: error.message ? error.message : message.ERROR_MESSAGE,
@@ -493,7 +506,7 @@ exports.addSalesBookingStatus = async (req, res) => {
     try {
         //salesBookingStatus data obj create 
         const simc = new salesBookingStatus({
-            status_name: salesBookingData.status_name,
+            status_name: req.body.status_name,
             status_desc: req.body.status_desc,
             status_type: req.body.status_type,
             status_order: req.body.status_order
