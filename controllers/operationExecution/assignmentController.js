@@ -225,8 +225,8 @@ exports.getcampaignWiseCountsData = async (req, res) => {
 exports.getAllAssignmentsFromPhaseId = catchAsync(async (req, res, next) => {
     const id = Number(req.params.phase_id);
     const result = await AssignmentModel.find({ phase_id: id });
-    if(result.length == 0){
-        return res.status(404).json({data:[],sms:'no data found from this phase id'})
+    if (result.length == 0) {
+        return res.status(404).json({ data: [], sms: 'no data found from this phase id' })
     }
     res.status(200).json({
         data: result
@@ -235,10 +235,10 @@ exports.getAllAssignmentsFromPhaseId = catchAsync(async (req, res, next) => {
 
 exports.getAllPhasesByCampId = catchAsync(async (req, res, next) => {
     const id = req.params._id;
-    const result = await campaignPhaseModel.find({campaignId: id});
+    const result = await campaignPhaseModel.find({ campaignId: id });
     // const result = await AssignmentModel.find({ phase_id: id });
-    if(result.length == 0){
-        return res.status(404).json({data:[],sms:'no data found from this campaign id'})
+    if (result.length == 0) {
+        return res.status(404).json({ data: [], sms: 'no data found from this campaign id' })
     }
     res.status(200).json({
         data: result
@@ -247,7 +247,7 @@ exports.getAllPhasesByCampId = catchAsync(async (req, res, next) => {
 
 exports.getCampCommits = catchAsync(async (req, res, next) => {
     const id = req.params._id;
-    const result = await PhaseCommitmentModel.find({campaignId: id});
+    const result = await PhaseCommitmentModel.find({ campaignId: id });
 
     const resultnew = await AssignmentModel.aggregate([
         {
@@ -273,7 +273,7 @@ exports.getCampCommits = catchAsync(async (req, res, next) => {
 
     const commitSum = {};
     result.forEach(commitment => {
-        const {commitment: type, value} = commitment;
+        const { commitment: type, value } = commitment;
         commitSum[type] = (commitSum[type] || 0) + parseInt(value)
     })
     res.status(200).json({ commitmentdata: commitSum, completedData: resultnew[0] })
@@ -312,4 +312,39 @@ exports.getPhaseCommits = catchAsync(async (req, res, next) => {
     res.status(200).json({
         data: result[0]
     });
+});
+
+exports.getAllExePhasesByCampId = catchAsync(async (req, res, next) => {
+    const id = req.params._id;
+    const result = await AssignmentModel.find({ campaignId: id });
+    // const result = await AssignmentModel.find({ phase_id: id });
+    if (result.length == 0) {
+        return res.status(404).json({ data: [], sms: 'no data found from this campaign id' })
+    }
+    res.status(200).json({
+        data: result
+    })
+});
+
+exports.getShiftPhases = catchAsync(async (req, res, next) => {
+    const id = req.body._id;
+    const result = await campaignPhaseModel.find({ campaignId: id });
+    if (result.length == 0) {
+        return res.status(404).json({ data: [], sms: 'no data found from this campaign id' })
+    }
+
+    const { phaseId1, phaseId2 } = req.body;
+
+    const phase1 = result.find(phase => phase.phase_id === phaseId1);
+    const phase2 = result.find(phase => phase.phase_id === phaseId2);
+
+    if (!phase1 || !phase2) {
+        return res.status(404).json({ message: 'One or both phases not found' });
+    }
+
+    const tempCampaignName = phase1.campaignName;
+    phase1.campaignName = phase2.campaignName;
+    phase2.campaignName = tempCampaignName;
+
+    res.status(200).json({ data: result });
 });

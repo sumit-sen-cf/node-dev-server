@@ -137,6 +137,130 @@ exports.createReplacementPlan = catchAsync(async (req, res, next) => {
 
 })
 
+exports.createReplacementPlanNew = catchAsync(async (req, res, next) => {
+    //????validation check if request is already made
+
+
+    //extracting data from the body
+    const { planName,
+        campaignId,
+
+        replacement_request_by,
+        pages,
+        oldPage_id,
+        newPage_id,
+        campaignName,
+        phase_id,
+        phaseName
+
+    } = req.body
+
+    //checking if request is already made fot the old page
+    const validation = await pageReplacementRecordModel.findOne({
+        campaignId,
+        replacement_request_by,
+        oldPage_id,
+        newPage_id,
+        campaignName
+    })
+
+    if (validation) {
+        return next(new appError(404, "replacement request already made"))
+    }
+
+    //createing a data const for the replacement creation
+    const dataReplacement =
+    {
+        replacement_stage,
+        planName,
+        campaignId,
+        campaignName,
+        replacement_request_by,
+        newPage_id,
+        oldPage_id,
+    }
+
+    const replacementRecord = await pageReplacementRecordModel.create(dataReplacement)
+    // console.log("replacementRecord", replacementRecord)
+
+
+    //creating the new pages respective of the stages.
+    let newPages = []
+    const phasePages = await PhasePageModel.find({ p_id: oldPage_id, campaignId })
+
+    const allPhases = await CampaignPhaseModel.find({ campaignId: campaignId })
+
+    pages.forEach(async page => {
+
+        const newPageData = {
+            planName,
+            campaignId,
+            replacement_status: 'active',
+            campaignName,
+            postRemaining: page.postPerPage,
+            replacement_id: replacementRecord._id,
+            ...page
+
+        }
+
+        //if the request is made at the plan level , this is true for all the stages
+        //doesnt mattter at which stage the request is made creating new page at plan levvel is always true
+
+        const newPage = await CampaignPlanModel.create(newPageData)
+
+        phasePages.forEach(async page => {
+            const phasenewpage = await PhasePageModel.create({ ...newPageData, phase_id: page.phase_id, phaseName: page.phaseName })
+        })
+
+
+
+    });
+
+
+    //updating the old page and changing its status to pending , again the if the request is made at plan level and 
+    //phase level are observed and updating the page at respective level
+
+    const oldPageUpdate = await CampaignPlanModel.findOneAndUpdate({ "p_id": oldPage_id, "campaignId": campaignId }, {
+        replacement_status: 'pending',
+        replacement_id: replacementRecord._id,
+    }, { new: true })
+
+    // console.log("oldPageUpdate", oldPageUpdate);
+
+    for (let i = 0; i < allPhases.length; i++) {
+        //2. effect at phase level
+
+        const pageExist = await PhasePageModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: oldPage_id },
+            {
+                replacement_status: "pending",
+                replacement_id: replacementRecord._id
+            }, { new: true })
+
+        //3. at assignment level
+
+        // const assignmentExist = await AssignmentModel.findOneAndUpdate({ phase_id: allPhases[i].phase_id, p_id: oldPage_id },
+        //     {
+        //         replacement_status: "pending",
+        //         replacement_stage,
+        //         replacement_id: replacementRecord._id
+        //     }, { new: true })
+
+        // // }
+        // console.log(assignmentExist)
+    }
+
+    res.status(200).json({
+        data: {
+
+            newPages, replacementRecord, oldPageUpdate
+        }
+    })
+
+
+
+
+})
+
 exports.replacementStatus = catchAsync(async (req, res, next) => {
     //getting the data from frontend
     const { status, replacementRecord, approved_by } = req.body

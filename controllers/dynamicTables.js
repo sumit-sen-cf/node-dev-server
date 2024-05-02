@@ -36,25 +36,53 @@ exports.getSingleDynamicTablesData = async (req, res) => {
 };
 
 
+// exports.editDynamicTablesData = async (req, res) => {
+//     try {
+//         const editDynamicData = await dynamicTablesModel.findOneAndUpdate(
+//             { user_id: req.body.user_id, table_name: req.body.table_name },
+//             {
+//                 column_order_Obj: req.body.column_order_Obj,
+//             },
+//             { new: true }
+//         );
+//         if (!editDynamicData) {
+//             return response.returnFalse(
+//                 200,
+//                 req,
+//                 res,
+//                 "No Reord Found ",
+//                 {}
+//             );
+//         }
+//         return response.returnTrue(200, req, res, "Updation Successfully", editDynamicData);
+//     } catch (err) {
+//         return response.returnFalse(500, req, res, err.message, {});
+//     }
+// };
+
+
 exports.editDynamicTablesData = async (req, res) => {
     try {
+        const filter = { user_id: req.body.user_id, table_name: req.body.table_name };
+        const update = { column_order_Obj: req.body.column_order_Obj, filter_array: req.body.filter_array };
+        const options = { new: true, upsert: true };
         const editDynamicData = await dynamicTablesModel.findOneAndUpdate(
-            { user_id: req.body.user_id, table_name: req.body.table_name },
-            {
-                column_order_Obj: req.body.column_order_Obj,
-            },
-            { new: true }
+            filter,
+            update,
+            options
         );
+
         if (!editDynamicData) {
             return response.returnFalse(
                 200,
                 req,
                 res,
-                "No Reord Found ",
+                "No Record Found",
                 {}
             );
         }
-        return response.returnTrue(200, req, res, "Updation Successfully", editDynamicData);
+
+        return response.returnTrue(200, req, res, "Updation Successful", editDynamicData);
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
