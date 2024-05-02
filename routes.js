@@ -222,8 +222,10 @@ router.put('/assignment/post/details/update', assignmentController.updatePostDet
 router.post('/assignment/campaign/dashboard', assignmentDashboardController.AssignmentDashCampaign)
 router.get('/assignment/get_all_phases/:phase_id', assignmentController.getAllAssignmentsFromPhaseId)
 router.get('/assignment/get_all_phases_by_campid/:_id', assignmentController.getAllPhasesByCampId)
+router.get('/assignment/get_all_exe_phases_by_campid/:_id', assignmentController.getAllExePhasesByCampId);
 router.get('/assignment/get_camp_commitments/:_id', assignmentController.getCampCommits)
 router.get('/assignment/get_phase_commitments/:phase_id', assignmentController.getPhaseCommits)
+router.post('/assignment/get_shift_phases', assignmentController.getShiftPhases)
 
 router.post('/assignment/commit', assignmentCommitController.createAssComm)
 router.post('/assignment/bulk', assignmentController.createAssignmentBulk)
@@ -239,6 +241,7 @@ router.post('/operation_phase_dashboard', operationDasboard.phaseDashboard)
 router.post('/operation_plan_dashboard', operationDasboard.planDashboard)
 
 router.post('/replacement/plan', pageReplacementController.createReplacementPlan)
+router.post('/replacement/campexe/new', pageReplacementController.createReplacementPlanNew)
 router.get('/replacement/plan', pageReplacementController.getAllRecord)
 router.get('/replacement/:id', pageReplacementController.getSingleRecord)
 router.post('/replacement/status', pageReplacementController.replacementStatus)
