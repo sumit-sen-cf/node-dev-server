@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const salesBookingPaymentModel = require("../../models/SMS/salesBookingPaymentModel");
 const multer = require("multer");
 const vari = require("../../variables.js");
-const { storage } = require('../../common/uploadFile.js')
+const { storage } = require('../../common/uploadFile.js');
+const salesBooking = require("../../models/SMS/salesBooking.js");
 
 const upload = multer({
     storage: multer.memoryStorage()

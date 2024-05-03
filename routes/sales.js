@@ -37,6 +37,7 @@ router.get("/get_all_sales_booking", SMS.getAllSalesBooking);
 router.get("/get_single_sales_booking/:id", SMS.getSingleSalesBooking);
 router.delete("/delete_sales_booking/:id", SMS.deleteSalesBooking);
 router.get("/get_all_new_deleted_data", SMS.getNewSalesBooking);
+router.get("/get_all_list_sales_booking/:id", SMS.getSalesBookingPaymentDetail);
 
 
 /**
