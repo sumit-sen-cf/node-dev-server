@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -201,4 +201,91 @@
       </tbody>
     </table>
   </body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, 
+		initial-scale=1.0">
+</head>
+
+<body
+    style="
+    padding: 50px;
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+ <div style="text-align: center;">
+    <h3 style="color: black;">
+        Joining Day
+
+    </h3>
+
+
+    <div style="color: #374151; font-size: 13px; font-weight: 500; text-align: left;">
+
+        <p>⏰ Today's the Day! 🚀 Welcome to Creativefuel, <%=name%>!
+
+
+        </p>
+        <p>Dear <%=name%>
+        </p>
+        <p>🎉 It's finally here. Get ready to join the Creativefuel team and dive into the world of memes and magic.
+        </p>
+        <p>Remember to arrive by 11:30 P.M. sharp. We can't wait to kick start this adventure with you!
+
+        </p>
+        <p>Your schedule for the day is planned as follows:
+
+        </p>
+
+        <p>
+            <span style="font-weight: 700;">11:30 AM </span>- Get ready for the excitement as you step into the office.
+
+        </p>
+        <p>
+            <span style="font-weight: 700;">12:00 Noon</span> - Paperwork time with a side of office trivia.
+
+
+        </p>
+        <p> <span style="font-weight: 700;">1:00 PM </span>- Time to dive deep into our company culture with an
+            Induction session.
+
+        </p>
+        <p> <span style="font-weight: 700;">2:00 PM </span>- Enjoy lunch and refuel yourself for the journey ahead. </p>
+        <p> <span style="font-weight: 700;">3:30 PM </span>- Code of Conduct training: Learn the do’s and don’ts, meme
+            style.</p>
+        <p> <span style="font-weight: 700;">5:30 PM </span> - Feedback Fiesta! Let’s hear your thoughts in the most
+            meme-orable way possible.</p>
+        <p> <span style="font-weight: 700;">6:00 PM </span>- Clock out! Carry those memes with you and bring new
+            ones tomorrow!</p>
+
+        <p> P.S. Questions? Don't hesitate to ask - we're here to help!</p>
+        <p> Welcome to the CF crew! Let's make today legendary!</p>
+
+
+        <p>Warm regards,
+        </p>
+        <p>
+            Human Resources
+
+        </p>
+    </div>
+</div>
+
+    <script>
+        let name = '<%-name%>'
+        let heading = document
+            .getElementById('text_from_script');
+
+        heading.innerText = name;
+        name = "Mr. " + name;
+        let heading_man = document.getElementById(
+            'text_from_script_manipulated');
+        heading_man.innerText = name; 
+    </script>
+</body>
+
 </html>

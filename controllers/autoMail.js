@@ -13,6 +13,10 @@ var transporter = nodemailer.createTransport({
   auth: {
     user: "onboarding@creativefuel.io",
     pass: "zboiicwhuvakthth",
+
+    // user: "ankigupta1254@gmail.com",
+    // pass: "ptxbqtjmcaghogcg",
+
   },
 });
 
@@ -83,6 +87,7 @@ async function sendWhatsappSms(daysBefore) {
 
 
 async function sendReminderEmail(daysBefore) {
+  console.log("ddddddddddddddddd");
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + daysBefore);
   const year = currentDate.getFullYear();
@@ -92,7 +97,7 @@ async function sendReminderEmail(daysBefore) {
   console.log("formattedDate", formattedDate)
 
   const users = await userModel.find({ joining_date: formattedDate });
-  console.log("users", users);
+  console.log("usrs", users);
 
   users.forEach(async (user) => {
 
@@ -100,6 +105,7 @@ async function sendReminderEmail(daysBefore) {
     const template = await fs.promises.readFile(templatePath, "utf-8");
     const name = user.user_name;
     const html = ejs.render(template, { name });
+    console.log("html", html);
 
     /* dynamic email temp code start */
     // let contentList = await emailTempModel.findOne({ email_for_id: '65be340cad52cfd11fa27e50', send_email: true })
@@ -142,6 +148,7 @@ async function sendReminderEmail(daysBefore) {
       html: html
     };
     transporter.sendMail(mailOptions, (error, info) => {
+      console.log("info", info);
       if (error) {
         console.log('Error sending email:', error);
       } else {
