@@ -227,7 +227,19 @@ const exeSumModel = new mongoose.Schema({
     start_date: {
         type: Date,
         default: ""
-    }
+    },
+    execution_token: {
+        type: String,
+        required: false
+    },
+    brand_name: {
+        type: String,
+        required: false
+    },
+    record_service_campaign_name: {
+        type: String,
+        required: false
+    },
 });
 
 exeSumModel.pre('save', async function (next) {

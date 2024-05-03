@@ -239,6 +239,7 @@ exports.getAllSalesBooking = async (req, res) => {
                     bad_debt_reason: 1,
                     no_badge_achivement: 1,
                     old_sale_booking_id: 1,
+                    sale_booking_id: 1,
                     sale_booking_type: 1,
                     service_taken_amount: 1,
                     get_incentive_status: 1,
@@ -274,22 +275,106 @@ exports.getAllSalesBooking = async (req, res) => {
  * Api is to get Id sales booking data from DB collection.
  */
 exports.getSingleSalesBooking = async (req, res) => {
+
     try {
-        //get data by id
-        const SalesBookingData = await salesBooking.findOne({
-            _id: req.params.id,
-        });
-
-        //if not found then error return
-        if (!SalesBookingData) {
-            return response.returnFalse(200, req, res, "No Reord Found...", []);
+        const salesBookingGetData = await salesBooking.aggregate([
+            {
+                $match: {
+                    sale_booking_id: Number(req.params.id)
+                }
+            }, {
+                $lookup: {
+                    from: "customermasts",
+                    localField: "customer_id",
+                    foreignField: "customer_id",
+                    as: "customermast_data",
+                },
+            }, {
+                $unwind: {
+                    path: "$customermast_data",
+                    preserveNullAndEmptyArrays: true,
+                },
+            }, {
+                $project: {
+                    customer_id: 1,
+                    sale_booking_date: 1,
+                    campaign_amount: 1,
+                    base_amount: 1,
+                    gst_amount: 1,
+                    description: 1,
+                    credit_approval_status: 1,
+                    reason_credit_approval: 1,
+                    reason_credit_approval_own_reason: 1,
+                    balance_payment_ondate: 1,
+                    gst_status: 1,
+                    tds_status: 1,
+                    Booking_close_date: 1,
+                    tds_verified_amount: 1,
+                    tds_verified_remark: 1,
+                    booking_remarks: 1,
+                    incentive_status: 1,
+                    payment_credit_status: 1,
+                    booking_status: 1,
+                    incentive_sharing_user_id: 1,
+                    incentive_sharing_percent: 1,
+                    bad_debt: 1,
+                    bad_debt_reason: 1,
+                    no_badge_achivement: 1,
+                    old_sale_booking_id: 1,
+                    sale_booking_id: 1,
+                    sale_booking_type: 1,
+                    service_taken_amount: 1,
+                    get_incentive_status: 1,
+                    incentive_amount: 1,
+                    earned_incentive_amount: 1,
+                    unearned_incentive_amount: 1,
+                    payment_type: 1,
+                    final_invoice: 1,
+                    created_by: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    CustomerMast_data: {
+                        _id: "$customermast_data._id",
+                        customer_name: "$customermast_data.customer_name",
+                        customer_id: "$customermast_data.customer_id"
+                    }
+                },
+            },
+        ])
+        if (salesBookingGetData) {
+            return res.status(200).json({
+                status: 200,
+                message: "Sales booking all payment details successfully!",
+                data: salesBookingGetData,
+            });
         }
-
-        //success response send
-        return response.returnTrue(200, req, res, "Sales Booking Id data fatched Successfully", SalesBookingData);
-    } catch (err) {
-        return response.returnFalse(500, req, res, err.message, {});
+        return res.status(404).json({
+            status: 404,
+            message: message.DATA_NOT_FOUND,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
     }
+    //try {
+
+    //     //get data by id
+    //     const SalesBookingData = await salesBooking.findOne({
+    //         sale_booking_id: Number(req.params.id)
+    //     });
+
+    //     //if not found then error return
+    //     if (!SalesBookingData) {
+    //         return response.returnFalse(200, req, res, "No Reord Found...", []);
+    //     }
+
+    //     //success response send
+    //     return response.returnTrue(200, req, res, "Sales Booking Id data fatched Successfully", SalesBookingData);
+    // } catch (err) {
+    //     return response.returnFalse(500, req, res, err.message, {});
+    // }
 };
 
 /**
@@ -508,3 +593,91 @@ exports.addSalesBookingStatus = async (req, res) => {
     }
 };
 
+
+exports.getSalesBookingPaymentDetail = async (req, res) => {
+    try {
+        const salesBookingGetData = await salesBooking.aggregate([
+            {
+                $match: {
+                    sale_booking_id: Number(req.params.id)
+                }
+            },
+            {
+                $lookup: {
+                    from: "customermasts",
+                    localField: "customer_id",
+                    foreignField: "customer_id",
+                    as: "customermast_data",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$customermast_data",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    customer_id: 1,
+                    sale_booking_date: 1,
+                    campaign_amount: 1,
+                    base_amount: 1,
+                    gst_amount: 1,
+                    description: 1,
+                    credit_approval_status: 1,
+                    reason_credit_approval: 1,
+                    reason_credit_approval_own_reason: 1,
+                    balance_payment_ondate: 1,
+                    gst_status: 1,
+                    tds_status: 1,
+                    Booking_close_date: 1,
+                    tds_verified_amount: 1,
+                    tds_verified_remark: 1,
+                    booking_remarks: 1,
+                    incentive_status: 1,
+                    payment_credit_status: 1,
+                    booking_status: 1,
+                    incentive_sharing_user_id: 1,
+                    incentive_sharing_percent: 1,
+                    bad_debt: 1,
+                    bad_debt_reason: 1,
+                    no_badge_achivement: 1,
+                    old_sale_booking_id: 1,
+                    sale_booking_id: 1,
+                    sale_booking_type: 1,
+                    service_taken_amount: 1,
+                    get_incentive_status: 1,
+                    incentive_amount: 1,
+                    earned_incentive_amount: 1,
+                    unearned_incentive_amount: 1,
+                    payment_type: 1,
+                    final_invoice: 1,
+                    created_by: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    CustomerMast_data: {
+                        _id: "$customermast_data._id",
+                        customer_name: "$customermast_data.customer_name",
+                        customer_id: "$customermast_data.customer_id"
+                    }
+                },
+            },
+        ])
+        if (salesBookingGetData) {
+            return res.status(200).json({
+                status: 200,
+                message: "Sales booking all payment details successfully!",
+                data: salesBookingGetData,
+            });
+        }
+        return res.status(404).json({
+            status: 404,
+            message: message.DATA_NOT_FOUND,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+}

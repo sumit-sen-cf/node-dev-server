@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const salesBookingPaymentModel = require("../../models/SMS/salesBookingPaymentModel");
 const multer = require("multer");
 const vari = require("../../variables.js");
-const { storage } = require('../../common/uploadFile.js')
+const { storage } = require('../../common/uploadFile.js');
+const salesBooking = require("../../models/SMS/salesBooking.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -430,11 +431,296 @@ exports.deleteSalesBookingPaymentDetails = async (req, res) => {
             message: "Sales booking payment details data deleted successfully!",
         });
     } catch (error) {
-        {
-            return res.status(500).json({
-                status: 500,
-                message: error.message ? error.message : message.ERROR_MESSAGE,
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+}
+
+
+/**
+ * Api is to used for the sales_booking_payment_list pending data from the DB collection.
+*/
+exports.salesBookingPaymentPendingDetailsList = async (req, res) => {
+    try {
+        const imageUrl = vari.IMAGE_URL;
+        const salesBookingPaymentListData = await salesBookingPaymentModel.aggregate([{
+            $match: {
+                payment_approval_status: "pending"
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "created_by",
+                foreignField: "user_id",
+                as: "user",
+            }
+        }, {
+            $unwind: {
+                path: "$user",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "customermasts",
+                localField: "customer_id",
+                foreignField: "customer_id",
+                as: "customermast_data",
+            }
+        }, {
+            $unwind: {
+                path: "$customermast_data",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "salesbookings",
+                localField: "sale_booking_id",
+                foreignField: "sale_booking_id",
+                as: "salesbooking",
+            }
+        }, {
+            $unwind: {
+                path: "$salesbooking",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                payment_date: 1,
+                sale_booking_id: 1,
+                customer_id: 1,
+                customer_name: "$customermast_data.customer_name",
+                payment_amount: 1,
+                payment_mode: 1,
+                payment_detail_id: 1,
+                payment_ref_no: 1,
+                payment_approval_status: 1,
+                sale_booking_data: {
+                    sales_booking_id: "$salesbooking.sale_booking_id",
+                    sale_booking_date: "$salesbooking.sale_booking_date",
+                    campaign_amount: "$salesbooking.campaign_amount",
+                    base_amount: "$salesbooking.base_amount",
+                    created_by: "$salesbooking.created_by",
+                    createdAt: "$salesbooking.creation_date",
+                },
+                action_reason: 1,
+                remarks: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                created_by: 1,
+                created_by_name: "$user.user_name",
+                payment_screenshot: {
+                    $concat: [imageUrl, "$payment_screenshot"],
+                }
+            }
+        }]);
+        if (salesBookingPaymentListData) {
+            return res.status(200).json({
+                status: 200,
+                message: "Sales booking pending payment details list successfully!",
+                data: salesBookingPaymentListData,
             });
         }
+        return res.status(404).json({
+            status: 404,
+            message: message.DATA_NOT_FOUND,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+}
+
+/**
+ * Api is to used for the sales_booking_payment_list Rejected data from the DB collection.
+*/
+exports.salesBookingPaymentRejectedDetailsList = async (req, res) => {
+    try {
+        const imageUrl = vari.IMAGE_URL;
+        const salesBookingPaymentListData = await salesBookingPaymentModel.aggregate([{
+            $match: {
+                payment_approval_status: 'reject'
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "created_by",
+                foreignField: "user_id",
+                as: "user",
+            }
+        }, {
+            $unwind: {
+                path: "$user",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "customermasts",
+                localField: "customer_id",
+                foreignField: "customer_id",
+                as: "customermast_data",
+            }
+        }, {
+            $unwind: {
+                path: "$customermast_data",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "salesbookings",
+                localField: "sale_booking_id",
+                foreignField: "sale_booking_id",
+                as: "salesbooking",
+            }
+        }, {
+            $unwind: {
+                path: "$salesbooking",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "salespaymentmodes",
+                localField: "payment_mode",
+                foreignField: "_id",
+                as: "salespaymentmodesData",
+            },
+        }, {
+            $unwind: {
+                path: "$salespaymentmodesData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "paymentdeatils",
+                localField: "payment_detail_id",
+                foreignField: "_id",
+                as: "paymentdeatil",
+            }
+        }, {
+            $unwind: {
+                path: "$paymentdeatil",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                payment_date: 1,
+                sale_booking_id: 1,
+                customer_id: 1,
+                customer_name: "$customermast_data.customer_name",
+                payment_amount: 1,
+                payment_mode: 1,
+                payment_mode_name: "$salespaymentmodesData.payment_mode_name",
+                payment_detail_id: 1,
+                payment_ref_no: 1,
+                payment_screenshot: 1,
+                payment_approval_status: 1,
+                sale_booking_data: {
+                    sales_booking_id: "$salesbooking.sale_booking_id",
+                    sale_booking_date: "$salesbooking.sale_booking_date",
+                    campaign_amount: "$salesbooking.campaign_amount",
+                    base_amount: "$salesbooking.base_amount",
+                    created_by: "$salesbooking.created_by",
+                    createdAt: "$salesbooking.creation_date",
+                },
+                Payment_Deatils: {
+                    _id: "$paymentdeatil._id",
+                    title: "$paymentdeatil.title",
+                    details: "$paymentdeatil.details",
+                    gst_bank: "$paymentdeatil.gst_bank",
+                    payment_type: "$paymentdeatil.payment_type",
+                    managed_by: "$paymentdeatil.managed_by",
+                    created_by: "$paymentdeatil.created_by",
+                    created_by_name: "$user.user_name",
+                },
+                action_reason: 1,
+                remarks: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                created_by: 1,
+                created_by_name: "$user.user_name",
+                payment_screenshot: {
+                    $concat: [imageUrl, "$payment_screenshot"],
+                }
+            }
+        }, {
+            $group: {
+                _id: "$_id",
+                data: { $first: "$$ROOT" }
+            }
+        }, {
+            $replaceRoot: { newRoot: "$data" }
+
+        }]);
+        if (salesBookingPaymentListData) {
+            return res.status(200).json({
+                status: 200,
+                message: "Sales booking Rejected payment details list fetch successfully!",
+                data: salesBookingPaymentListData
+            });
+        }
+        return res.status(404).json({
+            status: 404,
+            message: message.DATA_NOT_FOUND,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+}
+
+
+exports.getSalesBookingData = async (req, res) => {
+    try {
+        const salesBookingData = await salesBookingPaymentModel.aggregate([
+            {
+                $match: { _id: mongoose.Types.ObjectId(req.params.id) },
+            },
+            {
+                $lookup: {
+                    from: "salesbookings",
+                    localField: "sale_booking_id",
+                    foreignField: "sale_booking_id",
+                    as: "salesbooking",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$salesbooking",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    payment_amount: 1,
+                    payment_approval_status: 1,
+                    campaign_amount: "$salesbooking.campaign_amount",
+                }
+            }
+        ]);
+        for (const data of salesBookingData) {
+            const remainingAmountToPay = data.campaign_amount - data.payment_amount;
+            if (remainingAmountToPay < data.payment_amount) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "Payment amount cannot exceed remaining amount to be paid",
+                });
+            }
+            data.remainingAmountToPay = remainingAmountToPay;
+        }
+        return res.status(200).json({
+            status: 200,
+            data: salesBookingData,
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : "Internal server error",
+        });
     }
 }

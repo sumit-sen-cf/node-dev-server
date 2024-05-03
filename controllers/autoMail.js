@@ -80,14 +80,16 @@ async function sendWhatsappSms(daysBefore) {
   })
 }
 
+
+
 async function sendReminderEmail(daysBefore) {
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + daysBefore);
-
   const year = currentDate.getFullYear();
   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
   const day = String(currentDate.getDate()).padStart(2, '0');
   const formattedDate = `${year}-${month}-${day}T00:00:00.000+00:00`;
+  console.log("formattedDate", formattedDate)
 
   const users = await userModel.find({ joining_date: formattedDate });
   console.log("users", users);
@@ -125,6 +127,7 @@ async function sendReminderEmail(daysBefore) {
 
     let mailOptions = {
       from: "onboarding@creativefuel.io",
+
       to: user.user_email_id,
       subject:
         daysBefore === 0

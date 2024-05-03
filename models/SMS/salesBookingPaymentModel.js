@@ -18,8 +18,9 @@ const salesBookingPayment = new Schema({
         required: false
     },
     payment_mode: {
-        type: String,
-        required: false
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: "salespaymentmodes"
     },
     payment_detail_id: {
         type: Schema.Types.ObjectId,
@@ -61,7 +62,7 @@ const salesBookingPayment = new Schema({
         required: false,
         default: 0
     }
-},
-    { timestamps: true },
-);
+}, {
+    timestamps: true
+});
 module.exports = mongoose.model('salesBookingPayment', salesBookingPayment);

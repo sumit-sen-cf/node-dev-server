@@ -6,7 +6,7 @@ const paymentDeatils = new Schema({
         type: String,
         required: false
     },
-    details: {
+    details: {                  //bank_details
         type: String,
         required: false
     },

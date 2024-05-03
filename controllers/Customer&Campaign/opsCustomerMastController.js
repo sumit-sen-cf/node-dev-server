@@ -125,6 +125,20 @@ exports.getCustomerMastDetail = async (req, res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "customertypes",
+                    localField: "customer_type_id",
+                    foreignField: "_id",
+                    as: "customertype",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$customertype",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     customer_type_id: 1,
                     account_type_id: 1,
@@ -160,6 +174,7 @@ exports.getCustomerMastDetail = async (req, res) => {
                     created_by: 1,
                     created_by_name: "$user.user_name",
                     last_updated_by: 1,
+                    customer_type_name: "$customertype.customer_type_name",
                     pan_upload: {
                         $concat: [imageUrl, "$pan_upload"],
                     },

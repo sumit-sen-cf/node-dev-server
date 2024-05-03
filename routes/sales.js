@@ -37,6 +37,7 @@ router.get("/get_all_sales_booking", SMS.getAllSalesBooking);
 router.get("/get_single_sales_booking/:id", SMS.getSingleSalesBooking);
 router.delete("/delete_sales_booking/:id", SMS.deleteSalesBooking);
 router.get("/get_all_new_deleted_data", SMS.getNewSalesBooking);
+router.get("/get_all_list_sales_booking/:id", SMS.getSalesBookingPaymentDetail);
 
 
 /**
@@ -63,6 +64,10 @@ router.get("/get_sales_booking_payment/:id", salesBookingPayment.getSalesBooking
 router.put("/update_sales_booking_payment/:id", salesBookingPayment.updateSalesBookingPaymentDeatil);
 router.get("/getlist_sales_booking_payment", salesBookingPayment.salesBookingPaymentDetailsList);
 router.delete("/delete_sales_booking_payment_details/:id", salesBookingPayment.deleteSalesBookingPaymentDetails);
+router.get("/get_sales/:id", salesBookingPayment.getSalesBookingData);
+
+router.get("/getAll_pending_sales_booking_payment_list", salesBookingPayment.salesBookingPaymentPendingDetailsList);
+router.get("/getAll_rejected_sales_booking_payment_list", salesBookingPayment.salesBookingPaymentRejectedDetailsList);
 
 /**
  * sales invoice particular routes
@@ -220,28 +225,28 @@ router.delete("/delete_sales_incentive_settelment_gst/:id", salesIncentiveSettel
 /**
  * sales incentive settelment non gst request routes
  */
-router.post("/add_sales_incentive_settelment_non_gst",salesIncentiveSettelmentNonGst.createSalesIncentiveSettelmentNonGst);
-router.get("/get_sales_incentive_settelment_non_gst/:id",salesIncentiveSettelmentNonGst.getSalesIncentiveSettelmentNonGstDetail);
-router.put("/update_sales_incentive_settelment_non_gst/:id",salesIncentiveSettelmentNonGst.updateSalesIncentiveNonGst);
-router.get("/getlist_sales_incentive_settelment_non_gst",salesIncentiveSettelmentNonGst.getSalesIncentiveSettelmentNonGstList);
-router.delete("/delete_sales_incentive_settelment_non_gst",salesIncentiveSettelmentNonGst.deleteSalesIncentiveSettelmentNonGst);
+router.post("/add_sales_incentive_settelment_non_gst", salesIncentiveSettelmentNonGst.createSalesIncentiveSettelmentNonGst);
+router.get("/get_sales_incentive_settelment_non_gst/:id", salesIncentiveSettelmentNonGst.getSalesIncentiveSettelmentNonGstDetail);
+router.put("/update_sales_incentive_settelment_non_gst/:id", salesIncentiveSettelmentNonGst.updateSalesIncentiveNonGst);
+router.get("/getlist_sales_incentive_settelment_non_gst", salesIncentiveSettelmentNonGst.getSalesIncentiveSettelmentNonGstList);
+router.delete("/delete_sales_incentive_settelment_non_gst", salesIncentiveSettelmentNonGst.deleteSalesIncentiveSettelmentNonGst);
 
 /**
  * sales incentive settelment non gst sb request routes
  */
-router.post("/add_sales_incentive_settelment_non_gst_sb",salesIncentiveSettelmentNonGstSb.createSalesIncentiveSettledNonGstSb);
-router.get("/get_sales_incentive_settelment_non_gst_sb/:id",salesIncentiveSettelmentNonGstSb.getSalesSettledNonGstSbDetails);
-router.put("/update_sales_incentive_settelment_non_gst_sb/:id",salesIncentiveSettelmentNonGstSb.updateSalesIncentiveSettelmentNonGstSb);
-router.get("/get_list_sales_incentive_settelment_non_gst_sb",salesIncentiveSettelmentNonGstSb.salesIncentiveSettledNonGstSbList);
-router.delete("/delete_list_sales_incentive_settelment_non_gst_sb/:id",salesIncentiveSettelmentNonGstSb.deleteSalesIncentiveSetteledNonGstSb);
+router.post("/add_sales_incentive_settelment_non_gst_sb", salesIncentiveSettelmentNonGstSb.createSalesIncentiveSettledNonGstSb);
+router.get("/get_sales_incentive_settelment_non_gst_sb/:id", salesIncentiveSettelmentNonGstSb.getSalesSettledNonGstSbDetails);
+router.put("/update_sales_incentive_settelment_non_gst_sb/:id", salesIncentiveSettelmentNonGstSb.updateSalesIncentiveSettelmentNonGstSb);
+router.get("/get_list_sales_incentive_settelment_non_gst_sb", salesIncentiveSettelmentNonGstSb.salesIncentiveSettledNonGstSbList);
+router.delete("/delete_list_sales_incentive_settelment_non_gst_sb/:id", salesIncentiveSettelmentNonGstSb.deleteSalesIncentiveSetteledNonGstSb);
 
 /**
  * sales booking execution routes
  */
-router.post("/add_sales_booking_execution",salesBookingExecution.createSalesBookingExecution);
-router.get("/get_sales_booking_execution/:id",salesBookingExecution.getSalesBookingExecutionDetails);
-router.put("/update_sales_booking_execution/:id",salesBookingExecution.updateSalesBookingExecution);
-router.get("/get_list_sales_booking_execution",salesBookingExecution.getSalesBookingExcutionList);
-router.delete("/delete_list_sales_booking_execution/:id",salesBookingExecution.deleteSalesBookingExecution);
+router.post("/add_sales_booking_execution", salesBookingExecution.createSalesBookingExecution);
+router.get("/get_sales_booking_execution/:id", salesBookingExecution.getSalesBookingExecutionDetails);
+router.put("/update_sales_booking_execution/:id", salesBookingExecution.updateSalesBookingExecution);
+router.get("/get_list_sales_booking_execution", salesBookingExecution.getSalesBookingExcutionList);
+router.delete("/delete_list_sales_booking_execution/:id", salesBookingExecution.deleteSalesBookingExecution);
 
 module.exports = router; 
