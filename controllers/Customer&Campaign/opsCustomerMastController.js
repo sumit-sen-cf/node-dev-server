@@ -533,7 +533,7 @@ exports.getListCustomerContactData = async (req, res) => {
                     created_by_name: "$user.user_name",
                     last_updated_date: 1,
                     last_updated_by: 1,
-                    
+
                 }
             }
         ])
@@ -547,6 +547,26 @@ exports.getListCustomerContactData = async (req, res) => {
             succes: true,
             message: "OPS customer-contact data list successfully!",
             data: customerContactDataList
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+};
+
+//GET - OPS_Customer Mast name List data
+exports.getCustomerMastNameListData = async (req, res) => {
+    try {
+        const customerMastList = await opsCustomerMastModel.find({}, {
+            _id: 1,
+            customer_id: 1,
+            customer_name: 1,
+        });
+        return res.status(200).send({
+            succes: true,
+            message: "Customer-mast name list data fetched successfully!",
+            customerMastList: customerMastList
         });
     } catch (error) {
         return res.status(500).json({

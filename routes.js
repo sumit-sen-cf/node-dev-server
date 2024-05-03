@@ -158,7 +158,7 @@ const { createUserAnnouncement, getUserAnnouncementDetail, updateUserAnnouncemen
 const { createCustomerType, getcustomerTypeDetail, updateCustomerType, getCustomerTypeList, deleteCustomerType } = require("./controllers/Customer&Campaign/opsCustomerTypeController.js");
 const { createAccountType, getAccountTypeDetail, updateAccountType, getAccountTypeList, deleteAccountType } = require("./controllers/Customer&Campaign/opsAccountTypeController.js");
 const { createOwnership, getOwnershipDetail, updateOwnershipType, getOwnershipList, deleteOwnership } = require("./controllers/Customer&Campaign/opsOwnershipController.js");
-const { createCustomerMast, getCustomerMastDetail, updateCustomerMast, getCustomerMastList, customerMastDelete } = require("./controllers/Customer&Campaign/opsCustomerMastController.js");
+const { createCustomerMast, getCustomerMastDetail, updateCustomerMast, getCustomerMastList, customerMastDelete, getCustomerMastNameListData } = require("./controllers/Customer&Campaign/opsCustomerMastController.js");
 const { createCustomerContact, getCustomerContactDetail, updateCustomerContact, getCustomerContactList, deleteCustomerContact, getListCustomerContactData } = require("./controllers/Customer&Campaign/opsCustomerContactController.js");
 const { createDocMast, getDocMastDetail, updateDocMast, getDocMastList, deleteDocMast } = require("./controllers/Customer&Campaign/opsDocMastController.js");
 const { createCustomerDocument, getcustomerDocumentDetail, updateCustomerDocument, getCustomerDocumentList, deleteCustomerDocument, getAllCustomerDocumentList } = require("./controllers/Customer&Campaign/opsCustomerDocumentController.js");
@@ -1603,6 +1603,7 @@ router.get("/get_customer_mast/:id", getCustomerMastDetail);
 router.put("/update_customer_mast/:id", updateCustomerMast);
 router.get("/get_all_customer_mast", getCustomerMastList);
 router.delete("/delete_customer_mast/:id", customerMastDelete);
+router.get("/get_all_customer_name_data", getCustomerMastNameListData);
 
 router.post("/add_customer_contact", createCustomerContact);
 router.get("/get_customer_contact/:id", getCustomerContactDetail);

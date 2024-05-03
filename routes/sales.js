@@ -64,8 +64,6 @@ router.get("/get_sales_booking_payment/:id", salesBookingPayment.getSalesBooking
 router.put("/update_sales_booking_payment/:id", salesBookingPayment.updateSalesBookingPaymentDeatil);
 router.get("/getlist_sales_booking_payment", salesBookingPayment.salesBookingPaymentDetailsList);
 router.delete("/delete_sales_booking_payment_details/:id", salesBookingPayment.deleteSalesBookingPaymentDetails);
-router.get("/get_sales/:id", salesBookingPayment.getSalesBookingData);
-
 router.get("/getAll_pending_sales_booking_payment_list", salesBookingPayment.salesBookingPaymentPendingDetailsList);
 router.get("/getAll_rejected_sales_booking_payment_list", salesBookingPayment.salesBookingPaymentRejectedDetailsList);
 
