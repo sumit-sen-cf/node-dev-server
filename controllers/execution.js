@@ -138,7 +138,10 @@ exports.exeSumPost = async (req, res) => {
                     credit_approval_amount: data.credit_approval_amount,
                     payment_status_show: data.payment_status_show,
                     credit_approval_date: data.credit_approval_date,
-                    credit_approval_by: data.credit_approval_by
+                    credit_approval_by: data.credit_approval_by,
+                    execution_token: data.execution_token,
+                    brand_name: data.brand_name,
+                    record_service_campaign_name: data.record_service_campaign_name
                 })
                 const instav = await creators.save();
 
@@ -186,6 +189,11 @@ exports.getExeSum = async (req, res) => {
             },
             {
                 $replaceRoot: { newRoot: "$data" }
+            },
+            {
+                $sort: {
+                    sale_booking_date: 1 // Sort in descending order based on sale_booking_date
+                }
             }
         ]);
 
@@ -208,7 +216,10 @@ exports.editExeSum = async (req, res) => {
             execution_remark: req.body.execution_remark,
             execution_status: parseInt(req.body.execution_status),
             start_date: req.body.start_date,
-            end_date: req.body.end_date
+            end_date: req.body.end_date,
+            execution_token: req.body.execution_token,
+            brand_name: req.body.brand_name,
+
         }, { new: true })
         if (!editinsta) {
             res.status(500).send({ success: false })
@@ -1545,5 +1556,48 @@ exports.getAllExePurchase = async (req, res) => {
         res.status(200).send({ result });
     } catch (error) {
         res.status(500).json({ error: error.message, message: 'Internal Server Error' });
+    }
+};
+
+
+exports.AddExeToken = async (req, res) => {
+    try {
+        const sales_booking_id = req.params.sale_booking_execution_id;
+        const exeTokenData = await exeSum.findOne({ sale_booking_execution_id: sales_booking_id });
+        if (!exeTokenData) {
+            return res.status(404).json({
+                res: req.params,
+                message: "Data not found!"
+            });
+        }
+        const isMatched = exeTokenData.execution_token == req.body.execution_token;
+        return res.status(200).json({
+            status: 200,
+            message: "Execution token matched: " + isMatched,
+            data: isMatched,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE
+        });
+    }
+};
+
+exports.updateAllListExeToken = async (req, res) => {
+    try {
+        const execution_token = req.params.execution_token;
+
+        const editTokenData = await exeSum.findOneAndUpdate({ execution_token: execution_token }, {
+            execution_status: execution_token === req.body.execution_token ? 2 : 1,
+        }, { new: true });
+
+        if (!editTokenData) {
+            res.status(500).send({ success: false })
+        }
+        res.status(200).send({ success: true, data: editTokenData })
+
+    } catch (err) {
+        res.status(500).send({ error: err.message, message: 'Error updating execution summary' })
     }
 };

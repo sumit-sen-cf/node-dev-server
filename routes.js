@@ -362,6 +362,8 @@ router.get("/get_stats_update_flag/:p_id", exe.getStatUpdateFlag);
 router.get("/get_distinct_count_history/:p_id?", exe.getDistinctExeCountHistory);
 router.post("/page_health_dashboard", exe.pageHealthDashboard);
 
+router.post("/token_get_data/:sale_booking_execution_id", exe.AddExeToken);
+router.put("/update_all_list_token/:execution_token", exe.updateAllListExeToken);
 
 
 /* logo brand */
@@ -1742,6 +1744,8 @@ router.get("/get_all_list_exe_history", getExeHistoryList);
 router.get("/get_exe_history/:pageMast_id", getExeHistoryDetails);
 
 router.get("/get_exe_historyData", getAllExeData);
+
+
 
 
 //pms page assignment APi's

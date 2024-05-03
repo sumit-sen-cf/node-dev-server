@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const salesBookingPaymentModel = require("../../models/SMS/salesBookingPaymentModel");
 const multer = require("multer");
 const vari = require("../../variables.js");
-const { storage } = require('../../common/uploadFile.js')
+const { storage } = require('../../common/uploadFile.js');
+const salesBooking = require("../../models/SMS/salesBooking.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -668,6 +669,58 @@ exports.salesBookingPaymentRejectedDetailsList = async (req, res) => {
         return res.status(500).json({
             status: 500,
             message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+}
+
+
+exports.getSalesBookingData = async (req, res) => {
+    try {
+        const salesBookingData = await salesBookingPaymentModel.aggregate([
+            {
+                $match: { _id: mongoose.Types.ObjectId(req.params.id) },
+            },
+            {
+                $lookup: {
+                    from: "salesbookings",
+                    localField: "sale_booking_id",
+                    foreignField: "sale_booking_id",
+                    as: "salesbooking",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$salesbooking",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    payment_amount: 1,
+                    payment_approval_status: 1,
+                    campaign_amount: "$salesbooking.campaign_amount",
+                }
+            }
+        ]);
+        for (const data of salesBookingData) {
+            const remainingAmountToPay = data.campaign_amount - data.payment_amount;
+            if (remainingAmountToPay < data.payment_amount) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "Payment amount cannot exceed remaining amount to be paid",
+                });
+            }
+            data.remainingAmountToPay = remainingAmountToPay;
+        }
+        return res.status(200).json({
+            status: 200,
+            data: salesBookingData,
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : "Internal server error",
         });
     }
 }
