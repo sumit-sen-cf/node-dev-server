@@ -45,6 +45,12 @@ router.get("/get_all_list_sales_booking/:id", SMS.getSalesBookingPaymentDetail);
  */
 router.post("/add_sales_booking_status", SMS.addSalesBookingStatus);
 
+/**
+ * sales booking credit approval status Api's
+ */
+router.get("/credit_approval_status_for_sales_booking_list", SMS.getAllStatusForCreditApprovalSalesBookingList);
+router.put("/credit_approval_status_status_change/:id", SMS.editCreditApprovalStatusChange);
+
 
 /**
  * payment details routes
