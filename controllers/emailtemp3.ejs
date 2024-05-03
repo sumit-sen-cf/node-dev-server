@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -209,4 +209,75 @@
 
         Best regards,
 
-        Creativefuel Pvt. Ltd.
+        Creativefuel Pvt. Ltd. -->
+
+
+        <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, 
+		initial-scale=1.0">
+</head>
+
+<body
+    style="display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 50px;
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+    <div style="text-align: center;">
+      <h3 style="color: black;">
+        3 Days Email
+    </h3>
+
+    
+    <div style="color: #374151; font-size: 13px; font-weight: 500; text-align: left;">
+      
+        <p style="margin-bottom: 20px;">Meme Magic in 3 Days:Your First Day is 3 Days Away! 🌟
+        </p>
+        
+        <p>Hey there, <%=name%>
+        </p>
+        <p>We hope you're as excited as we are because Memeland's newest sensation is about to rock the internet! 🌐
+        </p>
+        <p>🎥 Attached video for your exclusive welcome
+          
+        </p>
+        <p>We're bursting with gratitude as we gear up to welcome you on board in just 3 days—mark your calendars for
+            <%=Date%>! 🗓️
+
+        </p>
+
+        <p>Onboarding with us isn't just another day at the office; it's an adventure waiting to happen! 🚀
+          
+        </p>
+        <p>
+            The Memeland awaits, and we can't wait to show you the ropes.
+
+        </p>
+        <p>Stay tuned for the memes, the magic, and the mayhem!
+
+        </p>
+        
+        <p>Warm regards,
+        </p>
+        <p>
+          Human Resources
+          
+        </p>
+      </div>
+    </div>
+    <script>
+        let name = '<%-name%>'
+        let heading = document
+            .getElementById('text_from_script');
+
+        heading.innerText = name;
+        name = "Mr/Mrs. " + name;
+        let heading_man = document.getElementById(
+            'text_from_script_manipulated');
+        heading_man.innerText = name; 
+    </script>
+</body>
+
+</html>
