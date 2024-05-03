@@ -16,7 +16,7 @@ const reasonCreditApproval = new Schema({
     },
     reason_type: {
         type: String,
-        enum: ["fixed", "own reason"],            //0=fixed,1=own reason
+        enum: ["fixed", "own_reason"],            //0=fixed,1=own reason
         required: false
     },
 },
