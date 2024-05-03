@@ -245,9 +245,48 @@ exports.getAllPhasesByCampId = catchAsync(async (req, res, next) => {
     })
 })
 
+// exports.getCampCommits = catchAsync(async (req, res, next) => {
+//     const id = req.params._id;
+//     const result = await PhaseCommitmentModel.find({ campaignId: id });
+//     const result1 = await AssignmentModel.find({ campaignId: id }).select({ campaignId: 1 });
+//     const lengthData = result1.length;
+
+//     const resultnew = await AssignmentModel.aggregate([
+//         {
+//             $match: { campaignId: id }
+//         },
+//         {
+//             $group: {
+//                 _id: null,
+//                 post_likes: { $sum: "$post_like" },
+//                 post_comments: { $sum: "$post_comment" },
+//                 post_views: { $sum: "$post_views" }
+//             }
+//         },
+//         {
+//             $project: {
+//                 _id: 0,
+//                 post_likes: 1,
+//                 post_comments: 1,
+//                 post_views: 1
+//             }
+//         }
+//     ]);
+
+//     const commitSum = {};
+//     result.forEach(commitment => {
+//         const { commitment: type, value } = commitment;
+//         commitSum[type] = (commitSum[type] || 0) + parseInt(value)
+//     })
+//     res.status(200).json({ commitmentdata: commitSum, completedData: resultnew[0] })
+// })
+
+
 exports.getCampCommits = catchAsync(async (req, res, next) => {
     const id = req.params._id;
     const result = await PhaseCommitmentModel.find({ campaignId: id });
+    const result1 = await AssignmentModel.find({ campaignId: id }).select({ campaignId: 1 });
+    const lengthData = result1.length;
 
     const resultnew = await AssignmentModel.aggregate([
         {
@@ -256,6 +295,8 @@ exports.getCampCommits = catchAsync(async (req, res, next) => {
         {
             $group: {
                 _id: null,
+                executed: { $sum: { $cond: [{ $gt: ["$post_like", 0] }, 1, 0] } },
+                remaining: { $sum: { $cond: [{ $eq: ["$post_like", 0] }, 1, 0] } },
                 post_likes: { $sum: "$post_like" },
                 post_comments: { $sum: "$post_comment" },
                 post_views: { $sum: "$post_views" }
@@ -264,6 +305,8 @@ exports.getCampCommits = catchAsync(async (req, res, next) => {
         {
             $project: {
                 _id: 0,
+                executed: 1,
+                remaining: 1,
                 post_likes: 1,
                 post_comments: 1,
                 post_views: 1
@@ -276,8 +319,9 @@ exports.getCampCommits = catchAsync(async (req, res, next) => {
         const { commitment: type, value } = commitment;
         commitSum[type] = (commitSum[type] || 0) + parseInt(value)
     })
-    res.status(200).json({ commitmentdata: commitSum, completedData: resultnew[0] })
+    res.status(200).json({ commitmentdata: commitSum, completedData: resultnew[0], page_count: lengthData })
 })
+
 
 exports.getPhaseCommits = catchAsync(async (req, res, next) => {
     const id = req.params.phase_id;
@@ -328,23 +372,17 @@ exports.getAllExePhasesByCampId = catchAsync(async (req, res, next) => {
 
 exports.getShiftPhases = catchAsync(async (req, res, next) => {
     const id = req.body._id;
-    const result = await campaignPhaseModel.find({ campaignId: id });
-    if (result.length == 0) {
-        return res.status(404).json({ data: [], sms: 'no data found from this campaign id' })
-    }
-
     const { phaseId1, phaseId2 } = req.body;
+    const result = await campaignPhaseModel.findOne({ campaignId: id, phase_id: phaseId1 });
+    const update = await PhasePageModel.findOneAndUpdate({ campaignId: id, phase_id: phaseId1 }, {
+        phase_id: phaseId2,
+        phaseName: result.phaseName
+    })
 
-    const phase1 = result.find(phase => phase.phase_id === phaseId1);
-    const phase2 = result.find(phase => phase.phase_id === phaseId2);
+    const update1 = await AssignmentModel.findOneAndUpdate({ campaignId: id, phase_id: phaseId1 }, {
+        phase_id: phaseId2,
+        phaseName: result.phaseName
+    })
 
-    if (!phase1 || !phase2) {
-        return res.status(404).json({ message: 'One or both phases not found' });
-    }
-
-    const tempCampaignName = phase1.campaignName;
-    phase1.campaignName = phase2.campaignName;
-    phase2.campaignName = tempCampaignName;
-
-    res.status(200).json({ data: result });
+    res.status(200).json({ data: update1 });
 });
