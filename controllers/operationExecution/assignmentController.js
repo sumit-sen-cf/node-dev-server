@@ -184,7 +184,15 @@ exports.updatePostDetails = catchAsync(async (req, res, next) => {
         post_type: req.body.post_type,
         post_captions: req.body.post_captions,
         post_media: req.body.post_media,
-        post_link: req.body.post_link
+        post_link: req.body.post_link,
+        story_like: req.body.story_like,
+        story_comment: req.body.story_comment,
+        story_views: req.body.story_views,
+        story_last_link_hit_date: req.body.story_last_link_hit_date,
+        story_date: req.body.story_date,
+        story_captions: req.body.story_captions,
+        story_media: req.body.story_media,
+        story_link: req.body.story_link
     },
         {
             new: true
