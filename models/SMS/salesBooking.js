@@ -109,6 +109,7 @@ const salesBooking = new mongoose.Schema({
     bad_debt: {
         type: Boolean,
         required: false,
+        default: false,
     },
     bad_debt_reason: {
         type: String,

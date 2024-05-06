@@ -4,6 +4,7 @@ const salesBookingPaymentModel = require("../../models/SMS/salesBookingPaymentMo
 const multer = require("multer");
 const vari = require("../../variables.js");
 const { storage } = require('../../common/uploadFile.js');
+const salesBooking = require("../../models/SMS/salesBooking.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -46,6 +47,23 @@ exports.createSalesBookingPayment = [
                 blobStream2.end(req.files.payment_screenshot[0].buffer);
             }
             await addSalesBookingPayment.save();
+
+            //get sale booking data
+            let saleBookingData = await salesBooking.findOne({
+                sale_booking_id: sale_booking_id
+            });
+
+            //requested amount add in previous pending data in sale booking collection.
+            let pendingAmount = saleBookingData.pending_amount + parseInt(payment_amount);
+
+            //pending amount add in sale booking collection.
+            await salesBooking.updateOne({
+                sale_booking_id: sale_booking_id
+            }, {
+                pending_amount: pendingAmount
+            });
+
+            //success response send
             return res.status(200).json({
                 status: 200,
                 message: "Sales booking payment data added successfully!",
@@ -190,6 +208,23 @@ exports.updateSalesBookingPaymentDeatil = [
             },
                 { new: true }
             );
+
+            //get sale booking data
+            let saleBookingData = await salesBooking.findOne({
+                sale_booking_id: sale_booking_id
+            });
+
+            //requested amount add in previous pending data in sale booking collection.
+            let pendingAmount = saleBookingData.pending_amount + parseInt(payment_amount);
+
+            //pending amount add in sale booking collection.
+            await salesBooking.updateOne({
+                sale_booking_id: sale_booking_id
+            }, {
+                pending_amount: pendingAmount
+            });
+
+            //success response send
             return res.status(200).json({
                 message: "Sales booking payment details data updated successfully!",
                 data: salesBookingPaymentUpdatedData,
@@ -208,187 +243,114 @@ exports.updateSalesBookingPaymentDeatil = [
 exports.salesBookingPaymentDetailsList = async (req, res) => {
     try {
         const imageUrl = vari.IMAGE_URL;
-        const salesBookingPaymentListData = await salesBookingPaymentModel.aggregate([
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
+        const salesBookingPaymentListData = await salesBookingPaymentModel.aggregate([{
+            $lookup: {
+                from: "usermodels",
+                localField: "created_by",
+                foreignField: "user_id",
+                as: "user",
+            }
+        }, {
+            $unwind: {
+                path: "$user",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "salespaymentmodes",
+                localField: "payment_mode",
+                foreignField: "_id",
+                as: "salespaymentmodesData",
             },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "salesbookings",
-                    localField: "sale_booking_id",
-                    foreignField: "sale_booking_id",
-                    as: "salesbooking",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$salesbooking",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "paymentdeatils",
-                    localField: "payment_detail_id",
-                    foreignField: "_id",
-                    as: "paymentdeatil",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$paymentdeatil",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "customermasts",
-                    localField: "customer_id",
-                    foreignField: "customer_id",
-                    as: "customermast_data",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$customermast_data",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $project: {
-                    payment_date: 1,
-                    sale_booking_id: 1,
-                    customer_id: 1,
-                    payment_amount: 1,
-                    payment_mode: 1,
-                    payment_detail_id: 1,
-                    payment_ref_no: 1,
-                    payment_approval_status: 1,
-                    action_reason: 1,
-                    remarks: 1,
-                    managed_by: 1,
-                    created_date_time: 1,
-                    created_by: 1,
-                    created_by_name: "$user.user_name",
-                    last_updated_date: 1,
-                    last_updated_by: 1,
-                    payment_screenshot: {
-                        $concat: [imageUrl, "$payment_screenshot"],
-                    },
-                    Sales_Booking: {
-                        sales_booking_id: "$salesbooking.sale_booking_id",
-                        sale_booking_date: "$salesbooking.sale_booking_date",
-                        campaign_amount: "$salesbooking.campaign_amount",
-                        base_amount: "$salesbooking.base_amount",
-                        gst_amount: "$salesbooking.gst_amount",
-                        description: "$salesbooking.description",
-                        credit_approval_status: "$salesbooking.credit_approval_status",
-                        reason_credit_approval: "$salesbooking.reason_credit_approval",
-                        balance_payment_ondate: "$salesbooking.balance_payment_ondate",
-                        gst_status: "$salesbooking.gst_status",
-                        tds_status: "$salesbooking.tds_status",
-                        Booking_close_date: "$salesbooking.Booking_close_date",
-                        tds_verified_amount: "$salesbooking.tds_verified_amount",
-                        tds_verified_remark: "$salesbooking.tds_verified_remark",
-                        booking_remarks: "$salesbooking.booking_remarks",
-                        incentive_status: "$salesbooking.incentive_status",
-                        payment_credit_status: "$salesbooking.payment_credit_status",
-                        booking_status: "$salesbooking.booking_status",
-                        incentive_sharing_user_id: "$salesbooking.incentive_sharing_user_id",
-                        incentive_sharing_percent: "$salesbooking.incentive_sharing_percent",
-                        bad_debt: "$salesbooking.bad_debt",
-                        bad_debt_reason: "$salesbooking.bad_debt_reason",
-                        no_badge_achivement: "$salesbooking.no_badge_achivement",
-                        old_sale_booking_id: "$salesbooking.old_sale_booking_id",
-                        sale_booking_type: "$salesbooking.sale_booking_type",
-                        service_taken_amount: "$salesbooking.service_taken_amount",
-                        get_incentive_status: "$salesbooking.get_incentive_status",
-                        incentive_amount: "$salesbooking.incentive_amount",
-                        earned_incentive_amount: "$salesbooking.earned_incentive_amount",
-                        unearned_incentive_amount: "$salesbooking.unearned_incentive_amount",
-                        payment_type: "$salesbooking.payment_type",
-                        created_by: "$salesbooking.created_by",
-                        managed_by: "$salesbooking.managed_by",
-                        last_updated_by: "$salesbooking.last_updated_by",
-                        creation_date: "$salesbooking.creation_date",
-                        last_updated_date: "$salesbooking.last_updated_date"
-                    },
-                    Payment_Deatils: {
-                        _id: "$paymentdeatil._id",
-                        title: "$paymentdeatil.title",
-                        details: "$paymentdeatil.details",
-                        gst_bank: "$paymentdeatil.gst_bank",
-                        payment_type: "$paymentdeatil.payment_type",
-                        managed_by: "$paymentdeatil.managed_by",
-                        created_by: "$paymentdeatil.created_by",
-                        created_by_name: "$user.user_name",
-                        last_updated_by: "$paymentdeatil.last_updated_by",
-                    },
-                    OPS_CustomerMast_data: {
-                        _id: "$customermast_data._id",
-                        customermast_id: "$customermast_data.customer_id",
-                        customer_id: "$customermast_data.customer_id",
-                        account_type_id: "$customermast_data.account_type_id",
-                        ownership_id: "$customermast_data.ownership_id",
-                        industry_id: "$customermast_data.industry_id",
-                        account_owner_id: "$customermast_data.account_owner_id",
-                        parent_account_id: "$customermast_data.parent_account_id",
-                        company_size: "$customermast_data.company_size",
-                        company_email: "$customermast_data.company_email",
-                        primary_contact_no: "$customermast_data.primary_contact_no",
-                        alternative_no: "$customermast_data.alternative_no",
-                        website: "$customermast_data.website",
-                        turn_over: "$customermast_data.turn_over",
-                        establishment_year: "$customermast_data.establishment_year",
-                        employees_Count: "$customermast_data.employees_Count",
-                        how_many_offices: "$customermast_data.how_many_offices",
-                        company_gst_no: "$customermast_data.company_gst_no",
-                        company_pan_no: "$customermast_data.company_pan_no",
-                        connected_office: "$customermast_data.connected_office",
-                        connect_billing_street: "$customermast_data.connect_billing_street",
-                        connect_billing_city: "$customermast_data.connect_billing_city",
-                        connect_billing_state: "$customermast_data.connect_billing_state",
-                        connect_billing_country: "$customermast_data.connect_billing_country",
-                        head_office: "$customermast_data.head_office",
-                        head_billing_street: "$customermast_data.head_billing_street",
-                        head_billing_city: "$customermast_data.head_billing_city",
-                        head_billing_state: "$customermast_data.head_billing_state",
-                        head_billing_country: "$customermast_data.head_billing_country",
-                        description: "$customermast_data.description",
-                        created_by: "$customermast_data.created_by",
-                        created_by_name: "$user.user_name",
-                        last_updated_by: "$customermast_data.last_updated_by",
-                        pan_upload: {
-                            $concat: [imageUrl, "$customermast_data.pan_upload"],
-                        },
-                        gst_upload: {
-                            $concat: [imageUrl, "$customermast_data.gst_upload"],
-                        },
-                    }
-                }
-            },
-            {
-                $group: {
-                    _id: "$_id",
-                    data: { $first: "$$ROOT" }
-                }
-            },
-            {
-                $replaceRoot: { newRoot: "$data" }
+        }, {
+            $unwind: {
+                path: "$salespaymentmodesData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "paymentdeatils",
+                localField: "payment_detail_id",
+                foreignField: "_id",
+                as: "paymentdeatil",
+            }
+        }, {
+            $unwind: {
+                path: "$paymentdeatil",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "customermasts",
+                localField: "customer_id",
+                foreignField: "customer_id",
+                as: "customermast_data",
+            }
+        }, {
+            $unwind: {
+                path: "$customermast_data",
+                preserveNullAndEmptyArrays: true,
             }
 
-        ])
+        }, {
+            $lookup: {
+                from: "salesbookings",
+                localField: "sale_booking_id",
+                foreignField: "sale_booking_id",
+                as: "salesbooking",
+            }
+        }, {
+            $unwind: {
+                path: "$salesbooking",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                payment_date: 1,
+                sale_booking_id: 1,
+                payment_amount: 1,
+                payment_mode: 1,
+                payment_mode_name: "$salespaymentmodesData.payment_mode_name",
+                payment_ref_no: 1,
+                payment_approval_status: 1,
+                action_reason: 1,
+                remarks: 1,
+                managed_by: 1,
+                created_date_time: 1,
+                created_by: 1,
+                created_by_name: "$user.user_name",
+                last_updated_date: 1,
+                last_updated_by: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                payment_screenshot: {
+                    $concat: [imageUrl, "$payment_screenshot"],
+                },
+                customer_id: 1,
+                customer_name: "$customermast_data.customer_name",
+                payment_detail_id: 1,
+                Payment_Deatils: {
+                    _id: "$paymentdeatil._id",
+                    title: "$paymentdeatil.title",
+                    details: "$paymentdeatil.details",
+                    payment_type: "$paymentdeatil.payment_type",
+                },
+                sales_data: {
+                    sales_booking_id: "$salesbooking.sale_booking_id",
+                    sale_booking_date: "$salesbooking.sale_booking_date",
+                    campaign_amount: "$salesbooking.campaign_amount",
+                    paid_amount: "$salesbooking.paid_amount",
+                    pending_amount: "$salesbooking.pending_amount"
+                }
+            }
+        }, {
+            $group: {
+                _id: "$_id",
+                data: { $first: "$$ROOT" }
+            }
+        }, {
+            $replaceRoot: { newRoot: "$data" }
+        }])
         if (salesBookingPaymentListData) {
             return res.status(200).json({
                 status: 200,
@@ -401,12 +363,10 @@ exports.salesBookingPaymentDetailsList = async (req, res) => {
             message: message.DATA_NOT_FOUND,
         });
     } catch (error) {
-        {
-            return res.status(500).json({
-                status: 500,
-                message: error.message ? error.message : message.ERROR_MESSAGE,
-            });
-        }
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
     }
 }
 
@@ -535,7 +495,7 @@ exports.salesBookingPaymentPendingDetailsList = async (req, res) => {
 
 /**
  * Api is to used for the sales_booking_payment_list Rejected data from the DB collection.
-*/
+ */
 exports.salesBookingPaymentRejectedDetailsList = async (req, res) => {
     try {
         const imageUrl = vari.IMAGE_URL;
