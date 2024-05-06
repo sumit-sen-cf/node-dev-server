@@ -6,6 +6,7 @@ const campaignPlanModel = require('../../models/operationExecution/campaignPlanM
 const campaignPhaseModel = require('../../models/operationExecution/campaignPhaseModel')
 const PhasePageModel = require('../../models/operationExecution/phasePageModel')
 const PhaseCommitmentModel = require('../../models/operationExecution/phaseCommitmentModel')
+const axios = require("axios");
 
 exports.createAssignment = catchAsync(async (req, res, next) => {
     const { ass_to, ass_by, page, ass_status, ass_id } = req.body
@@ -394,3 +395,31 @@ exports.getShiftPhases = catchAsync(async (req, res, next) => {
 
     res.status(200).json({ data: update1 });
 });
+
+exports.replacePage = catchAsync(async (req, res, next) => {
+    const id = req.body._id;
+    
+    const pageData = await axios.get(
+        `https://purchase.creativefuel.io/webservices/RestController.php?view=inventoryDataList`
+    );
+
+    const matchPid = pageData.page.body.filter(option => option.p_id == req.body.p_id)[0];
+    
+    const result = await PhasePageModel.findOneAndUpdate({campaignId: id, phase_id: phaseId, p_id: req.body.p_id},{
+        p_id: matchPid.p_id,
+        page_name: matchPid.page_name,
+        cat_name: matchPid.cat_name,
+        platform: matchPid.platform,
+        follower_count: matchPid.follower_count,
+        page_link: matchPid.page_link
+    })
+    const result2 = await AssignmentModel.findOneAndUpdate({campaignId: id, phase_id: phaseId, p_id: req.body.p_id},{
+        p_id: matchPid.p_id,
+        page_name: matchPid.page_name,
+        cat_name: matchPid.cat_name,
+        platform: matchPid.platform,
+        follower_count: matchPid.follower_count,
+        page_link: matchPid.page_link
+    })
+    res.status(200).json({data: result})
+})
