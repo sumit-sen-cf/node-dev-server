@@ -1,6 +1,7 @@
 const deptDesiAuthModel = require('../models/deptDesiAuthModel.js');
 const userAuthModel = require('../models/userAuthModel.js');
 const userModel = require('../models/userModel.js');
+const objectModel = require("../models/objModel.js")
 
 exports.addDeptDesiAuth = async (req, res) => {
     try {
@@ -85,7 +86,7 @@ exports.getSingleDeptDesiAuthDetail = async (req, res) => {
                     insert_value: { $first: '$insert' },
                     view_value: { $first: '$view' },
                     update_value: { $first: '$update' },
-                    delete_flag_value: { $first: '$delete_flag' }
+                    delete_flag_value: { $first: '$delete_flag' },
                 }
             },
             {
@@ -118,21 +119,21 @@ exports.updateDeptDesiAuth = async (req, res) => {
             Last_updated_date: req.body.Last_updated_date,
             Last_updated_by: req.body.Last_updated_by
         }, { new: true })
-        if(editsim) {
-            const getDeptUsers = await userModel.find({dept_id: req.body.dept_id});
-            for(let eachUser of getDeptUsers){
+        if (editsim) {
+            const getDeptUsers = await userModel.find({ dept_id: req.body.dept_id });
+            for (let eachUser of getDeptUsers) {
                 await userAuthModel.updateMany(
-                    {   
+                    {
                         Juser_id: eachUser.user_id,
                         obj_id: req.body.obj_id
-                    },{
-                        $set:{
-                            insert: req.body.insert,
-                            view: req.body.view,
-                            update: req.body.update,
-                            delete_flag: req.body.delete_flag
-                        }
+                    }, {
+                    $set: {
+                        insert: req.body.insert,
+                        view: req.body.view,
+                        update: req.body.update,
+                        delete_flag: req.body.delete_flag
                     }
+                }
                 )
             }
         }
@@ -145,6 +146,7 @@ exports.updateDeptDesiAuth = async (req, res) => {
     }
 };
 // exports.updateDeptDesiAuth = async (req, res) => {
+
 //     try {
 //         const existingRecord = await deptDesiAuthModel.findOne({
 //             dept_id: req.body.dept_id,
@@ -196,3 +198,75 @@ exports.updateDeptDesiAuth = async (req, res) => {
 //         res.status(500).send({ error: err, sms: 'Internal Server Error' });
 //     }
 // };
+
+
+exports.getListDeptDesiAuthData = async (req, res) => {
+    try {
+        const delv = await deptDesiAuthModel.aggregate([{
+                $lookup: {
+                    from: 'objectmodels',
+                    localField: 'obj_id',
+                    foreignField: 'obj_id',
+                    as: 'object'
+                }
+            },{
+                $unwind: {
+                    path: "$object",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },{
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },{
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },{
+                $lookup: {
+                    from: 'designationmodels',
+                    localField: 'desi_id',
+                    foreignField: 'desi_id',
+                    as: 'designation'
+                }
+            },{
+                $unwind: {
+                    path: "$designation",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },{
+                $match: {
+                    "view": 1
+                }
+            },{
+                $group: {
+                    _id:{
+                        desi_id: '$desi_id',
+                        dept_id: '$dept_id',
+                        obj_id: '$obj_id'
+                    },
+                    total_count: { $sum: 1 },
+                }
+            },{
+                $group: {
+                    _id: "$_id.desi_id",
+                    total_count: { $sum: "$total_count" },
+                  //  data: { $push: "$$ROOT" }
+                }
+            }
+        ]);
+        if (delv.length === 0) {
+            return res.status(404).send({ success: false, message: 'dept desi obj not found' });
+        }
+        const objData = await objectModel.find()
+        const result = objData.length;
+        res.status(200).send({ data: delv, result });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: err.message, message: 'Error getting dept desi auth details' });
+    }
+}
