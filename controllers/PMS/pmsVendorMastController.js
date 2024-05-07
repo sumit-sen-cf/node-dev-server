@@ -27,7 +27,7 @@ exports.createPmsVendorMast = [
             }
             const { type_id,  platform_id, payMethod_id, cycle_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
                 personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode, company_state,
-                threshold_limit, home_address, home_city, home_state, created_by, last_updated_by } = req.body;
+                threshold_limit, home_address, home_city, home_state, created_by, last_updated_by,vendor_category } = req.body;
             const addVendorMastData = new pmsVendorMastModel({
                 type_id: type_id,
                 platform_id: platform_id,
@@ -51,7 +51,8 @@ exports.createPmsVendorMast = [
                 home_city: home_city,
                 home_state: home_state,
                 created_by: created_by,
-                last_updated_by: last_updated_by
+                last_updated_by: last_updated_by,
+                vendor_category: vendor_category
             });
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
@@ -125,6 +126,7 @@ exports.getVendorMastDetail = async (req, res) => {
 
             {
                 $project: {
+                    vendor_category:1,
                     type_id: 1,
                     platform_id: 1,
                     payMethod_id: 1,
@@ -334,6 +336,7 @@ exports.getAllVendorMastList = async (req, res) => {
             },
             {
                 $project: {
+                    vendor_category: 1,
                     type_id: "$type_id",
                     platform_id: "$platform_id",
                     payMethod_id: "$payMethod_id",

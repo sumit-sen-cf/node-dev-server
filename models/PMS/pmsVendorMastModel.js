@@ -120,7 +120,12 @@ const pmsVendorMastSchema = new Schema({
         type: Number,
         required: false,
         default: 0
-    }
+    },
+    vendor_category: {
+        type: String,
+        required: false,
+        enum: ["Theme Page", "Influencer"]
+    },  
 });
 pmsVendorMastSchema.pre('save', async function (next) {
     if (!this.vendorMast_id) {
