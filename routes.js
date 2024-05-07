@@ -1579,6 +1579,8 @@ router.post("/add_dept_desi_auth", deptDesiAuth.addDeptDesiAuth);
 router.get("/get_single_desi_dept_auth/:desi_id", deptDesiAuth.getSingleDeptDesiAuthDetail);
 router.put("/update_dept_desi_auth", deptDesiAuth.updateDeptDesiAuth);
 
+router.get("/get_single_desi_dept_auth_count", deptDesiAuth.getListDeptDesiAuthData);
+
 // --------------------------------------------------------------Customer_&_Campaign-----------------------------------------------//
 
 router.post("/add_customer_type", createCustomerType);

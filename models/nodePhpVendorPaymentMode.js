@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-var options = {
-    timestamps: {
-        createdAt: 'created_on',
-        updatedAt: 'updated_on'
-    },
-};
+// var options = {
+//     timestamps: {
+//         createdAt: 'created_on',
+//         updatedAt: 'updated_on'
+//     },
+// };
 const nodePhpVendorPaymentMode = new mongoose.Schema({
     payment_mode: {
         type: String,
@@ -12,9 +12,9 @@ const nodePhpVendorPaymentMode = new mongoose.Schema({
     },
     created_by: {
         type: Number,
-        required: false,
+        // required: false,
         default: 0,
     }
-}, options);
+}, { timestamps: true });
 
 module.exports = mongoose.model('nodePhpVendorPaymentMode', nodePhpVendorPaymentMode);

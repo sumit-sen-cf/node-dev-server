@@ -15,40 +15,40 @@ const mail = require("../common/sendMail.js");
 
 exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: "demo1245@gmail.com",
-                pass: "ptxogcg",
-            }
-        });
-        async function sendEmail(to, subject, text) {
-            const templatePath = path.join(__dirname, "vendorPhpPaymentRequest2.ejs");
-            const template = await fs.promises.readFile(templatePath, "utf-8");
-            const html = ejs.render(template, {
-                subject,
-                request_by: phpVendorPaymentRequestData.request_by,
-                vendor_name: phpVendorPaymentRequestData.vendor_name,
-                request_date: phpVendorPaymentRequestData.request_date,
-                request_amount: phpVendorPaymentRequestData.request_amount,
-                payment_amount: phpVendorPaymentRequestData.payment_amount,
-                payment_date: phpVendorPaymentRequestData.payment_date,
-                payment_by: phpVendorPaymentRequestData.payment_by,
-                status: phpVendorPaymentRequestData.status,
-                mobile: phpVendorPaymentRequestData.mobile
-            });
-            try {
-                await transporter.sendMail({
-                    from: "abc22@gmail.com",
-                    to: "abc22@gmail.com",
-                    subject: subject,
-                    html: html
-                });
-                console.log('Email sent successfully');
-            } catch (error) {
-                console.error('Error sending email:', error);
-            }
-        };
+        // const transporter = nodemailer.createTransport({
+        //     service: 'gmail',
+        //     auth: {
+        //         user: "demo1245@gmail.com",
+        //         pass: "ptxogcg",
+        //     }
+        // });
+        // async function sendEmail(to, subject, text) {
+        //     const templatePath = path.join(__dirname, "vendorPhpPaymentRequest2.ejs");
+        //     const template = await fs.promises.readFile(templatePath, "utf-8");
+        //     const html = ejs.render(template, {
+        //         subject,
+        //         request_by: phpVendorPaymentRequestData.request_by,
+        //         vendor_name: phpVendorPaymentRequestData.vendor_name,
+        //         request_date: phpVendorPaymentRequestData.request_date,
+        //         request_amount: phpVendorPaymentRequestData.request_amount,
+        //         payment_amount: phpVendorPaymentRequestData.payment_amount,
+        //         payment_date: phpVendorPaymentRequestData.payment_date,
+        //         payment_by: phpVendorPaymentRequestData.payment_by,
+        //         status: phpVendorPaymentRequestData.status,
+        //         mobile: phpVendorPaymentRequestData.mobile
+        //     });
+        //     try {
+        //         await transporter.sendMail({
+        //             from: "abc22@gmail.com",
+        //             to: "abc22@gmail.com",
+        //             subject: subject,
+        //             html: html
+        //         });
+        //         console.log('Email sent successfully');
+        //     } catch (error) {
+        //         console.error('Error sending email:', error);
+        //     }
+        // };
         const data = new phpVendorPaymentRequestModel({
             request_id: req.body.request_id,
             vendor_id: req.body.vendor_id,
@@ -98,26 +98,26 @@ exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
         }
         const phpVendorPaymentRequestData = await data.save();
 
-        let message;
-        if (phpVendorPaymentRequestData.status === '1') {
-            message = `Success Message : Payment request successfully!\nRequest_By: ${phpVendorPaymentRequestData.request_by},
-             \nVendor_name: ${phpVendorPaymentRequestData.vendor_name}, \nRequest_Date: ${phpVendorPaymentRequestData.request_date}, 
-             \nRequest_Amount: ${phpVendorPaymentRequestData.request_amount}, \nPayment_Amount: ${phpVendorPaymentRequestData.payment_amount}
-             \nMobile: ${phpVendorPaymentRequestData.mobile}, \n Payment_Date: ${phpVendorPaymentRequestData.payment_date},
-             \nPayment_Pay: ${phpVendorPaymentRequestData.payment_by},\nStatus: ${phpVendorPaymentRequestData.status}`;
+        // let message;
+        // if (phpVendorPaymentRequestData.status === '1') {
+        //     message = `Success Message : Payment request successfully!\nRequest_By: ${phpVendorPaymentRequestData.request_by},
+        //      \nVendor_name: ${phpVendorPaymentRequestData.vendor_name}, \nRequest_Date: ${phpVendorPaymentRequestData.request_date}, 
+        //      \nRequest_Amount: ${phpVendorPaymentRequestData.request_amount}, \nPayment_Amount: ${phpVendorPaymentRequestData.payment_amount}
+        //      \nMobile: ${phpVendorPaymentRequestData.mobile}, \n Payment_Date: ${phpVendorPaymentRequestData.payment_date},
+        //      \nPayment_Pay: ${phpVendorPaymentRequestData.payment_by},\nStatus: ${phpVendorPaymentRequestData.status}`;
 
-        } else if (phpVendorPaymentRequestData.status === '2') {
-            message = `Rejected Message: Payment request rejected!\nRequest_By: ${phpVendorPaymentRequestData.request_by}, 
-            \nVendor_name: ${phpVendorPaymentRequestData.vendor_name}, \nRequest_Date: ${phpVendorPaymentRequestData.request_date}   
-             \n Payment_Date: ${phpVendorPaymentRequestData.payment_date}, 
-             \nPayment_Pay: ${phpVendorPaymentRequestData.payment_by}, \nStatus: ${phpVendorPaymentRequestData.status}`;
-        }
+        // } else if (phpVendorPaymentRequestData.status === '2') {
+        //     message = `Rejected Message: Payment request rejected!\nRequest_By: ${phpVendorPaymentRequestData.request_by}, 
+        //     \nVendor_name: ${phpVendorPaymentRequestData.vendor_name}, \nRequest_Date: ${phpVendorPaymentRequestData.request_date}   
+        //      \n Payment_Date: ${phpVendorPaymentRequestData.payment_date}, 
+        //      \nPayment_Pay: ${phpVendorPaymentRequestData.payment_by}, \nStatus: ${phpVendorPaymentRequestData.status}`;
+        // }
 
-        // Send email
-        const emailsend = await sendEmail(message, phpVendorPaymentRequestData.request_by, phpVendorPaymentRequestData.vendor_name,
-            phpVendorPaymentRequestData.request_date, phpVendorPaymentRequestData.request_amount, phpVendorPaymentRequestData.payment_amount,
-            phpVendorPaymentRequestData.mobile, phpVendorPaymentRequestData.status, phpVendorPaymentRequestData.payment_date,
-            phpVendorPaymentRequestData.payment_by, phpVendorPaymentRequestData.status);
+        // // Send email
+        // const emailsend = await sendEmail(message, phpVendorPaymentRequestData.request_by, phpVendorPaymentRequestData.vendor_name,
+        //     phpVendorPaymentRequestData.request_date, phpVendorPaymentRequestData.request_amount, phpVendorPaymentRequestData.payment_amount,
+        //     phpVendorPaymentRequestData.mobile, phpVendorPaymentRequestData.status, phpVendorPaymentRequestData.payment_date,
+        //     phpVendorPaymentRequestData.payment_by, phpVendorPaymentRequestData.status);
 
         return response.returnTrue(
             200,

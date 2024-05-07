@@ -158,12 +158,10 @@ exports.addAccListData = async (req, res) => {
         //     return response.returnFalse(409, req, res, "Title Name is already exist", {});
         // }
 
-
         const existingTitle = await phpPaymentAccListModel.findOne({ title: req.body.title });
         if (existingTitle) {
             return response.returnFalse(409, req, res, "Title Name already exists", {});
         }
-        console.log("existingTitle---------------------------------", existingTitle)
         const latestId = await phpPaymentAccListModel.findOne().sort({ id: -1 }).select({ id: 1 });
         const latestSno = await phpPaymentAccListModel.findOne().sort({ sno: -1 }).select({ sno: 1 });
         const latestIdVal = latestId ? latestId.id : 0;
@@ -192,3 +190,59 @@ exports.addAccListData = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 };
+
+
+// exports.addAccListData = async (req, res) => {
+//     try {
+//         const existingTitle = await phpPaymentAccListModel.findOne({ title: req.body.title });
+//         if (existingTitle) {
+//             return response.returnFalse(409, req, res, "Title Name already exists", {});
+//         }
+//         console.log("existingTitle-------------------------------", existingTitle)
+//         const sendData = new FormData();
+//         sendData.append('title', req.body.title);
+//         sendData.append('detail', req.body.detail);
+//         sendData.append('gst_bank', req.body.gst_bank);
+//         sendData.append('payment_type', req.body.payment_type);
+
+//         const phpResponse = await axios.post(
+//             'https://sales.creativefuel.io/webservices/RestController.php?view=create_update_payment_detail',
+//             sendData,
+//             {
+//                 headers: {
+//                     ...sendData.getHeaders(),
+//                 },
+//             }
+//         );
+//         const responseData = phpResponse.data.body;
+//         console.log("PHP Response Data:", responseData);
+
+//         const latestId = await phpPaymentAccListModel.findOne().sort({ id: -1 }).select({ id: 1 });
+//         const latestSno = await phpPaymentAccListModel.findOne().sort({ sno: -1 }).select({ sno: 1 });
+//         const latestIdVal = latestId ? latestId.id : 0;
+//         const latestSnoVal = latestSno ? latestSno.sno : 0;
+
+//         const currDate = new Date();
+
+//         const accData = new phpPaymentAccListModel({
+//             id: latestIdVal + 1,
+//             title: req.body.title,
+//             detail: req.body.detail,
+//             gst_bank: req.body.gst_bank,
+//             payment_type: req.body.payment_type,
+//             created_at: currDate,
+//             sno: latestSnoVal + 1
+//         });
+//         const result = await accData.save();
+//         return response.returnTrue(
+//             200,
+//             req,
+//             res,
+//             "AccListData Created Successfully",
+//             result
+//         );
+//     } catch (err) {
+//         console.error("Error:", err);
+//         return response.returnFalse(500, req, res, err.message, {});
+//     }
+// };
