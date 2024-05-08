@@ -911,6 +911,10 @@ router.get("/users", user.getUsers);
 router.post("/get_all_users_counts_with_joining_date", user.getAllUsersCountsWithJoiningDate);
 router.get("/get_users_without_digital_signature_image", user.getAllWithDigitalSignatureImageUsers);
 router.put("/rejoin_user", user.rejoinUser);
+router.get("/get_all_users_with_roleId", user.getAllUsersWithRole);
+router.post("/image_to_base64", user.ImagetoBase64);
+router.get("/download_offerletter_in_bucket/:filename", user.downloadOfferLeterInBucket);
+router.post("/send_offer_letter", user.sendOfferLetter);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 

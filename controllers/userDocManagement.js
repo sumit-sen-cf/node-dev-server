@@ -4,7 +4,8 @@ const constant = require("../common/constant.js");
 const { default: mongoose } = require("mongoose");
 const helper = require("../helper/helper.js");
 const vari = require("../variables.js");
-const { storage } = require('../common/uploadFile.js')
+const { storage } = require('../common/uploadFile.js');
+const userLoginHisModel = require("../models/userLoginHisModel.js");
 
 exports.addUserDoc = async (req, res) => {
   try {
@@ -105,6 +106,108 @@ exports.getUserDoc = async (req, res) => {
     return response.returnFalse(500, req, res, err.message, {});
   }
 };
+
+
+// //new 
+// exports.getUserDoc = async (req, res) => {
+//   try {
+//     const userDocId = req.body?._id;
+//     const user_id = req.body?.user_id;
+//     const matchCondition = {};
+
+//     if (user_id) {
+//       matchCondition.user_id = parseInt(user_id);
+//     }
+//     if (userDocId) {
+//       matchCondition._id = mongoose.Types.ObjectId(userDocId);
+//     }
+
+//     const user = await userLoginHisModel.findOne({ user_id }).sort({ login_date: 1 });
+//     if (!user) {
+//       return response.returnFalse(404, req, res, "User not found", []);
+//     }
+
+//     const firstLoginTime = user.login_date;
+
+//     const docs = await userDocManagmentModel.aggregate([
+//       {
+//         $match: matchCondition,
+//       },
+//       {
+//         $lookup: {
+//           from: "documentmodels",
+//           localField: "doc_id",
+//           foreignField: "_id",
+//           as: "document",
+//         },
+//       },
+//       {
+//         $unwind: "$document",
+//       },
+//       {
+//         $addFields: {
+//           doc_image_url: {
+//             $cond: {
+//               if: "$doc_image",
+//               then: {
+//                 $concat: [
+//                   `${constant.base_url}`,
+//                   "$doc_image",
+//                 ],
+//               },
+//               else: "",
+//             },
+//           },
+//           remaining_time: {
+//             $subtract: [
+//               "$document.period_days",
+//               {
+//                 $divide: [
+//                   {
+//                     $subtract: [new Date(), firstLoginTime]
+//                   },
+//                   1000 * 60 * 60 * 24
+//                 ]
+//               }
+//             ]
+//           },
+//           isExpired: {
+//             $gte: [{ $divide: [{ $subtract: [new Date(), firstLoginTime] }, 1000 * 60 * 60 * 24] }, 10]
+//           }
+//         },
+//       },
+//       {
+//         $project: {
+//           document: 1,
+//           doc_image_url: 1,
+//           remaining_time: {
+//             $cond: {
+//               if: "$isExpired",
+//               then: "Expired",
+//               else: {
+//                 $concat: [
+//                   { $toString: { $floor: "$remaining_time" } },
+//                   " days ",
+//                   { $toString: { $floor: { $mod: [{ $multiply: ["$remaining_time", 24] }, 24] } } },
+//                   " hours left"
+//                 ]
+//               }
+//             }
+//           }
+//         }
+//       }
+//     ]);
+
+//     if (docs.length === 0) {
+//       return response.returnFalse(200, req, res, "No record found", []);
+//     } else {
+//       return response.returnTrue(200, req, res, "Data Fetch Successfully", docs);
+//     }
+//   } catch (err) {
+//     return response.returnFalse(500, req, res, err.message, {});
+//   }
+// };
+
 
 exports.editDoc = async (req, res) => {
   try {

@@ -9,10 +9,22 @@ const objMastSchema = new mongoose.Schema({
   },
   obj_name: {
     type: String,
-    unique:true,
+    unique: true,
     default: ""
   },
   soft_name: {
+    type: String,
+    default: "",
+  },
+  project_name: {
+    type: String,
+    default: "",
+  },
+  summary: {
+    type: String,
+    default: "",
+  },
+  screenshot: {
     type: String,
     default: "",
   },
