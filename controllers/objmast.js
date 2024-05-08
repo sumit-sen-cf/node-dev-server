@@ -2,18 +2,34 @@ const objectMastSchema = require("../models/objModel.js");
 const userAuthModel = require('../models/userAuthModel.js');
 const userModel = require('../models/userModel.js');
 const response = require("../common/response");
+const vari = require("../variables.js");
 const deptDesiAuthModel = require('../models/deptDesiAuthModel.js');
 
 exports.addObjectMast = async (req, res) => {
   try {
-    const { obj_name, soft_name, dept_id, created_by } = req.body;
+    const { obj_name, soft_name, dept_id, created_by, project_name, summary } = req.body;
 
     const Obj = new objectMastSchema({
       obj_name,
       soft_name,
+      project_name,
+      summary,
       Dept_id: dept_id,
       Created_by: created_by,
     });
+
+    if (req.file) {
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      Obj.screenshot = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => {
+        // res.status(200).send("Success") 
+      });
+      blobStream.end(req.file.buffer);
+    }
+
     const savedObjectMast = await Obj.save();
     const objectId = savedObjectMast.obj_id;
 
@@ -111,6 +127,7 @@ exports.addObjectMast = async (req, res) => {
 
 exports.getObjectMastById = async (req, res) => {
   try {
+    const objectImagesBaseUrl = vari.IMAGE_URL;
     let match_condition = {
       obj_id: parseInt(req.params.obj_id),
     };
@@ -135,9 +152,13 @@ exports.getObjectMastById = async (req, res) => {
         $project: {
           obj_name: "$obj_name",
           soft_name: "$soft_name",
+          project_name: "$project_name",
+          summary: "$summary",
+          screenshot: "$screenshot",
           Dept_id: "$Dept_id",
           Created_by: "$Created_by",
-          dept_name: "$data.dept_name"
+          dept_name: "$data.dept_name",
+          screenshot_url: { $concat: [objectImagesBaseUrl, "$screenshot"] },
         },
       },
     ]);
@@ -156,6 +177,7 @@ exports.getObjectMastById = async (req, res) => {
 
 exports.getObjectMasts = async (req, res) => {
   try {
+    const objectImagesBaseUrl = vari.IMAGE_URL;
     let objects = await objectMastSchema.aggregate([
       {
         $lookup: {
@@ -176,9 +198,13 @@ exports.getObjectMasts = async (req, res) => {
           obj_id: "$obj_id",
           obj_name: "$obj_name",
           soft_name: "$soft_name",
+          project_name: "$project_name",
+          summary: "$summary",
+          screenshot: "$screenshot",
           Dept_id: "$Dept_id",
           Created_by: "$Created_by",
-          dept_name: "$data.dept_name"
+          dept_name: "$data.dept_name",
+          screenshot_url: { $concat: [objectImagesBaseUrl, "$screenshot"] },
         },
       },
     ]);
@@ -202,11 +228,28 @@ exports.editObjectMast = async (req, res) => {
       {
         obj_name: req.body.obj_name,
         soft_name: req.body.soft_name,
+        project_name: req.body.project_name,
+        summary: req.body.summary,
+        screenshot: req.body.screenshot,
         Dept_id: req.body.dept_id,
         Last_updated_by: req.body.Last_updated_by
       },
       { new: true }
     );
+
+    if (req.file) {
+      const bucketName = vari.BUCKET_NAME;
+      const bucket = storage.bucket(bucketName);
+      const blob = bucket.file(req.file.originalname);
+      editobj.screenshot = blob.name;
+      const blobStream = blob.createWriteStream();
+      blobStream.on("finish", () => {
+        editobj.save();
+        // res.status(200).send("Success") 
+      });
+      blobStream.end(req.file.buffer);
+    }
+
     if (!editobj) {
       return response.returnFalse(
         200,

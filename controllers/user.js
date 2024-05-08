@@ -1,6 +1,8 @@
 const userModel = require('../models/userModel.js');
 const multer = require("multer");
 const jwt = require("jsonwebtoken");
+const axios = require('axios');
+// const fetch = require('node-fetch');
 const userAuthModel = require('../models/userAuthModel.js');
 const path = require("path");
 const jobResponsibilityModel = require('../models/jobResponsibilityModel.js');
@@ -235,13 +237,29 @@ exports.addUser = [upload, async (req, res) => {
         })
 
         if (req.files.image && req.files.image[0].originalname) {
-            const bucketName = vari.BUCKET_NAME;
-            const bucket = storage.bucket(bucketName);
-            const blob1 = bucket.file(req.files.image[0].originalname);
-            simc.image = blob1.name;
-            const blobStream1 = blob1.createWriteStream();
-            blobStream1.on("finish", () => { });
-            blobStream1.end(req.files.image[0].buffer);
+
+            const allowedTypes = ['image/jpeg', 'image/png'];
+            const maxFileSize = 1 * 1024 * 1024;
+            const imageFile = req.files.image[0];
+            if (allowedTypes.includes(imageFile.mimetype) && imageFile.size <= maxFileSize) {
+                const bucketName = vari.BUCKET_NAME;
+                const bucket = storage.bucket(bucketName);
+                const blob1 = bucket.file(imageFile.originalname);
+                simc.image = blob1.name;
+                const blobStream1 = blob1.createWriteStream();
+                blobStream1.on("finish", () => { });
+                blobStream1.end(imageFile.buffer);
+            } else {
+                res.status(400).send('Invalid file type or file exceeds size limit (1MB)');
+            }
+
+            // const bucketName = vari.BUCKET_NAME;
+            // const bucket = storage.bucket(bucketName);
+            // const blob1 = bucket.file(req.files.image[0].originalname);
+            // simc.image = blob1.name;
+            // const blobStream1 = blob1.createWriteStream();
+            // blobStream1.on("finish", () => { });
+            // blobStream1.end(req.files.image[0].buffer);
         }
 
         // if(req.body.salary>= 30000){
@@ -2100,6 +2118,7 @@ exports.deleteUserAuth = async (req, res) => {
 
 exports.getSingleUserAuthDetail = async (req, res) => {
     try {
+        const objectImagesBaseUrl = vari.IMAGE_URL;
         const delv = await userAuthModel.aggregate([
             {
                 $match: { Juser_id: parseInt(req.params.Juser_id) }
@@ -2121,6 +2140,9 @@ exports.getSingleUserAuthDetail = async (req, res) => {
                     auth_id: { $first: '$auth_id' },
                     Juser_id: { $first: '$Juser_id' },
                     obj_name: { $first: '$object.obj_name' },
+                    project_name: { $first: '$object.project_name' },
+                    summary: { $first: '$object.summary' },
+                    screenshot: { $first: { $concat: [objectImagesBaseUrl, "$screenshot"] } },
                     obj_id: { $first: '$obj_id' },
                     insert_value: { $first: '$insert' },
                     view_value: { $first: '$view' },
@@ -2930,7 +2952,10 @@ exports.getAllWfhUsers = async (req, res) => {
                     emergency_contact_relation1: "$emergency_contact_relation1",
                     emergency_contact_relation2: "$emergency_contact_relation2",
                     document_percentage_mandatory: "$document_percentage_mandatory",
-                    document_percentage_non_mandatory: "$document_percentage_non_mandatory"
+                    document_percentage_non_mandatory: "$document_percentage_non_mandatory",
+                    image: {
+                        $concat: [imageUrl, "$image"],
+                    }
                 }
             }
         ]).exec();
@@ -4340,5 +4365,116 @@ exports.userHierarchy = async (req, res) => {
             error: error.message,
             message: "Error in user rejoin",
         });
+    }
+}
+
+exports.getAllUsersWithRole = async (req, res) => {
+    try {
+        const usersData = await userModel.aggregate([
+            {
+                $group: {
+                    _id: "$role_id",
+                    count: { $sum: 1 },
+                    users: { $push: "$$ROOT" }
+                }
+            }
+        ]);
+        return response.returnTrue(200, req, res, { usersData });
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
+
+
+exports.ImagetoBase64 = async (req, res) => {
+    try {
+        const { imageUrl } = req.body;
+
+        if (!imageUrl) {
+            return res.status(400).json({ error: 'Missing imageUrl in request body' });
+        }
+
+        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+
+        if (response.status !== 200) {
+            return res.status(400).json({ error: 'Failed to fetch image' });
+        }
+
+        const buffer = Buffer.from(response.data, 'binary');
+        const base64String = buffer.toString('base64');
+
+        res.json({ base64String });
+    } catch (error) {
+        console.error("Error converting image to base64:", error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+
+exports.downloadOfferLeterInBucket = async (req, res) => {
+    try {
+        const bucketName = vari.BUCKET_NAME;
+        const bucket = storage.bucket(bucketName);
+        const blob = bucket.file(req.params.filename);
+        const blobStream = blob.createReadStream();
+
+        blobStream.on('error', (err) => {
+            console.error("Error reading file from bucket:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        });
+
+        res.setHeader('Content-Type', 'application/pdf');
+        blobStream.pipe(res);
+    } catch (error) {
+        console.error("Error converting image to base64:", error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+
+exports.sendOfferLetter = async (req, res) => {
+    try {
+        const email = req.body.email;
+        const bucketName = vari.BUCKET_NAME;
+        const bucket = storage.bucket(bucketName);
+        const blob = bucket.file(req.file.originalname);
+        const blobStream = blob.createWriteStream();
+        blobStream.on('error', (err) => {
+            console.error("Error uploading offer letter to bucket:", err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        });
+        blobStream.on('finish', () => {
+            let mailTransporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: "onboarding@creativefuel.io",
+                    pass: "zboiicwhuvakthth",
+                },
+            });
+
+            const mailOptions = {
+                from: 'onboarding@creativefuel.io',
+                to: email,
+                subject: 'Offer Letter',
+                text: 'Please find attached the offer letter.',
+                attachments: [
+                    {
+                        filename: req.file.originalname,
+                    }
+                ]
+            };
+            mailTransporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error("Error sending email:", error);
+                    return res.status(500).json({ error: 'Internal Server Error' });
+                }
+                console.log('Email sent:', info.response);
+                return res.status(200).send('Offer letter sent successfully.');
+            });
+        });
+        blobStream.end(req.file.buffer);
+    } catch (error) {
+        console.error("Error sending offer letter:", error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 }
