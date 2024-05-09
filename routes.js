@@ -227,6 +227,7 @@ router.get('/assignment/get_camp_commitments/:_id', assignmentController.getCamp
 router.get('/assignment/get_phase_commitments/:phase_id', assignmentController.getPhaseCommits)
 router.post('/assignment/get_shift_phases', assignmentController.getShiftPhases)
 router.post('/assignment/replace_page_new', assignmentController.replacePage)
+router.post('/assignment/add_new_page', assignmentController.addNewPage)
 
 router.post('/assignment/commit', assignmentCommitController.createAssComm)
 router.post('/assignment/bulk', assignmentController.createAssignmentBulk)
