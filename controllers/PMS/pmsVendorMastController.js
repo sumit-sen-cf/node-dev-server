@@ -27,7 +27,9 @@ exports.createPmsVendorMast = [
             }
             const { type_id,  platform_id, payMethod_id, cycle_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
                 personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode, company_state,
-                threshold_limit, home_address, home_city, home_state, created_by, last_updated_by,vendor_category } = req.body;
+                threshold_limit, home_address, home_city, home_state, created_by, last_updated_by,vendor_category,bank_name,account_no,
+                ifsc_code,
+                account_type,upi_id } = req.body;
             const addVendorMastData = new pmsVendorMastModel({
                 type_id: type_id,
                 platform_id: platform_id,
@@ -52,7 +54,12 @@ exports.createPmsVendorMast = [
                 home_state: home_state,
                 created_by: created_by,
                 last_updated_by: last_updated_by,
-                vendor_category: vendor_category
+                vendor_category: vendor_category,
+                bank_name,
+                account_no,
+                ifsc_code,
+                account_type,
+                upi_id
             });
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
@@ -362,6 +369,11 @@ exports.getAllVendorMastList = async (req, res) => {
                     home_state: 1,
                     created_by: 1,
                     last_updated_by: 1,
+                    account_no:1,
+                ifsc_code:1,
+                account_type:1,
+                account_no:1,
+                upi_id:1,
                     upload_pan_image: {
                         $concat: [imageUrl, "$upload_pan_image"],
                     },
