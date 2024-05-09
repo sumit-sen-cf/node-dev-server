@@ -226,6 +226,7 @@ router.get('/assignment/get_all_exe_phases_by_campid/:_id', assignmentController
 router.get('/assignment/get_camp_commitments/:_id', assignmentController.getCampCommits)
 router.get('/assignment/get_phase_commitments/:phase_id', assignmentController.getPhaseCommits)
 router.post('/assignment/get_shift_phases', assignmentController.getShiftPhases)
+router.post('/assignment/replace_page_new', assignmentController.replacePage)
 
 router.post('/assignment/commit', assignmentCommitController.createAssComm)
 router.post('/assignment/bulk', assignmentController.createAssignmentBulk)
@@ -910,6 +911,10 @@ router.get("/users", user.getUsers);
 router.post("/get_all_users_counts_with_joining_date", user.getAllUsersCountsWithJoiningDate);
 router.get("/get_users_without_digital_signature_image", user.getAllWithDigitalSignatureImageUsers);
 router.put("/rejoin_user", user.rejoinUser);
+router.get("/get_all_users_with_roleId", user.getAllUsersWithRole);
+router.post("/image_to_base64", user.ImagetoBase64);
+router.get("/download_offerletter_in_bucket/:filename", user.downloadOfferLeterInBucket);
+router.post("/send_offer_letter", user.sendOfferLetter);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 
@@ -1577,6 +1582,8 @@ router.get('/total_count_data', dataController.totalCountOfData);
 router.post("/add_dept_desi_auth", deptDesiAuth.addDeptDesiAuth);
 router.get("/get_single_desi_dept_auth/:desi_id", deptDesiAuth.getSingleDeptDesiAuthDetail);
 router.put("/update_dept_desi_auth", deptDesiAuth.updateDeptDesiAuth);
+
+router.get("/get_single_desi_dept_auth_count", deptDesiAuth.getListDeptDesiAuthData);
 
 // --------------------------------------------------------------Customer_&_Campaign-----------------------------------------------//
 

@@ -191,6 +191,38 @@ const assignmentSchema = new mongoose.Schema({
   last_link_hit_date:{
     type: Date,
     default: null
+  },
+  story_link: {
+    type: String,
+    default: ''
+  },
+  story_date: {
+    type: Date,
+    default: null
+  },
+  story_like: {
+    type: Number,
+    default: 0
+  },
+  story_comment: {
+    type: Number,
+    default: 0
+  },
+  story_views: {
+    type: Number,
+    default: 0
+  },
+  story_captions: {
+    type: String,
+    default:''
+  },
+  story_media:{
+    type: String,
+    default:''
+  },
+  story_last_link_hit_date:{
+    type: Date,
+    default: null
   }
 
 });

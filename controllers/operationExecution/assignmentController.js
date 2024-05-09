@@ -6,6 +6,7 @@ const campaignPlanModel = require('../../models/operationExecution/campaignPlanM
 const campaignPhaseModel = require('../../models/operationExecution/campaignPhaseModel')
 const PhasePageModel = require('../../models/operationExecution/phasePageModel')
 const PhaseCommitmentModel = require('../../models/operationExecution/phaseCommitmentModel')
+const axios = require("axios");
 
 exports.createAssignment = catchAsync(async (req, res, next) => {
     const { ass_to, ass_by, page, ass_status, ass_id } = req.body
@@ -184,7 +185,15 @@ exports.updatePostDetails = catchAsync(async (req, res, next) => {
         post_type: req.body.post_type,
         post_captions: req.body.post_captions,
         post_media: req.body.post_media,
-        post_link: req.body.post_link
+        post_link: req.body.post_link,
+        story_like: req.body.story_like,
+        story_comment: req.body.story_comment,
+        story_views: req.body.story_views,
+        story_last_link_hit_date: req.body.story_last_link_hit_date,
+        story_date: req.body.story_date,
+        story_captions: req.body.story_captions,
+        story_media: req.body.story_media,
+        story_link: req.body.story_link
     },
         {
             new: true
@@ -386,3 +395,32 @@ exports.getShiftPhases = catchAsync(async (req, res, next) => {
 
     res.status(200).json({ data: update1 });
 });
+
+exports.replacePage = catchAsync(async (req, res, next) => {
+    const id = req.body._id;
+    const phaseId = req.body.phase_id;
+
+    const pageData = await axios.get(
+        `https://purchase.creativefuel.io/webservices/RestController.php?view=inventoryDataList`
+    );
+
+    const matchPid = pageData.page.body.filter(option => option.p_id == req.body.p_id)[0];
+
+    const result = await PhasePageModel.findOneAndUpdate({ campaignId: id, phase_id: phaseId, p_id: req.body.p_id }, {
+        p_id: matchPid.p_id,
+        page_name: matchPid.page_name,
+        cat_name: matchPid.cat_name,
+        platform: matchPid.platform,
+        follower_count: matchPid.follower_count,
+        page_link: matchPid.page_link
+    })
+    const result2 = await AssignmentModel.findOneAndUpdate({ campaignId: id, phase_id: phaseId, p_id: req.body.p_id }, {
+        p_id: matchPid.p_id,
+        page_name: matchPid.page_name,
+        cat_name: matchPid.cat_name,
+        platform: matchPid.platform,
+        follower_count: matchPid.follower_count,
+        page_link: matchPid.page_link
+    })
+    res.status(200).json({ data: result })
+})

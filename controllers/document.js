@@ -6,15 +6,19 @@ const { storage } = require('../common/uploadFile.js');
 
 exports.addDocument = async (req, res) => {
   try {
-    const { doc_type, description, priority, period, isRequired, doc_number } = req.body;
+    const { doc_name, doc_type, description, priority, period, isRequired, is_doc_number, doc_number, is_document_expired, expired_date } = req.body;
 
     const doc = new documentModel({
+      doc_name,
       doc_type,
       description,
       priority,
       period,
       isRequired,
+      is_doc_number,
       doc_number,
+      is_document_expired,
+      expired_date,
       job_type: req.body.job_type
     });
 
@@ -76,12 +80,16 @@ exports.getDoc = async (req, res) => {
 
 exports.editDoc = async (req, res) => {
   try {
-    const { doc_type, description, priority, period, isRequired, doc_number, job_type } = req.body;
+    const { doc_type, description, priority, period, isRequired, is_doc_number, doc_number, job_type, is_document_expired,
+      expired_date } = req.body;
 
     const editDocObj = await documentModel.findByIdAndUpdate(
       req.body._id,
       {
-        $set: { doc_type, description, priority, period, isRequired, doc_number, job_type },
+        $set: {
+          doc_name, doc_type, description, priority, period, isRequired, is_doc_number, doc_number, job_type, is_document_expired,
+          expired_date
+        },
       },
       { new: true }
     );

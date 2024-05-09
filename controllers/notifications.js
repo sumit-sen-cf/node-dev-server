@@ -30,6 +30,9 @@ exports.getAllUnredenNotifications = async (req, res) => {
         res.status(500).send({ error: err.message, sms: 'Error getting all notifications' })
     }
 };
+
+
+
 exports.getAllNotifications = async (req, res) => {
     try {
         const simc = await notificationModel.find().sort({ user_id: -1 });
