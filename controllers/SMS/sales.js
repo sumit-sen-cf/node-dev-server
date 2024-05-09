@@ -353,11 +353,11 @@ exports.getSingleSalesBooking = async (req, res) => {
                 },
             },
         ])
-        if (salesBookingGetData) {
+        if (salesBookingGetData.length) {
             return res.status(200).json({
                 status: 200,
                 message: "Sales booking all payment details successfully!",
-                data: salesBookingGetData,
+                data: salesBookingGetData[0],
             });
         }
         return res.status(404).json({

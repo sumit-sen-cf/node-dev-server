@@ -397,15 +397,20 @@ exports.getShiftPhases = catchAsync(async (req, res, next) => {
 });
 
 exports.replacePage = catchAsync(async (req, res, next) => {
+    //get data from body
     const id = req.body._id;
     const phaseId = req.body.phase_id;
+    const newPid = req.body.new_pId;
 
+    //get php data
     const pageData = await axios.get(
         `https://purchase.creativefuel.io/webservices/RestController.php?view=inventoryDataList`
     );
 
-    const matchPid = pageData.page.body.filter(option => option.p_id == req.body.p_id)[0];
+    //check pid from php data
+    const matchPid = pageData.data.body.filter(option => option.p_id == newPid)[0];
 
+    //update data in the phase page model collection
     const result = await PhasePageModel.findOneAndUpdate({ campaignId: id, phase_id: phaseId, p_id: req.body.p_id }, {
         p_id: matchPid.p_id,
         page_name: matchPid.page_name,
@@ -413,7 +418,11 @@ exports.replacePage = catchAsync(async (req, res, next) => {
         platform: matchPid.platform,
         follower_count: matchPid.follower_count,
         page_link: matchPid.page_link
+    }, {
+        new: true
     })
+
+    //update data in the assignment collection
     const result2 = await AssignmentModel.findOneAndUpdate({ campaignId: id, phase_id: phaseId, p_id: req.body.p_id }, {
         p_id: matchPid.p_id,
         page_name: matchPid.page_name,
@@ -422,5 +431,86 @@ exports.replacePage = catchAsync(async (req, res, next) => {
         follower_count: matchPid.follower_count,
         page_link: matchPid.page_link
     })
+
+    //send success response
     res.status(200).json({ data: result })
+})
+
+exports.addNewPage = catchAsync(async (req, res, next) => {
+    //body to get data p_id
+    let pId = req.body.p_id
+    //get php data 
+    const pageData = await axios.get(
+        `https://purchase.creativefuel.io/webservices/RestController.php?view=inventoryDataList`
+    );
+    //check pid from php data
+    const matchPid = pageData.data.body.filter(option => option.p_id == pId)[0];
+
+    //get assignment data
+    const assignmentData = await AssignmentModel.findOne({
+        phase_id: req.body.phase_id,
+        campaignId: req.body._id
+    });
+
+    //add data in the phase page collection
+    const add1 = await new PhasePageModel({
+        phase_id: req.body.phase_id,
+        phaseName: assignmentData.phaseName,
+        plan_id: assignmentData.plan_id,
+        planName: assignmentData.planName,
+        vendor_id: '',
+        p_id: matchPid.p_id,
+        postPerPage: 1,
+        postRemaining: 0,
+        storyPerPage: 1,
+        storyRemaining: 0,
+        campaignName: assignmentData.campaignName,
+        campaignId: req.body._id,
+        page_name: matchPid.page_name,
+        cat_name: matchPid.cat_name,
+        platform: matchPid.platform,
+        follower_count: matchPid.follower_count,
+        page_link: matchPid.page_link,
+        replacement_status: 'inactive',
+        deleted_status: 'inactive',
+        replaced_by: 'N/A',
+        replaced_with: 'N/A',
+        isExecuted: false
+    })
+
+    //add data in db collection
+    const finalAdd = await add1.save()
+
+    //add data in the assignment data model
+    const add2 = await AssignmentModel({
+        ass_by: '123',
+        phase_id: req.body.phase_id,
+        phaseName: assignmentData.phaseName,
+        plan_id: assignmentData.plan_id,
+        planName: assignmentData.planName,
+        vendor_id: '',
+        p_id: matchPid.p_id,
+        postPerPage: 1,
+        postRemaining: 0,
+        storyPerPage: 1,
+        storyRemaining: 0,
+        campaignName: assignmentData.campaignName,
+        campaignId: req.body._id,
+        page_name: matchPid.page_name,
+        cat_name: matchPid.cat_name,
+        platform: matchPid.platform,
+        follower_count: matchPid.follower_count,
+        page_link: matchPid.page_link,
+        replacement_status: 'inactive',
+        deleted_status: 'inactive',
+        replaced_by: 'N/A',
+        replaced_with: 'N/A',
+        ass_status: 'unassigned',
+        updatedFrom: ""
+    })
+    //add data in db collection
+    const finalAdd2 = await add2.save();
+
+    //success response send
+    res.status(200).json({ data: finalAdd2 })
 })
