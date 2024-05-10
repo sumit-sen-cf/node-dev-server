@@ -126,6 +126,26 @@ const pmsVendorMastSchema = new Schema({
         required: false,
         enum: ["Theme Page", "Influencer"]
     },  
+    bank_name: {
+        type: String,
+        required: false
+    },
+    account_no: {
+        type: Number,
+        required: false
+    },
+    ifsc_code: {
+        type: String,
+        required: false
+    },
+    account_type: {
+        type: String,
+        required: false
+    },
+    upi_id: {
+        type: String,
+        required: false
+    },
 });
 pmsVendorMastSchema.pre('save', async function (next) {
     if (!this.vendorMast_id) {
