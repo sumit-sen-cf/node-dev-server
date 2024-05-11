@@ -4478,3 +4478,43 @@ exports.sendOfferLetter = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+
+exports.sendOfferLetterMail = async (req, res) => {
+    try {
+        const attachment = req.file;
+        const email = req.body.email_id;
+
+        let mailTransporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: "onboarding@creativefuel.io",
+                pass: "zboiicwhuvakthth",
+            },
+        });
+
+        let mailOptions = {
+            from: "onboarding@creativefuel.io",
+            to: email,
+            subject: "Offer Letter",
+            html: 'your offer letter',
+            attachments: attachment
+                ? [
+                    {
+                        filename: attachment.originalname,
+                        path: attachment.path,
+                    },
+                ]
+                : [],
+        };
+
+        mailTransporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return error;
+            } else {
+                res.send("Email sent successfully ")
+            }
+        });
+    } catch (err) {
+        res.status(500).send({ error: err, sms: 'Error sending email' })
+    }
+}

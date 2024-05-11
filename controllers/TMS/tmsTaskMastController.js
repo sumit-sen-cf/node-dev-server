@@ -10,7 +10,6 @@ const constant = require('../../common/constant.js');
 exports.addTmsTaskMast = async (req, res) => {
     try {
         const { user_id } = req.body;
-        console.log("ddddddddddddddd", req.body, user_id)
         const checkDuplicacy = await tmsTaskModel.findOne({ task_name: req.body.task_name });
         if (checkDuplicacy) {
             return res.status(403).json({
@@ -237,7 +236,7 @@ exports.getAllTmsTaskMastList = async (req, res) => {
                                     '$attachments'
                                 ]
                             },
-                            else: null                    
+                            else: null
                         }
                     },
                     cat_data: {

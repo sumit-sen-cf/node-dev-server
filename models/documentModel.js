@@ -50,7 +50,11 @@ const documentSchema = new mongoose.Schema({
   expired_date: {
     type: String,
     default: "",
+  },
+  order_number: {
+    type: Number
   }
+
 });
 // Post-save hook on the Document model
 documentSchema.post('save', async function (doc) {

@@ -32,9 +32,7 @@ exports.getFamilys = async (req, res) => {
   try {
     const families = await familyModel.find();
     const latestUser = await userModel.findOne({}, { user_id: 1 }).sort({ user_id: -1 });
-    console.log("ddddddddddddddddd", latestUser);
     const incrementedUser = latestUser ? latestUser.user_id + 1 : 1;
-    console.log("ffffffffffff", incrementedUser);
     if (!families) {
       return response.returnFalse(200, req, res, "No Reord Found...", []);
     }

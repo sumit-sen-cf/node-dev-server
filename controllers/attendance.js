@@ -2128,7 +2128,6 @@ exports.getAllAttendanceData = async (req, res) => {
       .sort({ _id: -1 })
       .exec();
 
-    console.log("dddddddddd", latestEntry.month, "year", latestEntry.year)
     // const allAttendanceData = await attendanceModel.find();
     const allAttendanceData = await attendanceModel.aggregate([
       {

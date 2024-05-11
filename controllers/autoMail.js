@@ -87,17 +87,14 @@ async function sendWhatsappSms(daysBefore) {
 
 
 async function sendReminderEmail(daysBefore) {
-  console.log("ddddddddddddddddd");
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + daysBefore);
   const year = currentDate.getFullYear();
   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
   const day = String(currentDate.getDate()).padStart(2, '0');
   const formattedDate = `${year}-${month}-${day}T00:00:00.000+00:00`;
-  console.log("formattedDate", formattedDate)
 
   const users = await userModel.find({ joining_date: formattedDate });
-  console.log("usrs", users);
 
   users.forEach(async (user) => {
 
@@ -105,7 +102,6 @@ async function sendReminderEmail(daysBefore) {
     const template = await fs.promises.readFile(templatePath, "utf-8");
     const name = user.user_name;
     const html = ejs.render(template, { name });
-    console.log("html", html);
 
     /* dynamic email temp code start */
     // let contentList = await emailTempModel.findOne({ email_for_id: '65be340cad52cfd11fa27e50', send_email: true })

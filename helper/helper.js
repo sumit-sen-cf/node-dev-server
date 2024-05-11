@@ -224,7 +224,6 @@ module.exports = {
       .sort({ _id: -1 })
       .exec();
 
-    // console.log("dddddddddd", latestEntry)
     let nextIncrement = 1;
     if (latestEntry && latestEntry.invoiceNo) {
       const parts = latestEntry.invoiceNo.split("/");

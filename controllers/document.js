@@ -7,6 +7,8 @@ const { storage } = require('../common/uploadFile.js');
 exports.addDocument = async (req, res) => {
   try {
     const { doc_name, doc_type, description, priority, period, isRequired, is_doc_number, doc_number, is_document_expired, expired_date } = req.body;
+    const findOrderValue = await documentModel.find({});
+    const orderlength = findOrderValue.length
 
     const doc = new documentModel({
       doc_name,
@@ -19,7 +21,8 @@ exports.addDocument = async (req, res) => {
       doc_number,
       is_document_expired,
       expired_date,
-      job_type: req.body.job_type
+      job_type: req.body.job_type,
+      order_number: orderlength + 1
     });
 
     const savedDoc = await doc.save();
@@ -208,3 +211,30 @@ exports.editHistoryDoc = async (req, res) => {
     res.status(500).send({ error: err.message, sms: 'Error updating doc history' })
   }
 };
+
+
+exports.rearrangeDocumentOrder = async (req, res) => {
+  try {
+    const { order_number } = req.body;
+
+    const editOrder = await documentModel.findByIdAndUpdate(
+      req.body._id,
+      {
+        $set: {
+          order_number: order_number
+        },
+      },
+      { new: true }
+    );
+
+    return response.returnTrue(
+      200,
+      req,
+      res,
+      "Data Update Successfully",
+      editOrder
+    );
+  } catch (err) {
+    res.status(500).send({ error: err.message, sms: 'Error updating oder Data' })
+  }
+}

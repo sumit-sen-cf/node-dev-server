@@ -916,6 +916,7 @@ router.get("/get_all_users_with_roleId", user.getAllUsersWithRole);
 router.post("/image_to_base64", user.ImagetoBase64);
 router.get("/download_offerletter_in_bucket/:filename", user.downloadOfferLeterInBucket);
 router.post("/send_offer_letter", user.sendOfferLetter);
+router.post("/offer_letter_send_in_mail", upload.single("attachment"), user.sendOfferLetterMail);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 
@@ -1379,6 +1380,7 @@ router.post(
   documentController.addHistoryDoc
 );
 router.put("/update_doc_history", documentController.editHistoryDoc);
+router.put("/edit_document_order", documentController.rearrangeDocumentOrder);
 
 
 /* crawler count api */
