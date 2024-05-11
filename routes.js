@@ -145,7 +145,7 @@ const { createPlatform, getPlatformDetail, updatePlatformData, getAllPlatformLis
 const { createPayMethod, getPayDetail, updatePayData, getAllPayList, deletePayData } = require("./controllers/PMS/pmsPayMethodController.js");
 const { createPayCycle, getPayCycleDetail, updatePayCycle, getAllPayCycleList, deletePayCycleData } = require("./controllers/PMS/pmsPayCycleController.js");
 const { createGroupLink, getGroupLinkDetail, updateGroupLink, getAllGroupLinkList, deleteGroupLinkData } = require("./controllers/PMS/pmsGroupLinkTypeController.js");
-const { createPmsVendorMast, getVendorMastDetail, updateVendorMast, getAllVendorkMastList, getAllVendorMastList, vendorMastDelete } = require("./controllers/PMS/pmsVendorMastController.js");
+const { createPmsVendorMast, getVendorMastDetail, updateVendorMast, getAllVendorkMastList, getAllVendorMastList, vendorMastDelete,getPageByVenodrId } = require("./controllers/PMS/pmsVendorMastController.js");
 const { createVendorGroup, getVendorGroupDetail, updateVendorGroup, getAllVendorGroupList, deleteVendorGroupData } = require("./controllers/PMS/pmsVendorGroupLinkController.js");
 const { createPriceType, getPriceDetail, updatePriceType, getPriceList, deletePriceType, getAllPriceTypeList } = require("./controllers/PMS/pmsPriceTypeController.js");
 const { createPlatformPrice, getPlatformPriceDetail, updatePlatformPriceData, getPlatformPriceList, deletePlatformPriceData } = require("./controllers/PMS/pmsPlatformPriceTypeController.js");
@@ -1685,6 +1685,7 @@ router.post("/addVendorMast", createPmsVendorMast);
 router.get("/getVendorMast/:id", getVendorMastDetail);
 router.put("/updateVendorMast/:id", updateVendorMast);
 router.get("/vendorAllData", getAllVendorMastList);
+router.get("/pageByVenodrId/:vendorMast_id", getPageByVenodrId);
 router.delete("/deleteVendorMast/:id", vendorMastDelete);
 
 router.post("/addVendorGroup", createVendorGroup);
