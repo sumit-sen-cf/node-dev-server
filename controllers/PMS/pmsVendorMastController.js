@@ -4,7 +4,8 @@ const mongoose = require("mongoose");
 const pmsVendorMastModel = require('../../models/PMS/pmsVendorMastModel');
 const multer = require("multer");
 const vari = require("../../variables.js");
-const { storage } = require('../../common/uploadFile.js')
+const { storage } = require('../../common/uploadFile.js');
+const pmsPageMastModel = require('../../models/PMS/pmsPageMastModel.js');
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -29,7 +30,7 @@ exports.createPmsVendorMast = [
                 personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode, company_state,
                 threshold_limit, home_address, home_city, home_state, created_by, last_updated_by,vendor_category,bank_name,account_no,
                 ifsc_code,
-                account_type,upi_id } = req.body;
+                account_type,upi_id,whatsapp_link } = req.body;
             const addVendorMastData = new pmsVendorMastModel({
                 type_id: type_id,
                 platform_id: platform_id,
@@ -59,7 +60,8 @@ exports.createPmsVendorMast = [
                 account_no,
                 ifsc_code,
                 account_type,
-                upi_id
+                upi_id,
+                whatsapp_link:whatsapp_link.split(",").map((item) => item.trim())
             });
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
@@ -197,7 +199,9 @@ exports.updateVendorMast = [
             const { id } = req.params;
             const { type_id, platform_id, payMethod_id, cycle_id,vendorMast_name, country_code, mobile, alternate_mobile, email,
                 personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode, company_state,
-                threshold_limit, home_address, home_city, home_state, created_by, last_updated_by } = req.body;
+                threshold_limit, home_address, home_city, home_state, created_by, last_updated_by,vendor_category,bank_name,account_no,
+                ifsc_code,
+                account_type,upi_id,whatsapp_link  } = req.body;
             const VendorMastData = await pmsVendorMastModel.findOne({ _id: id });
             if (!VendorMastData) {
                 return res.send("Invalid Vendore-Mast Id...");
@@ -250,7 +254,14 @@ exports.updateVendorMast = [
                     home_city,
                     home_state,
                     created_by,
-                    last_updated_by
+                    last_updated_by,
+                    vendor_category: vendor_category,
+                    bank_name,
+                    account_no,
+                    ifsc_code,
+                    account_type,
+                    upi_id,
+                    whatsapp_link:whatsapp_link.split(",").map((item) => item.trim())
                 },
             },
                 { new: true }
@@ -374,6 +385,8 @@ exports.getAllVendorMastList = async (req, res) => {
                 account_type:1,
                 account_no:1,
                 upi_id:1,
+                bank_name:1,
+                whatsapp_link:1,    
                     upload_pan_image: {
                         $concat: [imageUrl, "$upload_pan_image"],
                     },
@@ -433,7 +446,28 @@ exports.getAllVendorMastList = async (req, res) => {
         });
     }
 };
-
+exports.getPageByVenodrId= async (req,res)=>{
+    try{
+        const {params}=req;
+        const {vendorMast_id}=params;
+        const vendorMastData=await pmsPageMastModel.find({vendorMast_id});
+        if(!vendorMastData){
+            return res.status(404).json({
+                status:404,
+                message:message.DATA_NOT_FOUND,
+            });
+        }
+        return res.status(200).json({
+            status:200,
+            message:"PMS vendor-mast data found successfully!",
+            data:vendorMastData,
+        });
+    }catch(error){
+        res.status(404).json({
+            message:error
+        })
+    }
+}
 //DELETE - PMS_vendor_Mast_ By-ID
 exports.vendorMastDelete = async (req, res) => {
     try {

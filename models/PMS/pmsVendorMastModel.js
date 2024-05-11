@@ -80,7 +80,8 @@ const pmsVendorMastSchema = new Schema({
     },
     company_pincode: {
         type: Number,
-        required: false
+        required: false,
+        default:0
     },
     company_state: {
         type: String,
@@ -146,6 +147,10 @@ const pmsVendorMastSchema = new Schema({
         type: String,
         required: false
     },
+    whatsapp_link:{
+        type: [],
+        required: false
+    }
 });
 pmsVendorMastSchema.pre('save', async function (next) {
     if (!this.vendorMast_id) {
