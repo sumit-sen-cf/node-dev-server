@@ -34,12 +34,12 @@ router.delete("/delete_account_type/:id", accountType.deleteAccountType);
 /**
  * account company type routes
  */
-router.post("/add_account_company_type", validation.accountCompanyTypeValidation,
+router.post("/add_account_company_type", verifyToken, validation.accountCompanyTypeValidation,
     accountCompanyTypeController.addAccountCompanyType);
-router.put("/edit_account_company_type/:id", validation.accountCompanyTypeValidation,
+router.put("/edit_account_company_type/:id", verifyToken, validation.accountCompanyTypeValidation,
     accountCompanyTypeController.editAccountCompanyType);
-router.get("/get_all_account_company_type", accountCompanyTypeController.getAllAccountCompanyType);
-router.get("/get_single_account_company_type/:id", accountCompanyTypeController.getSingleAccountCompanyType);
-router.delete("/delete_account_company_type/:id", accountCompanyTypeController.deleteAccountCompanyType);
+router.get("/get_all_account_company_type", verifyToken, accountCompanyTypeController.getAllAccountCompanyType);
+router.get("/get_single_account_company_type/:id", verifyToken, accountCompanyTypeController.getSingleAccountCompanyType);
+router.delete("/delete_account_company_type/:id", verifyToken, accountCompanyTypeController.deleteAccountCompanyType);
 
 module.exports = router; 
