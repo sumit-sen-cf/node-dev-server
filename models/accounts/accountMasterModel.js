@@ -21,11 +21,6 @@ const accountMasterSchema = new mongoose.Schema({
         required: true,
         ref: "accountCompanyTypeModel"
     },
-    document_overview_id: {
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: "accountDocumentOverviewModel"
-    },
     category_id: {
         type: Schema.Types.ObjectId, //update from industry id
         required: true,
@@ -35,11 +30,6 @@ const accountMasterSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId, //from other sides to get data
         required: true,
         // ref: ""
-    },
-    poc_id: {
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: "accountPocModel"
     },
     account_owner_id: {
         type: Number,   //login user_id

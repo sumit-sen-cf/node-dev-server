@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const { verifyToken } = require("../middleware/auth")
 const accountMaster = require("../controllers/accounts/accountMasterController");
 const accountType = require("../controllers/accounts/accountTypeController");
-const { verifyToken } = require("../middleware/auth")
+const accountCompanyTypeController = require("../controllers/accounts/accountCompanyTypeController");
 
 router.get("/", (req, res) => {
     res.send({ message: "Welcome to Account module." });
@@ -11,14 +12,24 @@ router.get("/", (req, res) => {
 /**
  * account master routes
  */
-// router.post("/add_sales_booking", SMS.addSalesBooking);
-// router.put("/edit_sales_booking/:id", SMS.editSalesBooking);
-// router.get("/get_all_sales_booking", SMS.getAllSalesBooking);
-// router.get("/get_single_sales_booking/:id", SMS.getSingleSalesBooking);
-// router.delete("/delete_sales_booking/:id", SMS.deleteSalesBooking);
+// router.post("/add_account", accountMaster.addAccountDetails);
+// router.put("/edit_account/:id", accountMaster.editAccountDetails);
+// router.get("/get_all_account", accountMaster.getAllAccountDetails);
+// router.get("/get_single_account/:id", accountMaster.getSingleAccountDetails);
+// router.delete("/delete_account/:id", accountMaster.deleteAccountDetails);
 
-router.post("/add_account", verifyToken,accountType.addAccountType);
+/**
+ * account type routes
+ */
+router.post("/add_account_type", verifyToken, accountType.addAccountType);
 
-
+/**
+ * account company type routes
+ */
+// router.post("/add_account_company_type", accountCompanyTypeController.addAccountCompanyType);
+// router.put("/edit_account_company_type/:id", accountCompanyTypeController.editAccountCompanyType);
+// router.get("/get_all_account_company_type", accountCompanyTypeController.getAllAccountCompanyType);
+// router.get("/get_single_account_company_type/:id", accountCompanyTypeController.getSingleAccountCompanyType);
+// router.delete("/delete_account_company_type/:id", accountCompanyTypeController.deleteAccountCompanyType);
 
 module.exports = router; 
