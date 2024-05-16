@@ -131,6 +131,7 @@ const repairandreturnsumdata = require("./controllers/repairAndReturnSum.js");
 const assetVendorSum = require("./controllers/assetVendorSum.js");
 const pmsPageAssignment = require("./controllers/PMS/pmsPageAssignment.js");
 const dynamicTablesModel = require("./controllers/dynamicTables.js");
+const adminController = require('./controllers/adminController.js')
 
 /* Task Mangement Controller Import */
 //const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1871,5 +1872,9 @@ router.put("/vendorsum", assetVendorSum.editVendorSum);
 router.post("/add_dynamic_table_data", dynamicTablesModel.addDynamicTablesData);
 router.get("/get_dynamic_table_data", dynamicTablesModel.getSingleDynamicTablesData);
 router.put("/edit_dynamic_table_data", dynamicTablesModel.editDynamicTablesData);
+
+// admin password and email routes
+router.post('/change_all_user_password',adminController.changePassOfUsers);
+router.post('/send_email_to_all_users',adminController.sendPassEmailToUsers)
 
 module.exports = router;
