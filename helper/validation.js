@@ -64,7 +64,7 @@ exports.accountPocValidation = async (req, res, next) => {
         email: Joi.string().email().required().messages(),
         department: Joi.string().required().messages(),
         designation: Joi.string().required().messages(),
-        description: Joi.string().min(5).max(20).required(),
+        description: Joi.string().min(5).max(2000).required(),
         created_by: Joi.optional(),
         updated_by: Joi.optional(),
     });
