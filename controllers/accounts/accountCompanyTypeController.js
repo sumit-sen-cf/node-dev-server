@@ -31,7 +31,6 @@ exports.addAccountCompanyType = async (req, res) => {
             created_by: created_by,
             updated_by: created_by
         })
-
         //send success response
         return res.status(200).json({
             status: 200,
