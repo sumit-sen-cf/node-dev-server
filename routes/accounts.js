@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const accountMaster = require("../controllers/accounts/accountMasterController");
+const accountType = require("../controllers/accounts/accountTypeController");
+const { verifyToken } = require("../middleware/auth")
 
 router.get("/", (req, res) => {
     res.send({ message: "Welcome to Account module." });
@@ -14,5 +16,9 @@ router.get("/", (req, res) => {
 // router.get("/get_all_sales_booking", SMS.getAllSalesBooking);
 // router.get("/get_single_sales_booking/:id", SMS.getSingleSalesBooking);
 // router.delete("/delete_sales_booking/:id", SMS.deleteSalesBooking);
+
+router.post("/add_account", verifyToken,accountType.addAccountType);
+
+
 
 module.exports = router; 
