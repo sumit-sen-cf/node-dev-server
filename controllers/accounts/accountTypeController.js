@@ -16,38 +16,39 @@ exports.addAccountType = async (req, res) => {
                 message: "Account type name alredy exist!",
             });
         }
-        const { account_type_name, description, created_by, updated_by } = req.body;
-        // validation used in joi 
-        const schema = await Joi.object({
-            account_type_name: Joi.string().required().messages({
-                "string.empty": `account_type_name is a required field.`,
-                "string.account_type_name": `please enter valid account_type_name.`
-            }),
-            description: Joi.string().min(5).max(200).required().messages({
-                "string.empty": `description is a required field.`,
-                "string.min": `description must be at least 5 characters long.`,
-                "string.max": `description must be at least 100 characters short.`
-            })
-        });
-        const validation = schema.validate({
-            account_type_name: account_type_name,
-            description: description,
-        });
+        const { account_type_name, description, created_by } = req.body;
+        // // validation used in joi 
+        // const schema = await Joi.object({
+        //     account_type_name: Joi.string().required().messages({
+        //         "string.empty": `account_type_name is a required field.`,
+        //         "string.account_type_name": `please enter valid account_type_name.`
+        //     }),
+        //     description: Joi.string().min(5).max(200).required().messages({
+        //         "string.empty": `description is a required field.`,
+        //         "string.min": `description must be at least 5 characters long.`,
+        //         "string.max": `description must be at least 200 characters short.`
+        //     })
+        // });
+        // const validation = schema.validate({
+        //     account_type_name: account_type_name,
+        //     description: description,
+        // });
 
-        if (validation.error) {
-            return res.status(422).send({
-                status: 422,
-                message: validation.error.details,
-            });
-        }
-        //add account data
-        const createAccountTypeData = new accountTypesModel({
+        // if (validation.error) {
+        //     return res.status(422).send({
+        //         status: 422,
+        //         message: validation.error.details,
+        //     });
+        // }
+
+        //data stored in DB collection
+        const createAccountTypeData = await accountTypesModel.create({
             account_type_name: account_type_name,
             description: description,
             created_by: created_by,
-            updated_by: updated_by
-        });
-        await createAccountTypeData.save();
+            updated_by: created_by
+        })
+
         return res.status(200).json({
             status: 200,
             message: "Account type data added successfully!",
@@ -136,29 +137,29 @@ exports.updateAccountTypeData = async (req, res) => {
     try {
         const { id } = req.params
         const { account_type_name, description, updated_by } = req.body;
-        // validation used in joi 
-        const schema = await Joi.object({
-            account_type_name: Joi.string().required().messages({
-                "string.empty": `account_type_name is a required field.`,
-                "string.account_type_name": `please enter valid account_type_name.`
-            }),
-            description: Joi.string().min(5).max(200).required().messages({
-                "string.empty": `description is a required field.`,
-                "string.min": `description must be at least 8 characters long.`,
-                "string.max": `description must be at least 100 characters short.`
-            })
-        });
-        const validation = schema.validate({
-            account_type_name: account_type_name,
-            description: description,
-        });
+        // // validation used in joi 
+        // const schema = await Joi.object({
+        //     account_type_name: Joi.string().required().messages({
+        //         "string.empty": `account_type_name is a required field.`,
+        //         "string.account_type_name": `please enter valid account_type_name.`
+        //     }),
+        //     description: Joi.string().min(5).max(200).required().messages({
+        //         "string.empty": `description is a required field.`,
+        //         "string.min": `description must be at least 5 characters long.`,
+        //         "string.max": `description must be at least 200 characters short.`
+        //     })
+        // });
+        // const validation = schema.validate({
+        //     account_type_name: account_type_name,
+        //     description: description,
+        // });
 
-        if (validation.error) {
-            return res.status(422).send({
-                status: 422,
-                message: validation.error.details,
-            });
-        }
+        // if (validation.error) {
+        //     return res.status(422).send({
+        //         status: 422,
+        //         message: validation.error.details,
+        //     });
+        // }
         const editAccountTypeData = await accountTypesModel.findOne({ _id: id })
         // if check by account_type_id 
         if (!editAccountTypeData) {
@@ -232,8 +233,8 @@ exports.getAccountTypeList = async (req, res) => {
             $skip: skip
         }, {
             $limit: limit
-        },{
-        $sort : {created_At: -1}
+        }, {
+            $sort: { createdAt: -1 }
         }
         ]);
         const totalAccountTypeListCountData = await accountTypesModel.countDocuments();
