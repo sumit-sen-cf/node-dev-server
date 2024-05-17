@@ -111,6 +111,8 @@ exports.updateAccountTypeData = async (req, res) => {
                 updated_by
             }
         })
+
+        //send success response
         return res.status(200).json({
             status: 200,
             message: "Account type data updated successfully!",
