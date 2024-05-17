@@ -380,19 +380,178 @@ exports.addUser = [upload, async (req, res) => {
 }];
 
 
+// exports.addUserForGeneralInformation = [upload, async (req, res) => {
+//     try {
+//         // let encryptedPass;
+//         // //for user password encription
+//         // if (req.body.user_login_password) {
+//         //     encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
+//         // }
+
+//         const encryptedPass = req.body.user_login_password ? await bcrypt.hash(req.body.user_login_password, 10) : null;
+
+//         // let empId = await generateEmpId(req.body.dept_id);
+
+//         //user data obj create 
+//         const simc = new userModel({
+//             //for personal information
+//             user_name: req.body.user_name,
+//             PersonalEmail: req.body.Personal_email,
+//             PersonalNumber: req.body.personal_number,
+//             alternate_contact: req.body.alternate_contact,
+//             Gender: req.body.Gender,
+//             DOB: req.body.DOB,
+//             Age: req.body.Age,
+//             Nationality: req.body.Nationality,
+//             MartialStatus: req.body.MartialStatus,
+//             created_by: req.body.created_by,
+//             //for official information
+//             job_type: req.body.job_type,
+//             dept_id: req.body.dept_id,
+//             sub_dept_id: req.body.sub_dept_id == null ? 0 : req.body.sub_dept_id,
+//             user_designation: req.body.user_designation,
+//             Report_L1: req.body.report_L1,
+//             Report_L2: req.body.report_L2,
+//             Report_L3: req.body.report_L3,
+//             role_id: req.body.role_id,
+//             user_email_id: req.body.user_email_id, //for offical
+//             user_contact_no: req.body.user_contact_no, //for offical
+//             user_login_id: req.body.user_login_id.toLowerCase().trim(),
+//             user_login_password: encryptedPass,
+//             user_status: req.body.user_status,
+//             joining_date: req.body.joining_date,
+//             sitting_id: req.body.sitting_id,
+//             room_id: req.body.room_id,
+//             upi_Id: req.body.upi_Id,
+//             // emp_id: empId,
+//             user_credit_limit: req.body.user_credit_limit,
+//             created_date_time: req.body.created_date_time,
+//         })
+
+//         if (req.files && req.files.image && req.files.image[0].originalname) {
+//             const bucketName = vari.BUCKET_NAME;
+//             const bucket = storage.bucket(bucketName);
+//             const blob1 = bucket.file(req.files.image[0].originalname);
+//             simc.image = blob1.name;
+//             const blobStream1 = blob1.createWriteStream();
+//             blobStream1.on("finish", () => { });
+//             blobStream1.end(req.files.image[0].buffer);
+//         }
+
+//         const simv = await simc.save();
+
+//         // // Genreate a pdf file for offer later
+//         // if (simv?.offer_letter_send) {
+//         //     helper.generateOfferLaterPdf(simv);
+
+//         // }
+//         //Generate documents for respective user id
+//         const docs = await documentModel.find();
+//         if (docs.length !== 0) {
+//             const newDocuments = docs.map(item => ({
+//                 doc_id: item._id,
+//                 user_id: simv?.user_id,
+//             }));
+//             await userDocManagmentModel.insertMany(newDocuments);
+//         }
+//         //End Generate documents for respective user id
+
+//         if (simv) {
+//             const objectData = await objModel.find();
+
+//             for (const object of objectData) {
+//                 // const objectId = object.obj_id;
+//                 // let insert = 0;
+//                 // let view = 0;
+//                 // let update = 0;
+//                 // let delete_flag = 0;
+
+//                 // if (simv.role_id === 1) {
+//                 //     insert = 1;
+//                 //     view = 1;
+//                 //     update = 1;
+//                 //     delete_flag = 1;
+//                 // }
+
+//                 // const userAuthDocument = {
+//                 //     Juser_id: simv.user_id,
+//                 //     obj_id: objectId,
+//                 //     insert: insert,
+//                 //     view: view,
+//                 //     update: update,
+//                 //     delete_flag: delete_flag,
+//                 //     creation_date: new Date(),
+//                 //     created_by: simv.created_by || 0,
+//                 //     last_updated_by: simv.created_by || 0,
+//                 //     last_updated_date: new Date(),
+//                 // };
+
+//                 // await userAuthModel.create(userAuthDocument);
+//                 const objectId = object.obj_id;
+//                 let insert = 0, view = 0, update = 0, delete_flag = 0;
+
+//                 if (simv.role_id === 1) {
+//                     insert = view = update = delete_flag = 1;
+//                 }
+
+//                 const userAuthDocument = {
+//                     Juser_id: simv.user_id,
+//                     obj_id: objectId,
+//                     insert, view, update, delete_flag,
+//                     creation_date: new Date(),
+//                     created_by: simv.created_by || 0,
+//                     last_updated_by: simv.created_by || 0,
+//                     last_updated_date: new Date(),
+//                 };
+
+//                 await userAuthModel.create(userAuthDocument);
+//             }
+//             // const deptDesiData = await deptDesiAuthModel.find({});
+//             // await Promise.all(deptDesiData.map(async (deptDesi) => {
+//             //     if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
+//             //         const updatedData = await userAuthModel.updateOne(
+//             //             {
+//             //                 obj_id: deptDesi.obj_id,
+//             //                 Juser_id: simv.user_id
+//             //             },
+//             //             {
+//             //                 $set: {
+//             //                     insert: deptDesi.insert,
+//             //                     view: deptDesi.view,
+//             //                     update: deptDesi.update,
+//             //                     delete_flag: deptDesi.delete_flag
+//             //                 }
+//             //             },
+//             //             { new: true }
+//             //         );
+//             //     }
+//             // }));
+//             const deptDesiData = await deptDesiAuthModel.findOne({
+//                 dept_id: req.body.dept_id,
+//                 desi_id: req.body.user_designation
+//             });
+//             if (deptDesiData) {
+//                 await userAuthModel.updateMany(
+//                     { obj_id: deptDesiData.obj_id, Juser_id: simv.user_id },
+//                     { $set: { insert: deptDesiData.insert, view: deptDesiData.view, update: deptDesiData.update, delete_flag: deptDesiData.delete_flag } }
+//                 );
+//             }
+//         }
+
+//         //send success response
+//         res.send({ simv, status: 200 });
+//     } catch (err) {
+//         return res.status(500).send({ error: err.message, sms: 'This user cannot be created' })
+//     }
+// }];
+
+
 exports.addUserForGeneralInformation = [upload, async (req, res) => {
     try {
-        let encryptedPass;
-        //for user password encription
-        if (req.body.user_login_password) {
-            encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
-        }
+        const encryptedPass = req.body.user_login_password ? await bcrypt.hash(req.body.user_login_password, 10) : null;
 
-        let empId = await generateEmpId(req.body.dept_id);
-
-        //user data obj create 
         const simc = new userModel({
-            //for personal information
+            // Fields omitted for brevity
             user_name: req.body.user_name,
             PersonalEmail: req.body.Personal_email,
             PersonalNumber: req.body.personal_number,
@@ -421,10 +580,10 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
             upi_Id: req.body.upi_Id,
-            emp_id: empId,
+            // emp_id: empId,
             user_credit_limit: req.body.user_credit_limit,
             created_date_time: req.body.created_date_time,
-        })
+        });
 
         if (req.files && req.files.image && req.files.image[0].originalname) {
             const bucketName = vari.BUCKET_NAME;
@@ -432,18 +591,15 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             const blob1 = bucket.file(req.files.image[0].originalname);
             simc.image = blob1.name;
             const blobStream1 = blob1.createWriteStream();
-            blobStream1.on("finish", () => { });
-            blobStream1.end(req.files.image[0].buffer);
+            await new Promise((resolve, reject) => {
+                blobStream1.on("finish", resolve);
+                blobStream1.on("error", reject);
+                blobStream1.end(req.files.image[0].buffer);
+            });
         }
 
         const simv = await simc.save();
 
-        // Genreate a pdf file for offer later
-        if (simv?.offer_letter_send) {
-            helper.generateOfferLaterPdf(simv);
-
-        }
-        //Generate documents for respective user id
         const docs = await documentModel.find();
         if (docs.length !== 0) {
             const newDocuments = docs.map(item => ({
@@ -452,68 +608,37 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             }));
             await userDocManagmentModel.insertMany(newDocuments);
         }
-        //End Generate documents for respective user id
 
         if (simv) {
             const objectData = await objModel.find();
-
-            for (const object of objectData) {
-                const objectId = object.obj_id;
-                let insert = 0;
-                let view = 0;
-                let update = 0;
-                let delete_flag = 0;
-
+            const bulkOps = objectData.map(object => {
+                let insert = 0, view = 0, update = 0, delete_flag = 0;
                 if (simv.role_id === 1) {
-                    insert = 1;
-                    view = 1;
-                    update = 1;
-                    delete_flag = 1;
+                    insert = view = update = delete_flag = 1;
                 }
-
-                const userAuthDocument = {
-                    Juser_id: simv.user_id,
-                    obj_id: objectId,
-                    insert: insert,
-                    view: view,
-                    update: update,
-                    delete_flag: delete_flag,
-                    creation_date: new Date(),
-                    created_by: simv.created_by || 0,
-                    last_updated_by: simv.created_by || 0,
-                    last_updated_date: new Date(),
+                return {
+                    insertOne: {
+                        document: {
+                            Juser_id: simv.user_id,
+                            obj_id: object.obj_id,
+                            insert, view, update, delete_flag,
+                            creation_date: new Date(),
+                            created_by: simv.created_by || 0,
+                            last_updated_by: simv.created_by || 0,
+                            last_updated_date: new Date(),
+                        }
+                    }
                 };
-
-                await userAuthModel.create(userAuthDocument);
-            }
-            const deptDesiData = await deptDesiAuthModel.find({});
-            await Promise.all(deptDesiData.map(async (deptDesi) => {
-                if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
-                    const updatedData = await userAuthModel.updateOne(
-                        {
-                            obj_id: deptDesi.obj_id,
-                            Juser_id: simv.user_id
-                        },
-                        {
-                            $set: {
-                                insert: deptDesi.insert,
-                                view: deptDesi.view,
-                                update: deptDesi.update,
-                                delete_flag: deptDesi.delete_flag
-                            }
-                        },
-                        { new: true }
-                    );
-                }
-            }));
+            });
+            await userAuthModel.bulkWrite(bulkOps);
         }
 
-        //send success response
         res.send({ simv, status: 200 });
     } catch (err) {
-        return res.status(500).send({ error: err.message, sms: 'This user cannot be created' })
+        return res.status(500).send({ error: err.message, sms: 'This user cannot be created' });
     }
 }];
+
 
 exports.updateUserForGeneralInformation = [upload, async (req, res) => {
     try {
@@ -2239,16 +2364,21 @@ exports.sendUserMail = async (req, res) => {
 
         const attachment = req.file;
         if (status == "onboarded") {
+
+            const templatePath = path.join(__dirname, "template.ejs");
+            const template = await fs.promises.readFile(templatePath, "utf-8");
+            const html = ejs.render(template, { email, password, name, login_id, text });
+
             /* dynamic email temp code start */
-            const contentList = await emailTempModel.findOne({ email_for_id: '65bde0335629ebe4e2a71ae3', send_email: true });
+            // const contentList = await emailTempModel.findOne({ email_for_id: '65bde0335629ebe4e2a71ae3', send_email: true });
 
-            const filledEmailContent = contentList.email_content
-                .replace("{{user_name}}", name)
-                .replace("{{user_email}}", email)
-                .replace("{{user_password}}", password)
-                .replace("{{user_login_id}}", login_id);
+            // const filledEmailContent = contentList.email_content
+            //     .replace("{{user_name}}", name)
+            //     .replace("{{user_email}}", email)
+            //     .replace("{{user_password}}", password)
+            //     .replace("{{user_login_id}}", login_id);
 
-            const html = filledEmailContent;
+            // const html = filledEmailContent;
             /* dynamic email temp code end */
 
             let mailTransporter = nodemailer.createTransport({
@@ -2262,7 +2392,8 @@ exports.sendUserMail = async (req, res) => {
             let mailOptions = {
                 from: "onboarding@creativefuel.io",
                 to: email,
-                subject: contentList.email_sub,
+                subject: subject,
+                // subject: contentList.email_sub,
                 html: html,
                 attachments: attachment
                     ? [
@@ -2277,16 +2408,16 @@ exports.sendUserMail = async (req, res) => {
             await mailTransporter.sendMail(mailOptions);
             res.sendStatus(200);
         } else if (status == "reportTo") {
-            // const templatePath = path.join(__dirname, "reportTo.ejs");
-            // const template = await fs.promises.readFile(templatePath, "utf-8");
-            // const html = ejs.render(template, { name, name2 });
+            const templatePath = path.join(__dirname, "reportTo.ejs");
+            const template = await fs.promises.readFile(templatePath, "utf-8");
+            const html = ejs.render(template, { name, name2 });
 
             /* dynamic email temp code start */
-            const contentList = await emailTempModel.findOne({ email_for_id: '65be343aad52cfd11fa27e52', send_email: true })
+            // const contentList = await emailTempModel.findOne({ email_for_id: '65be343aad52cfd11fa27e52', send_email: true })
 
-            const filledEmailContent = contentList.email_content.replace("{{user_reportTo}}", name2);
+            // const filledEmailContent = contentList.email_content.replace("{{user_reportTo}}", name2);
 
-            const html = filledEmailContent;
+            // const html = filledEmailContent;
             /* dynamic email temp code end */
 
             let mailTransporter = nodemailer.createTransport({
@@ -2300,7 +2431,7 @@ exports.sendUserMail = async (req, res) => {
             let mailOptions = {
                 from: "onboarding@creativefuel.io",
                 to: email,
-                subject: contentList.email_sub,
+                // subject: contentList.email_sub,
                 html: html,
                 attachments: attachment
                     ? [
