@@ -21,7 +21,6 @@ exports.addAccountType = async (req, res) => {
             account_type_name: account_type_name,
             description: description,
             created_by: created_by,
-            updated_by: created_by
         })
         return res.status(200).json({
             status: 200,
@@ -93,7 +92,7 @@ exports.getAccountTypeData = async (req, res) => {
         }
         return res.status(200).json({
             status: 200,
-            messgae: "Account type data retrive successfully!",
+            messgae: "Account type data retrieved successfully!",
             data: accountTypeData
         })
     } catch (error) {

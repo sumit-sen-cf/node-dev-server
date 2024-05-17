@@ -53,14 +53,22 @@ exports.accountTypeValidation = async (req, res, next) => {
     }
 };
 
-
+/**
+ * Middleware to validate the account Point of Contact (PoC) details in the request body.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
 exports.accountPocValidation = async (req, res, next) => {
-    const body = req.body;
+    const body = req.body; // Extracting the request body
+
+    // Defining the validation schema using Joi
     const schema = Joi.object({
-        account_id: Joi.optional(),
-        contact_name: Joi.string().required().messages(),
-        contact_no: Joi.number().min(1000000000).max(99999999999999).required().messages(),
-        alternative_contact_no: Joi.number().min(1000000000).max(99999999999999).messages(),
+        account_id: Joi.optional(), // account_id is optional
+        contact_name: Joi.string().required().messages(), // contact_name is a required string
+        contact_no: Joi.number().min(1000000000).max(99999999999999).required().messages(), // contact_no is a required number within specified range
+        alternative_contact_no: Joi.number().min(1000000000).max(99999999999999).messages(), // alternative_contact_no is an optional number within specified range
         email: Joi.string().email().required().messages(),
         department: Joi.string().required().messages(),
         designation: Joi.string().required().messages(),
@@ -79,4 +87,31 @@ exports.accountPocValidation = async (req, res, next) => {
     }
 };
 
+/**
+ * Middleware to validate the account document master details in the request body.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+exports.accountDocumentMasterValidation = async (req, res, next) => {
+    const body = req.body; // Extracting the request body
 
+    // Defining the validation schema using Joi
+    const schema = Joi.object({
+        document_name: Joi.string().required(),
+        is_visible: Joi.boolean().invalid(false),
+        description: Joi.string().min(5).max(2000).required(),
+        created_by: Joi.optional(),
+        updated_by: Joi.optional(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(200, req, res, errors);
+    } else {
+        next();
+    }
+};
