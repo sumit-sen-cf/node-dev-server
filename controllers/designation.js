@@ -15,6 +15,7 @@ exports.addDesignation = async (req, res) => {
     const simc = new designationModel({
       desi_name: req.body.desi_name,
       dept_id: req.body.dept_id,
+      sub_dept_id: req.body.sub_dept_id,
       remark: req.body.remark,
       created_by: req.body.created_by
     })
@@ -170,6 +171,27 @@ exports.getAllDesignationByDeptID = async (req, res) => {
       req,
       res,
       "All Designation Data Fetch By Dept Id Successfully",
+      desiData
+    );
+  } catch (err) {
+    return response.returnFalse(500, req, res, err.message, {});
+  }
+};
+
+
+exports.getAllDesignationBySubDeptID = async (req, res) => {
+  try {
+    const desiData = await designationModel.find({
+      sub_dept_id: parseInt(req.params.sub_dept_id),
+    });
+    if (!desiData) {
+      return response.returnFalse(200, req, res, "No Reord Found...", []);
+    }
+    return response.returnTrue(
+      200,
+      req,
+      res,
+      "All Designation Data Fetch By Sub Dept Id Successfully",
       desiData
     );
   } catch (err) {

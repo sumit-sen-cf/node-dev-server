@@ -282,7 +282,7 @@ exports.getSubDepartmentsFromDeptId = async (req, res) => {
             dept_name: "$department.dept_name",
             sub_dept_name: "$sub_dept_name",
             dept_id: "$dept_id",
-            id: "$id",
+            sub_dept_id: "$id",
           },
         },
       ])

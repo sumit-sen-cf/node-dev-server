@@ -89,6 +89,26 @@ exports.getUserDoc = async (req, res) => {
           },
         },
       },
+      // {
+      //   $group: {
+      //     _id: "$doc_id",
+      //     document: { $first: "$document" },
+      //   }
+      // }
+      {
+        $group: {
+          _id: "$doc_id",
+          userDoc: { $first: "$$ROOT" },
+          document: { $first: "$document" },
+        }
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: ["$userDoc", "$document"]
+          }
+        }
+      }
     ]);
 
     if (docs?.length === 0) {
@@ -209,6 +229,66 @@ exports.getUserDoc = async (req, res) => {
 // };
 
 
+// exports.editDoc = async (req, res) => {
+//   try {
+//     const {
+//       _id,
+//       reject_reason,
+//       status,
+//       timer,
+//       doc_id,
+//       user_id,
+//       upload_date,
+//       approval_date,
+//       approval_by,
+//     } = req.body;
+//     let doc_image = req.file?.originalname;
+//     const editDocObj = await userDocManagmentModel.findByIdAndUpdate(_id, {
+//       $set: {
+//         reject_reason,
+//         status,
+//         timer,
+//         doc_id,
+//         user_id,
+//         upload_date,
+//         approval_date,
+//         approval_by,
+//         doc_image,
+//       },
+//     });
+
+//     if (req.file) {
+//       const bucketName = vari.BUCKET_NAME;
+//       const bucket = storage.bucket(bucketName);
+//       const blob = bucket.file(req.file.originalname);
+//       editDocObj.doc_image = blob.name;
+//       const blobStream = blob.createWriteStream();
+//       blobStream.on("finish", () => {
+//         editDocObj.save();
+//         // res.status(200).send("Success") 
+//       });
+//       blobStream.end(req.file.buffer);
+//     }
+
+//     if (doc_image) {
+//       const result = helper.fileRemove(
+//         editDocObj?.doc_image,
+//         "../uploads/userDocuments"
+//       );
+//       if (result?.status == false) {
+//         console.log(result.msg);
+//       }
+//     }
+//     if (!editDocObj) {
+//       return response.returnFalse(200, req, res, "No record found", {});
+//     }
+//     return response.returnTrue(200, req, res, "Data Update Successfully", {});
+//   } catch (err) {
+//     return response.returnFalse(500, req, res, err.message, {});
+//   }
+// };
+
+
 exports.editDoc = async (req, res) => {
   try {
     const {
@@ -222,20 +302,29 @@ exports.editDoc = async (req, res) => {
       approval_date,
       approval_by,
     } = req.body;
-    let doc_image = req.file?.originalname;
-    const editDocObj = await userDocManagmentModel.findByIdAndUpdate(_id, {
-      $set: {
-        reject_reason,
-        status,
-        timer,
-        doc_id,
-        user_id,
-        upload_date,
-        approval_date,
-        approval_by,
-        doc_image,
-      },
-    });
+
+    let doc_image = req.file ? req.file.originalname : null;
+
+    // Retrieve the document object from the database
+    const editDocObj = await userDocManagmentModel.findById(_id);
+
+    if (!editDocObj) {
+      return response.returnFalse(200, req, res, "No record found", {});
+    }
+
+    // Update the document object with the new values
+    editDocObj.reject_reason = reject_reason;
+    editDocObj.status = status;
+    editDocObj.timer = timer;
+    editDocObj.doc_id = doc_id;
+    editDocObj.user_id = user_id;
+    editDocObj.upload_date = upload_date;
+    editDocObj.approval_date = approval_date;
+    editDocObj.approval_by = approval_by;
+    editDocObj.doc_image = doc_image;
+
+    // Save the updated document object
+    await editDocObj.save();
 
     if (req.file) {
       const bucketName = vari.BUCKET_NAME;
@@ -259,9 +348,7 @@ exports.editDoc = async (req, res) => {
         console.log(result.msg);
       }
     }
-    if (!editDocObj) {
-      return response.returnFalse(200, req, res, "No record found", {});
-    }
+
     return response.returnTrue(200, req, res, "Data Update Successfully", {});
   } catch (err) {
     return response.returnFalse(500, req, res, err.message, {});

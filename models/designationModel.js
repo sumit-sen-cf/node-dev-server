@@ -11,6 +11,11 @@ const designationModel = new mongoose.Schema({
         required: false,
         default: 0
     },
+    sub_dept_id: {
+        type: Number,
+        required: false,
+        default: 0
+    },
     desi_name: {
         type: String,
         required: false,
