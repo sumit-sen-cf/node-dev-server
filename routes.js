@@ -146,7 +146,7 @@ const { createPlatform, getPlatformDetail, updatePlatformData, getAllPlatformLis
 const { createPayMethod, getPayDetail, updatePayData, getAllPayList, deletePayData } = require("./controllers/PMS/pmsPayMethodController.js");
 const { createPayCycle, getPayCycleDetail, updatePayCycle, getAllPayCycleList, deletePayCycleData } = require("./controllers/PMS/pmsPayCycleController.js");
 const { createGroupLink, getGroupLinkDetail, updateGroupLink, getAllGroupLinkList, deleteGroupLinkData } = require("./controllers/PMS/pmsGroupLinkTypeController.js");
-const { createPmsVendorMast, getVendorMastDetail, updateVendorMast, getAllVendorkMastList, getAllVendorMastList, vendorMastDelete,getPageByVenodrId } = require("./controllers/PMS/pmsVendorMastController.js");
+const { createPmsVendorMast, getVendorMastDetail, updateVendorMast, getAllVendorkMastList, getAllVendorMastList, vendorMastDelete, getPageByVenodrId } = require("./controllers/PMS/pmsVendorMastController.js");
 const { createVendorGroup, getVendorGroupDetail, updateVendorGroup, getAllVendorGroupList, deleteVendorGroupData } = require("./controllers/PMS/pmsVendorGroupLinkController.js");
 const { createPriceType, getPriceDetail, updatePriceType, getPriceList, deletePriceType, getAllPriceTypeList } = require("./controllers/PMS/pmsPriceTypeController.js");
 const { createPlatformPrice, getPlatformPriceDetail, updatePlatformPriceData, getPlatformPriceList, deletePlatformPriceData } = require("./controllers/PMS/pmsPlatformPriceTypeController.js");
@@ -433,6 +433,7 @@ router.get(
 );
 router.delete("/delete_designation/:desi_id", designation.deleteDesignation); //Done
 router.get("/get_all_designations", designation.getDesignations); //Done
+router.get("/get_all_designation/:sub_dept_id", designation.getAllDesignationBySubDeptID);
 
 //brand routes
 router.post("/add_brand", brand.addBrand);
@@ -1459,12 +1460,12 @@ router.get("/get_all_php_payment_acc_data_customers/:cust_id", phpPayment.getAcc
 /* email content routes */
 router.post("/add_email_content", emailContent.addEmailContent);
 router.put("/update_email_content", emailContent.editEmailContent);
-router.get("/get_all_email_contents", emailContent.getAllEmailContents);
+router.get("/get_all_email_contents", verifyToken, emailContent.getAllEmailContents);
 router.get("/get_single_email_content/:_id", emailContent.getSingleEmailContent);
 router.delete("/delete_email_content/:_id", emailContent.deleteEmailContent);
 router.post("/add_email_event", emailContent.addEmailEvent);
 router.put("/update_email_event", emailContent.editEmailEvent);
-router.get("/get_all_email_events", emailContent.getAllEmailEvents);
+router.get("/get_all_email_events", verifyToken, emailContent.getAllEmailEvents);
 router.get("/get_single_email_event/:_id", emailContent.getSingleEmailEvent);
 
 // Hobbies  Routes 
@@ -1874,7 +1875,8 @@ router.get("/get_dynamic_table_data", dynamicTablesModel.getSingleDynamicTablesD
 router.put("/edit_dynamic_table_data", dynamicTablesModel.editDynamicTablesData);
 
 // admin password and email routes
-router.post('/change_all_user_password',adminController.changePassOfUsers);
-router.post('/send_email_to_all_users',adminController.sendPassEmailToUsers)
+router.post('/change_selected_user_password', adminController.changePassOfSelectedUsers);
+router.post('/change_all_user_password', adminController.changePassOfUsers);
+router.post('/send_email_to_all_users', adminController.sendPassEmailToUsers)
 
 module.exports = router;

@@ -115,7 +115,7 @@ exports.savePhpSaleBookingTdsVerificationDataInNode = async (req, res) => {
         const sendData = new FormData();
         sendData.append("loggedin_user_id", 36);
         const response = await axios.post(
-            'https://production.sales.creativefuel.io/webservices/RestController.php?view=sales-sale_booking_tds_verification', sendData,
+            'https://sales.creativefuel.io/webservices/RestController.php?view=sales-sale_booking_tds_verification', sendData,
             {
                 headers: {
                     ...sendData.getHeaders(),
@@ -124,7 +124,7 @@ exports.savePhpSaleBookingTdsVerificationDataInNode = async (req, res) => {
         )
         const responseData = response.data.body;
         const promise = responseData.map(async (data) => {
-   
+
             const existingData = await checkIfDataExists(data.sale_booking_id)
 
             if (!existingData) {
@@ -185,13 +185,13 @@ exports.savePhpSaleBookingTdsVerificationDataInNode = async (req, res) => {
                     },
                     { new: true }
                 );
-              
+
             }
         })
 
-       let resResult = await Promise.all(promise);
+        let resResult = await Promise.all(promise);
 
-      return  res.send({ sms: "data copied in local db", status: 200 })
+        return res.send({ sms: "data copied in local db", status: 200 })
     } catch (error) {
         return res.status(500).send({ error: error.message, sms: 'error while adding data' })
     }

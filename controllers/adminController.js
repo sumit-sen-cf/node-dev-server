@@ -1,7 +1,8 @@
-const nodemailer = require('nodemailer')
-const userModel = require('../models/userModel')
+const nodemailer = require('nodemailer');
+const userModel = require('../models/userModel');
+const helper = require('../helper/helper.js');
 
-exports.changePassOfUsers = async (req, res) => {
+exports.changePassOfSelectedUsers = async (req, res) => {
     try {
         let encryptedPass;
         if (req.body.user_login_password) {
@@ -55,10 +56,52 @@ exports.changePassOfUsers = async (req, res) => {
     }
 };
 
-exports.sendPassEmailToUsers = async(req, res) => {
+exports.changePassOfUsers = async (req, res) => {
+    try {
+        let results = {
+            success: [],
+            notFound: [],
+            errors: []
+        };
+
+        const getRandomPassword = helper.generateRandomPassword();
+        const encryptedPass = await bcrypt.hash(getRandomPassword, 10);
+        const userIds = await userModel.find();
+
+        for (const userId of userIds) {
+            try {
+                const updatedUser = await userModel.findOneAndUpdate(
+                    { user_id: userId.user_id },
+                    { user_login_password: encryptedPass },
+                    { new: true }
+                );
+
+                if (!updatedUser) {
+                    results.notFound.push(userId);
+                } else {
+                    results.success.push(userId);
+                }
+            } catch (error) {
+                console.error(`Error updating password for user ${userId.user_id}: ${error.message}`);
+                results.errors.push(userId);
+            }
+        }
+
+        if (results.success.length === 0) {
+            return res.status(500).send({ success: false, message: 'Failed to change passwords for all users', results });
+        }
+
+        return res.status(200).send({ success: true, message: 'Password changed successfully for users', results });
+    } catch (err) {
+        console.error(`Error while updating user passwords: ${err.message}`);
+        return res.status(500).send({ error: err.message, message: 'Error while updating user passwords' });
+    }
+};
+
+exports.sendPassEmailToUsers = async (req, res) => {
     try {
         const allUserEmailIds = req.body.emails;
-        
+
         let mailTransporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -67,7 +110,7 @@ exports.sendPassEmailToUsers = async(req, res) => {
             },
         });
 
-        for(const email of allUserEmailIds){
+        for (const email of allUserEmailIds) {
             const mailOptions = {
                 from: 'onboarding@creativefuel.io',
                 to: email,
@@ -79,15 +122,15 @@ exports.sendPassEmailToUsers = async(req, res) => {
                     }
                 ]
             };
-            try{
+            try {
                 await mailTransporter.sendMail(mailOptions);
                 console.log(`Email sent to ${email}`)
-            }catch(err){
+            } catch (err) {
                 console.log(err.message)
             }
         }
-        
+
     } catch (error) {
-        res.status(500).json({ error:error.message, message: 'Internal Server Error' });
+        res.status(500).json({ error: error.message, message: 'Internal Server Error' });
     }
 }
