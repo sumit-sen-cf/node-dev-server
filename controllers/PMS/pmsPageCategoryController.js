@@ -2,6 +2,7 @@ const response = require('../../common/response');
 const { message } = require("../../common/message");
 const mongoose = require("mongoose");
 const pmsPageCategoryModel = require('../../models/PMS/pmsPageCategoryModel');
+const pmsPageMastModel = require('../../models/PMS/pmsPageMastModel');
 
 //POST- PMS_Pay_Method
 exports.createPageCatg = async (req, res) => {
@@ -185,6 +186,13 @@ exports.deletePageCatgData = async (req, res) => {
     try {
         const { params } = req;
         const { id } = params;
+        const findPageWithCatId= await pmsPageMastModel.findOne({page_catg_id:id});
+        if(findPageWithCatId){
+            return res.status(403).json({
+                status: 403,
+                message: "PMS page-category data already used in page-master!",
+            });
+        }
         const pageCatgData = await pmsPageCategoryModel.findOne({ _id: id });
         if (!pageCatgData) {
             return res.status(404).json({
