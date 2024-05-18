@@ -8,7 +8,8 @@ const accountBillingSchema = new mongoose.Schema({
     },
     deleted: {
         type: Boolean,
-        required: false
+        required: false,
+        default: false
     },
     how_many_offices: {
         type: Number,
