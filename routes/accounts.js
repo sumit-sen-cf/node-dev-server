@@ -22,8 +22,8 @@ router.get("/get_all_account", verifyToken, accountMaster.getAllAccountDetails);
 router.get("/get_single_account/:id", verifyToken, accountMaster.getSingleAccountDetails);
 router.delete("/delete_account/:id", verifyToken, accountMaster.deleteAccountDetails);
 //billing get data
-router.get("/get_all_account", verifyToken, accountMaster.getAllAccountBillingDetails);
-router.get("/get_single_account/:id", verifyToken, accountMaster.getSingleAccountBillingDetails);
+router.get("/get_all_account_billing", verifyToken, accountMaster.getAllAccountBillingDetails);
+router.get("/get_single_account_billing/:id", verifyToken, accountMaster.getSingleAccountBillingDetails);
 
 /**
  * account type routes

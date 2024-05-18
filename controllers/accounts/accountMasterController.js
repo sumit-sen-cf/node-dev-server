@@ -43,7 +43,7 @@ exports.addAccountDetails = async (req, res) => {
 
         //account billing data stored in DB collection
         const addAccountBillingData = await accountBilling.create({
-            account_id: addAccountMasterData._id,
+            account_id: addAccountMasterData.account_id,
             how_many_offices: how_many_offices,
             connected_office: connected_office,
             connect_billing_street: connect_billing_street,
@@ -117,7 +117,7 @@ exports.editAccountDetails = async (req, res) => {
 
         //account billing collection data update in db collection
         await accountBilling.updateOne({
-            account_id: id
+            account_id: accountMasterData.account_id
         }, {
             $set: {
                 how_many_offices: how_many_offices,
@@ -348,8 +348,15 @@ exports.deleteAccountDetails = async (req, res) => {
         }
 
         //delete data from the db collection by ID
-        await accountMasterData.updateOne({
+        await accountMaster.updateOne({
             _id: id
+        }, {
+            deleted: true
+        });
+
+        //delete data from the db collection by ID
+        await accountBilling.updateOne({
+            account_id: accountMasterData.account_id
         }, {
             deleted: true
         });
