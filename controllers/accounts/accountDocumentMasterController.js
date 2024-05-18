@@ -142,19 +142,29 @@ exports.updateDocumentMaster = async (req, res) => {
  */
 exports.getDocumentMasterList = async (req, res) => {
     try {
-        //filter pagination page wise data = page=1 & limit=2 
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 5;
-        const skip = (page - 1) * limit;
-        // Get filter parameters
-        const filters = {};
+        //filter for pagination page wise data = page=1 & limit=2 
+        let page = parseInt(req.query?.page) || 1;
+        let limit = 10;
+        let skip = limit * (page - 1);
+        let sort = {
+            createdAt: -1
+        };
+
+        //for match conditions
+        let matchQuery = {};
+        //Search by filter
         if (req.query.search) {
-            // search by document_name
-            filters.document_name = { $regex: new RegExp(req.query.search, 'i') };
+            //Regex Condition for search 
+            matchQuery['$or'] = [{
+                "account_type_name": {
+                    "$regex": req.query.search,
+                    "$options": "i"
+                }
+            }]
         }
         //document_master_list get
         const documentMasterList = await accountDocumentMasterModel.aggregate([{
-            $match: filters // Apply filters
+            $match: matchQuery
         }, {
             $lookup: {
                 from: "usermodels",
@@ -186,14 +196,21 @@ exports.getDocumentMasterList = async (req, res) => {
             $sort: { createdAt: -1 }
         }
         ]);
-        const totalDcomentMasterListCountData = await accountDocumentMasterModel.countDocuments();
+        // Query to get counts of record of account types
+        const totalDocumentMasterListCounts = await accountDocumentMasterModel.countDocuments(matchQuery);
+        // send account types page and passing data
         return res.status(200).json({
             status: 200,
-            message: "Document master list data successfully!",
-            totalAccountType: totalDcomentMasterListCountData,
-            totalPages: Math.ceil(totalDcomentMasterListCountData / limit),
-            currentPage: page,
-            data: documentMasterList
+            message: "Document master list data fatched successfully!",
+            data: documentMasterList,
+            start_record: skip + 1,
+            end_record: skip + documentMasterList.length,
+            total_records: totalDocumentMasterListCounts,
+            pagination: {
+                currentPage: page,
+                totalPage: Math.ceil(totalDocumentMasterListCounts / limit),
+                url: req.originalUrl
+            }
         });
     } catch (error) {
         return res.status(500).json({

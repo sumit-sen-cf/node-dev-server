@@ -135,10 +135,9 @@ exports.getAccountTypeList = async (req, res) => {
         let sort = {
             createdAt: -1
         };
-
+        
         //for match conditions
         let matchQuery = {};
-
         //Search by filter
         if (req.query.search) {
             //Regex Condition for search 
