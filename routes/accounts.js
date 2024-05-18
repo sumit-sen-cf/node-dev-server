@@ -16,14 +16,14 @@ router.get("/", (req, res) => {
 /**
  * account master routes
  */
-router.post("/add_account", accountMaster.addAccountDetails);
-router.put("/edit_account/:id", accountMaster.editAccountDetails);
-router.get("/get_all_account", accountMaster.getAllAccountDetails);
-router.get("/get_single_account/:id", accountMaster.getSingleAccountDetails);
-router.delete("/delete_account/:id", accountMaster.deleteAccountDetails);
+router.post("/add_account", verifyToken, accountMaster.addAccountDetails);
+router.put("/edit_account/:id", verifyToken, accountMaster.editAccountDetails);
+router.get("/get_all_account", verifyToken, accountMaster.getAllAccountDetails);
+router.get("/get_single_account/:id", verifyToken, accountMaster.getSingleAccountDetails);
+router.delete("/delete_account/:id", verifyToken, accountMaster.deleteAccountDetails);
 //billing get data
-router.get("/get_all_account", accountMaster.getAllAccountBillingDetails);
-router.get("/get_single_account/:id", accountMaster.getSingleAccountBillingDetails);
+router.get("/get_all_account", verifyToken, accountMaster.getAllAccountBillingDetails);
+router.get("/get_single_account/:id", verifyToken, accountMaster.getSingleAccountBillingDetails);
 
 /**
  * account type routes
