@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const userModel = require('../models/userModel');
 const helper = require('../helper/helper.js');
+const bcrypt = require("bcrypt");
 
 exports.changePassOfSelectedUsers = async (req, res) => {
     try {
@@ -70,6 +71,12 @@ exports.changePassOfUsers = async (req, res) => {
 
         for (const userId of userIds) {
             try {
+
+                if (userId.user_name == 'Admin' || userId.user_name === 'Super Admin') {
+                    results.notFound.push(userId);
+                    continue;
+                }
+
                 const updatedUser = await userModel.findOneAndUpdate(
                     { user_id: userId.user_id },
                     { user_login_password: encryptedPass },

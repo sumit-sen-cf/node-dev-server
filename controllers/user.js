@@ -41,24 +41,6 @@ const orderReqModel = require('../models/orderReqModel.js');
 const simAlloModel = require('../models/simAlloModel.js');
 const objectModel = require("../models/objModel.js");
 
-// const upload = multer({ dest: "uploads/" }).fields([
-//     { name: "image", maxCount: 1 },
-//     { name: "UID", maxCount: 1 },
-//     { name: "pan", maxCount: 1 },
-//     { name: "highest_upload", maxCount: 1 },
-//     { name: "other_upload", maxCount: 1 },
-//     { name: "tenth_marksheet", maxCount: 1 },
-//     { name: "twelveth_marksheet", maxCount: 1 },
-//     { name: "UG_Marksheet", maxCount: 1 },
-//     { name: "passport", maxCount: 1 },
-//     { name: "pre_off_letter", maxCount: 1 },
-//     { name: "pre_expe_letter", maxCount: 1 },
-//     { name: "pre_relieving_letter", maxCount: 1 },
-//     { name: "bankPassBook_Cheque", maxCount: 1 },
-//     { name: "joining_extend_document", maxCount: 1 },
-//     { name: "digital_signature_image", maxCount: 1 },
-//     { name: "annexure_pdf", maxCount: 1 }
-// ]);
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -84,6 +66,301 @@ const upload = multer({
 
 // let userCounter = 0;
 // let invoice_template_no = 1;
+// exports.addUser = [upload, async (req, res) => {
+//     try {
+
+//         const latestUser = await userModel.findOne({}).sort({ created_At: -1 });
+//         let latestInvoiceNo = latestUser.invoice_template_no + 1;
+
+//         if (latestInvoiceNo > 9) {
+//             latestInvoiceNo = 1
+//         }
+
+//         let encryptedPass;
+//         if (req.body.user_login_password) {
+//             encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
+//         }
+
+//         let empId = await generateEmpId(req.body.dept_id);
+
+//         const simc = new userModel({
+//             user_name: req.body.user_name,
+//             user_designation: req.body.user_designation,
+//             user_email_id: req.body.user_email_id,
+//             user_login_id: req.body.user_login_id.toLowerCase().trim(),
+//             user_login_password: encryptedPass,
+//             user_report_to_id: req.body.user_report_to_id,
+//             user_contact_no: req.body.user_contact_no,
+//             dept_id: req.body.dept_id,
+//             location_id: req.body.location_id,
+//             created_by: req.body.created_by,
+//             role_id: req.body.role_id,
+//             sitting_id: req.body.sitting_id,
+//             job_type: req.body.job_type,
+//             PersonalNumber: req.body.personal_number,
+//             Report_L1: req.body.report_L1,
+//             Report_L2: req.body.report_L2,
+//             Report_L3: req.body.report_L3,
+//             PersonalEmail: req.body.Personal_email,
+//             joining_date: req.body.joining_date,
+//             releaving_date: req.body.releaving_date,
+//             level: req.body.level,
+//             room_id: req.body.room_id,
+//             salary: req.body.salary,
+//             year_salary: req.body.year_salary,
+//             att_status: req.body.att_status,
+//             SpokenLanguages: req.body.SpokenLanguages,
+//             Gender: req.body.Gender,
+//             Nationality: req.body.Nationality,
+//             DOB: req.body.DOB,
+//             Age: req.body.Age,
+//             fatherName: req.body.FatherName,
+//             motherName: req.body.MotherName,
+//             Hobbies: req.body?.Hobbies?.split(',').map(Number),
+//             BloodGroup: req.body.BloodGroup,
+//             MartialStatus: req.body.MartialStatus,
+//             DateofMarriage: req.body.DateofMarriage,
+//             tds_applicable: req.body.salary >= 30000 ? 'Yes' : req.body.tds_applicable,
+//             tds_per: req.body.salary >= 30000 ? 1 : req.body.tds_per,
+//             onboard_status: req.body.onboard_status,
+//             image_remark: req.body.image_remark,
+//             image_validate: req.body.image_validate,
+//             uid_remark: req.body.uid_remark,
+//             uid_validate: req.body.uid_validate,
+//             pan_remark: req.body.pan_remark,
+//             pan_validate: req.body.pan_validate,
+//             highest_upload_remark: req.body.highest_upload_remark,
+//             highest_upload_validate: req.body.highest_upload_validate,
+//             other_upload_remark: req.body.other_upload_remark,
+//             other_upload_validate: req.body.other_upload_validate,
+//             user_status: req.body.user_status,
+//             lastupdated: req.body.lastupdated,
+//             sub_dept_id: req.body.sub_dept_id == null ? 0 : req.body.sub_dept_id,
+//             pan_no: req.body.pan_no,
+//             uid_no: req.body.uid_no,
+//             spouse_name: req.body.spouse_name,
+//             highest_qualification_name: req.body.highest_qualification_name,
+//             tenth_marksheet_validate: req.body.tenth_marksheet_validate,
+//             twelveth_marksheet_validate: req.body.twelveth_marksheet_validate,
+//             UG_Marksheet_validate: req.body.UG_Marksheet_validate,
+//             passport_validate: req.body.passport_validate,
+//             pre_off_letter_validate: req.body.pre_off_letter_validate,
+//             pre_expe_letter_validate: req.body.pre_expe_letter_validate,
+//             pre_relieving_letter_validate: req.body.pre_relieving_letter_validate,
+//             bankPassBook_Cheque_validate: req.body.bankPassBook_Cheque_validate,
+//             tenth_marksheet_validate_remark: req.body.tenth_marksheet_validate_remark,
+//             twelveth_marksheet_validate_remark: req.body.twelveth_marksheet_validate_remark,
+//             UG_Marksheet_validate_remark: req.body.UG_Marksheet_validate_remark,
+//             passport_validate_remark: req.body.passport_validate,
+//             pre_off_letter_validate_remark: req.body.pre_off_letter_validate_remark,
+//             pre_expe_letter_validate_remark: req.body.pre_expe_letter_validate_remark,
+//             pre_relieving_letter_validate_remark: req.body.pre_relieving_letter_validate_remark,
+//             bankPassBook_Cheque_validate_remark: req.body.bankPassBook_Cheque_validate_remark,
+//             current_address: req.body.current_address,
+//             current_city: req.body.current_city,
+//             current_state: req.body.current_state,
+//             current_pin_code: req.body.current_pin_code,
+//             permanent_address: req.body.permanent_address,
+//             permanent_city: req.body.permanent_city,
+//             permanent_state: req.body.permanent_state,
+//             permanent_pin_code: req.body.permanent_pin_code,
+//             joining_date_extend: req.body.joining_date_extend,
+//             joining_date_extend_status: req.body.joining_date_extend_status,
+//             joining_date_extend_reason: req.body.joining_date_extend_reason,
+//             invoice_template_no: latestInvoiceNo,
+//             // image: req.files.image ? req.files.image[0].filename : '',
+//             UID: req.files.UID ? req.files.UID[0].filename : '',
+//             pan: req.files.pan ? req.files.pan[0].filename : '',
+//             highest_upload: req.files.highest_upload ? req.files.highest_upload[0].filename : '',
+//             other_upload: req.files.other_upload ? req.files.other_upload[0].filename : '',
+//             tenth_marksheet: req.files.tenth_marksheet ? req.files.tenth_marksheet[0].filename : '',
+//             twelveth_marksheet: req.files.twelveth_marksheet ? req.files.twelveth_marksheet[0].filename : '',
+//             UG_Marksheet: req.files.UG_Marksheet ? req.files.UG_Marksheet[0].filename : '',
+//             passport: req.files.passport ? req.files.passport[0].filename : '',
+//             pre_off_letter: req.files.pre_off_letter ? req.files.pre_off_letter[0].filename : '',
+//             pre_expe_letter: req.files.pre_expe_letter ? req.files.pre_expe_letter[0].filename : '',
+//             pre_relieving_letter: req.files.pre_relieving_letter ? req.files.pre_relieving_letter[0].filename : '',
+//             bankPassBook_Cheque: req.files.bankPassBook_Cheque ? req.files.bankPassBook_Cheque[0].filename : '',
+//             joining_extend_document: req.files.joining_extend_document ? req.files.joining_extend_document[0].filename : '',
+//             digital_signature_image: req.files.digital_signature_image ? req.files.digital_signature_image[0].filename : '',
+//             userSalaryStatus: req.body.userSalaryStatus,
+//             bank_name: req.body.bank_name,
+//             ifsc_code: req.body.ifsc_code,
+//             account_no: req.body.account_no,
+//             guardian_name: req.body.guardian_name,
+//             guardian_address: req.body.guardian_address,
+//             relation_with_guardian: req.body.relation_with_guardian,
+//             gaurdian_number: req.body.gaurdian_number,
+//             emergency_contact1: req.body.emergency_contact1,
+//             emergency_contact2: req.body.emergency_contact2,
+//             ctc: req.body.ctc,
+//             offer_letter_send: req.body.offer_letter_send,
+//             annexure_pdf: req.files.annexure_pdf ? req.files.annexure_pdf[0].filename : '',
+//             profileflag: req.body.profileflag,
+//             nick_name: req.body.nick_name,
+//             offer_later_date: req.body.offer_later_date,
+//             annexure_pdf: req.files.annexure_pdf ? req.files.annexure_pdf[0].filename : '',
+//             latitude: req.body.latitude,
+//             longitude: req.body.longitude,
+//             beneficiary: req.body.beneficiary,
+//             emp_id: empId,
+//             alternate_contact: req.body.alternate_contact,
+//             cast_type: req.body.cast_type,
+//             emergency_contact_person_name1: req.body.emergency_contact_person_name1,
+//             emergency_contact_person_name2: req.body.emergency_contact_person_name2,
+//             emergency_contact_relation1: req.body.emergency_contact_relation1,
+//             emergency_contact_relation2: req.body.emergency_contact_relation2,
+//             document_percentage_mandatory: req.body.document_percentage_mandatory,
+//             document_percentage_non_mandatory: req.body.document_percentage_non_mandatory,
+//             document_percentage: req.body.document_percentage,
+//             bank_type: req.body.bank_type,
+//             upi_Id: req.body.upi_Id,
+//             user_credit_limit: req.body.user_credit_limit
+//         })
+
+//         if (req.files.image && req.files.image[0].originalname) {
+//             const allowedTypes = ['image/jpeg', 'image/png'];
+//             const maxFileSize = 1 * 1024 * 1024;
+//             const imageFile = req.files.image[0];
+//             if (allowedTypes.includes(imageFile.mimetype) && imageFile.size <= maxFileSize) {
+//                 const bucketName = vari.BUCKET_NAME;
+//                 const bucket = storage.bucket(bucketName);
+//                 const blob1 = bucket.file(imageFile.originalname);
+//                 simc.image = blob1.name;
+//                 const blobStream1 = blob1.createWriteStream();
+//                 blobStream1.on("finish", () => { });
+//                 blobStream1.end(imageFile.buffer);
+//             } else {
+//                 res.status(400).send('Invalid file type or file exceeds size limit (1MB)');
+//             }
+
+//             // const bucketName = vari.BUCKET_NAME;
+//             // const bucket = storage.bucket(bucketName);
+//             // const blob1 = bucket.file(req.files.image[0].originalname);
+//             // simc.image = blob1.name;
+//             // const blobStream1 = blob1.createWriteStream();
+//             // blobStream1.on("finish", () => { });
+//             // blobStream1.end(req.files.image[0].buffer);
+//         }
+
+//         // if(req.body.salary>= 30000){
+
+//         // }
+//         const simv = await simc.save();
+
+//         // Genreate a pdf file for offer later
+//         if (simv?.offer_letter_send) {
+//             helper.generateOfferLaterPdf(simv);
+
+//         }
+//         //Generate documents for respective user id
+//         const docs = await documentModel.find();
+//         if (docs.length !== 0) {
+//             const newDocuments = docs.map(item => ({
+//                 doc_id: item._id,
+//                 user_id: simv?.user_id,
+//             }));
+//             await userDocManagmentModel.insertMany(newDocuments);
+//         }
+//         //End Generate documents for respective user id
+
+//         if (simv) {
+//             // const joining = simv.joining_date;
+//             // const convertDate = new Date(joining);
+//             // const extractDate = convertDate.getDate();
+//             // const joiningMonth = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(convertDate);
+//             // const joiningYear = String(convertDate.getUTCFullYear());
+//             // const work_days = 31 - extractDate;
+//             // const bonus = 0;
+//             // const presentDays = work_days - 0;
+//             // const perdaysal = simv.salary / 30;
+//             // const totalSalary = perdaysal * presentDays;
+//             // const netSalary = totalSalary + bonus;
+//             // const tdsDeduction = netSalary * (simv.tds_per) / 100;
+//             // const ToPay = netSalary - tdsDeduction;
+
+//             // const checkIfAttendanceExist = await attendanceModel.findOne({
+//             //     month: req.body.month,
+//             //     year: req.body.year
+//             // })
+//             // if (checkIfAttendanceExist) {
+//             //     const lastInserted = new attendanceModel({
+//             //         dept: simv.dept_id,
+//             //         user_id: simv.user_id,
+//             //         user_name: req.body.user_name,
+//             //         noOfabsent: 0,
+//             //         month: joiningMonth,
+//             //         year: joiningYear,
+//             //         bonus: 0,
+//             //         total_salary: simv.salary && simv.salary.toFixed(2),
+//             //         tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
+//             //         net_salary: netSalary && netSalary.toFixed(2),
+//             //         toPay: ToPay && ToPay.toFixed(2),
+//             //         remark: "",
+//             //         created_by: 99
+//             //     })
+//             //     await lastInserted.save();
+//             // }
+
+//             const objectData = await objModel.find();
+
+//             for (const object of objectData) {
+//                 const objectId = object.obj_id;
+//                 let insert = 0;
+//                 let view = 0;
+//                 let update = 0;
+//                 let delete_flag = 0;
+
+//                 if (simv.role_id === 1) {
+//                     insert = 1;
+//                     view = 1;
+//                     update = 1;
+//                     delete_flag = 1;
+//                 }
+
+//                 const userAuthDocument = {
+//                     Juser_id: simv.user_id,
+//                     obj_id: objectId,
+//                     insert: insert,
+//                     view: view,
+//                     update: update,
+//                     delete_flag: delete_flag,
+//                     creation_date: new Date(),
+//                     created_by: simv.created_by || 0,
+//                     last_updated_by: simv.created_by || 0,
+//                     last_updated_date: new Date(),
+//                 };
+
+//                 await userAuthModel.create(userAuthDocument);
+//             }
+//             const deptDesiData = await deptDesiAuthModel.find({});
+//             await Promise.all(deptDesiData.map(async (deptDesi) => {
+//                 if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
+//                     const updatedData = await userAuthModel.updateOne(
+//                         {
+//                             obj_id: deptDesi.obj_id,
+//                             Juser_id: simv.user_id
+//                         },
+//                         {
+//                             $set: {
+//                                 insert: deptDesi.insert,
+//                                 view: deptDesi.view,
+//                                 update: deptDesi.update,
+//                                 delete_flag: deptDesi.delete_flag
+//                             }
+//                         },
+//                         { new: true }
+//                     );
+//                 }
+//             }));
+//         }
+//         res.send({ simv, status: 200 });
+//     } catch (err) {
+//         return res.status(500).send({ error: err.message, sms: 'This user cannot be created' })
+//     }
+// }];
+
+
 exports.addUser = [upload, async (req, res) => {
     try {
 
@@ -98,146 +375,25 @@ exports.addUser = [upload, async (req, res) => {
         if (req.body.user_login_password) {
             encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
         }
+        const userData = { ...req.body };
+        let user_login_id = req.body.user_login_id.toLowerCase().trim();
+        let Hobbies = req.body?.Hobbies?.split(',').map(Number);
 
-        let empId = await generateEmpId(req.body.dept_id);
+        if (encryptedPass) {
+            userData.user_login_password = encryptedPass;
+        }
 
-        const simc = new userModel({
-            user_name: req.body.user_name,
-            user_designation: req.body.user_designation,
-            user_email_id: req.body.user_email_id,
-            user_login_id: req.body.user_login_id.toLowerCase().trim(),
-            user_login_password: encryptedPass,
-            user_report_to_id: req.body.user_report_to_id,
-            user_contact_no: req.body.user_contact_no,
-            dept_id: req.body.dept_id,
-            location_id: req.body.location_id,
-            created_by: req.body.created_by,
-            role_id: req.body.role_id,
-            sitting_id: req.body.sitting_id,
-            job_type: req.body.job_type,
-            PersonalNumber: req.body.personal_number,
-            Report_L1: req.body.report_L1,
-            Report_L2: req.body.report_L2,
-            Report_L3: req.body.report_L3,
-            PersonalEmail: req.body.Personal_email,
-            joining_date: req.body.joining_date,
-            releaving_date: req.body.releaving_date,
-            level: req.body.level,
-            room_id: req.body.room_id,
-            salary: req.body.salary,
-            year_salary: req.body.year_salary,
-            att_status: req.body.att_status,
-            SpokenLanguages: req.body.SpokenLanguages,
-            Gender: req.body.Gender,
-            Nationality: req.body.Nationality,
-            DOB: req.body.DOB,
-            Age: req.body.Age,
-            fatherName: req.body.FatherName,
-            motherName: req.body.MotherName,
-            Hobbies: req.body?.Hobbies?.split(',').map(Number),
-            BloodGroup: req.body.BloodGroup,
-            MartialStatus: req.body.MartialStatus,
-            DateofMarriage: req.body.DateofMarriage,
-            tds_applicable: req.body.salary >= 30000 ? 'Yes' : req.body.tds_applicable,
-            tds_per: req.body.salary >= 30000 ? 1 : req.body.tds_per,
-            onboard_status: req.body.onboard_status,
-            image_remark: req.body.image_remark,
-            image_validate: req.body.image_validate,
-            uid_remark: req.body.uid_remark,
-            uid_validate: req.body.uid_validate,
-            pan_remark: req.body.pan_remark,
-            pan_validate: req.body.pan_validate,
-            highest_upload_remark: req.body.highest_upload_remark,
-            highest_upload_validate: req.body.highest_upload_validate,
-            other_upload_remark: req.body.other_upload_remark,
-            other_upload_validate: req.body.other_upload_validate,
-            user_status: req.body.user_status,
-            lastupdated: req.body.lastupdated,
-            sub_dept_id: req.body.sub_dept_id == null ? 0 : req.body.sub_dept_id,
-            pan_no: req.body.pan_no,
-            uid_no: req.body.uid_no,
-            spouse_name: req.body.spouse_name,
-            highest_qualification_name: req.body.highest_qualification_name,
-            tenth_marksheet_validate: req.body.tenth_marksheet_validate,
-            twelveth_marksheet_validate: req.body.twelveth_marksheet_validate,
-            UG_Marksheet_validate: req.body.UG_Marksheet_validate,
-            passport_validate: req.body.passport_validate,
-            pre_off_letter_validate: req.body.pre_off_letter_validate,
-            pre_expe_letter_validate: req.body.pre_expe_letter_validate,
-            pre_relieving_letter_validate: req.body.pre_relieving_letter_validate,
-            bankPassBook_Cheque_validate: req.body.bankPassBook_Cheque_validate,
-            tenth_marksheet_validate_remark: req.body.tenth_marksheet_validate_remark,
-            twelveth_marksheet_validate_remark: req.body.twelveth_marksheet_validate_remark,
-            UG_Marksheet_validate_remark: req.body.UG_Marksheet_validate_remark,
-            passport_validate_remark: req.body.passport_validate,
-            pre_off_letter_validate_remark: req.body.pre_off_letter_validate_remark,
-            pre_expe_letter_validate_remark: req.body.pre_expe_letter_validate_remark,
-            pre_relieving_letter_validate_remark: req.body.pre_relieving_letter_validate_remark,
-            bankPassBook_Cheque_validate_remark: req.body.bankPassBook_Cheque_validate_remark,
-            current_address: req.body.current_address,
-            current_city: req.body.current_city,
-            current_state: req.body.current_state,
-            current_pin_code: req.body.current_pin_code,
-            permanent_address: req.body.permanent_address,
-            permanent_city: req.body.permanent_city,
-            permanent_state: req.body.permanent_state,
-            permanent_pin_code: req.body.permanent_pin_code,
-            joining_date_extend: req.body.joining_date_extend,
-            joining_date_extend_status: req.body.joining_date_extend_status,
-            joining_date_extend_reason: req.body.joining_date_extend_reason,
-            invoice_template_no: latestInvoiceNo,
-            // image: req.files.image ? req.files.image[0].filename : '',
-            UID: req.files.UID ? req.files.UID[0].filename : '',
-            pan: req.files.pan ? req.files.pan[0].filename : '',
-            highest_upload: req.files.highest_upload ? req.files.highest_upload[0].filename : '',
-            other_upload: req.files.other_upload ? req.files.other_upload[0].filename : '',
-            tenth_marksheet: req.files.tenth_marksheet ? req.files.tenth_marksheet[0].filename : '',
-            twelveth_marksheet: req.files.twelveth_marksheet ? req.files.twelveth_marksheet[0].filename : '',
-            UG_Marksheet: req.files.UG_Marksheet ? req.files.UG_Marksheet[0].filename : '',
-            passport: req.files.passport ? req.files.passport[0].filename : '',
-            pre_off_letter: req.files.pre_off_letter ? req.files.pre_off_letter[0].filename : '',
-            pre_expe_letter: req.files.pre_expe_letter ? req.files.pre_expe_letter[0].filename : '',
-            pre_relieving_letter: req.files.pre_relieving_letter ? req.files.pre_relieving_letter[0].filename : '',
-            bankPassBook_Cheque: req.files.bankPassBook_Cheque ? req.files.bankPassBook_Cheque[0].filename : '',
-            joining_extend_document: req.files.joining_extend_document ? req.files.joining_extend_document[0].filename : '',
-            digital_signature_image: req.files.digital_signature_image ? req.files.digital_signature_image[0].filename : '',
-            userSalaryStatus: req.body.userSalaryStatus,
-            bank_name: req.body.bank_name,
-            ifsc_code: req.body.ifsc_code,
-            account_no: req.body.account_no,
-            guardian_name: req.body.guardian_name,
-            guardian_address: req.body.guardian_address,
-            relation_with_guardian: req.body.relation_with_guardian,
-            gaurdian_number: req.body.gaurdian_number,
-            emergency_contact1: req.body.emergency_contact1,
-            emergency_contact2: req.body.emergency_contact2,
-            ctc: req.body.ctc,
-            offer_letter_send: req.body.offer_letter_send,
-            annexure_pdf: req.files.annexure_pdf ? req.files.annexure_pdf[0].filename : '',
-            profileflag: req.body.profileflag,
-            nick_name: req.body.nick_name,
-            offer_later_date: req.body.offer_later_date,
-            annexure_pdf: req.files.annexure_pdf ? req.files.annexure_pdf[0].filename : '',
-            latitude: req.body.latitude,
-            longitude: req.body.longitude,
-            beneficiary: req.body.beneficiary,
-            emp_id: empId,
-            alternate_contact: req.body.alternate_contact,
-            cast_type: req.body.cast_type,
-            emergency_contact_person_name1: req.body.emergency_contact_person_name1,
-            emergency_contact_person_name2: req.body.emergency_contact_person_name2,
-            emergency_contact_relation1: req.body.emergency_contact_relation1,
-            emergency_contact_relation2: req.body.emergency_contact_relation2,
-            document_percentage_mandatory: req.body.document_percentage_mandatory,
-            document_percentage_non_mandatory: req.body.document_percentage_non_mandatory,
-            document_percentage: req.body.document_percentage,
-            bank_type: req.body.bank_type,
-            upi_Id: req.body.upi_Id,
-            user_credit_limit: req.body.user_credit_limit
-        })
+        if (user_login_id) {
+            userData.user_login_id = user_login_id
+        }
+
+        if (Hobbies) {
+            userData.Hobbies = Hobbies
+        }
+
+        const simc = new userModel(req.body);
 
         if (req.files.image && req.files.image[0].originalname) {
-
             const allowedTypes = ['image/jpeg', 'image/png'];
             const maxFileSize = 1 * 1024 * 1024;
             const imageFile = req.files.image[0];
@@ -252,27 +408,9 @@ exports.addUser = [upload, async (req, res) => {
             } else {
                 res.status(400).send('Invalid file type or file exceeds size limit (1MB)');
             }
-
-            // const bucketName = vari.BUCKET_NAME;
-            // const bucket = storage.bucket(bucketName);
-            // const blob1 = bucket.file(req.files.image[0].originalname);
-            // simc.image = blob1.name;
-            // const blobStream1 = blob1.createWriteStream();
-            // blobStream1.on("finish", () => { });
-            // blobStream1.end(req.files.image[0].buffer);
         }
-
-        // if(req.body.salary>= 30000){
-
-        // }
         const simv = await simc.save();
 
-        // Genreate a pdf file for offer later
-        if (simv?.offer_letter_send) {
-            helper.generateOfferLaterPdf(simv);
-
-        }
-        //Generate documents for respective user id
         const docs = await documentModel.find();
         if (docs.length !== 0) {
             const newDocuments = docs.map(item => ({
@@ -281,104 +419,35 @@ exports.addUser = [upload, async (req, res) => {
             }));
             await userDocManagmentModel.insertMany(newDocuments);
         }
-        //End Generate documents for respective user id
 
         if (simv) {
-            // const joining = simv.joining_date;
-            // const convertDate = new Date(joining);
-            // const extractDate = convertDate.getDate();
-            // const joiningMonth = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(convertDate);
-            // const joiningYear = String(convertDate.getUTCFullYear());
-            // const work_days = 31 - extractDate;
-            // const bonus = 0;
-            // const presentDays = work_days - 0;
-            // const perdaysal = simv.salary / 30;
-            // const totalSalary = perdaysal * presentDays;
-            // const netSalary = totalSalary + bonus;
-            // const tdsDeduction = netSalary * (simv.tds_per) / 100;
-            // const ToPay = netSalary - tdsDeduction;
-
-            // const checkIfAttendanceExist = await attendanceModel.findOne({
-            //     month: req.body.month,
-            //     year: req.body.year
-            // })
-            // if (checkIfAttendanceExist) {
-            //     const lastInserted = new attendanceModel({
-            //         dept: simv.dept_id,
-            //         user_id: simv.user_id,
-            //         user_name: req.body.user_name,
-            //         noOfabsent: 0,
-            //         month: joiningMonth,
-            //         year: joiningYear,
-            //         bonus: 0,
-            //         total_salary: simv.salary && simv.salary.toFixed(2),
-            //         tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-            //         net_salary: netSalary && netSalary.toFixed(2),
-            //         toPay: ToPay && ToPay.toFixed(2),
-            //         remark: "",
-            //         created_by: 99
-            //     })
-            //     await lastInserted.save();
-            // }
-
             const objectData = await objModel.find();
-
-            for (const object of objectData) {
-                const objectId = object.obj_id;
-                let insert = 0;
-                let view = 0;
-                let update = 0;
-                let delete_flag = 0;
-
+            const bulkOps = objectData.map(object => {
+                let insert = 0, view = 0, update = 0, delete_flag = 0;
                 if (simv.role_id === 1) {
-                    insert = 1;
-                    view = 1;
-                    update = 1;
-                    delete_flag = 1;
+                    insert = view = update = delete_flag = 1;
                 }
-
-                const userAuthDocument = {
-                    Juser_id: simv.user_id,
-                    obj_id: objectId,
-                    insert: insert,
-                    view: view,
-                    update: update,
-                    delete_flag: delete_flag,
-                    creation_date: new Date(),
-                    created_by: simv.created_by || 0,
-                    last_updated_by: simv.created_by || 0,
-                    last_updated_date: new Date(),
+                return {
+                    insertOne: {
+                        document: {
+                            Juser_id: simv.user_id,
+                            obj_id: object.obj_id,
+                            insert, view, update, delete_flag,
+                            creation_date: new Date(),
+                            created_by: simv.created_by || 0,
+                            last_updated_by: simv.created_by || 0,
+                            last_updated_date: new Date(),
+                        }
+                    }
                 };
-
-                await userAuthModel.create(userAuthDocument);
-            }
-            const deptDesiData = await deptDesiAuthModel.find({});
-            await Promise.all(deptDesiData.map(async (deptDesi) => {
-                if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
-                    const updatedData = await userAuthModel.updateOne(
-                        {
-                            obj_id: deptDesi.obj_id,
-                            Juser_id: simv.user_id
-                        },
-                        {
-                            $set: {
-                                insert: deptDesi.insert,
-                                view: deptDesi.view,
-                                update: deptDesi.update,
-                                delete_flag: deptDesi.delete_flag
-                            }
-                        },
-                        { new: true }
-                    );
-                }
-            }));
+            });
+            await userAuthModel.bulkWrite(bulkOps);
         }
         res.send({ simv, status: 200 });
     } catch (err) {
         return res.status(500).send({ error: err.message, sms: 'This user cannot be created' })
     }
 }];
-
 
 // exports.addUserForGeneralInformation = [upload, async (req, res) => {
 //     try {
@@ -3875,10 +3944,10 @@ exports.assignAllObjInUserAuth = async (req, res) => {
 exports.checkLoginExist = async (req, res) => {
     try {
         const findData = await userModel.findOne({ user_login_id: req.body.user_login_id });
-        if (!findData) {
-            return response.returnFalse(200, req, res, "login id available", []);
+        if (findData) {
+            return response.returnFalse(200, req, res, "login id not available", []);
         }
-        return response.returnFalse(200, req, res, 'login id not available', [])
+        return response.returnFalse(200, req, res, 'login id available', [])
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
