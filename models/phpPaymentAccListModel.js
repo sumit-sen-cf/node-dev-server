@@ -39,6 +39,9 @@ const phpPaymentAccListModel = new mongoose.Schema({
     sno: {
         type: Number,
         required: false
+    },
+    is_deleted: {
+        type: Boolean
     }
 });
 

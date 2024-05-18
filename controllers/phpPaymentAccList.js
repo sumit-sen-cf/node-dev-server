@@ -151,13 +151,30 @@ exports.getAccListDataFromCustId = async (req, res) => {
     }
 }
 
+async function callPhpApi(sendData) {
+    try {
+        const phpResponse = await axios.post(
+            'https://sales.creativefuel.io/webservices/RestController.php?view=create_update_payment_detail',
+            sendData,
+            {
+                headers: {
+                    ...sendData.getHeaders(),
+                },
+            }
+        );
+        return phpResponse.data;
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            console.error("PHP API Endpoint Not Found:", error.response.data);
+            throw new Error("PHP API Endpoint Not Found");
+        } else {
+            throw new Error(`Error calling PHP API: ${error.message}`);
+        }
+    }
+}
+
 exports.addAccListData = async (req, res) => {
     try {
-        // const title = await phpPaymentAccListModel.findOne({ title: req.body.title })
-        // if (!title) {
-        //     return response.returnFalse(409, req, res, "Title Name is already exist", {});
-        // }
-
         const existingTitle = await phpPaymentAccListModel.findOne({ title: req.body.title });
         if (existingTitle) {
             return response.returnFalse(409, req, res, "Title Name already exists", {});
@@ -179,6 +196,15 @@ exports.addAccListData = async (req, res) => {
             sno: latestSnoVal + 1
         });
         const result = await accData.save();
+
+        //call api to save php Data
+        const sendData = new FormData();
+        sendData.append("insert_id", result.id)
+        sendData.append('title', result.title);
+        sendData.append('detail', result.detail);
+        sendData.append('gst_bank', result.gst_bank);
+        sendData.append('payment_type', result.payment_type);
+        const phpResponse = await callPhpApi(sendData);
         return response.returnTrue(
             200,
             req,
@@ -192,57 +218,64 @@ exports.addAccListData = async (req, res) => {
 };
 
 
-// exports.addAccListData = async (req, res) => {
-//     try {
-//         const existingTitle = await phpPaymentAccListModel.findOne({ title: req.body.title });
-//         if (existingTitle) {
-//             return response.returnFalse(409, req, res, "Title Name already exists", {});
-//         }
-//         console.log("existingTitle-------------------------------", existingTitle)
-//         const sendData = new FormData();
-//         sendData.append('title', req.body.title);
-//         sendData.append('detail', req.body.detail);
-//         sendData.append('gst_bank', req.body.gst_bank);
-//         sendData.append('payment_type', req.body.payment_type);
+exports.updateAccListData = async (req, res) => {
+    try {
+        const editaccdata = await phpPaymentAccListModel.findOneAndUpdate(
+            { id: parseInt(req.body.id) },
+            {
+                title: req.body.title,
+                detail: req.body.detail,
+                gst_bank: req.body.gst_bank,
+                payment_type: req.body.payment_type,
+            },
+            { new: true }
+        );
+        if (!editaccdata) {
+            return response.returnFalse(
+                200,
+                req,
+                res,
+                "No Reord Found With This Vendor Id",
+                {}
+            );
+        }
 
-//         const phpResponse = await axios.post(
-//             'https://sales.creativefuel.io/webservices/RestController.php?view=create_update_payment_detail',
-//             sendData,
-//             {
-//                 headers: {
-//                     ...sendData.getHeaders(),
-//                 },
-//             }
-//         );
-//         const responseData = phpResponse.data.body;
-//         console.log("PHP Response Data:", responseData);
+        //call api to save php Data
+        const sendData = new FormData();
+        sendData.append("update_id", result.id)
+        sendData.append('title', result.title);
+        sendData.append('detail', result.detail);
+        sendData.append('gst_bank', result.gst_bank);
+        sendData.append('payment_type', result.payment_type);
 
-//         const latestId = await phpPaymentAccListModel.findOne().sort({ id: -1 }).select({ id: 1 });
-//         const latestSno = await phpPaymentAccListModel.findOne().sort({ sno: -1 }).select({ sno: 1 });
-//         const latestIdVal = latestId ? latestId.id : 0;
-//         const latestSnoVal = latestSno ? latestSno.sno : 0;
+        const phpResponse = await callPhpApi(sendData);
+        return response.returnTrue(200, req, res, "Updation Successfully", editaccdata);
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
 
-//         const currDate = new Date();
-
-//         const accData = new phpPaymentAccListModel({
-//             id: latestIdVal + 1,
-//             title: req.body.title,
-//             detail: req.body.detail,
-//             gst_bank: req.body.gst_bank,
-//             payment_type: req.body.payment_type,
-//             created_at: currDate,
-//             sno: latestSnoVal + 1
-//         });
-//         const result = await accData.save();
-//         return response.returnTrue(
-//             200,
-//             req,
-//             res,
-//             "AccListData Created Successfully",
-//             result
-//         );
-//     } catch (err) {
-//         console.error("Error:", err);
-//         return response.returnFalse(500, req, res, err.message, {});
-//     }
-// };
+exports.deleteAccListData = async (req, res) => {
+    const id = req.params.id;
+    const condition = { id };
+    try {
+        const result = await phpPaymentAccListModel.deleteOne(condition, { is_deleted: true });
+        if (result.deletedCount === 1) {
+            return res.status(200).json({
+                success: true,
+                message: `Payment Mode with ID ${id} deleted successfully`,
+            });
+        } else {
+            return res.status(200).json({
+                success: false,
+                message: `Payment Mode with ID ${id} not found`,
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while deleting the Payment Mode",
+            error: error.message,
+        });
+    }
+};  

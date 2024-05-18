@@ -8,45 +8,99 @@ async function checkIfDataExists(sale_booking_id) {
     return result !== null;
 }
 
+// exports.savePhpSaleBookingTdsDataInNode = async (req, res) => {
+//     try {
+//         // const loggedin_user_id = req.body.loggedin_user_id;
+//         const sendData = new FormData();
+//         sendData.append("loggedin_user_id", 36);
+//         const response = await axios.post(
+//             'https://sales.creativefuel.io/webservices/RestController.php?view=sales-sale_booking_for_tds', sendData,
+//             {
+//                 headers: {
+//                     ...sendData.getHeaders(),
+//                 },
+//             }
+//         )
+//         const responseData = response.data.body;
+
+//         await Promise.all(responseData.map(async (data) => {
+//             const existingData = await checkIfDataExists(data.sale_booking_id)
+
+//             if (!existingData) {
+
+//                 const creators = new phpPaymentBalListModel({
+//                     sno: data.sno,
+//                     sale_booking_id: data.sale_booking_id,
+//                     cust_name: data.cust_name,
+//                     sales_exe_name: data.sales_exe_name,
+//                     sale_booking_date: data.sale_booking_date,
+//                     campaign_amount: data.campaign_amount,
+//                     base_amount: data.base_amount,
+//                     gst_amount: data.gst_amount,
+//                     net_amount: data.net_amount,
+//                     total_paid_amount: data.total_paid_amount,
+//                     total_refund_amount: data.total_refund_amount,
+//                     balance_refund_amount: data.balance_refund_amount,
+//                     net_balance_amount_to_pay_percentage: data.net_balance_amount_to_pay_percentage,
+//                     booking_created_date: data.booking_created_date,
+//                     show_fstatus: data.show_fstatus
+//                 })
+//                 const instav = await creators.save();
+//             } else {
+//                 await phpPaymentBalListModel.findOneAndUpdate(
+//                     { sale_booking_id: data.sale_booking_id },
+//                     {
+//                         $set: {
+//                             sno: data.sno,
+//                             sale_booking_id: data.sale_booking_id,
+//                             cust_name: data.cust_name,
+//                             sales_exe_name: data.sales_exe_name,
+//                             sale_booking_date: data.sale_booking_date,
+//                             campaign_amount: data.campaign_amount,
+//                             base_amount: data.base_amount,
+//                             gst_amount: data.gst_amount,
+//                             net_amount: data.net_amount,
+//                             total_paid_amount: data.total_paid_amount,
+//                             total_refund_amount: data.total_refund_amount,
+//                             balance_refund_amount: data.balance_refund_amount,
+//                             net_balance_amount_to_pay_percentage: data.net_balance_amount_to_pay_percentage,
+//                             booking_created_date: data.booking_created_date,
+//                             show_fstatus: data.show_fstatus
+//                         }
+//                     },
+//                     { new: true }
+//                 );
+//                 res.status(200).json({ msg: "Data already insterted there is no new data available to insert." });
+//             }
+//         }));
+
+//         return res.send({ sms: "data copied in local db", status: 200 })
+//     } catch (error) {
+//         return res.status(500).send({ error: error.message, sms: 'error while adding data' })
+//     }
+// }
+
 exports.savePhpSaleBookingTdsDataInNode = async (req, res) => {
     try {
-        // const loggedin_user_id = req.body.loggedin_user_id;
         const sendData = new FormData();
         sendData.append("loggedin_user_id", 36);
+
         const response = await axios.post(
-            'https://sales.creativefuel.io/webservices/RestController.php?view=sales-sale_booking_for_tds', sendData,
+            'https://sales.creativefuel.io/webservices/RestController.php?view=sales-sale_booking_for_tds',
+            sendData,
             {
                 headers: {
                     ...sendData.getHeaders(),
                 },
             }
-        )
+        );
+
         const responseData = response.data.body;
 
         await Promise.all(responseData.map(async (data) => {
-            const existingData = await checkIfDataExists(data.sale_booking_id)
+            const existingData = await checkIfDataExists(data.sale_booking_id);
 
             if (!existingData) {
-
-                const creators = new phpPaymentBalListModel({
-                    sno: data.sno,
-                    sale_booking_id: data.sale_booking_id,
-                    cust_name: data.cust_name,
-                    sales_exe_name: data.sales_exe_name,
-                    sale_booking_date: data.sale_booking_date,
-                    campaign_amount: data.campaign_amount,
-                    base_amount: data.base_amount,
-                    gst_amount: data.gst_amount,
-                    net_amount: data.net_amount,
-                    total_paid_amount: data.total_paid_amount,
-                    total_refund_amount: data.total_refund_amount,
-                    balance_refund_amount: data.balance_refund_amount,
-                    net_balance_amount_to_pay_percentage: data.net_balance_amount_to_pay_percentage,
-                    booking_created_date: data.booking_created_date,
-                    show_fstatus: data.show_fstatus
-                })
-                const instav = await creators.save();
-            } else {
                 await phpPaymentBalListModel.findOneAndUpdate(
                     { sale_booking_id: data.sale_booking_id },
                     {
@@ -68,17 +122,19 @@ exports.savePhpSaleBookingTdsDataInNode = async (req, res) => {
                             show_fstatus: data.show_fstatus
                         }
                     },
-                    { new: true }
+                    { upsert: true, new: true }
                 );
-                return res.status(200).json({ msg: "Data already insterted there is no new data available to insert." });
+            } else {
+                console.log("Data already inserted. Sale Booking ID: ", data.sale_booking_id);
             }
         }));
 
-        res.send({ sms: "data copied in local db", status: 200 })
+        return res.status(200).send({ message: "Data copied to the local database." });
     } catch (error) {
-        return res.status(500).send({ error: error.message, sms: 'error while adding data' })
+        console.error("Error while adding data:", error);
+        return res.status(500).send({ error: error.message, message: 'Error while adding data' });
     }
-}
+};
 
 exports.getAllphpSaleBookingTdsData = async (req, res) => {
     try {

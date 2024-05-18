@@ -1435,6 +1435,8 @@ router.get("/get_all_php_finance_data_pending", phpFinance.getAllphpFinanceDataP
 router.post("/add_php_payment_acc_data_in_node", phpPayment.savePhpPaymentAccDataInNode);
 router.get("/get_all_php_payment_acc_data", phpPayment.getAllphpPaymentAccData);
 router.post("/add_payment_acc_data", phpPayment.addAccListData);
+router.put("/edit_payment_acc_data", phpPayment.updateAccListData);
+router.delete("/delete_payment_acc_data", phpPayment.deleteAccListData);
 router.get("/get_all_php_payment_acc_data_pending", phpPayment.getAllphpPaymentAccDataForStatus);
 router.put("/pending_approval_update", phpPayment.pendingApprovalUpdate);
 router.put("/update_hide_status_php_payment_acc_data/:id", phpPayment.updateHideStatusForPhpPaymentAccData);

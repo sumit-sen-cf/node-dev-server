@@ -15,74 +15,42 @@ const mail = require("../common/sendMail.js");
 
 exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
     try {
-        // const transporter = nodemailer.createTransport({
-        //     service: 'gmail',
-        //     auth: {
-        //         user: "demo1245@gmail.com",
-        //         pass: "ptxogcg",
-        //     }
+
+        const data = new phpVendorPaymentRequestModel(req.body);
+        // const data = new phpVendorPaymentRequestModel({
+        //     request_id: req.body.request_id,
+        //     vendor_id: req.body.vendor_id,
+        //     request_by: req.body.request_by,
+        //     request_amount: req.body.request_amount,
+        //     priority: req.body.priority,
+        //     status: req.body.status,
+        //     payment_mode: req.body.payment_mode,
+        //     payment_amount: req.body.payment_amount,
+        //     payment_by: req.body.payment_by,
+        //     remark_finance: req.body.remark_finance,
+        //     invc_no: req.body.invc_no,
+        //     invc_remark: req.body.invc_remark,
+        //     remark_audit: req.body.remark_audit,
+        //     outstandings: req.body.outstandings,
+        //     name: req.body.name,
+        //     vendor_name: req.body.vendor_name,
+        //     request_date: req.body.request_date,
+        //     payment_date: req.body.payment_date,
+        //     tds_deduction: req.body.tds_deduction,
+        //     gst_hold: req.body.gst_hold,
+        //     gst_Hold_Bool: req.body.gst_Hold_Bool,
+        //     tds_Deduction_Bool: req.body.tds_Deduction_Bool,
+        //     zoho_status: req.body.zoho_status,
+        //     zoho_date: req.body.zoho_date,
+        //     zoho_remark: req.body.zoho_remark,
+        //     tds_status: req.body.tds_status,
+        //     tds_date: req.body.tds_date,
+        //     tds_remark: req.body.tds_remark,
+        //     gst_status: req.body.gst_status,
+        //     gst_date: req.body.gst_date,
+        //     gst_remark: req.body.gst_remark,
+        //     gst_hold_amount: req.body.gst_hold_amount
         // });
-        // async function sendEmail(to, subject, text) {
-        //     const templatePath = path.join(__dirname, "vendorPhpPaymentRequest2.ejs");
-        //     const template = await fs.promises.readFile(templatePath, "utf-8");
-        //     const html = ejs.render(template, {
-        //         subject,
-        //         request_by: phpVendorPaymentRequestData.request_by,
-        //         vendor_name: phpVendorPaymentRequestData.vendor_name,
-        //         request_date: phpVendorPaymentRequestData.request_date,
-        //         request_amount: phpVendorPaymentRequestData.request_amount,
-        //         payment_amount: phpVendorPaymentRequestData.payment_amount,
-        //         payment_date: phpVendorPaymentRequestData.payment_date,
-        //         payment_by: phpVendorPaymentRequestData.payment_by,
-        //         status: phpVendorPaymentRequestData.status,
-        //         mobile: phpVendorPaymentRequestData.mobile
-        //     });
-        //     try {
-        //         await transporter.sendMail({
-        //             from: "abc22@gmail.com",
-        //             to: "abc22@gmail.com",
-        //             subject: subject,
-        //             html: html
-        //         });
-        //         console.log('Email sent successfully');
-        //     } catch (error) {
-        //         console.error('Error sending email:', error);
-        //     }
-        // };
-        const data = new phpVendorPaymentRequestModel({
-            request_id: req.body.request_id,
-            vendor_id: req.body.vendor_id,
-            request_by: req.body.request_by,
-            request_amount: req.body.request_amount,
-            priority: req.body.priority,
-            status: req.body.status,
-            payment_mode: req.body.payment_mode,
-            payment_amount: req.body.payment_amount,
-            payment_by: req.body.payment_by,
-            remark_finance: req.body.remark_finance,
-            invc_no: req.body.invc_no,
-            invc_remark: req.body.invc_remark,
-            remark_audit: req.body.remark_audit,
-            outstandings: req.body.outstandings,
-            name: req.body.name,
-            vendor_name: req.body.vendor_name,
-            request_date: req.body.request_date,
-            payment_date: req.body.payment_date,
-            tds_deduction: req.body.tds_deduction,
-            gst_hold: req.body.gst_hold,
-            gst_Hold_Bool: req.body.gst_Hold_Bool,
-            tds_Deduction_Bool: req.body.tds_Deduction_Bool,
-            zoho_status: req.body.zoho_status,
-            zoho_date: req.body.zoho_date,
-            zoho_remark: req.body.zoho_remark,
-            tds_status: req.body.tds_status,
-            tds_date: req.body.tds_date,
-            tds_remark: req.body.tds_remark,
-            gst_status: req.body.gst_status,
-            gst_date: req.body.gst_date,
-            gst_remark: req.body.gst_remark,
-            gst_hold_amount: req.body.gst_hold_amount
-        });
 
         if (req.file) {
             const bucketName = vari.BUCKET_NAME;
@@ -97,27 +65,6 @@ exports.addPhpVendorPaymentRequestAdd = async (req, res) => {
             blobStream.end(req.file.buffer);
         }
         const phpVendorPaymentRequestData = await data.save();
-
-        // let message;
-        // if (phpVendorPaymentRequestData.status === '1') {
-        //     message = `Success Message : Payment request successfully!\nRequest_By: ${phpVendorPaymentRequestData.request_by},
-        //      \nVendor_name: ${phpVendorPaymentRequestData.vendor_name}, \nRequest_Date: ${phpVendorPaymentRequestData.request_date}, 
-        //      \nRequest_Amount: ${phpVendorPaymentRequestData.request_amount}, \nPayment_Amount: ${phpVendorPaymentRequestData.payment_amount}
-        //      \nMobile: ${phpVendorPaymentRequestData.mobile}, \n Payment_Date: ${phpVendorPaymentRequestData.payment_date},
-        //      \nPayment_Pay: ${phpVendorPaymentRequestData.payment_by},\nStatus: ${phpVendorPaymentRequestData.status}`;
-
-        // } else if (phpVendorPaymentRequestData.status === '2') {
-        //     message = `Rejected Message: Payment request rejected!\nRequest_By: ${phpVendorPaymentRequestData.request_by}, 
-        //     \nVendor_name: ${phpVendorPaymentRequestData.vendor_name}, \nRequest_Date: ${phpVendorPaymentRequestData.request_date}   
-        //      \n Payment_Date: ${phpVendorPaymentRequestData.payment_date}, 
-        //      \nPayment_Pay: ${phpVendorPaymentRequestData.payment_by}, \nStatus: ${phpVendorPaymentRequestData.status}`;
-        // }
-
-        // // Send email
-        // const emailsend = await sendEmail(message, phpVendorPaymentRequestData.request_by, phpVendorPaymentRequestData.vendor_name,
-        //     phpVendorPaymentRequestData.request_date, phpVendorPaymentRequestData.request_amount, phpVendorPaymentRequestData.payment_amount,
-        //     phpVendorPaymentRequestData.mobile, phpVendorPaymentRequestData.status, phpVendorPaymentRequestData.payment_date,
-        //     phpVendorPaymentRequestData.payment_by, phpVendorPaymentRequestData.status);
 
         return response.returnTrue(
             200,
