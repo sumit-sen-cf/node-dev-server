@@ -61,7 +61,7 @@ exports.createPmsVendorMast = [
                 ifsc_code,
                 account_type,
                 upi_id,
-                whatsapp_link:whatsapp_link.split(",").map((item) => item.trim())
+                whatsapp_link:JSON.parse(whatsapp_link)
             });
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
@@ -261,7 +261,7 @@ exports.updateVendorMast = [
                     ifsc_code,
                     account_type,
                     upi_id,
-                    whatsapp_link:whatsapp_link.split(",").map((item) => item.trim())
+                    whatsapp_link:JSON.parse(whatsapp_link)
                 },
             },
                 { new: true }
@@ -446,6 +446,30 @@ exports.getAllVendorMastList = async (req, res) => {
         });
     }
 };
+
+exports.getNotAssignedToPageMastVenodrList= async(req,res)=>{
+    try{
+        const vendorMastData = await pmsPageMastModel.find();
+        const vendorMastData1 = vendorMastData.map((data) => {
+         return data.vendorMast_id;
+        });
+
+    const venodrData = await  pmsVendorMastModel.find({})
+
+    let filterData=venodrData.filter((dataa) => {
+    return !vendorMastData1.includes(dataa.vendorMast_id);
+    });
+     return  res.status(200).json({
+        status:200,
+        message:"PMS vendor-mast data found successfully!",
+        data:filterData,
+        length:filterData.length
+    });
+    }catch(error){
+    res.status(404).json({
+        message:error.message
+    })
+}}
 exports.getPageByVenodrId= async (req,res)=>{
     try{
         const {params}=req;
