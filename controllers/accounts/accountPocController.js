@@ -84,10 +84,10 @@ exports.getAccountPocDetails = async (req, res) => {
                     email: 1,
                     department: 1,
                     designation: 1,
-                    created_date_time: 1,
+                    createdAt: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
-                    last_updated_date: 1,
+                    updatedAt: 1,
                     updated_by: "$user.user_name",
                 }
             }
@@ -203,10 +203,10 @@ exports.getAccountPocList = async (req, res) => {
                 email: 1,
                 department: 1,
                 designation: 1,
-                created_date_time: 1,
+                createdAt: 1,
                 created_by: 1,
                 created_by_name: "$user.user_name",
-                last_updated_date: 1,
+                updatedAt: 1,
                 updated_by: "$user.user_name",
             }
         }, {
