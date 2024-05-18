@@ -318,7 +318,7 @@ exports.savePhpFinanceDataInNode = async (req, res) => {
 
 exports.getAllphpFinanceData = async (req, res) => {
     try {
-        const getData = await phpFinanceModel.find({ payment_approval_status: "1", payment_approval_status: "2" });
+        const getData = await phpFinanceModel.find({ payment_approval_status: { $in: ["1", "2"] } });
         res.status(200).send({ data: getData })
     } catch (error) {
         res.status(500).send({ error: error.message, sms: "error getting php finance data" })

@@ -7,6 +7,7 @@ const accountType = require("../controllers/accounts/accountTypeController");
 const accountCompanyTypeController = require("../controllers/accounts/accountCompanyTypeController");
 const accountPoc = require("../controllers/accounts/accountPocController")
 const accountDocumentMaster = require("../controllers/accounts/accountDocumentMasterController");
+const accountDocumentOverview = require("../controllers/accounts/accountDocumentOverviewController");
 
 router.get("/", (req, res) => {
     res.send({ message: "Welcome to Account module." });
@@ -62,5 +63,16 @@ router.put("/update_document_master/:id", verifyToken, validation.accountDocumen
 router.get("/get_document_master/:id", verifyToken, accountDocumentMaster.getDocumentMasterDetails);
 router.get("/get_document_master_list", verifyToken, accountDocumentMaster.getDocumentMasterList);
 router.delete("/delete_document_master/:id", verifyToken, accountDocumentMaster.deleteDocumentMaster);
+
+/**
+ * account document overview routes
+ */
+router.post("/add_document_overview", verifyToken, validation.accountDocumentOverviewValidation,
+    accountDocumentOverview.addDocumentOverview);
+router.put("/update_document_overview/:id", verifyToken, validation.accountDocumentOverviewValidation,
+    accountDocumentOverview.updateDocumentOverview);
+router.get("/get_document_overview/:id", verifyToken, accountDocumentOverview.getDocumentOverviewDetails);
+router.get("/get_document_overview_list", verifyToken, accountDocumentOverview.getDocumentOverviewList);
+router.delete("/delete_document_overview_list/:id", verifyToken, accountDocumentOverview.deleteDocumentOverview);
 
 module.exports = router; 

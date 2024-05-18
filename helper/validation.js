@@ -115,3 +115,34 @@ exports.accountDocumentMasterValidation = async (req, res, next) => {
         next();
     }
 };
+
+/**
+ * Middleware to validate the account document overview details in the request body.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+exports.accountDocumentOverviewValidation = async (req, res, next) => {
+    const body = req.body; // Extracting the request body
+
+    // Defining the validation schema using Joi
+    const schema = Joi.object({
+        account_id: Joi.optional(), // account_id is optional
+        document_master_id: Joi.optional(), // document_master_id is optional
+        document_image_upload: Joi.string(),
+        document_no: Joi.string().pattern(/^[a-zA-Z0-9]+$/),
+        description: Joi.string().min(5).max(2000),
+        created_by: Joi.optional(),
+        updated_by: Joi.optional(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(200, req, res, errors);
+    } else {
+        next();
+    }
+};
