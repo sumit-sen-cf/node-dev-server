@@ -1,6 +1,5 @@
 const accountTypesModel = require("../../models/accounts/accountTypesModel");
 const { message } = require("../../common/message")
-const Joi = require("joi");
 const mongoose = require("mongoose");
 
 /**
@@ -16,13 +15,12 @@ exports.addAccountType = async (req, res) => {
                 message: "Account type name alredy exist!",
             });
         }
-        const { account_type_name, description, created_by } = req.body; 
+        const { account_type_name, description, created_by } = req.body;
         //data stored in DB collection
         const createAccountTypeData = await accountTypesModel.create({
             account_type_name: account_type_name,
             description: description,
             created_by: created_by,
-            updated_by: created_by
         })
         return res.status(200).json({
             status: 200,
@@ -61,28 +59,14 @@ exports.getAccountTypeData = async (req, res) => {
                 },
             },
             {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "updated_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
                 $project: {
                     account_type_name: 1,
                     description: 1,
-                    created_date_time: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
-                    last_updated_date: 1,
-                    updated_by: "$user.user_name",
+                    updated_by: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
                 }
             }
         ])
@@ -92,9 +76,11 @@ exports.getAccountTypeData = async (req, res) => {
                 message: "Account type data not found!"
             });
         }
+
+        //send success response
         return res.status(200).json({
             status: 200,
-            messgae: "Account type data retrive successfully!",
+            messgae: "Account type data retrieved successfully!",
             data: accountTypeData
         })
     } catch (error) {
@@ -125,6 +111,8 @@ exports.updateAccountTypeData = async (req, res) => {
                 updated_by
             }
         })
+
+        //send success response
         return res.status(200).json({
             status: 200,
             message: "Account type data updated successfully!",
@@ -142,18 +130,31 @@ exports.updateAccountTypeData = async (req, res) => {
  */
 exports.getAccountTypeList = async (req, res) => {
     try {
-        //filter pagination page wise data = page=1 & limit=2 
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 5;
-        const skip = (page - 1) * limit;
-        // Get filter parameters
-        const filters = {};
+        //filter for pagination page wise data = page=1 & limit=2 
+        let page = parseInt(req.query?.page) || 1;
+        let limit = 10;
+        let skip = limit * (page - 1);
+        let sort = {
+            createdAt: -1
+        };
+        
+        //for match conditions
+        let matchQuery = {};
+        //Search by filter
         if (req.query.search) {
-            // search by account_type_name
-            filters.account_type_name = { $regex: new RegExp(req.query.search, 'i') };
+            //Regex Condition for search 
+            matchQuery['$or'] = [{
+                "account_type_name": {
+                    "$regex": req.query.search,
+                    "$options": "i"
+                }
+            }]
         }
+
         //account_type_list get
         const accountTypeList = await accountTypesModel.aggregate([{
+            $match: matchQuery
+        }, {
             $lookup: {
                 from: "usermodels",
                 localField: "created_by",
@@ -166,51 +167,38 @@ exports.getAccountTypeList = async (req, res) => {
                 preserveNullAndEmptyArrays: true,
             }
         }, {
-            $lookup: {
-                from: "usermodels",
-                localField: "updated_by",
-                foreignField: "user_id",
-                as: "user_updated",
-            },
-        }, {
-            $unwind: {
-                path: "$user_updated",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $match: filters // Apply filters
-        }, {
             $project: {
                 account_type_name: 1,
                 description: 1,
-                created_date_time: 1,
                 created_by: 1,
                 created_by_name: "$user_created.user_name",
-                last_updated_date: 1,
-                updated_by: "$user_updated.user_name",
+                updated_by: 1,
+                createdAt: 1,
+                updatedAt: 1,
             }
+        }, {
+            $sort: sort
         }, {
             $skip: skip
         }, {
             $limit: limit
-        }, {
-            $sort: { createdAt: -1 }
-        }
-        ]);
-        const totalAccountTypeListCountData = await accountTypesModel.countDocuments();
-        if (!accountTypeList.length) {
-            return res.status(404).json({
-                status: 404,
-                message: "Account type list data not found!"
-            });
-        }
+        }]);
+
+        // Query to get counts of record of account types
+        const totalAccountTypeListCounts = await accountTypesModel.countDocuments(matchQuery);
+        // send account types page and passing data
         return res.status(200).json({
             status: 200,
-            message: "Account type list data successfully!",
-            totalAccountType: totalAccountTypeListCountData,
-            totalPages: Math.ceil(totalAccountTypeListCountData / limit),
-            currentPage: page,
-            data: accountTypeList
+            message: "Account type list data fatched successfully!",
+            data: accountTypeList,
+            start_record: skip + 1,
+            end_record: skip + accountTypeList.length,
+            total_records: totalAccountTypeListCounts,
+            pagination: {
+                currentPage: page,
+                totalPage: Math.ceil(totalAccountTypeListCounts / limit),
+                url: req.originalUrl
+            }
         });
     } catch (error) {
         return res.status(500).json({
@@ -237,6 +225,7 @@ exports.deleteAccountType = async (req, res) => {
         }
         // account_type data deleted
         await accountTypesModel.deleteOne({ _id: id });
+        //send success response
         return res.status(200).json({
             status: 200,
             message: "Account type data deleted successfully!",

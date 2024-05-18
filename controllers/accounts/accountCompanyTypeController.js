@@ -1,7 +1,6 @@
 const response = require('../../common/response');
 const { message } = require("../../common/message");
 const mongoose = require("mongoose");
-const Joi = require("joi");
 const accountCompanyType = require('../../models/accounts/accountCompanyTypeModel');
 
 /**
@@ -22,7 +21,6 @@ exports.addAccountCompanyType = async (req, res) => {
 
         //body data get for add in db
         const { company_type_name, description, created_by } = req.body;
-
 
         //data stored in DB collection
         const addAccountCompanyTypeData = await accountCompanyType.create({
@@ -72,6 +70,7 @@ exports.editAccountCompanyType = async (req, res) => {
                 updated_by
             }
         });
+        //send success response
         return res.status(200).json({
             status: 200,
             message: "account company type data updated successfully!",
@@ -89,6 +88,7 @@ exports.editAccountCompanyType = async (req, res) => {
  */
 exports.getSingleAccountCompanyType = async (req, res) => {
     try {
+        //get id wise data from DB collection
         const accountCompanyTypeData = await accountCompanyType.aggregate([{
             $match: {
                 _id: mongoose.Types.ObjectId(req.params.id)
@@ -142,8 +142,30 @@ exports.getSingleAccountCompanyType = async (req, res) => {
  */
 exports.getAllAccountCompanyType = async (req, res) => {
     try {
+        //filter for pagination page wise data = page=1 & limit=2 
+        let page = parseInt(req.query?.page) || 1;
+        let limit = 10;
+        let skip = limit * (page - 1);
+        let sort = {
+            createdAt: -1
+        };
+        //for match conditions
+        let matchQuery = {};
+        //Search by filter
+        if (req.query.search) {
+            //Regex Condition for search 
+            matchQuery['$or'] = [{
+                "company_type_name": {
+                    "$regex": req.query.search,
+                    "$options": "i"
+                }
+            }]
+        }
+
         //data get from the db collection
         const accountCompanyTypeData = await accountCompanyType.aggregate([{
+            $match: matchQuery
+        }, {
             $lookup: {
                 from: "usermodels",
                 localField: "created_by",
@@ -166,21 +188,29 @@ exports.getAllAccountCompanyType = async (req, res) => {
                 createdAt: 1,
                 updatedAt: 1,
             }
+        }, {
+            $sort: sort
+        }, {
+            $skip: skip
+        }, {
+            $limit: limit
         }])
 
-        //if not found
-        if (!accountCompanyTypeData) {
-            return res.status(500).send({
-                succes: true,
-                message: "account company type data list not found!",
-            });
-        }
-
+        // Query to get counts of record of account types
+        const totalAccountCompanyTypeCounts = await accountCompanyType.countDocuments(matchQuery);
         //send success response
         return res.status(200).send({
             succes: true,
             message: "account company type data list fetched successfully!",
-            data: accountCompanyTypeData
+            data: accountCompanyTypeData,
+            start_record: skip + 1,
+            end_record: skip + accountCompanyTypeData.length,
+            total_records: totalAccountCompanyTypeCounts,
+            pagination: {
+                currentPage: page,
+                totalPage: Math.ceil(totalAccountCompanyTypeCounts / limit),
+                url: req.originalUrl
+            }
         });
     } catch (error) {
         return res.status(500).json({

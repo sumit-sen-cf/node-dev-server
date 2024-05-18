@@ -1,5 +1,4 @@
 const accountPocModel = require("../../models/accounts/accountPocModel");
-const Joi = require("joi");
 const { message } = require("../../common/message")
 const mongoose = require("mongoose");
 
@@ -8,12 +7,12 @@ const mongoose = require("mongoose");
  */
 exports.addAccountPoc = async (req, res) => {
     try {
-        const checkDuplicacy = await accountPocModel.findOne({ contact_name: req.body.contact_name });
-        // if check duplicacy contact_name
+        const checkDuplicacy = await accountPocModel.findOne({ contact_no: req.body.contact_no });
+        // if check duplicacy contact_no
         if (checkDuplicacy) {
             return res.status(403).json({
                 status: 403,
-                message: "Contact name alredy exist!",
+                message: "Contact number alredy exist!",
             });
         }
         const { account_id, contact_name, contact_no, alternative_contact_no, email, department, designation, description, created_by } = req.body;
@@ -85,10 +84,10 @@ exports.getAccountPocDetails = async (req, res) => {
                     email: 1,
                     department: 1,
                     designation: 1,
-                    created_date_time: 1,
+                    createdAt: 1,
                     created_by: 1,
                     created_by_name: "$user.user_name",
-                    last_updated_date: 1,
+                    updatedAt: 1,
                     updated_by: "$user.user_name",
                 }
             }
@@ -204,10 +203,10 @@ exports.getAccountPocList = async (req, res) => {
                 email: 1,
                 department: 1,
                 designation: 1,
-                created_date_time: 1,
+                createdAt: 1,
                 created_by: 1,
                 created_by_name: "$user.user_name",
-                last_updated_date: 1,
+                updatedAt: 1,
                 updated_by: "$user.user_name",
             }
         }, {

@@ -11,6 +11,11 @@ const accountMasterSchema = new mongoose.Schema({
         required: false,
         unique: true
     },
+    deleted: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
     account_type_id: {
         type: Schema.Types.ObjectId, //brand, indivisual, agency
         required: true,
@@ -23,11 +28,6 @@ const accountMasterSchema = new mongoose.Schema({
     },
     category_id: {
         type: Schema.Types.ObjectId, //update from industry id
-        required: true,
-        // ref: ""
-    },
-    brand_id: {
-        type: Schema.Types.ObjectId, //from other sides to get data
         required: true,
         // ref: ""
     },

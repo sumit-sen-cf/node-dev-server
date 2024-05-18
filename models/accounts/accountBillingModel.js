@@ -6,6 +6,10 @@ const accountBillingSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    deleted: {
+        type: Boolean,
+        required: false
+    },
     how_many_offices: {
         type: Number,
         required: false,
