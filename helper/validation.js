@@ -65,14 +65,14 @@ exports.accountPocValidation = async (req, res, next) => {
 
     // Defining the validation schema using Joi
     const schema = Joi.object({
-        account_id: Joi.optional(), // account_id is optional
-        contact_name: Joi.string().required().messages(), // contact_name is a required string
-        contact_no: Joi.number().min(1000000000).max(99999999999999).required().messages(), // contact_no is a required number within specified range
-        alternative_contact_no: Joi.number().min(1000000000).max(99999999999999).messages(), // alternative_contact_no is an optional number within specified range
-        email: Joi.string().email().required().messages(),
-        department: Joi.string().required().messages(),
-        designation: Joi.string().required().messages(),
-        description: Joi.string().min(5).max(2000).required(),
+        account_id: Joi.number().required(), // account_id is optional
+        contact_name: Joi.string().required(), // contact_name is a required string
+        contact_no: Joi.number().min(1000000000).max(99999999999999).required(), // contact_no is a required number within specified range
+        alternative_contact_no: Joi.number().min(1000000000).max(99999999999999).optional(), // alternative_contact_no is an optional number within specified range
+        email: Joi.string().email().required(),
+        department: Joi.string().optional(),
+        designation: Joi.string().optional(),
+        description: Joi.string().min(5).max(2000).optional(),
         created_by: Joi.optional(),
         updated_by: Joi.optional(),
     });

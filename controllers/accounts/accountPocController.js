@@ -7,12 +7,12 @@ const mongoose = require("mongoose");
  */
 exports.addAccountPoc = async (req, res) => {
     try {
-        const checkDuplicacy = await accountPocModel.findOne({ contact_name: req.body.contact_name });
-        // if check duplicacy contact_name
+        const checkDuplicacy = await accountPocModel.findOne({ contact_no: req.body.contact_no });
+        // if check duplicacy contact_no
         if (checkDuplicacy) {
             return res.status(403).json({
                 status: 403,
-                message: "Contact name alredy exist!",
+                message: "Contact number alredy exist!",
             });
         }
         const { account_id, contact_name, contact_no, alternative_contact_no, email, department, designation, description, created_by } = req.body;

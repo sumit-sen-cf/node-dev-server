@@ -144,7 +144,7 @@ exports.getAllAccountCompanyType = async (req, res) => {
     try {
         //filter for pagination page wise data = page=1 & limit=2 
         let page = parseInt(req.query?.page) || 1;
-        let limit = 2;
+        let limit = 10;
         let skip = limit * (page - 1);
         let sort = {
             createdAt: -1
