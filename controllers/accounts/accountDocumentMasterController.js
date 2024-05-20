@@ -81,8 +81,8 @@ exports.getDocumentMasterDetails = async (req, res) => {
         ]);
         // If no document master data is found, return a 404 status with a message
         if (!documentMasterData) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: "Document master data not found!"
             });
         }
@@ -230,8 +230,8 @@ exports.deleteDocumentMaster = async (req, res) => {
         const documentMasterDelete = await accountDocumentMasterModel.findOne({ _id: id });
         // if check the document_master_id
         if (!documentMasterDelete) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: message.DATA_NOT_FOUND,
             });
         }
