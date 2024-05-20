@@ -1656,37 +1656,40 @@ router.post("/announcement_post_comment", announcementWiseComment);
 router.get("/get_announcement_comments/:announcementId", announcementWisegetCommentsList);
 
 // --------------------------------------------------------------Page Mangements System all Routes------------------------------------------//
-
+//@2 This is vendor type master collection for dropdown
 router.post("/addVendor", createPmsVendor);
 router.get("/vendorDetail/:id", getVendorDetail);
 router.put("/updateVendor/:id", updateVendorType);
 router.get("/getAllVendor", getAllVendorData);
 router.delete("/deleteVendor/:id", deleteVendorType);
-
+//@2 End This is vendor type master collection for dropdown 
+//@2 Platform master collection for dropdown
 router.post("/addPlatform", createPlatform);
 router.get("/platformDetail/:id", getPlatformDetail);
 router.put("/updatePlatform/:id", updatePlatformData);
 router.get("/getAllPlatform", getAllPlatformList);
 router.delete("/deletePlatform/:id", deletePlatformData);
-
+//@2 Platform master collection for dropdown 
 router.post("/addpayMethod", createPayMethod);
 router.get("/getPay/:id", getPayDetail);
 router.put("/updatePay/:id", updatePayData);
 router.get("/getAllPay", getAllPayList);
 router.delete("/deletePay/:id", deletePayData);
 
+//@2 Vendor paycycle master collection for dropdown 
 router.post("/addPayCycle", createPayCycle);
 router.get("/getPayCycle/:id", getPayCycleDetail);
 router.put("/updatePayCycle/:id", updatePayCycle);
 router.get("/getAllPayCycle", getAllPayCycleList);
 router.delete("/deletePayCycle/:id", deletePayCycleData);
-
+//@2 End Vendor paycycle master collection for dropdown 
 router.post("/addGroupLink", createGroupLink);
 router.get("/getGroupLink/:id", getGroupLinkDetail);
 router.put("/updateGroupLink/:id", updateGroupLink);
 router.get("/getAllGroupLink", getAllGroupLinkList);
 router.delete("/deleteGroupLink/:id", deleteGroupLinkData);
 
+//@2 Vendor Master Collection api - 
 router.post("/addVendorMast", createPmsVendorMast);
 router.get("/getVendorMast/:id", getVendorMastDetail);
 router.put("/updateVendorMast/:id", updateVendorMast);
@@ -1694,6 +1697,7 @@ router.get("/vendorAllData", getAllVendorMastList);
 router.get("/notAssignedToPageVendors", getNotAssignedToPageMastVenodrList);
 router.get("/pageByVenodrId/:vendorMast_id", getPageByVenodrId);
 router.delete("/deleteVendorMast/:id", vendorMastDelete);
+//@2 End Vendor Master Collection api - 
 
 router.post("/addVendorGroup", createVendorGroup);
 router.get("/getVendorGroup/:id", getVendorGroupDetail);

@@ -27,6 +27,11 @@ module.exports = Object.freeze({
   DELETED_SUCCESSFULLY: "Data Deleted Successfully...",
   UPDATED_SUCCESSFULLY: "Data Updated Successfully...",
   FETCH_SUCCESSFULLY: "Data Updated Successfully...",
-  NO_RECORD_FOUND: "No Record found..."
+  NO_RECORD_FOUND: "No Record found...",
+
+  //@2 Model Status 
+  DELETED: 2,
+  ACTIVE: 0,
+  INACTIVE: 1,
 
 });
