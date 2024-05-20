@@ -274,4 +274,13 @@ module.exports = {
     var expiryTime = currentTime + 600000;
     return expiryTime;
   },
+
+  /**
+   * @param {*} app - express module require.
+   * @param {*} baseUrl - end points for the url
+   * @param {*} modules - router files requires
+   */
+  registerRoutes: (app, baseUrl, modules) => {
+    modules.forEach((module) => app.use(baseUrl, module));
+  },
 };

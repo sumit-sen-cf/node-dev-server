@@ -14,6 +14,8 @@ const { checkDevAuthentication } = require("./doc/customization_src/middleware/s
 const cron = require("./common/cronjob.js");
 const path = require("path");
 const requireDirectory = require('require-directory');
+const { registerRoutes } = require("./helper/helper.js");
+const { routeModulesV1, routeModules } = require("./routes/routeModule.js");
 // const axios = require("axios");
 require("./controllers/autoMail.js");
 require("./controllers/assetAutoMail.js");
@@ -52,12 +54,17 @@ app.use(cors());
 app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use("/api", routes);
 
-//all seprate route files require
-var routesFile = requireDirectory(module, './routes');
+// //all seprate route files require
+// var routesFile = requireDirectory(module, './routes');
 
-for (i in routesFile) {
-  app.use("/api/" + i, require("./routes/" + i));
-}
+// for (i in routesFile) {
+//   app.use("/api/" + i, require("./routes/" + i));
+// }
+
+// New Version Route Configuration
+registerRoutes(app, "/api/", routeModules);
+registerRoutes(app, "/api/v1", routeModulesV1);
+// End
 
 // app.get('/*', function (req, res) {
 //   res.sendFile(path.join(__dirname, 'build', 'index.html'))
