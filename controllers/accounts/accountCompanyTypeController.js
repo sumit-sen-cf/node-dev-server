@@ -118,8 +118,8 @@ exports.getSingleAccountCompanyType = async (req, res) => {
         },
         ])
         if (!accountCompanyTypeData) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: message.DATA_NOT_FOUND,
             });
         }
@@ -228,8 +228,8 @@ exports.deleteAccountCompanyType = async (req, res) => {
         //get data from db collection
         const ownershipData = await accountCompanyType.findOne({ _id: id });
         if (!ownershipData) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: message.DATA_NOT_FOUND,
             });
         }

@@ -93,8 +93,8 @@ exports.getAccountPocDetails = async (req, res) => {
             }
         ])
         if (!accountPocData) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: "Account poc data not found!"
             });
         }
@@ -216,8 +216,8 @@ exports.getAccountPocList = async (req, res) => {
         }]);
         const totalAccountPocListCountData = await accountPocModel.countDocuments();
         if (!totalAccountPocListCountData) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: "Account poc list data not found!"
             });
         }
@@ -248,8 +248,8 @@ exports.deleteAccountPoc = async (req, res) => {
         const accountPocData = await accountPocModel.findOne({ _id: id });
         // if check the accounPoc_id
         if (!accountPocData) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: message.DATA_NOT_FOUND,
             });
         }

@@ -98,8 +98,8 @@ exports.getDocumentOverviewDetails = async (req, res) => {
             }
         ])
         if (!documentOverviewData) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: "Document overview data not found!"
             });
         }
@@ -293,8 +293,8 @@ exports.deleteDocumentOverview = async (req, res) => {
         const documentOverviewDelete = await accountDocumentOverviewModel.findOne({ _id: id });
         // if check the document_master_id
         if (!documentOverviewDelete) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: message.DATA_NOT_FOUND,
             });
         }
