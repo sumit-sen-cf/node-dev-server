@@ -27,7 +27,7 @@ exports.accountCompanyTypeValidation = async (req, res, next) => {
     });
     if (error) {
         const errors = joiValidationErrorConvertor(error.details);
-        return response.returnFalse(200, req, res, errors);
+        return response.returnFalse(400, req, res, errors);
     } else {
         next();
     }
@@ -47,7 +47,7 @@ exports.accountTypeValidation = async (req, res, next) => {
     });
     if (error) {
         const errors = joiValidationErrorConvertor(error.details);
-        return response.returnFalse(200, req, res, errors);
+        return response.returnFalse(400, req, res, errors);
     } else {
         next();
     }
@@ -81,7 +81,7 @@ exports.accountPocValidation = async (req, res, next) => {
     });
     if (error) {
         const errors = joiValidationErrorConvertor(error.details);
-        return response.returnFalse(200, req, res, errors);
+        return response.returnFalse(400, req, res, errors);
     } else {
         next();
     }
@@ -110,7 +110,7 @@ exports.accountDocumentMasterValidation = async (req, res, next) => {
     });
     if (error) {
         const errors = joiValidationErrorConvertor(error.details);
-        return response.returnFalse(200, req, res, errors);
+        return response.returnFalse(400, req, res, errors);
     } else {
         next();
     }
@@ -141,7 +141,241 @@ exports.accountDocumentOverviewValidation = async (req, res, next) => {
     });
     if (error) {
         const errors = joiValidationErrorConvertor(error.details);
-        return response.returnFalse(200, req, res, errors);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+//@2 PMS Vendor Type Master collection Validations
+
+exports.addVendorTypeValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        type_name: Joi.required(),
+        description: Joi.optional(),
+        created_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+exports.updateVendorTypeValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        id: Joi.required(),
+        type_name: Joi.optional(),
+        description: Joi.optional(),
+        // created_by: Joi.number().optional(),
+        last_updated_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+
+//@2 PMS Vendor Platform Master collection Validations
+
+exports.addVendorPlatformValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        platform_name: Joi.required(),
+        description: Joi.optional(),
+        created_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+exports.updateVendorPlatformValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        id: Joi.required(),
+        platform_name: Joi.optional(),
+        description: Joi.optional(),
+        // created_by: Joi.number().optional(),
+        last_updated_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+//@2 PMS Vendor Payment Method Master collection Validations
+
+exports.addPaymentMethodValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        payMethod_name: Joi.required(),
+        description: Joi.optional(),
+        created_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+exports.updatePaymentMethodValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        id: Joi.required(),
+        payMethod_name: Joi.optional(),
+        description: Joi.optional(),
+        // created_by: Joi.number().optional(),
+        last_updated_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+//@2 PMS Vendor Pay Cycle  Master collection Validations
+
+exports.addPayCycleValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        cycle_name: Joi.required(),
+        description: Joi.optional(),
+        created_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+exports.updatePayCycleValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        id: Joi.required(),
+        cycle_name: Joi.optional(),
+        description: Joi.optional(),
+        // created_by: Joi.number().optional(),
+        last_updated_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+//@2 PMS Vendor Group link type  Master collection Validations
+
+exports.addGroupLinkTypeValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        link_type: Joi.required(),
+        description: Joi.optional(),
+        created_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+exports.updateGrouplinkTypeValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        id: Joi.required(),
+        link_type: Joi.optional(),
+        description: Joi.optional(),
+        // created_by: Joi.number().optional(),
+        last_updated_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+//@2 PMS Vendor Group link  Master collection Validations
+
+exports.addVendorGroupLinkValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        vendor_id: Joi.required(),
+        link: Joi.required(),
+        created_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+exports.updateVendorGrouplinkValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        id: Joi.required(),
+        vendor_id: Joi.optional(),
+        link: Joi.optional(),
+        // created_by: Joi.number().optional(),
+        last_updated_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
     } else {
         next();
     }
