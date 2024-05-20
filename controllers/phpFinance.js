@@ -272,6 +272,51 @@ async function checkIfDataExists(payment_update_id) {
 // }
 
 
+// exports.savePhpFinanceDataInNode = async (req, res) => {
+//     try {
+//         const sendData = new FormData();
+//         sendData.append("loggedin_user_id", 36);
+
+//         const response = await axios.post('https://sales.creativefuel.io/webservices/RestController.php?view=pending_payment_list', sendData, {
+//             timeout: 4000,
+//             headers: sendData.getHeaders(),
+//         });
+
+//         const responseData = response.data.body;
+
+//         const batchSize = 1;
+//         const batches = [];
+
+//         for (let i = 0; i < responseData.length; i += batchSize) {
+//             batches.push(responseData.slice(i, i + batchSize));
+//         }
+
+//         await Promise.all(batches.map(async (batch) => {
+//             await Promise.all(batch.map(async (data) => {
+//                 const existingData = await checkIfDataExists(data.payment_update_id);
+
+//                 if (!existingData) {
+//                     const creators = new phpFinanceModel(data);
+//                     await creators.save();
+//                 } else {
+//                     const updateExistingData = Object.keys(data).some(key => existingData[key] !== data[key]);
+
+//                     if (updateExistingData) {
+//                         await phpFinanceModel.updateOne({ payment_update_id: data.payment_update_id }, { $set: data });
+//                     } else {
+//                         return res.status(200).json({ msg: "Data already inserted, there is no new data available to insert." });
+//                     }
+//                 }
+//             }));
+//         }));
+
+//         res.status(200).json({ msg: "Data copied in local db", status: 200 });
+//     } catch (error) {
+//         return res.status(500).json({ error: error.message, msg: 'Error while adding data' });
+//     }
+// };
+
+
 exports.savePhpFinanceDataInNode = async (req, res) => {
     try {
         const sendData = new FormData();
@@ -284,7 +329,9 @@ exports.savePhpFinanceDataInNode = async (req, res) => {
 
         const responseData = response.data.body;
 
-        const batchSize = 5;
+        res.status(200).json({ data: responseData, msg: "Response data received", status: 200 });
+
+        const batchSize = 2;
         const batches = [];
 
         for (let i = 0; i < responseData.length; i += batchSize) {
@@ -304,13 +351,13 @@ exports.savePhpFinanceDataInNode = async (req, res) => {
                     if (updateExistingData) {
                         await phpFinanceModel.updateOne({ payment_update_id: data.payment_update_id }, { $set: data });
                     } else {
-                        return res.status(200).json({ msg: "Data already inserted, there is no new data available to insert." });
+                        console.log("Data already inserted, there is no new data available to insert.");
                     }
                 }
             }));
         }));
 
-        res.status(200).json({ msg: "Data copied in local db", status: 200 });
+        console.log("Data copied in local db");
     } catch (error) {
         return res.status(500).json({ error: error.message, msg: 'Error while adding data' });
     }
@@ -325,14 +372,6 @@ exports.getAllphpFinanceData = async (req, res) => {
     }
 }
 
-// exports.getAllphpFinanceDataPending = async (req, res) => {
-//     try {
-//         const getData = await phpFinanceModel.find({ payment_approval_status: 0 });
-//         res.status(200).send({ data: getData })
-//     } catch (error) {
-//         res.status(500).send({ error: error.message, sms: "error getting php payment refund data" })
-//     }
-// }
 
 exports.getAllphpFinanceDataPending = async (req, res) => {
     try {
