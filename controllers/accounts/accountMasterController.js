@@ -9,17 +9,6 @@ const accountBilling = require('../../models/accounts/accountBillingModel');
  */
 exports.addAccountDetails = async (req, res) => {
     try {
-        //duplicacy check get from db
-        const checkDuplicacy = await accountMaster.findOne({ account_name: req.body.account_name });
-
-        //check if dupliacte data
-        if (checkDuplicacy) {
-            return res.status(403).json({
-                status: 403,
-                message: "Account master name alredy exist!",
-            });
-        }
-
         //body data get for add in db
         const { account_name, account_type_id, company_type_id, category_id, description,
             account_owner_id, website, turn_over, created_by,

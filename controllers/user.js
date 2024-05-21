@@ -4718,3 +4718,32 @@ exports.sendOfferLetterMail = async (req, res) => {
         res.status(500).send({ error: err, sms: 'Error sending email' })
     }
 }
+
+exports.getAllSalesUsersByDepartment = async (req, res) => {
+    try {
+        //sales department data id get
+        const deptDetail = await departmentModel.findOne({
+            $or: [{
+                dept_name: "Sales"
+            }, {
+                dept_name: "sales"
+            }]
+        });
+
+        //all sales users data get from the db collection
+        const salesUsersDetails = await userModel.find({
+            dept_id: deptDetail.dept_id
+        }, {
+            user_name: 1,
+            user_id: 1,
+        });
+
+        if (!salesUsersDetails) {
+            return response.returnFalse(200, req, res, "No Reord Found...", []);
+        }
+        //send success response
+        return res.status(200).send(salesUsersDetails)
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};

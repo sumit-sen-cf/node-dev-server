@@ -146,7 +146,7 @@ const { createPlatform, getPlatformDetail, updatePlatformData, getAllPlatformLis
 const { createPayMethod, getPayDetail, updatePayData, getAllPayList, deletePayData } = require("./controllers/PMS/pmsPayMethodController.js");
 const { createPayCycle, getPayCycleDetail, updatePayCycle, getAllPayCycleList, deletePayCycleData } = require("./controllers/PMS/pmsPayCycleController.js");
 const { createGroupLink, getGroupLinkDetail, updateGroupLink, getAllGroupLinkList, deleteGroupLinkData } = require("./controllers/PMS/pmsGroupLinkTypeController.js");
-const { createPmsVendorMast, getVendorMastDetail, updateVendorMast, getAllVendorkMastList, getAllVendorMastList, vendorMastDelete,getPageByVenodrId,getNotAssignedToPageMastVenodrList } = require("./controllers/PMS/pmsVendorMastController.js");
+const { createPmsVendorMast, getVendorMastDetail, updateVendorMast, getAllVendorkMastList, getAllVendorMastList, vendorMastDelete, getPageByVenodrId, getNotAssignedToPageMastVenodrList } = require("./controllers/PMS/pmsVendorMastController.js");
 const { createVendorGroup, getVendorGroupDetail, updateVendorGroup, getAllVendorGroupList, deleteVendorGroupData } = require("./controllers/PMS/pmsVendorGroupLinkController.js");
 const { createPriceType, getPriceDetail, updatePriceType, getPriceList, deletePriceType, getAllPriceTypeList } = require("./controllers/PMS/pmsPriceTypeController.js");
 const { createPlatformPrice, getPlatformPriceDetail, updatePlatformPriceData, getPlatformPriceList, deletePlatformPriceData } = require("./controllers/PMS/pmsPlatformPriceTypeController.js");
@@ -907,6 +907,7 @@ router.get("/get_all_percentage", user.getFilledPercentage);
 router.post("/get_user_graph_data", user.getUserGraphData)
 router.get("/get_users_with_status", user.getUsersWithStatus);
 router.get("/get_all_sales_users", user.getAllSalesUsers);
+router.get("/get_all_sales_users_list", user.getAllSalesUsersByDepartment);
 router.get("/all_objs_in_user_auth/:user_id", user.assignAllObjInUserAuth);
 router.post("/check_login_exist", user.checkLoginExist);
 router.get("/get_all_users_with_invoiceno", user.getAllUsersWithInvoiceNo);
