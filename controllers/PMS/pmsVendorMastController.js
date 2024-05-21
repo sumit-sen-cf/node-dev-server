@@ -118,6 +118,7 @@ exports.getVendorMastDetail = async (req, res) => {
                     preserveNullAndEmptyArrays: true,
                 },
             },
+            //~ This lookup not required 
             {
                 $lookup: {
                     from: "usermodels",
@@ -380,13 +381,15 @@ exports.getAllVendorMastList = async (req, res) => {
                     home_state: 1,
                     created_by: 1,
                     last_updated_by: 1,
+                    //~  This fields not required 
                     account_no:1,
                 ifsc_code:1,
                 account_type:1,
                 account_no:1,
                 upi_id:1,
                 bank_name:1,
-                whatsapp_link:1,    
+                whatsapp_link:1, 
+                         //~  End This fields not required    
                     upload_pan_image: {
                         $concat: [imageUrl, "$upload_pan_image"],
                     },

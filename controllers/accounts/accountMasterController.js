@@ -220,8 +220,8 @@ exports.getSingleAccountDetails = async (req, res) => {
         }])
 
         if (!accountMasterData) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: message.DATA_NOT_FOUND,
             });
         }
@@ -330,8 +330,8 @@ exports.deleteAccountDetails = async (req, res) => {
         //get data from db collection
         const accountMasterData = await accountMaster.findOne({ _id: id });
         if (!accountMasterData) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: message.DATA_NOT_FOUND,
             });
         }

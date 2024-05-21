@@ -71,8 +71,8 @@ exports.getAccountTypeData = async (req, res) => {
             }
         ])
         if (!accountTypeData) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: "Account type data not found!"
             });
         }
@@ -218,8 +218,8 @@ exports.deleteAccountType = async (req, res) => {
         const accountTypeData = await accountTypesModel.findOne({ _id: id });
         // if check the accountype_id
         if (!accountTypeData) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(200).json({
+                status: 200,
                 message: message.DATA_NOT_FOUND,
             });
         }
