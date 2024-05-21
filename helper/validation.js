@@ -348,6 +348,7 @@ exports.addVendorGroupLinkValidation = async (req, res, next) => {
     const body = req.body;
     const schema = Joi.object({
         vendor_id: Joi.required(),
+        type: Joi.required(),
         link: Joi.required(),
         created_by: Joi.number().required(),
     });
@@ -366,6 +367,7 @@ exports.updateVendorGrouplinkValidation = async (req, res, next) => {
     const schema = Joi.object({
         id: Joi.required(),
         vendor_id: Joi.optional(),
+        type: Joi.optional(),
         link: Joi.optional(),
         // created_by: Joi.number().optional(),
         last_updated_by: Joi.number().required(),

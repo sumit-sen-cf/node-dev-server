@@ -5,6 +5,7 @@ const {
     getAllVendorGroupLinkDetails,
     getSingleVendorGroupLinkDetails,
     updateSingleVendorGroupLinkDetails,
+    getAllVendorGroupLinkDeletedData,
 } = require("../../controllers/PMS2/vendorGroupLinkController");
 const {
     addVendorGroupLinkValidation,
@@ -25,5 +26,6 @@ router.put(
     updateSingleVendorGroupLinkDetails
 );
 router.delete("/vendor_group_link/:id", deleteVendorGroupLinkDetails);
+router.get("/vendor_group_link", getAllVendorGroupLinkDeletedData);
 
 module.exports = router;

@@ -5,6 +5,7 @@ const {
     getAllPaymentMethodDetails,
     getSinglePaymentMethodDetails,
     updateSinglePaymentMethodDetails,
+    getAllPaymentMethodDeletedData,
 } = require("../../controllers/PMS2/paymentMethodController");
 const {
     addPaymentMethodValidation,
@@ -21,5 +22,6 @@ router.put(
     updateSinglePaymentMethodDetails
 );
 router.delete("/payment_method/:id", deletePaymentMethodDetails);
+router.get("/payment_method", getAllPaymentMethodDeletedData);
 
 module.exports = router;

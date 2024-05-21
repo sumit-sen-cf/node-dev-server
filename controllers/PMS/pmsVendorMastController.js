@@ -26,11 +26,11 @@ exports.createPmsVendorMast = [
                     message: "PMS vendore-mast alredy exist!",
                 });
             }
-            const { type_id,  platform_id, payMethod_id, cycle_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
+            const { type_id, platform_id, payMethod_id, cycle_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
                 personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode, company_state,
-                threshold_limit, home_address, home_city, home_state, created_by, last_updated_by,vendor_category,bank_name,account_no,
+                threshold_limit, home_address, home_city, home_state, created_by, last_updated_by, vendor_category, bank_name, account_no,
                 ifsc_code,
-                account_type,upi_id,whatsapp_link } = req.body;
+                account_type, upi_id, whatsapp_link } = req.body;
             const addVendorMastData = new pmsVendorMastModel({
                 type_id: type_id,
                 platform_id: platform_id,
@@ -54,14 +54,14 @@ exports.createPmsVendorMast = [
                 home_city: home_city,
                 home_state: home_state,
                 created_by: created_by,
-                last_updated_by: last_updated_by,
-                vendor_category: vendor_category,
+                last_updated_by,
+                vendor_category,
                 bank_name,
                 account_no,
                 ifsc_code,
                 account_type,
                 upi_id,
-                whatsapp_link:JSON.parse(whatsapp_link)
+                whatsapp_link: JSON.parse(whatsapp_link)
             });
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
@@ -136,7 +136,7 @@ exports.getVendorMastDetail = async (req, res) => {
 
             {
                 $project: {
-                    vendor_category:1,
+                    vendor_category: 1,
                     type_id: 1,
                     platform_id: 1,
                     payMethod_id: 1,
@@ -198,11 +198,11 @@ exports.updateVendorMast = [
     async (req, res) => {
         try {
             const { id } = req.params;
-            const { type_id, platform_id, payMethod_id, cycle_id,vendorMast_name, country_code, mobile, alternate_mobile, email,
+            const { type_id, platform_id, payMethod_id, cycle_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
                 personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode, company_state,
-                threshold_limit, home_address, home_city, home_state, created_by, last_updated_by,vendor_category,bank_name,account_no,
+                threshold_limit, home_address, home_city, home_state, created_by, last_updated_by, vendor_category, bank_name, account_no,
                 ifsc_code,
-                account_type,upi_id,whatsapp_link  } = req.body;
+                account_type, upi_id, whatsapp_link } = req.body;
             const VendorMastData = await pmsVendorMastModel.findOne({ _id: id });
             if (!VendorMastData) {
                 return res.send("Invalid Vendore-Mast Id...");
@@ -262,7 +262,7 @@ exports.updateVendorMast = [
                     ifsc_code,
                     account_type,
                     upi_id,
-                    whatsapp_link:JSON.parse(whatsapp_link)
+                    whatsapp_link: JSON.parse(whatsapp_link)
                 },
             },
                 { new: true }
@@ -366,7 +366,7 @@ exports.getAllVendorMastList = async (req, res) => {
                     mobile: 1,
                     alternate_mobile: 1,
                     email: 1,
-                    personal_address: 1, 
+                    personal_address: 1,
                     pan_no: 1,
                     gst_no: 1,
                     company_name: 1,
@@ -382,14 +382,14 @@ exports.getAllVendorMastList = async (req, res) => {
                     created_by: 1,
                     last_updated_by: 1,
                     //~  This fields not required 
-                    account_no:1,
-                ifsc_code:1,
-                account_type:1,
-                account_no:1,
-                upi_id:1,
-                bank_name:1,
-                whatsapp_link:1, 
-                         //~  End This fields not required    
+                    account_no: 1,
+                    ifsc_code: 1,
+                    account_type: 1,
+                    account_no: 1,
+                    upi_id: 1,
+                    bank_name: 1,
+                    whatsapp_link: 1,
+                    //~  End This fields not required    
                     upload_pan_image: {
                         $concat: [imageUrl, "$upload_pan_image"],
                     },
@@ -450,48 +450,49 @@ exports.getAllVendorMastList = async (req, res) => {
     }
 };
 
-exports.getNotAssignedToPageMastVenodrList= async(req,res)=>{
-    try{
+exports.getNotAssignedToPageMastVenodrList = async (req, res) => {
+    try {
         const vendorMastData = await pmsPageMastModel.find();
         const vendorMastData1 = vendorMastData.map((data) => {
-         return data.vendorMast_id;
+            return data.vendorMast_id;
         });
 
-    const venodrData = await  pmsVendorMastModel.find({})
+        const venodrData = await pmsVendorMastModel.find({})
 
-    let filterData=venodrData.filter((dataa) => {
-    return !vendorMastData1.includes(dataa.vendorMast_id);
-    });
-     return  res.status(200).json({
-        status:200,
-        message:"PMS vendor-mast data found successfully!",
-        data:filterData,
-        length:filterData.length
-    });
-    }catch(error){
-    res.status(404).json({
-        message:error.message
-    })
-}}
-exports.getPageByVenodrId= async (req,res)=>{
-    try{
-        const {params}=req;
-        const {vendorMast_id}=params;
-        const vendorMastData=await pmsPageMastModel.find({vendorMast_id});
-        if(!vendorMastData){
+        let filterData = venodrData.filter((dataa) => {
+            return !vendorMastData1.includes(dataa.vendorMast_id);
+        });
+        return res.status(200).json({
+            status: 200,
+            message: "PMS vendor-mast data found successfully!",
+            data: filterData,
+            length: filterData.length
+        });
+    } catch (error) {
+        res.status(404).json({
+            message: error.message
+        })
+    }
+}
+exports.getPageByVenodrId = async (req, res) => {
+    try {
+        const { params } = req;
+        const { vendorMast_id } = params;
+        const vendorMastData = await pmsPageMastModel.find({ vendorMast_id });
+        if (!vendorMastData) {
             return res.status(404).json({
-                status:404,
-                message:message.DATA_NOT_FOUND,
+                status: 404,
+                message: message.DATA_NOT_FOUND,
             });
         }
         return res.status(200).json({
-            status:200,
-            message:"PMS vendor-mast data found successfully!",
-            data:vendorMastData,
+            status: 200,
+            message: "PMS vendor-mast data found successfully!",
+            data: vendorMastData,
         });
-    }catch(error){
+    } catch (error) {
         res.status(404).json({
-            message:error
+            message: error
         })
     }
 }

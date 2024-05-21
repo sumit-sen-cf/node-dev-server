@@ -123,3 +123,18 @@ exports.deleteVendorPlatformDetails = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
+exports.getAllVendorPlatformDeletedData = async (req, res) => {
+    try {
+        // Find all vendor platform that are not deleted
+        const vendorPlatformData = await vendorPlatformModel.find({ status: { $ne: constant.DELETED } });
+
+        if (!vendorPlatformData) {
+            return response.returnFalse(200, req, res, 'No Records Found', {});
+        }
+
+        return response.returnTrue(200, req, res, 'Vendor platform retrieved successfully!', vendorPlatformData);
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};

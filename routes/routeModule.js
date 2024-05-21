@@ -6,6 +6,8 @@ const vendorPlatformRoutes = require('./PMS2/vendorPlatformRoutes');
 const vendorPaymentMethodRoutes = require('./PMS2/paymentMethodRoutes');
 const vendorPayCycleRoutes = require('./PMS2/payCycleRoutes');
 const groupLinkTypeRoutes = require('./PMS2/groupLinkTypesRoutes');
+const bankDetailsRoutes = require('./PMS2/bankDetailsRoutes');
+const vendorRoutes = require("./PMS2/vendorRoutes")
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -14,7 +16,9 @@ exports.routeModulesV1 = [
     vendorPlatformRoutes,
     vendorPayCycleRoutes,
     groupLinkTypeRoutes,
-    vendorPaymentMethodRoutes
+    vendorPaymentMethodRoutes,
+    bankDetailsRoutes,
+    vendorRoutes
 ];
 
 //used for the http://localhost:8080/api/end-points
