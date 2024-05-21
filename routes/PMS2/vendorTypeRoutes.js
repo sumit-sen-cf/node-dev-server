@@ -5,6 +5,7 @@ const {
   getSingleVendorTypeDetails,
   deleteVendorTypeDetails,
   updateSingleVendorTypeDetails,
+  getAllVendorTypeDeletedData,
 } = require("../../controllers/PMS2/vendorTypeController");
 const {
   addVendorTypeValidation,
@@ -21,5 +22,6 @@ router.put(
   updateSingleVendorTypeDetails
 );
 router.delete("/vendor_type/:id", deleteVendorTypeDetails);
+router.get("/vendor_type", getAllVendorTypeDeletedData);
 
 module.exports = router;

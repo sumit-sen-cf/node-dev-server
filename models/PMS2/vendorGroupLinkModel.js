@@ -9,6 +9,11 @@ const vendorGroupLinkSchema = new Schema(
             required: true,
             ref: "pms2VendorModel"
         },
+        type: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: "pms2grouplinktypemodels"
+        },
         link: {
             type: String,
             required: true,
