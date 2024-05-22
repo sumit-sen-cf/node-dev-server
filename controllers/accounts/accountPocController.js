@@ -47,51 +47,11 @@ exports.addAccountPoc = async (req, res) => {
  */
 exports.getAccountPocDetails = async (req, res) => {
     try {
-        const accountPocData = await accountPocModel.aggregate([
-            {
-                $match: { _id: mongoose.Types.ObjectId(req.params.id) },
-            }, {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            }, {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            }, {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "updated_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            }, {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            }, {
-                $project: {
-                    account_id: 1,
-                    contact_name: 1,
-                    contact_no: 1,
-                    description: 1,
-                    alternative_contact_no: 1,
-                    email: 1,
-                    department: 1,
-                    designation: 1,
-                    createdAt: 1,
-                    created_by: 1,
-                    created_by_name: "$user.user_name",
-                    updatedAt: 1,
-                    updated_by: "$user.user_name",
-                }
-            }
-        ])
+        const accountPocData = await accountPocModel.findOne({
+            _id: mongoose.Types.ObjectId(req.params.id)
+        });
+
+        //data not get check
         if (!accountPocData) {
             return res.status(200).json({
                 status: 200,
@@ -156,43 +116,29 @@ exports.updateAccountPoc = async (req, res) => {
  */
 exports.getAccountPocList = async (req, res) => {
     try {
-        //filter pagination page wise data = page=1 & limit=2 
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 5;
-        const skip = (page - 1) * limit;
-        // Get filter parameters
-        const filters = {};
+        //filter for pagination page wise data = page=1 & limit=2 
+        let page = parseInt(req.query?.page) || 1;
+        let limit = 10;
+        let skip = limit * (page - 1);
+        let sort = {
+            createdAt: -1
+        };
+
+        //for match conditions
+        let matchQuery = {};
+        //Search by filter
         if (req.query.search) {
-            // search by account_poc_name
-            filters.account_type_name = { $regex: new RegExp(req.query.search, 'i') };
+            //Regex Condition for search
+            matchQuery['$or'] = [{
+                "contact_name": {
+                    "$regex": req.query.search,
+                    "$options": "i"
+                }
+            }]
         }
         //account_poc_list get
         const accountPocList = await accountPocModel.aggregate([{
-            $lookup: {
-                from: "usermodels",
-                localField: "created_by",
-                foreignField: "user_id",
-                as: "user_created",
-            }
-        }, {
-            $unwind: {
-                path: "$user_created",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $lookup: {
-                from: "usermodels",
-                localField: "updated_by",
-                foreignField: "user_id",
-                as: "user_updated",
-            },
-        }, {
-            $unwind: {
-                path: "$user_updated",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $match: filters // Apply filters
+            $match: matchQuery
         }, {
             $project: {
                 account_id: 1,
@@ -203,32 +149,34 @@ exports.getAccountPocList = async (req, res) => {
                 email: 1,
                 department: 1,
                 designation: 1,
-                createdAt: 1,
                 created_by: 1,
-                created_by_name: "$user.user_name",
+                updated_by: 1,
+                createdAt: 1,
                 updatedAt: 1,
-                updated_by: "$user.user_name",
             }
+        }, {
+            $sort: sort
         }, {
             $skip: skip
         }, {
             $limit: limit
         }]);
-        const totalAccountPocListCountData = await accountPocModel.countDocuments();
-        if (!totalAccountPocListCountData) {
-            return res.status(200).json({
-                status: 200,
-                message: "Account poc list data not found!"
-            });
-        }
-        //send success response
+
+        // Query to get counts of record of account poc
+        const totalAccountPocListCounts = await accountPocModel.countDocuments(matchQuery);
+        // send account types page and passing data
         return res.status(200).json({
             status: 200,
-            message: "Account poc list data successfully!",
-            totalAccountPoc: totalAccountPocListCountData,
-            totalPages: Math.ceil(totalAccountPocListCountData / limit),
-            currentPage: page,
-            data: accountPocList
+            message: "Account Poc list data fatched successfully!",
+            data: accountPocList,
+            start_record: skip + 1,
+            end_record: skip + accountPocList.length,
+            total_records: totalAccountPocListCounts,
+            pagination: {
+                currentPage: page,
+                totalPage: Math.ceil(totalAccountPocListCounts / limit),
+                url: req.originalUrl
+            }
         });
     } catch (error) {
         return res.status(500).json({

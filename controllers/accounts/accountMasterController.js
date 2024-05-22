@@ -143,81 +143,12 @@ exports.editAccountDetails = async (req, res) => {
  */
 exports.getSingleAccountDetails = async (req, res) => {
     try {
+
         //get id wise data from DB collection
-        const accountMasterData = await accountMaster.aggregate([{
-            $match: {
-                _id: mongoose.Types.ObjectId(req.params.id),
-                deleted: false
-            }
-        }, {
-            $lookup: {
-                from: "usermodels",
-                localField: "created_by",
-                foreignField: "user_id",
-                as: "user",
-            },
-        }, {
-            $unwind: {
-                path: "$user",
-                preserveNullAndEmptyArrays: true,
-            },
-        }, {
-            $lookup: {
-                from: "accounttypemodels",
-                localField: "account_type_id",
-                foreignField: "_id",
-                as: "accountTypeData",
-            },
-        }, {
-            $unwind: {
-                path: "$accountTypeData",
-                preserveNullAndEmptyArrays: true,
-            },
-        }, {
-            $lookup: {
-                from: "accountcompanytypemodels",
-                localField: "company_type_id",
-                foreignField: "_id",
-                as: "companyTypeData",
-            },
-        }, {
-            $unwind: {
-                path: "$companyTypeData",
-                preserveNullAndEmptyArrays: true,
-            },
-        }, {
-            $lookup: {
-                from: "usermodels",
-                localField: "account_owner_id",
-                foreignField: "user_id",
-                as: "accountOwnerData",
-            },
-        }, {
-            $unwind: {
-                path: "$accountOwnerData",
-                preserveNullAndEmptyArrays: true,
-            },
-        }, {
-            $project: {
-                account_id: 1,
-                account_name: 1,
-                account_type_id: 1,
-                account_type_name: "$accountTypeData.account_type_name",
-                company_type_id: 1,
-                company_type_name: "$companyTypeData.company_type_name",
-                category_id: 1,
-                account_owner_id: 1,
-                account_owner_name: "$accountOwnerData.user_name",
-                website: 1,
-                turn_over: 1,
-                description: 1,
-                created_by: 1,
-                created_by_name: "$user.user_name",
-                updated_by: 1,
-                createdAt: 1,
-                updatedAt: 1,
-            }
-        }])
+        const accountMasterData = await accountMaster.findOne({
+            _id: mongoose.Types.ObjectId(req.params.id),
+            deleted: false
+        });
 
         if (!accountMasterData) {
             return res.status(200).json({
@@ -260,11 +191,6 @@ exports.getAllAccountDetails = async (req, res) => {
             //Regex Condition for search 
             matchQuery['$or'] = [{
                 "account_name": {
-                    "$regex": req.query.search,
-                    "$options": "i"
-                }
-            }, {
-                "account_id": {
                     "$regex": req.query.search,
                     "$options": "i"
                 }

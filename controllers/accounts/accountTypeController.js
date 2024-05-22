@@ -40,36 +40,10 @@ exports.addAccountType = async (req, res) => {
  */
 exports.getAccountTypeData = async (req, res) => {
     try {
-        const accountTypeData = await accountTypesModel.aggregate([
-            {
-                $match: { _id: mongoose.Types.ObjectId(req.params.id) },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $project: {
-                    account_type_name: 1,
-                    description: 1,
-                    created_by: 1,
-                    created_by_name: "$user.user_name",
-                    updated_by: 1,
-                    createdAt: 1,
-                    updatedAt: 1,
-                }
-            }
-        ])
+        const accountTypeData = await accountTypesModel.findOne({
+            $match: { _id: mongoose.Types.ObjectId(req.params.id) }
+        })
+
         if (!accountTypeData) {
             return res.status(200).json({
                 status: 200,
@@ -137,7 +111,7 @@ exports.getAccountTypeList = async (req, res) => {
         let sort = {
             createdAt: -1
         };
-        
+
         //for match conditions
         let matchQuery = {};
         //Search by filter
@@ -155,23 +129,10 @@ exports.getAccountTypeList = async (req, res) => {
         const accountTypeList = await accountTypesModel.aggregate([{
             $match: matchQuery
         }, {
-            $lookup: {
-                from: "usermodels",
-                localField: "created_by",
-                foreignField: "user_id",
-                as: "user_created",
-            }
-        }, {
-            $unwind: {
-                path: "$user_created",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
             $project: {
                 account_type_name: 1,
                 description: 1,
                 created_by: 1,
-                created_by_name: "$user_created.user_name",
                 updated_by: 1,
                 createdAt: 1,
                 updatedAt: 1,
