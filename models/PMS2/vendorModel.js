@@ -4,10 +4,10 @@ const Schema = mongoose.Schema;
 
 const vendorSchema = new Schema({
 
-    vendor_type: {
+    type: {
         type: Schema.Types.ObjectId,
-        required: true,
-        ref: "pms2vendortypemodels"
+        required: false,
+        ref: "pms2grouplinktypemodels"
     },
     vendor_platform: {
         type: Schema.Types.ObjectId,
