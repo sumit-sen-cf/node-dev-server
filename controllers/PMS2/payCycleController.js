@@ -123,3 +123,17 @@ exports.deletePayCycleDetails = async (req, res) => {
     return response.returnFalse(500, req, res, `${error.message}`, {});
   }
 };
+
+exports.getPayCycleData = async (req, res) => {
+  try {
+    // Find all group link that are not deleted
+    const payCycleDeleted = await payCycleModel.find({ status: { $ne: constant.DELETED } });
+
+    if (!payCycleDeleted) {
+      return response.returnFalse(200, req, res, 'No Records Found', {});
+    }
+    return response.returnTrue(200, req, res, 'Pay cycle data retrieved successfully!', payCycleDeleted);
+  } catch (error) {
+    return response.returnFalse(500, req, res, `${error.message}`, {});
+  }
+};

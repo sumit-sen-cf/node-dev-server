@@ -4,9 +4,10 @@ const vendorGroupLinkModel = require("../../models/PMS2/vendorGroupLinkModel");
 
 exports.addVendorGroupLink = async (req, res) => {
     try {
-        const { vendor_id, link, created_by } = req.body;
+        const { vendor_id,type, link, created_by } = req.body;
         const savingObj = vendorGroupLinkModel({
             vendor_id,
+            type,
             link,
             created_by,
         });
@@ -119,6 +120,21 @@ exports.deleteVendorGroupLinkDetails = async (req, res) => {
             `Successfully Delete Group Link Data for id ${id}`,
             groupLinkDetailDeleted
         );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+exports.getAllVendorGroupLinkDeletedData = async (req, res) => {
+    try {
+        // Find all vendor group link that are not deleted
+        const vendorGroupLinkData = await vendorGroupLinkModel.find({ status: { $ne: constant.DELETED } });
+
+        if (!vendorGroupLinkData) {
+            return response.returnFalse(200, req, res, 'No Records Found', {});
+        }
+
+        return response.returnTrue(200, req, res, 'Vendor group link retrieved successfully!', vendorGroupLinkData);
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }

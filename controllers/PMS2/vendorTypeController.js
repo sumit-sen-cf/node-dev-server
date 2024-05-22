@@ -123,3 +123,18 @@ exports.deleteVendorTypeDetails = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
+exports.getAllVendorTypeDeletedData = async (req, res) => {
+    try {
+        // Find all vendor type that are not deleted
+        const vendorTypeData = await vendorTypeModel.find({ status: { $ne: constant.DELETED } });
+
+        if (!vendorTypeData) {
+            return response.returnFalse(200, req, res, 'No Records Found', {});
+        }
+
+        return response.returnTrue(200, req, res, 'Vendor type retrieved successfully!', vendorTypeData);
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};

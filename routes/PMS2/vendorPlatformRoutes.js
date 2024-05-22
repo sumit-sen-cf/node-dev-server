@@ -5,6 +5,7 @@ const {
     getSingleVendorPlatformDetails,
     updateSingleVendorPlatformDetails,
     deleteVendorPlatformDetails,
+    getAllVendorPlatformDeletedData,
 } = require("../../controllers/PMS2/vendorPlatformController");
 const {
     addVendorPlatformValidation,
@@ -21,5 +22,6 @@ router.put(
     updateSingleVendorPlatformDetails
 );
 router.delete("/vendor_platform/:id", deleteVendorPlatformDetails);
+router.get("/vendor_platform", getAllVendorPlatformDeletedData);
 
 module.exports = router;

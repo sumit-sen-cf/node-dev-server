@@ -9,6 +9,7 @@ const {
     getAllGroupLinkDetails,
     getSingleGroupLinkDetails,
     updateSingleGroupLinkDetails,
+    getGroupLinkDeletedData,
 } = require("../../controllers/PMS2/groupLinkTypeController");
 const router = express.Router();
 
@@ -21,5 +22,6 @@ router.put(
     updateSingleGroupLinkDetails
 );
 router.delete("/group_link_type/:id", deleteGroupLinkDetails);
+router.get("/group_link_type", getGroupLinkDeletedData);
 
 module.exports = router;

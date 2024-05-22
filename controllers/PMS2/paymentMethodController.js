@@ -123,3 +123,17 @@ exports.deletePaymentMethodDetails = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
+exports.getAllPaymentMethodDeletedData = async (req, res) => {
+    try {
+        const paymentMethodData = await paymentMethodModel.find({ status: { $ne: constant.DELETED } });
+
+        if (!paymentMethodData) {
+            return response.returnFalse(200, req, res, 'No Records Found', {});
+        }
+
+        return response.returnTrue(200, req, res, 'Payment method retrieved successfully!', paymentMethodData);
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
