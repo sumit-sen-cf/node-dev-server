@@ -7,13 +7,14 @@ const vendorModel = require("../../models/PMS2/vendorModel");
 
 exports.createVendorData = async (req, res) => {
     try {
-        const { vendor_type, vendor_platform, pay_cycle, payment_method, vendor_name, country_code, mobile, alternate_mobile, email, personal_address, pan_no, gst_no,
+        const { type, vendor_platform, pay_cycle, payment_method, vendor_name, country_code, mobile, alternate_mobile, email, personal_address, pan_no, gst_no,
             company_name, company_address, company_city, company_pincode, company_state, threshold_limit,
             home_address, home_city, home_state, created_by, vendor_category,
         } = req.body;
+        console.log("req.body----------", req.body)
         //type_id
         const addVendorData = vendorModel({
-            vendor_type,
+            type,
             vendor_platform,
             pay_cycle,
             payment_method,
@@ -37,6 +38,7 @@ exports.createVendorData = async (req, res) => {
             home_state,
             created_by
         });
+
         if (req.files?.pan_image && req.files.pan_image[0]) {
             addVendorData.pan_image = await uploadImage(req.files.pan_image[0]);
         }
@@ -85,6 +87,8 @@ exports.createVendorData = async (req, res) => {
             vendorDataSaved
         );
     } catch (error) {
+        console.log("error");
+        console.log(error);
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
