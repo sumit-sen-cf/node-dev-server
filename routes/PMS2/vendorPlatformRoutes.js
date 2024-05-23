@@ -22,6 +22,6 @@ router.put(
     updateSingleVendorPlatformDetails
 );
 router.delete("/vendor_platform/:id", deleteVendorPlatformDetails);
-router.get("/vendor_platform", getAllVendorPlatformDeletedData);
+router.get("/vendor_platform_deleted", getAllVendorPlatformDeletedData);
 
 module.exports = router;

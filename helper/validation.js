@@ -428,3 +428,214 @@ exports.accountMasterValidation = async (req, res, next) => {
         next();
     }
 };
+
+//@2 PMS Vendor collection Validations
+
+exports.addVendorValidation = async (req, res, next) => {
+    const body = req.body;
+
+    // Define the schema for the individual objects in the array
+    const bankDetailsSchema = Joi.object({
+        vendor_id: Joi.required(),
+        bank_name: Joi.string(),
+        account_type: Joi.string(),
+        account_number: Joi.string(),
+        registered_number: Joi.number(),
+        ifcs: Joi.string(),
+        upi_id: Joi.string(),
+        created_by: Joi.number()
+    });
+    const vendorGroupLinkDataSchema = Joi.object({
+        vendor_id: Joi.required(),
+        type: Joi.required(),
+        link: Joi.required(),
+        created_by: Joi.number().required(),
+    });
+    const schema = Joi.object({
+        vendor_type: Joi.string(),
+        vendor_platform: Joi.string(),
+        pay_cycle: Joi.string(),
+        payment_method: Joi.string(),
+        vendor_name: Joi.string(),
+        country_code: Joi.number(),
+        mobile: Joi.number().min(1000000000).max(99999999999999),
+        alternate_mobile: Joi.number().min(1000000000).max(99999999999999),
+        email: Joi.string().email(),
+        personal_address: Joi.string(),
+        pan_no: Joi.number(),
+        gst_no: Joi.number(),
+        company_name: Joi.string(),
+        company_address: Joi.string(),
+        company_city: Joi.string(),
+        company_pincode: Joi.number(),
+        company_state: Joi.string(),
+        threshold_limit: Joi.number(),
+        home_address: Joi.string(),
+        home_city: Joi.string(),
+        vendor_category: Joi.string(),
+        home_state: Joi.string(),
+        pan_image: Joi.string(),
+        gst_image: Joi.string(),
+        created_by: Joi.number(),
+        // Adding validation for the array of objects
+        bank_details: Joi.array().items(bankDetailsSchema),
+        vendorGroupLink_details: Joi.array().items(vendorGroupLinkDataSchema),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+exports.updateArrayOfVendorValidation = async (req, res, next) => {
+    const body = req.body;
+
+    // Define the schema for the individual objects in the array
+    const bankDetailsSchema = Joi.object({
+        vendor_id: Joi.required(),
+        bank_name: Joi.string(),
+        account_type: Joi.string(),
+        account_number: Joi.string(),
+        registered_number: Joi.number(),
+        ifcs: Joi.string(),
+        upi_id: Joi.string(),
+        created_by: Joi.number()
+    });
+    const vendorGroupLinkDataSchema = Joi.object({
+        vendor_id: Joi.required(),
+        type: Joi.required(),
+        link: Joi.required(),
+        created_by: Joi.number(),
+    });
+    const schema = Joi.object({
+        vendor_type: Joi.string(),
+        vendor_platform: Joi.string(),
+        pay_cycle: Joi.string(),
+        payment_method: Joi.string(),
+        vendor_name: Joi.string(),
+        country_code: Joi.number(),
+        mobile: Joi.number().min(1000000000).max(99999999999999),
+        alternate_mobile: Joi.number().min(1000000000).max(99999999999999),
+        email: Joi.string().email(),
+        personal_address: Joi.string(),
+        pan_no: Joi.number(),
+        gst_no: Joi.number(),
+        company_name: Joi.string(),
+        company_address: Joi.string(),
+        company_city: Joi.string(),
+        company_pincode: Joi.number(),
+        company_state: Joi.string(),
+        threshold_limit: Joi.number(),
+        home_address: Joi.string(),
+        home_city: Joi.string(),
+        vendor_category: Joi.string(),
+        home_state: Joi.string(),
+        pan_image: Joi.string(),
+        gst_image: Joi.string(),
+        created_by: Joi.number(),
+        // update validation for the array of objects
+        bank_details: Joi.array().items(bankDetailsSchema),
+        vendorGroupLink_details: Joi.array().items(vendorGroupLinkDataSchema),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+exports.updateVendorValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        vendor_type: Joi.string(),
+        vendor_platform: Joi.string(),
+        pay_cycle: Joi.string(),
+        payment_method: Joi.string(),
+        vendor_name: Joi.string(),
+        country_code: Joi.number(),
+        mobile: Joi.number().min(1000000000).max(99999999999999),
+        alternate_mobile: Joi.number().min(1000000000).max(99999999999999),
+        email: Joi.string().email(),
+        personal_address: Joi.string(),
+        pan_no: Joi.number(),
+        gst_no: Joi.number(),
+        company_name: Joi.string(),
+        company_address: Joi.string(),
+        company_city: Joi.string(),
+        company_pincode: Joi.number(),
+        company_state: Joi.string(),
+        threshold_limit: Joi.number(),
+        home_address: Joi.string(),
+        home_city: Joi.string(),
+        vendor_category: Joi.string(),
+        home_state: Joi.string(),
+        pan_image: Joi.string(),
+        gst_image: Joi.string(),
+        updated_by: Joi.number(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+//@2 PMS bank details collection Validations
+
+exports.addBankDetailsValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        vendor_id: Joi.required(),
+        bank_name: Joi.string(),
+        account_type: Joi.string(),
+        account_number: Joi.string(),
+        registered_number: Joi.number(),
+        ifcs: Joi.string(),
+        upi_id: Joi.string(),
+        created_by: Joi.number(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+exports.updateBankDetailsValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        vendor_id: Joi.required(),
+        bank_name: Joi.string(),
+        account_type: Joi.string(),
+        account_number: Joi.string(),
+        registered_number: Joi.number(),
+        ifcs: Joi.string(),
+        upi_id: Joi.string(),
+        updated_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
