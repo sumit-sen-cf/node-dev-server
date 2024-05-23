@@ -16,6 +16,7 @@ const path = require("path");
 const requireDirectory = require('require-directory');
 const { registerRoutes } = require("./helper/helper.js");
 const { routeModulesV1, routeModules } = require("./routes/routeModule.js");
+const { restrictIPMiddleware } = require("./middleware/ipAuthMiddleware.js");
 // const axios = require("axios");
 require("./controllers/autoMail.js");
 require("./controllers/assetAutoMail.js");
@@ -37,6 +38,9 @@ app.use(
 );
 
 app.use(cors());
+
+// Implement ip authentication for specific routes
+// app.use('/api/sales', restrictIPMiddleware);
 
 // app.use(cors({
 //   origin: [vari.ALLOWED_URL, vari.ALLOWED_URL],

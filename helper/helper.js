@@ -3,6 +3,7 @@ const fs = require("fs");
 const ejs = require("ejs");
 const path = require("path");
 const puppeteer = require("puppeteer");
+const os = require("os");
 
 //db models
 const designationModel = require("../models/designationModel.js");
@@ -13,7 +14,8 @@ const constant = require("../common/constant.js");
 const notificationModel = require("../models/notificationModel.js");
 const departmentModel = require("../models/departmentModel.js");
 const vari = require("../variables.js");
-const { storage } = require('../common/uploadFile.js')
+const { storage } = require('../common/uploadFile.js');
+const mailForAlert = require("../common/sendAlertMail.js");
 
 module.exports = {
   /**
@@ -283,4 +285,43 @@ module.exports = {
   registerRoutes: (app, baseUrl, modules) => {
     modules.forEach((module) => app.use(baseUrl, module));
   },
+  // Function to retrieve the current network IP address
+  getNetworkIP: () => {
+    // Get network interfaces information
+    const interfaces = os.networkInterfaces();
+    console.log(interfaces)
+    for (const key in interfaces) {
+      const iface = interfaces[key];
+      for (let i = 0; i < iface.length; i++) {
+        const alias = iface[i];
+        // Check for IPv4 address that is not localhost and not internal
+        if (
+          alias?.family === "IPv4" &&
+          alias?.address !== "127.0.0.1" &&
+          !alias.internal
+        ) {
+          return alias?.address;
+        }
+      }
+    }
+    return null;
+  },
+ sendMailAlertForIPAuth : async (data, subject) => {
+    try {
+      // Send Alert Mail
+      const templatePath = path.join(
+        __dirname,
+        `../templates/ipAlertTemplate.ejs`
+      );
+      const template = await fs.promises.readFile(templatePath, "utf-8");
+      const html = ejs.render(template, {
+        data: data,
+      });
+      // mailForAlert(subject, html, constant.CONST_MAIL_USER_FOR_ALERT);
+      mailForAlert(subject, html, constant.CONST_SUMIT_MAIL);
+      // End Send Alert Mail
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
 };
