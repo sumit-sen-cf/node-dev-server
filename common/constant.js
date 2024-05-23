@@ -34,4 +34,9 @@ module.exports = Object.freeze({
   ACTIVE: 0,
   INACTIVE: 1,
 
+  //@2 Email Configuration 
+  CONST_MAIL_USER_FOR_ALERT: "naveen@creativefuel.io",
+  CONST_SUMIT_MAIL: "sumit@creativefuel.io",
+  CONST_MAIL_PASS_FOR_ALERT: "absolwvkdihbvahf",
+  
 });
