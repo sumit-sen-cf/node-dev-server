@@ -126,8 +126,7 @@ exports.deletePaymentMethodDetails = async (req, res) => {
 
 exports.getAllPaymentMethodDeletedData = async (req, res) => {
     try {
-        const paymentMethodData = await paymentMethodModel.find({ status: { $ne: constant.DELETED } });
-
+        const paymentMethodData = await paymentMethodModel.find({ status: constant.DELETED });
         if (!paymentMethodData) {
             return response.returnFalse(200, req, res, 'No Records Found', {});
         }

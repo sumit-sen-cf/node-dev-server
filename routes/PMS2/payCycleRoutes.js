@@ -5,7 +5,7 @@ const {
     getAllPayCycleDetails,
     getSinglePayCycleDetails,
     updateSinglePayCycleDetails,
-    getPayCycleData,
+    getPayCycleDataDeleted,
 } = require("../../controllers/PMS2/payCycleController");
 const {
     addPayCycleValidation,
@@ -18,6 +18,6 @@ router.get("/paycycle", getAllPayCycleDetails);
 router.get("/paycycle/:id", getSinglePayCycleDetails);
 router.put("/paycycle", updatePayCycleValidation, updateSinglePayCycleDetails);
 router.delete("/paycycle/:id", deletePayCycleDetails);
-router.get("/paycycle", getPayCycleData);
+router.get("/paycycle_deleted", getPayCycleDataDeleted);
 
 module.exports = router;

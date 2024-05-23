@@ -22,6 +22,6 @@ router.put(
     updateSingleGroupLinkDetails
 );
 router.delete("/group_link_type/:id", deleteGroupLinkDetails);
-router.get("/group_link_type", getGroupLinkDeletedData);
+router.get("/group_link_type_deleted", getGroupLinkDeletedData);
 
 module.exports = router;

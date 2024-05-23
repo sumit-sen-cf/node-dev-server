@@ -127,13 +127,13 @@ exports.deleteGroupLinkDetails = async (req, res) => {
 exports.getGroupLinkDeletedData = async (req, res) => {
     try {
         // Find all group link that are not deleted
-        const groupLinkTypeData = await groupLinkTypeModel.find({ status: { $ne: constant.DELETED } });
+        const groupLinkTypeData = await groupLinkTypeModel.find({ status: constant.DELETED });
 
         if (!groupLinkTypeData) {
             return response.returnFalse(200, req, res, 'No Records Found', {});
         }
 
-        return response.returnTrue(200, req, res, 'Bank details retrieved successfully!', groupLinkTypeData);
+        return response.returnTrue(200, req, res, 'Group link data retrive successfully!', groupLinkTypeData);
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }

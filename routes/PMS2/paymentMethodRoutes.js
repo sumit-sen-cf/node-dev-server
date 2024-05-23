@@ -22,6 +22,6 @@ router.put(
     updateSinglePaymentMethodDetails
 );
 router.delete("/payment_method/:id", deletePaymentMethodDetails);
-router.get("/payment_method", getAllPaymentMethodDeletedData);
+router.get("/payment_method_deleted", getAllPaymentMethodDeletedData);
 
 module.exports = router;
