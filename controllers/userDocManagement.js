@@ -256,7 +256,7 @@ exports.editDoc = async (req, res) => {
     if (!editDocObj) {
       return response.returnFalse(200, req, res, "No record found", {});
     }
-    return response.returnTrue(200, req, res, "Data Update Successfully", {});
+    return response.returnTrue(200, req, res, "Data Update Successfully", editDocObj);
   } catch (err) {
     return response.returnFalse(500, req, res, err.message, {});
   }

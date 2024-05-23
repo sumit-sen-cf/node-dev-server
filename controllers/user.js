@@ -5011,11 +5011,10 @@ exports.sendOfferLetterMail = async (req, res) => {
     try {
         const attachment = req.file;
         const email = req.body.email_id;
-        const userId = req.body.user_id;
-
-        const userData = await userModel.findOne(userId).select({ emergency_contact_relation1: 1 });
+        const userId = +req.body.user_id;
+        const userData = await userModel.findOne({ user_id: userId }).select({ emergency_contact_relation1: 1 });
         //we are using emergency_contact_relation1 as email send status
-        if (userId && userData.emergency_contact_relation1 === "false") {
+        if (userId && userData && userData.emergency_contact_relation1 === 'false') {
             const mailTransporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
@@ -5023,7 +5022,6 @@ exports.sendOfferLetterMail = async (req, res) => {
                     pass: "zboiicwhuvakthth",
                 },
             });
-
             const mailOptions = {
                 from: "onboarding@creativefuel.io",
                 to: [email, "onboarding@creativefuel.io"],
@@ -5038,7 +5036,6 @@ exports.sendOfferLetterMail = async (req, res) => {
                     ]
                     : [],
             };
-
             mailTransporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
                     console.error("Error sending email:", error);
@@ -5046,20 +5043,46 @@ exports.sendOfferLetterMail = async (req, res) => {
                 }
                 console.log("Email sent:", info.response);
             });
-
             res.send("Email sending process initiated successfully");
-
             const edituserstatus = await userModel.findOneAndUpdate(
                 { user_id: userId },
                 {
-                    emergency_contact_relation1: "true"
+                    emergency_contact_relation1: 'true'
                 }
             )
         } else {
             res.send("Email already sent");
         }
-
     } catch (err) {
         res.status(500).send({ error: err, sms: 'Error initiating email sending process' });
     }
 }
+
+exports.getAllSalesUsersByDepartment = async (req, res) => {
+    try {
+        //sales department data id get
+        const deptDetail = await departmentModel.findOne({
+            $or: [{
+                dept_name: "Sales"
+            }, {
+                dept_name: "sales"
+            }]
+        });
+
+        //all sales users data get from the db collection
+        const salesUsersDetails = await userModel.find({
+            dept_id: deptDetail.dept_id
+        }, {
+            user_name: 1,
+            user_id: 1,
+        });
+
+        if (!salesUsersDetails) {
+            return response.returnFalse(200, req, res, "No Reord Found...", []);
+        }
+        //send success response
+        return res.status(200).send(salesUsersDetails)
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};

@@ -8,8 +8,8 @@ const accountMasterSchema = new mongoose.Schema({
     },
     account_name: {
         type: String,
-        required: false,
-        unique: true
+        required: true,
+        unique: true,
     },
     deleted: {
         type: Boolean,
@@ -23,12 +23,12 @@ const accountMasterSchema = new mongoose.Schema({
     },
     company_type_id: {
         type: Schema.Types.ObjectId, //update from ownership type
-        required: true,
+        required: false,
         ref: "accountCompanyTypeModel"
     },
     category_id: {
         type: Schema.Types.ObjectId, //update from industry id
-        required: true,
+        required: false,
         // ref: ""
     },
     account_owner_id: {
@@ -58,6 +58,10 @@ const accountMasterSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+
+/**
+ * account master data pre hook used
+ */
 accountMasterSchema.pre('save', async function (next) {
     if (!this.account_id) {
         const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'account_id': -1 } });
@@ -69,6 +73,17 @@ accountMasterSchema.pre('save', async function (next) {
         }
     }
     next();
+});
+
+/**
+ * account master data post hook used
+ */
+accountMasterSchema.post('save', async function (error, doc, next) {
+    if (error.name === 'MongoServerError' && error.code === 11000) {
+        next(new Error('Account Name must be unique'));
+    } else {
+        next(error);
+    }
 });
 
 module.exports = mongoose.model("accountMasterModel", accountMasterSchema);

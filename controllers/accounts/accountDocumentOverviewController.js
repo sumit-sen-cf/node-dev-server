@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const accountDocumentOverviewModel = require("../../models/accounts/accountDocumentOverviewModel");
 const multer = require("multer");
 const vari = require("../../variables.js");
-const { storage } = require('../../common/uploadFile.js')
+const { storage } = require('../../common/uploadFile.js');
+const imageUrl = vari.IMAGE_URL; // Retrieve the base URL for image storage from configuration
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -59,8 +60,6 @@ exports.addDocumentOverview = [
  */
 exports.getDocumentOverviewDetails = async (req, res) => {
     try {
-        const imageUrl = vari.IMAGE_URL;  // Retrieve the base URL for image storage from configuration
-
         // Aggregate pipeline to fetch document overview details along with the user who created the document
         const documentOverviewData = await accountDocumentOverviewModel.aggregate([
             {
@@ -177,7 +176,6 @@ exports.updateDocumentOverview = async (req, res) => {
  */
 exports.getDocumentOverviewList = async (req, res) => {
     try {
-        const imageUrl = vari.IMAGE_URL; // Retrieve the base URL for image storage from configuration
         //filter for pagination page wise data = page=1 & limit=2 
         let page = parseInt(req.query?.page) || 1;
         let limit = 10;
@@ -192,7 +190,7 @@ exports.getDocumentOverviewList = async (req, res) => {
         if (req.query.search) {
             //Regex Condition for search 
             matchQuery['$or'] = [{
-                "account_type_name": {
+                "account_id": {
                     "$regex": req.query.search,
                     "$options": "i"
                 }
@@ -200,62 +198,27 @@ exports.getDocumentOverviewList = async (req, res) => {
         }
         // Aggregate pipeline to fetch document overview details along with the user who created the document
         const documentOverviewMasterList = await accountDocumentOverviewModel.aggregate([{
-
-            // Match the document by its unique ID from request parameters
             $match: matchQuery
         }, {
-            // Lookup to join with the usermodels collection on created_by and user_id fields
-            $lookup: {
-                from: "usermodels",
-                localField: "created_by",
-                foreignField: "user_id",
-                as: "user_created",
-            }
-        }, {
-            // Unwind the resulting user array to handle the case where no user is found
-            $unwind: {
-                path: "$user_created",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $lookup: {
-                from: "accountdocumentmastermodels",
-                localField: "document_master_id",
-                foreignField: "_id",
-                as: "document_master",
-            }
-        }, {
-            $unwind: {
-                path: "$document_master",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            // Project the necessary fields from the document_overview 
             $project: {
                 account_id: 1,
                 document_master_id: 1,
                 document_no: 1,
                 description: 1,
-                createdAt: 1,
                 created_by: 1,
-                created_by_name: "$user.user_name",
+                updated_by: 1,
+                createdAt: 1,
                 updatedAt: 1,
                 document_image_upload: {
                     $concat: [imageUrl, "$document_image_upload"],
-                },
-                document_master: {
-                    document_name: "$document_master.document_name",
-                    is_visible: "$document_master.is_visible",
-                    description: "$document_master.description",
-                    createdAt: "$document_master.createdAt",
                 }
-            },
+            }
         }, {
             $skip: skip
         }, {
             $limit: limit
         }, {
-            $sort: { createdAt: -1 }
+            $sort: sort
         }
         ]);
         // Query to get counts of record of account types

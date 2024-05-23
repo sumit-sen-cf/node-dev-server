@@ -27,7 +27,6 @@ exports.addAccountCompanyType = async (req, res) => {
             company_type_name: company_type_name,
             description: description,
             created_by: created_by,
-            updated_by: created_by
         })
         //send success response
         return res.status(200).json({
@@ -89,34 +88,11 @@ exports.editAccountCompanyType = async (req, res) => {
 exports.getSingleAccountCompanyType = async (req, res) => {
     try {
         //get id wise data from DB collection
-        const accountCompanyTypeData = await accountCompanyType.aggregate([{
-            $match: {
-                _id: mongoose.Types.ObjectId(req.params.id)
-            }
-        }, {
-            $lookup: {
-                from: "usermodels",
-                localField: "created_by",
-                foreignField: "user_id",
-                as: "user",
-            },
-        }, {
-            $unwind: {
-                path: "$user",
-                preserveNullAndEmptyArrays: true,
-            },
-        }, {
-            $project: {
-                company_type_name: 1,
-                description: 1,
-                created_by: 1,
-                created_by_name: "$user.user_name",
-                updated_by: 1,
-                createdAt: 1,
-                updatedAt: 1,
-            }
-        },
-        ])
+        const accountCompanyTypeData = await accountCompanyType.findOne({
+            _id: mongoose.Types.ObjectId(req.params.id)
+        })
+
+        //If data is not available
         if (!accountCompanyTypeData) {
             return res.status(200).json({
                 status: 200,
@@ -166,24 +142,11 @@ exports.getAllAccountCompanyType = async (req, res) => {
         const accountCompanyTypeData = await accountCompanyType.aggregate([{
             $match: matchQuery
         }, {
-            $lookup: {
-                from: "usermodels",
-                localField: "created_by",
-                foreignField: "user_id",
-                as: "user",
-            },
-        }, {
-            $unwind: {
-                path: "$user",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
             $project: {
                 _id: 1,
                 company_type_name: 1,
                 description: 1,
                 created_by: 1,
-                created_by_name: "$user.user_name",
                 updated_by: 1,
                 createdAt: 1,
                 updatedAt: 1,
@@ -226,8 +189,8 @@ exports.deleteAccountCompanyType = async (req, res) => {
     try {
         const { id } = req.params;
         //get data from db collection
-        const ownershipData = await accountCompanyType.findOne({ _id: id });
-        if (!ownershipData) {
+        const accountCompanyTypeData = await accountCompanyType.findOne({ _id: id });
+        if (!accountCompanyTypeData) {
             return res.status(200).json({
                 status: 200,
                 message: message.DATA_NOT_FOUND,

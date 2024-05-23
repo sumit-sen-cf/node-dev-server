@@ -49,36 +49,12 @@ exports.addDocumentMaster = async (req, res) => {
 exports.getDocumentMasterDetails = async (req, res) => {
     try {
         // Use aggregate to fetch document master details by ID
-        const documentMasterData = await accountDocumentMasterModel.aggregate([{
-            // Match the document by its ID
-            $match: { _id: mongoose.Types.ObjectId(req.params.id) },
-        }, {
-            // Lookup the user who created the document
-            $lookup: {
-                from: "usermodels",
-                localField: "created_by",
-                foreignField: "user_id",
-                as: "user",
-            },
-        }, {
-            // Unwind the user array to get the user object, but allow nulls if no user found
-            $unwind: {
-                path: "$user",
-                preserveNullAndEmptyArrays: true,
-            },
-        }, {
-            // Project the necessary fields from the document and the user details
-            $project: {
-                document_name: 1,
-                is_visible: 1,
-                description: 1,
-                createdAt: 1,
-                created_by: 1,
-                created_by_name: "$user.user_name",
-                updatedAt: 1,
+        const documentMasterData = await accountDocumentMasterModel.findOne({
+            $match: {
+                _id: mongoose.Types.ObjectId(req.params.id)
             }
-        }
-        ]);
+        })
+
         // If no document master data is found, return a 404 status with a message
         if (!documentMasterData) {
             return res.status(200).json({
@@ -156,7 +132,7 @@ exports.getDocumentMasterList = async (req, res) => {
         if (req.query.search) {
             //Regex Condition for search 
             matchQuery['$or'] = [{
-                "account_type_name": {
+                "document_name": {
                     "$regex": req.query.search,
                     "$options": "i"
                 }
@@ -166,26 +142,13 @@ exports.getDocumentMasterList = async (req, res) => {
         const documentMasterList = await accountDocumentMasterModel.aggregate([{
             $match: matchQuery
         }, {
-            $lookup: {
-                from: "usermodels",
-                localField: "created_by",
-                foreignField: "user_id",
-                as: "user_created",
-            }
-        }, {
-            $unwind: {
-                path: "$user_created",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            // Project the necessary fields from the document and the user details
             $project: {
                 document_name: 1,
                 is_visible: 1,
                 description: 1,
-                createdAt: 1,
                 created_by: 1,
-                created_by_name: "$user.user_name",
+                updated_by: 1,
+                createdAt: 1,
                 updatedAt: 1,
             }
         }, {
@@ -193,7 +156,7 @@ exports.getDocumentMasterList = async (req, res) => {
         }, {
             $limit: limit
         }, {
-            $sort: { createdAt: -1 }
+            $sort: sort
         }
         ]);
         // Query to get counts of record of account types

@@ -16,7 +16,7 @@ const accountDocumentOverviewSchema = new mongoose.Schema({
         require: true,
     },
     document_no: {
-        type: Number,
+        type: String,
         required: true,
     },
     description: {
@@ -25,7 +25,7 @@ const accountDocumentOverviewSchema = new mongoose.Schema({
     },
     created_by: {
         type: Number,
-        required: true,
+        required: false,
     },
     updated_by: {
         type: Number,

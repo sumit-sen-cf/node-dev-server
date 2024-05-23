@@ -129,7 +129,7 @@ exports.accountDocumentOverviewValidation = async (req, res, next) => {
     // Defining the validation schema using Joi
     const schema = Joi.object({
         account_id: Joi.optional(), // account_id is optional
-        document_master_id: Joi.optional(), // document_master_id is optional
+        document_master_id: Joi.string(), // document_master_id is optional
         document_image_upload: Joi.string(),
         document_no: Joi.string().pattern(/^[a-zA-Z0-9]+$/),
         description: Joi.string().min(5).max(2000),
@@ -378,6 +378,52 @@ exports.updateVendorGrouplinkValidation = async (req, res, next) => {
     if (error) {
         const errors = joiValidationErrorConvertor(error.details);
         return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+/**
+ * Middleware to validate the account master details in the request body.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+exports.accountMasterValidation = async (req, res, next) => {
+    const body = req.body; // Extracting the request body
+
+    // Defining the validation schema using Joi
+    const schema = Joi.object({
+        account_name: Joi.string().required(),
+        account_type_id: Joi.string(),
+        company_type_id: Joi.string().required(),
+        category_id: Joi.string(),
+        description: Joi.string().min(5).max(2000),
+        account_owner_id: Joi.number().required(),
+        website: Joi.string(),
+        turn_over: Joi.number(),
+        how_many_offices: Joi.number(),
+        connected_office: Joi.string(),
+        connect_billing_street: Joi.string(),
+        connect_billing_city: Joi.string(),
+        connect_billing_state: Joi.string(),
+        connect_billing_country: Joi.string(),
+        head_office: Joi.string(),
+        head_billing_street: Joi.string(),
+        head_billing_city: Joi.string(),
+        head_billing_state: Joi.string(),
+        head_billing_country: Joi.string(),
+        pin_code: Joi.number(),
+        company_email: Joi.string().email().optional(),
+        created_by: Joi.optional(),
+        updated_by: Joi.optional(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(200, req, res, errors);
     } else {
         next();
     }
