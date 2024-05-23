@@ -215,3 +215,41 @@ exports.deleteAccountPoc = async (req, res) => {
         });
     }
 };
+
+
+/**
+ * Api is to used for multiple update_account_poc data in the DB collection.
+ */
+exports.updateMultipleAccountPoc = async (req, res) => {
+    try {
+        // get poc data from body
+        let accountPocDetails = (req.body?.account_poc) || [];
+        const { updated_by } = req.body;
+
+        //account Poc details obj add in array
+        if (accountPocDetails.length && Array.isArray(accountPocDetails)) {
+            for (let element of accountPocDetails) {
+                element.updated_by = updated_by;
+
+                //update data in db collection
+                await accountPocModel.updateOne({
+                    _id: element._id
+                }, {
+                    $set: element
+                }, {
+                    upsert: true
+                });
+            }
+        }
+        //send success response
+        return res.status(200).json({
+            status: 200,
+            message: "Account poc multiple data updated successfully!",
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+}

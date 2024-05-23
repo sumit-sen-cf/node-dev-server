@@ -46,9 +46,10 @@ router.put("/accounts/update_account_poc/:id", verifyToken, validation.accountPo
 router.get("/accounts/get_account_poc/:id", verifyToken, accountPoc.getAccountPocDetails);
 router.get("/accounts/get_account_poc_list", verifyToken, accountPoc.getAccountPocList);
 router.delete("/accounts/delete_account_poc/:id", verifyToken, accountPoc.deleteAccountPoc);
+router.put("/accounts/update_multiple_account_poc", verifyToken, accountPoc.updateMultipleAccountPoc);
 
 /**
- * account company type routes
+ * account company type routes update_multiple_account_poc
  */
 router.post("/accounts/add_account_company_type", verifyToken, validation.accountCompanyTypeValidation,
     accountCompanyTypeController.addAccountCompanyType);

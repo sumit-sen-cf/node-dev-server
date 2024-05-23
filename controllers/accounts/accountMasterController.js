@@ -3,6 +3,7 @@ const { message } = require("../../common/message");
 const mongoose = require("mongoose");
 const accountMaster = require('../../models/accounts/accountMasterModel');
 const accountBilling = require('../../models/accounts/accountBillingModel');
+const accountPocModel = require('../../models/accounts/accountPocModel');
 
 /**
  * POST- Api is to used for the account master data add in the DB collection.
@@ -48,13 +49,29 @@ exports.addAccountDetails = async (req, res) => {
             company_email: company_email,
             created_by: created_by
         })
+
+        let accountPocDataUpdatedArray = [];
+        let accountPocDetails = (req.body?.account_poc) || [];
+
+        //account Poc details obj add in array
+        if (accountPocDetails.length && Array.isArray(accountPocDetails)) {
+            await accountPocDetails.forEach(element => {
+                element.account_id = addAccountMasterData.account_id;
+                element.created_by = created_by;
+                accountPocDataUpdatedArray.push(element);
+            });
+        }
+        //add data in db collection
+        const addAccountPocData = await accountPocModel.insertMany(accountPocDataUpdatedArray);
+
         //send success response
         return res.status(200).json({
             status: 200,
             message: "Account master data added successfully!",
             data: {
                 accountMaster: addAccountMasterData,
-                accountBilling: addAccountBillingData
+                accountBilling: addAccountBillingData,
+                accountPoc: addAccountPocData
             }
         });
     } catch (error) {
