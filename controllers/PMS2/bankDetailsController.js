@@ -1,10 +1,11 @@
 const bankDetailsModel = require("../../models/PMS2/bankDetailsModel");
 const constant = require("../../common/constant");
 const response = require("../../common/response");
+const mongoose = require("mongoose");
 
 exports.createBankDetails = async (req, res) => {
     try {
-        const { vendor_id, bank_name, account_type,registered_number, account_number, ifcs, upi_id, created_by } = req.body;
+        const { vendor_id, bank_name, account_type, registered_number, account_number, ifcs, upi_id, created_by } = req.body;
         const addBankDetails = bankDetailsModel({
             vendor_id,
             bank_name,
@@ -82,7 +83,7 @@ exports.getAllBankDetails = async (req, res) => {
 exports.updateBankDetails = async (req, res) => {
     try {
         const { id } = req.params;
-        const { vendor_id, bank_name, account_type,registered_number, account_number, ifcs, upi_id, updated_by } = req.body;
+        const { vendor_id, bank_name, account_type, registered_number, account_number, ifcs, upi_id, updated_by } = req.body;
 
         const editBankDetails = await bankDetailsModel.findOne({ _id: id });
         if (!editBankDetails) {
@@ -152,6 +153,31 @@ exports.getAllBankDetails = async (req, res) => {
         }
 
         return response.returnTrue(200, req, res, 'Bank details retrieved successfully!', bankDetails);
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+exports.getBankDetailsByVendorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const getbankDetailsData = await bankDetailsModel.aggregate([
+            {
+                $match: {
+                    vendor_id: mongoose.Types.ObjectId(id),
+                    status: { $ne: constant.DELETED },
+                }
+            }]);
+        if (!getbankDetailsData) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Bank details by vendor id fetched successfully!",
+            getbankDetailsData
+        );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }

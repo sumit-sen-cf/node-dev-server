@@ -4,6 +4,8 @@ const { uploadImage } = require("../../common/upload");
 const bankDetailsModel = require("../../models/PMS2/bankDetailsModel");
 const vendorGroupLinkModel = require("../../models/PMS2/vendorGroupLinkModel");
 const vendorModel = require("../../models/PMS2/vendorModel");
+const vari = require("../../variables.js");
+const imageUrl = vari.IMAGE_URL;
 
 exports.createVendorData = async (req, res) => {
     try {
@@ -59,20 +61,24 @@ exports.createVendorData = async (req, res) => {
 
         let bankDataUpdatedArray = [];
         let vendorlinksUpdatedArray = [];
-        let bankDetails = req.body?.bank_details && JSON.parse(req.body.bank_details);
-        let vendorLinkDetails = req.body?.vendorLinks && JSON.parse(req.body?.vendorLinks);
+        let bankDetails = (req.body?.bank_details && JSON.parse(req.body.bank_details)) || [];
+        let vendorLinkDetails = (req.body?.vendorLinks && JSON.parse(req.body?.vendorLinks)) || [];
 
         //bank details obj in add vender id
-        await bankDetails.forEach(element => {
-            element.vendor_id = addVendorData._id;
-            bankDataUpdatedArray.push(element);
-        });
+        if (bankDetails.length) {
+            await bankDetails.forEach(element => {
+                element.vendor_id = addVendorData._id;
+                bankDataUpdatedArray.push(element);
+            });
+        }
 
         //vendor links details obj in add vender id
-        await vendorLinkDetails.forEach(element => {
-            element.vendor_id = addVendorData._id;
-            vendorlinksUpdatedArray.push(element);
-        });
+        if (vendorLinkDetails.length) {
+            await vendorLinkDetails.forEach(element => {
+                element.vendor_id = addVendorData._id;
+                vendorlinksUpdatedArray.push(element);
+            });
+        }
 
         //add data in db collection
         await bankDetailsModel.insertMany(bankDataUpdatedArray);
@@ -87,12 +93,13 @@ exports.createVendorData = async (req, res) => {
             vendorDataSaved
         );
     } catch (error) {
-        console.log("error");
-        console.log(error);
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
+/**
+ * Api is get the vendor model data BY-Id
+ */
 exports.getVendorDetails = async (req, res) => {
     try {
         const { id } = req.params;
@@ -115,7 +122,9 @@ exports.getVendorDetails = async (req, res) => {
     }
 };
 
-
+/**
+ * Api is get all the vendor model data
+ */
 exports.getAllVendorList = async (req, res) => {
     try {
         const vendorDataList = await vendorModel.find({

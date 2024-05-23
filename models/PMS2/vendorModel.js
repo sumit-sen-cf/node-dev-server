@@ -3,7 +3,6 @@ const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
 const vendorSchema = new Schema({
-
     type: {
         type: Schema.Types.ObjectId,
         required: false,
