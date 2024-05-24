@@ -170,6 +170,7 @@ exports.getUserDoc = async (req, res) => {
           doc_image: 1,
           doc_image_url: { $concat: [financeImagesBaseUrl, "$doc_image"] },
           document: {
+            _id: "$document._id",
             doc_name: "$document.doc_name",
             doc_type: "$document.doc_type",
             description: "$document.description",
@@ -183,6 +184,15 @@ exports.getUserDoc = async (req, res) => {
             job_type: "$document.job_type",
           }
         }
+      },
+      {
+        $group: {
+          _id: "$doc_id",
+          data: { $first: "$$ROOT" }
+        }
+      },
+      {
+        $replaceRoot: { newRoot: "$data" }
       }
     ]);
 
