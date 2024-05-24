@@ -692,7 +692,7 @@ exports.updatePageProfileValidation = async (req, res, next) => {
 exports.addPageCategoryValidation = async (req, res, next) => {
     const body = req.body;
     const schema = Joi.object({
-        page_category_name: Joi.string(),
+        page_category: Joi.string(),
         description: Joi.string(),
         created_by: Joi.number().required(),
     });
@@ -710,7 +710,7 @@ exports.addPageCategoryValidation = async (req, res, next) => {
 exports.updatePageCategoryValidation = async (req, res, next) => {
     const body = req.body;
     const schema = Joi.object({
-        page_category_name: Joi.string(),
+        page_category: Joi.string(),
         description: Joi.string(),
         last_updated_by: Joi.number(),
     });
