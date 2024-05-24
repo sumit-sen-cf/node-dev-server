@@ -648,3 +648,79 @@ exports.updateBankDetailsValidation = async (req, res, next) => {
         next();
     }
 };
+
+//@2 PMS Page Profile Type collection Validations
+
+exports.addPageProfileValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        profile_name: Joi.string(),
+        description: Joi.string(),
+        created_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+exports.updatePageProfileValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        profile_name: Joi.string(),
+        description: Joi.string(),
+        last_updated_by: Joi.number(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+//@2 PMS Page Category collection Validations
+
+exports.addPageCategoryValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        page_category_name: Joi.string(),
+        description: Joi.string(),
+        created_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+exports.updatePageCategoryValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        page_category_name: Joi.string(),
+        description: Joi.string(),
+        last_updated_by: Joi.number(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
