@@ -1,10 +1,12 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
 const vendorGroupLinkModel = require("../../models/PMS2/vendorGroupLinkModel");
+const mongoose = require("mongoose");
+
 
 exports.addVendorGroupLink = async (req, res) => {
     try {
-        const { vendor_id,type, link, created_by } = req.body;
+        const { vendor_id, type, link, created_by } = req.body;
         const savingObj = vendorGroupLinkModel({
             vendor_id,
             type,
@@ -128,13 +130,36 @@ exports.deleteVendorGroupLinkDetails = async (req, res) => {
 exports.getAllVendorGroupLinkDeletedData = async (req, res) => {
     try {
         // Find all vendor group link that are not deleted
-        const vendorGroupLinkData = await vendorGroupLinkModel.find({ status: { $ne: constant.DELETED } });
+        const vendorGroupLinkData = await vendorGroupLinkModel.find({ status: constant.DELETED });
 
         if (!vendorGroupLinkData) {
             return response.returnFalse(200, req, res, 'No Records Found', {});
         }
 
         return response.returnTrue(200, req, res, 'Vendor group link retrieved successfully!', vendorGroupLinkData);
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+exports.getVendorGroupLinkByVendorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const getVendorGropLinkData = await vendorGroupLinkModel.find({
+            vendor_id: mongoose.Types.ObjectId(id),
+            status: { $ne: constant.DELETED },
+        })
+
+        if (!getVendorGropLinkData) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Vendor group link by vendor id fetched successfully!",
+            getVendorGropLinkData
+        );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }

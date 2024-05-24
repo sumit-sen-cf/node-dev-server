@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface Data</title>
+</head>
+<body>
+    <div>
+        <p>Hello Sumit,</p>
+        <p>I wanted to bring to your attention an important matter. It appears that someone with a new IP address is attempting to access your Sales module API. Could you please investigate this as a priority?</p>
+    </div>
+    <div>
+        <p>This table displays the interface data:</p>
+    </div>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Interface</th>
+                <th>Address</th>
+                <th>Netmask</th>
+                <th>Family</th>
+                <th>MAC</th>
+                <th>Internal</th>
+                <th>CIDR</th>
+                <th>Scope ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% Object.keys(data).forEach((interface) => { %>
+                <% data[interface].forEach((entry) => { %>
+                    <tr>
+                        <td><%= interface %></td>
+                        <td><%= entry.address %></td>
+                        <td><%= entry.netmask %></td>
+                        <td><%= entry.family %></td>
+                        <td><%= entry.mac %></td>
+                        <td><%= entry.internal %></td>
+                        <td><%= entry.cidr %></td>
+                        <td><%= entry.scopeid %></td>
+                    </tr>
+                <% }) %>
+            <% }) %>
+        </tbody>
+    </table>
+</body>
+</html>

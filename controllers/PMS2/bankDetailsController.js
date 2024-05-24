@@ -60,7 +60,7 @@ exports.getBankDetails = async (req, res) => {
     }
 };
 
-exports.getAllBankDetails = async (req, res) => {
+exports.getAllBankList = async (req, res) => {
     try {
         const bankDetailsList = await bankDetailsModel.find({
             status: { $ne: constant.DELETED },
@@ -84,17 +84,13 @@ exports.updateBankDetails = async (req, res) => {
     try {
         const { id } = req.params;
         const { vendor_id, bank_name, account_type, registered_number, account_number, ifcs, upi_id, updated_by } = req.body;
-
-        const editBankDetails = await bankDetailsModel.findOne({ _id: id });
-        if (!editBankDetails) {
-            return response.returnFalse(200, req, res, `Bank detail ID invalid, please check.`);
-        }
         const updateResult = await bankDetailsModel.updateOne(
-            { _id: editBankDetails.id },
+            { _id: id },
             {
                 $set: {
                     vendor_id,
                     bank_name,
+                    registered_number,
                     account_type,
                     account_number,
                     ifcs,
@@ -143,10 +139,10 @@ exports.deleteBankDetail = async (req, res) => {
     }
 };
 
-exports.getAllBankDetails = async (req, res) => {
+exports.getAllBankDataDeleted = async (req, res) => {
     try {
         // Find all bank details that are not deleted
-        const bankDetails = await bankDetailsModel.find({ status: { $ne: constant.DELETED } });
+        const bankDetails = await bankDetailsModel.find({ status: constant.DELETED });
 
         if (!bankDetails) {
             return response.returnFalse(200, req, res, 'No Records Found', {});
@@ -161,13 +157,12 @@ exports.getAllBankDetails = async (req, res) => {
 exports.getBankDetailsByVendorId = async (req, res) => {
     try {
         const { id } = req.params;
-        const getbankDetailsData = await bankDetailsModel.aggregate([
-            {
-                $match: {
-                    vendor_id: mongoose.Types.ObjectId(id),
-                    status: { $ne: constant.DELETED },
-                }
-            }]);
+        const getbankDetailsData = await bankDetailsModel.find({
+            vendor_id: mongoose.Types.ObjectId(id),
+            status: {
+                $ne: constant.DELETED
+            }
+        })
         if (!getbankDetailsData) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }

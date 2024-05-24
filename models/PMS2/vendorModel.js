@@ -3,10 +3,10 @@ const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
 const vendorSchema = new Schema({
-    type: {
+    vendor_type: {
         type: Schema.Types.ObjectId,
         required: false,
-        ref: "pms2grouplinktypemodels"
+        ref: "pms2vendortypemodels"
     },
     vendor_platform: {
         type: Schema.Types.ObjectId,
@@ -112,7 +112,7 @@ const vendorSchema = new Schema({
         required: true,
         default: 0,
     },
-    last_updated_by: {
+    updated_by: {
         type: Number,
         reqxuired: false,
         default: 0,

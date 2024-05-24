@@ -127,7 +127,7 @@ exports.deleteVendorTypeDetails = async (req, res) => {
 exports.getAllVendorTypeDeletedData = async (req, res) => {
     try {
         // Find all vendor type that are not deleted
-        const vendorTypeData = await vendorTypeModel.find({ status: { $ne: constant.DELETED } });
+        const vendorTypeData = await vendorTypeModel.find({ status: constant.DELETED });
 
         if (!vendorTypeData) {
             return response.returnFalse(200, req, res, 'No Records Found', {});

@@ -127,7 +127,7 @@ exports.deleteVendorPlatformDetails = async (req, res) => {
 exports.getAllVendorPlatformDeletedData = async (req, res) => {
     try {
         // Find all vendor platform that are not deleted
-        const vendorPlatformData = await vendorPlatformModel.find({ status: { $ne: constant.DELETED } });
+        const vendorPlatformData = await vendorPlatformModel.find({ status: constant.DELETED });
 
         if (!vendorPlatformData) {
             return response.returnFalse(200, req, res, 'No Records Found', {});

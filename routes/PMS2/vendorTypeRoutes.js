@@ -22,6 +22,6 @@ router.put(
   updateSingleVendorTypeDetails
 );
 router.delete("/vendor_type/:id", deleteVendorTypeDetails);
-router.get("/vendor_type", getAllVendorTypeDeletedData);
+router.get("/vendor_type_deleted", getAllVendorTypeDeletedData);
 
 module.exports = router;
