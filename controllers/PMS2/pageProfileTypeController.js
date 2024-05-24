@@ -4,9 +4,9 @@ const pageProfileTypeModel = require("../../models/PMS2/pageProfileTypeModel");
 
 exports.addProfileType = async (req, res) => {
     try {
-        const { profile_name, description, created_by } = req.body;
+        const { profile_type, description, created_by } = req.body;
         const saveProfileType = await pageProfileTypeModel.create({
-            profile_name,
+            profile_type,
             description,
             created_by,
         });
@@ -76,12 +76,12 @@ exports.getAllProfileTypeList = async (req, res) => {
 exports.updateProfileTypeDetail = async (req, res) => {
     try {
         const { id } = req.params;
-        const { profile_name, description, last_updated_by } = req.body;
+        const { profile_type, description, last_updated_by } = req.body;
         const updateProfileTypeResult = await pageProfileTypeModel.updateOne(
             { _id: id },
             {
                 $set: {
-                    profile_name,
+                    profile_type,
                     description,
                     last_updated_by,
                 },

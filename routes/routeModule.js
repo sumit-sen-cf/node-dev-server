@@ -8,6 +8,7 @@ const vendorPayCycleRoutes = require('./PMS2/payCycleRoutes');
 const groupLinkTypeRoutes = require('./PMS2/groupLinkTypesRoutes');
 const bankDetailsRoutes = require('./PMS2/bankDetailsRoutes');
 const vendorRoutes = require("./PMS2/vendorRoutes")
+const countryCodeRoutes = require("./PMS2/countryCodeRoutes")
 const ipAuthRoutes = require("./common/ipAuthRoutes")
 const pageProfileRoutes = require("./PMS2/pageProfileTypeRoutes");
 const pageCategoryRoutes = require("./PMS2/pageCategoryRoutes");
@@ -17,6 +18,7 @@ const pagePriceMultipleRoutes = require("./PMS2/pagePriceMultipleRoutes");
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
     vendorTypeRoutes,
+    countryCodeRoutes,
     ipAuthRoutes,
     vendorGroupLinkRoutes,
     vendorPlatformRoutes,

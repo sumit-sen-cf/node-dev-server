@@ -654,8 +654,8 @@ exports.updateBankDetailsValidation = async (req, res, next) => {
 exports.addPageProfileValidation = async (req, res, next) => {
     const body = req.body;
     const schema = Joi.object({
-        profile_name: Joi.string(),
-        description: Joi.string(),
+        profile_type: Joi.required(),
+        description: Joi.optional(),
         created_by: Joi.number().required(),
     });
     const { error, value } = schema.validate(body, {
@@ -672,9 +672,10 @@ exports.addPageProfileValidation = async (req, res, next) => {
 exports.updatePageProfileValidation = async (req, res, next) => {
     const body = req.body;
     const schema = Joi.object({
-        profile_name: Joi.string(),
-        description: Joi.string(),
-        last_updated_by: Joi.number(),
+        _id: Joi.optional(),
+        profile_type: Joi.optional(),
+        description: Joi.optional(),
+        last_updated_by: Joi.number().required(),
     });
     const { error, value } = schema.validate(body, {
         abortEarly: false,
@@ -693,7 +694,7 @@ exports.addPageCategoryValidation = async (req, res, next) => {
     const body = req.body;
     const schema = Joi.object({
         page_category: Joi.string(),
-        description: Joi.string(),
+        description: Joi.optional(),
         created_by: Joi.number().required(),
     });
     const { error, value } = schema.validate(body, {
@@ -710,9 +711,50 @@ exports.addPageCategoryValidation = async (req, res, next) => {
 exports.updatePageCategoryValidation = async (req, res, next) => {
     const body = req.body;
     const schema = Joi.object({
-        page_category: Joi.string(),
-        description: Joi.string(),
+        page_category: Joi.optional(),
+        description: Joi.optional(),
         last_updated_by: Joi.number(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+//@2 PMS Country code  Master collection Validations
+
+exports.addCountryCodeValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        country_name: Joi.required(),
+        code: Joi.required(),
+        phone: Joi.required(),
+        created_by: Joi.number().required(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+exports.updateCountryCodeValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        id: Joi.required(),
+        country_name: Joi.optional(),
+        code: Joi.optional(),
+        phone: Joi.optional(),
+        // created_by: Joi.number().optional(),
+        last_updated_by: Joi.number().required(),
     });
     const { error, value } = schema.validate(body, {
         abortEarly: false,
