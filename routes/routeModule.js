@@ -13,6 +13,7 @@ const pageProfileRoutes = require("./PMS2/pageProfileTypeRoutes");
 const pageCategoryRoutes = require("./PMS2/pageCategoryRoutes");
 const pagePriceTypeRoutes = require("./PMS2/pagePriceTypeRoutes");
 const pagePriceMultipleRoutes = require("./PMS2/pagePriceMultipleRoutes");
+const pageMasterRoutes = require("./PMS2/pageMasterRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -29,6 +30,7 @@ exports.routeModulesV1 = [
     pageCategoryRoutes,
     pagePriceTypeRoutes,
     pagePriceMultipleRoutes,
+    pageMasterRoutes
 ];
 
 //used for the http://localhost:8080/api/end-points
