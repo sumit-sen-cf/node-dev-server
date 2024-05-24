@@ -32,7 +32,7 @@ const uploadImage = (file) => {
         });
 
         blobStream.on('finish', () => {
-            resolve(blob.name);
+            resolve(file.originalname);
         });
 
         blobStream.end(file.buffer);
