@@ -4,7 +4,7 @@ const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
 const pageCategorySchema = new mongoose.Schema({
-    page_category_name: {
+    page_category: {
         type: String,
         required: true,
         trim: true,
