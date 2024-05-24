@@ -417,6 +417,15 @@ exports.accountMasterValidation = async (req, res, next) => {
         company_email: Joi.string().email().optional(),
         created_by: Joi.optional(),
         updated_by: Joi.optional(),
+        account_poc: Joi.array().items({
+            contact_name: Joi.string().required(), // contact_name is a required string
+            contact_no: Joi.number().min(1000000000).max(99999999999999).required(), // contact_no is a required number within specified range
+            alternative_contact_no: Joi.number().min(1000000000).max(99999999999999).optional(), // alternative_contact_no is an optional number within specified range
+            email: Joi.string().email().required(),
+            department: Joi.string().optional(),
+            designation: Joi.string().optional(),
+            description: Joi.string().min(5).max(2000).optional(),
+        }),
     });
     const { error, value } = schema.validate(body, {
         abortEarly: false,
@@ -683,7 +692,7 @@ exports.updatePageProfileValidation = async (req, res, next) => {
 exports.addPageCategoryValidation = async (req, res, next) => {
     const body = req.body;
     const schema = Joi.object({
-        page_category_name: Joi.string(),
+        page_category: Joi.string(),
         description: Joi.string(),
         created_by: Joi.number().required(),
     });
@@ -701,7 +710,7 @@ exports.addPageCategoryValidation = async (req, res, next) => {
 exports.updatePageCategoryValidation = async (req, res, next) => {
     const body = req.body;
     const schema = Joi.object({
-        page_category_name: Joi.string(),
+        page_category: Joi.string(),
         description: Joi.string(),
         last_updated_by: Joi.number(),
     });

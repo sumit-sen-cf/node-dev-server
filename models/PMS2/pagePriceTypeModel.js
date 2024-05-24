@@ -1,14 +1,18 @@
-const { required } = require("joi");
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
-const pageCategorySchema = new mongoose.Schema({
-    page_category: {
+const pagePriceTypeSchema = new Schema({
+    name: {
         type: String,
         required: true,
         trim: true,
         unique: true,
+    },
+    platfrom_id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "Pms2VendorPlatformModel"
     },
     description: {
         type: String,
@@ -23,7 +27,7 @@ const pageCategorySchema = new mongoose.Schema({
     },
     last_updated_by: {
         type: Number,
-        reqxuired: false,
+        required: false,
         default: 0,
     },
     status: {
@@ -32,7 +36,7 @@ const pageCategorySchema = new mongoose.Schema({
         default: constant?.ACTIVE,
     },
 }, {
-    timestamps: true
+    timestamps: true,
 });
-
-module.exports = mongoose.model("Pms2PageCategoryModel", pageCategorySchema);
+const pagePriceTypeModel = mongoose.model("Pms2PagePriceTypeModel", pagePriceTypeSchema);
+module.exports = pagePriceTypeModel;

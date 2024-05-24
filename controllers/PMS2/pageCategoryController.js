@@ -4,9 +4,9 @@ const pageCategoryModel = require("../../models/PMS2/pageCategoryModel");
 
 exports.createPageCategory = async (req, res) => {
     try {
-        const { page_category_name, description, created_by } = req.body;
+        const { page_category, description, created_by } = req.body;
         const addPageCategory = await pageCategoryModel.create({
-            page_category_name,
+            page_category,
             description,
             created_by,
         });
@@ -75,12 +75,12 @@ exports.getPageCategoryList = async (req, res) => {
 exports.updatePageCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const { page_category_name, description, last_updated_by } = req.body;
+        const { page_category, description, last_updated_by } = req.body;
         const updatePageCategoryData = await pageCategoryModel.updateOne(
             { _id: id },
             {
                 $set: {
-                    page_category_name,
+                    page_category,
                     description,
                     last_updated_by,
                 },

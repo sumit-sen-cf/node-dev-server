@@ -5025,7 +5025,7 @@ exports.sendOfferLetterMail = async (req, res) => {
             const mailOptions = {
                 from: "onboarding@creativefuel.io",
                 to: [email, "onboarding@creativefuel.io"],
-                subject: "Offer Letter",
+                subject: "Your Offer Letter Inside from Creativefuel!!",
                 html: 'your offer letter',
                 attachments: attachment
                     ? [

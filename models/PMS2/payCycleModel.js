@@ -23,22 +23,14 @@ const payCycleSchema = new Schema(
         },
         last_updated_by: {
             type: Number,
-            reqxuired: false,
+            required: false,
             default: 0,
         },
         status: {
             type: Number,
             required: false,
             default: constant?.ACTIVE,
-        },
-        // created_date_time: {
-        //   type: Date,
-        //   default: Date.now,
-        // },
-        // last_updated_date: {
-        //   type: Date,
-        //   default: Date.now,
-        // },
+        }
     },
     {
         timestamps: true,
