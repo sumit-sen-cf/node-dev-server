@@ -125,18 +125,30 @@ exports.getVendorDetails = async (req, res) => {
  */
 exports.getAllVendorList = async (req, res) => {
     try {
+        const page = (req.query.page  && parseInt(req.query.page) ) || 1;
+        const limit = (req.query.limit  && parseInt(req.query.limit) ) || 50;
+        const skip = (page - 1) * limit;
         const vendorDataList = await vendorModel.find({
             status: { $ne: constant.DELETED },
-        });
+        }).skip(skip).limit(limit);
         if (vendorDataList?.length <= 0) {
             return response.returnFalse(200, req, res, `No Record Found`, []);
         }
-        return response.returnTrue(
+        const vendorDataCount = await vendorModel.countDocuments()
+        return response.returnTrueWithPagination(
             200,
             req,
             res,
             "Vendor data list fetch successfully!",
-            vendorDataList
+            vendorDataList,
+            {
+                start_record: skip + 1,
+                end_record: skip + vendorDataList?.length,
+                total_records: vendorDataCount,
+                currentPage: page,
+                total_page: Math.ceil(vendorDataCount / limit),
+
+            }
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});

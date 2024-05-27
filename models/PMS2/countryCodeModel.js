@@ -2,15 +2,21 @@ const mongoose = require("mongoose");
 const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
-const pageProfileTypeSchema = new Schema(
+const countryCodeSchema = new Schema(
     {
-        profile_type: {
+        country_name: {
             type: String,
             required: true,
             trim: true,
             unique: true,
         },
-        description: {
+        code: {
+            type: String,
+            required: false,
+            trim: true,
+            default: "",
+        },
+        phone: {
             type: String,
             required: false,
             trim: true,
@@ -36,4 +42,5 @@ const pageProfileTypeSchema = new Schema(
         timestamps: true,
     }
 );
-module.exports = mongoose.model("Pms2PageProfileTypeModel", pageProfileTypeSchema);
+const countryCodeModel = mongoose.model("Pms2CountryCodeModel", countryCodeSchema);
+module.exports = countryCodeModel;

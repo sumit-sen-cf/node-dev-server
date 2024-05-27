@@ -55,6 +55,28 @@ exports.getSinglePagePriceTypeDetails = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+//@2 Get Price type on the basis of platform id
+exports.getAllPriceTypeDetailsBasedOnPlateform = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const pagePriceTypeDetail = await pagePriceTypeModel.find({
+            platfrom_id: id,
+            status: { $ne: constant.DELETED },
+        });
+        if (pagePriceTypeDetail?.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Successfully Fetch page price type detail Data",
+            pagePriceTypeDetail
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
 
 exports.getAllPagePriceTypeDetails = async (req, res) => {
     try {
