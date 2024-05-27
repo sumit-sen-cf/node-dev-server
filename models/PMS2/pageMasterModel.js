@@ -18,14 +18,14 @@ const pageMasterSchema = new Schema({
         required: true,
         ref: "Pms2VendorPlatformModel"
     },
-    vendor_master_id: {
+    vendor_id: {
         type: Schema.Types.ObjectId,
         required: true,
         ref: "Pms2VendorModel"
     },
     page_name: {
         type: String,
-        required: false,
+        required: true,
         unique: true,
         trim: true
     },
@@ -37,7 +37,7 @@ const pageMasterSchema = new Schema({
         type: String,
         required: false,
     },
-    status: {
+    page_status: {
         type: String,
         required: false,
     },
