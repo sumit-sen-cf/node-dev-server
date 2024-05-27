@@ -400,20 +400,20 @@ exports.accountMasterValidation = async (req, res, next) => {
         category_id: Joi.string(),
         description: Joi.string().min(5).max(2000),
         account_owner_id: Joi.number().required(),
-        website: Joi.string(),
-        turn_over: Joi.number(),
-        how_many_offices: Joi.number(),
-        connected_office: Joi.string(),
-        connect_billing_street: Joi.string(),
-        connect_billing_city: Joi.string(),
-        connect_billing_state: Joi.string(),
-        connect_billing_country: Joi.string(),
-        head_office: Joi.string(),
-        head_billing_street: Joi.string(),
-        head_billing_city: Joi.string(),
-        head_billing_state: Joi.string(),
-        head_billing_country: Joi.string(),
-        pin_code: Joi.number(),
+        website: Joi.string().optional(),
+        turn_over: Joi.number().optional(),
+        how_many_offices: Joi.number().optional(),
+        connected_office: Joi.string().optional(),
+        connect_billing_street: Joi.string().optional(),
+        connect_billing_city: Joi.string().optional(),
+        connect_billing_state: Joi.string().optional(),
+        connect_billing_country: Joi.string().optional(),
+        head_office: Joi.string().optional(),
+        head_billing_street: Joi.string().optional(),
+        head_billing_city: Joi.string().optional(),
+        head_billing_state: Joi.string().optional(),
+        head_billing_country: Joi.string().optional(),
+        pin_code: Joi.number().optional(),
         company_email: Joi.string().email().optional(),
         created_by: Joi.optional(),
         updated_by: Joi.optional(),
@@ -421,7 +421,7 @@ exports.accountMasterValidation = async (req, res, next) => {
             contact_name: Joi.string().required(), // contact_name is a required string
             contact_no: Joi.number().min(1000000000).max(99999999999999).required(), // contact_no is a required number within specified range
             alternative_contact_no: Joi.number().min(1000000000).max(99999999999999).optional(), // alternative_contact_no is an optional number within specified range
-            email: Joi.string().email().required(),
+            email: Joi.string().email().optional(),
             department: Joi.string().optional(),
             designation: Joi.string().optional(),
             description: Joi.string().min(5).max(2000).optional(),
@@ -432,7 +432,7 @@ exports.accountMasterValidation = async (req, res, next) => {
     });
     if (error) {
         const errors = joiValidationErrorConvertor(error.details);
-        return response.returnFalse(200, req, res, errors);
+        return response.returnFalse(400, req, res, errors);
     } else {
         next();
     }
