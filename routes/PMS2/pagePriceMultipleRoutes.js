@@ -7,13 +7,13 @@ const {
     deletePagePriceMultipleDetails,getPagePriceMultipleDetailsBasedOnPageId
 } = require("../../controllers/PMS2/pagePriceMultipleController");
 const {
-    addPayCycleValidation,
-    updatePayCycleValidation,
+    addPagePriceMultipleValidation,
+    updatePagePriceMultipleValidation
 } = require("../../helper/validation");
 const router = express.Router();
 
-router.post("/pagePriceMultiple", addPagePriceMultiple);
-router.put("/pagePriceMultiple/:id", updateSinglePagePriceMultipleDetails);
+router.post("/pagePriceMultiple", addPagePriceMultipleValidation, addPagePriceMultiple);
+router.put("/pagePriceMultiple/:id", updatePagePriceMultipleValidation, updateSinglePagePriceMultipleDetails);
 router.get("/pagePriceMultiple", getAllPagePriceMultipleDetails);
 router.get("/pagePriceMultiple/:id", getSinglePagePriceMultipleDetails);
 router.get("/pagePriceMultipleByPageId/:id", getPagePriceMultipleDetailsBasedOnPageId);
