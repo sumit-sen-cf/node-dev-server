@@ -766,3 +766,88 @@ exports.updateCountryCodeValidation = async (req, res, next) => {
         next();
     }
 };
+
+//@2 Add Page master validations
+
+exports.addPageMasterValidation = async (req, res, next) => {
+    const body = req.body;
+
+    const page_price_multiple_obj = Joi.object({
+        price: Joi.optional(),
+        page_price_type_id: Joi.required(),
+    });
+    const schema = Joi.object({
+        page_profile_type_id : Joi.required(),
+        page_category_id : Joi.required(),
+        platform_id : Joi.required(),
+        vendor_id : Joi.required(),
+        page_name : Joi.string().email().optional(),
+        page_name_type : Joi.optional(),
+        page_link : Joi.optional(),
+        preference_level : Joi.optional(),
+        content_creation : Joi.optional(),
+        ownership_type: Joi.optional(),
+        rate_type: Joi.optional(),
+        variable_type : Joi.optional(),
+        description: Joi.optional(),
+        page_closed_by: Joi.optional(),
+        followers_count: Joi.optional(),
+        engagment_rate: Joi.optional(),
+        tags_page_category: Joi.optional(),
+        platform_active_on: Joi.optional(),
+        status: Joi.number().optional(),
+        created_by: Joi.required(),
+        // Adding validation for the array of objects
+        page_price_multiple: Joi.array().items(page_price_multiple_obj).optional(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+exports.updatePageMasterValidation = async (req, res, next) => {
+    const body = req.body;
+
+    const page_price_multiple_obj = Joi.object({
+        price: Joi.optional(),
+        page_price_type_id: Joi.optional(),
+    });
+    const schema = Joi.object({
+        page_profile_type_id : Joi.optional(),
+        page_category_id : Joi.optional(),
+        platform_id : Joi.optional(),
+        vendor_id : Joi.optional(),
+        page_name : Joi.optional(),
+        page_name_type : Joi.optional(),
+        page_link : Joi.optional(),
+        preference_level : Joi.optional(),
+        content_creation : Joi.optional(),
+        ownership_type: Joi.optional(),
+        rate_type: Joi.optional(),
+        variable_type : Joi.optional(),
+        description: Joi.optional(),
+        page_closed_by: Joi.optional(),
+        followers_count: Joi.optional(),
+        engagment_rate: Joi.optional(),
+        tags_page_category: Joi.optional(),
+        platform_active_on: Joi.optional(),
+        status: Joi.number().optional(),
+        last_updated_by: Joi.required(),
+        // Adding validation for the array of objects
+        page_price_multiple: Joi.array().items(page_price_multiple_obj).optional(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};

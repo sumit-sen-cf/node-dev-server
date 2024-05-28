@@ -7,7 +7,7 @@ exports.addPageMaster = async (req, res) => {
     try {
         //get data from body 
         const { page_profile_type_id, page_category_id, platform_id, vendor_id,
-            page_name, page_name_type, page_link, page_status, preference_level,
+            page_name, page_name_type, page_link, status, preference_level,
             content_creation, ownership_type, rate_type, variable_type, description,
             page_closed_by, followers_count, engagment_rate, tags_page_category,
             platform_active_on, created_by
@@ -22,7 +22,7 @@ exports.addPageMaster = async (req, res) => {
             page_name,
             page_name_type,
             page_link,
-            page_status,
+            status,
             preference_level,
             content_creation,
             ownership_type,
@@ -141,7 +141,7 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
         const { id } = req.params;
 
         const { page_profile_type_id, page_category_id, platform_id, vendor_id,
-            page_name, page_name_type, page_link, page_status, preference_level,
+            page_name, page_name_type, page_link, status, preference_level,
             content_creation, ownership_type, rate_type, variable_type, description,
             page_closed_by, followers_count, engagment_rate, tags_page_category,
             platform_active_on, last_updated_by
@@ -158,7 +158,7 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
                 page_name,
                 page_name_type,
                 page_link,
-                page_status,
+                status,
                 preference_level,
                 content_creation,
                 ownership_type,
