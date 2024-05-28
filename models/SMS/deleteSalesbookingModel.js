@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const deletedSalesBookingHistoryData = new mongoose.Schema({
     sale_booking_id: {
@@ -17,6 +18,14 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
         type: Number,
         required: false,
         default: 0
+    },
+    campaign_name: {
+        type: String,
+        required: false,
+    },
+    brand_id: {
+        type: Schema.Types.ObjectId,
+        required: false,
     },
     base_amount: {
         type: Number,

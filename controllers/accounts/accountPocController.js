@@ -226,6 +226,21 @@ exports.updateMultipleAccountPoc = async (req, res) => {
         let accountPocDetails = (req.body?.account_poc) || [];
         const { updated_by } = req.body;
 
+        // Check for duplicate contact_no in accountPoc
+        if (accountPocDetails && Array.isArray(accountPocDetails)) {
+            for (let i = 0; i < accountPocDetails.length; i++) {
+                const existingPoc = await accountPocModel.findOne({
+                    contact_no: accountPocDetails[i].contact_no
+                });
+                if (existingPoc) {
+                    return res.status(400).json({
+                        status: 400,
+                        message: `Contact number ${accountPocDetails[i].contact_no} already exists.`
+                    });
+                }
+            }
+        }
+
         //account Poc details obj add in array
         if (accountPocDetails.length && Array.isArray(accountPocDetails)) {
             for (let element of accountPocDetails) {

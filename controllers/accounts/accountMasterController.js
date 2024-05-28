@@ -15,8 +15,24 @@ exports.addAccountDetails = async (req, res) => {
             account_owner_id, website, turn_over, created_by,
             how_many_offices, connected_office, connect_billing_street, connect_billing_city,
             connect_billing_state, connect_billing_country, head_office, head_billing_street,
-            head_billing_city, head_billing_state, head_billing_country, pin_code, company_email
+            head_billing_city, head_billing_state, head_billing_country, pin_code, company_email,
+            account_poc
         } = req.body;
+
+        // Check for duplicate contact_no in accountPoc
+        if (account_poc && Array.isArray(account_poc)) {
+            for (let i = 0; i < account_poc.length; i++) {
+                const existingPoc = await accountPocModel.findOne({
+                    contact_no: account_poc[i].contact_no
+                });
+                if (existingPoc) {
+                    return res.status(400).json({
+                        status: 400,
+                        message: `Contact number ${account_poc[i].contact_no} already exists.`
+                    });
+                }
+            }
+        }
 
         //account master data stored in DB collection
         const addAccountMasterData = await accountMaster.create({
@@ -51,15 +67,15 @@ exports.addAccountDetails = async (req, res) => {
         })
 
         let accountPocDataUpdatedArray = [];
-        let accountPocDetails = (req.body?.account_poc) || [];
+        let accountPocDetails = account_poc || [];
 
         //account Poc details obj add in array
         if (accountPocDetails.length && Array.isArray(accountPocDetails)) {
-            await accountPocDetails.forEach(element => {
+            for (let element of accountPocDetails) {
                 element.account_id = addAccountMasterData.account_id;
                 element.created_by = created_by;
                 accountPocDataUpdatedArray.push(element);
-            });
+            }
         }
         //add data in db collection
         const addAccountPocData = await accountPocModel.insertMany(accountPocDataUpdatedArray);
