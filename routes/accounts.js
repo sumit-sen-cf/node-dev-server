@@ -16,10 +16,8 @@ router.get("/accounts", (req, res) => {
 /**
  * account master routes
  */
-router.post("/accounts/add_account", verifyToken, validation.accountMasterValidation,
-    accountMaster.addAccountDetails);
-router.put("/accounts/edit_account/:id", verifyToken, validation.accountMasterValidation,
-    accountMaster.editAccountDetails);
+router.post("/accounts/add_account", verifyToken, accountMaster.addAccountDetails);
+router.put("/accounts/edit_account/:id", verifyToken, accountMaster.editAccountDetails);
 router.get("/accounts/get_all_account", verifyToken, accountMaster.getAllAccountDetails);
 router.get("/accounts/get_single_account/:id", verifyToken, accountMaster.getSingleAccountDetails);
 router.delete("/accounts/delete_account/:id", verifyToken, accountMaster.deleteAccountDetails);
