@@ -373,6 +373,17 @@ exports.addUser = async (req, res) => {
             encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
         }
 
+
+        if (req.body.DOB) {
+            var dob = new Date(req.body.DOB);
+            dob.setDate(dob.getDate() + 1);
+        }
+
+        if (req.body.joining_date) {
+            var doj = new Date(req.body.joining_date);
+            doj.setDate(doj.getDate() + 1);
+        }
+
         const simc = new userModel({
             user_name: req.body.user_name,
             role_id: req.body.role_id,
@@ -387,7 +398,7 @@ exports.addUser = async (req, res) => {
             sub_dept_id: req.body.sub_dept_id,
             Gender: req.body.Gender,
             job_type: req.body.job_type,
-            DOB: req.body.DOB,
+            DOB: dob,
             user_contact_no: req.body.user_contact_no,
             PersonalNumber: req.body.personal_number,
             user_email_id: req.body.user_email_id,
@@ -396,7 +407,7 @@ exports.addUser = async (req, res) => {
             report_L2: req.body.report_L2,
             report_L3: req.body.report_L3,
             user_designation: req.body.user_designation,
-            joining_date: req.body.joining_date,
+            joining_date: doj,
             onboard_status: req.body.onboard_status,
             created_by: req.body.created_by
         })
@@ -629,6 +640,16 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
     try {
         const encryptedPass = req.body.user_login_password ? await bcrypt.hash(req.body.user_login_password, 10) : null;
 
+        if (req.body.DOB) {
+            var dob = new Date(req.body.DOB);
+            dob.setDate(dob.getDate() + 1);
+        }
+
+        if (req.body.joining_date) {
+            var doj = new Date(req.body.joining_date);
+            doj.setDate(doj.getDate() + 1);
+        }
+
         const simc = new userModel({
             // Fields omitted for brevity
             user_name: req.body.user_name,
@@ -636,7 +657,7 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             PersonalNumber: req.body.personal_number,
             alternate_contact: req.body.alternate_contact,
             Gender: req.body.Gender,
-            DOB: req.body.DOB,
+            DOB: dob,
             Age: req.body.Age,
             Nationality: req.body.Nationality,
             MartialStatus: req.body.MartialStatus,
@@ -655,7 +676,7 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             user_login_id: req.body.user_login_id.toLowerCase().trim(),
             user_login_password: encryptedPass,
             user_status: req.body.user_status,
-            joining_date: req.body.joining_date,
+            joining_date: doj,
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
             upi_Id: req.body.upi_Id,
