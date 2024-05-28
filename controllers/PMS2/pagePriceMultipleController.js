@@ -56,6 +56,29 @@ exports.getSinglePagePriceMultipleDetails = async (req, res) => {
     }
 };
 
+//@2 Get Data Based 
+exports.getPagePriceMultipleDetailsBasedOnPageId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const pagePriceMultipleDetails = await pagePriceMultipleModel.find({
+            page_master_id: id,
+            status: { $ne: constant.DELETED },
+        });
+        if (pagePriceMultipleDetails?.length <= 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Successfully Fetch page price multiple detail Data",
+            pagePriceMultipleDetails
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
 exports.getAllPagePriceMultipleDetails = async (req, res) => {
     try {
         const pagePriceMultipleDetails = await pagePriceMultipleModel.find({

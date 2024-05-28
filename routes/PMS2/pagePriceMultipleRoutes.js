@@ -4,7 +4,7 @@ const {
     updateSinglePagePriceMultipleDetails,
     getAllPagePriceMultipleDetails,
     getSinglePagePriceMultipleDetails,
-    deletePagePriceMultipleDetails,
+    deletePagePriceMultipleDetails,getPagePriceMultipleDetailsBasedOnPageId
 } = require("../../controllers/PMS2/pagePriceMultipleController");
 const {
     addPayCycleValidation,
@@ -16,6 +16,7 @@ router.post("/pagePriceMultiple", addPagePriceMultiple);
 router.put("/pagePriceMultiple/:id", updateSinglePagePriceMultipleDetails);
 router.get("/pagePriceMultiple", getAllPagePriceMultipleDetails);
 router.get("/pagePriceMultiple/:id", getSinglePagePriceMultipleDetails);
+router.get("/pagePriceMultipleByPageId/:id", getPagePriceMultipleDetailsBasedOnPageId);
 router.delete("/pagePriceMultiple/:id", deletePagePriceMultipleDetails);
 
 module.exports = router;

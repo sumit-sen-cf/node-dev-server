@@ -32,38 +32,42 @@ const pageMasterSchema = new Schema({
     page_name_type: {
         type: String,
         required: false,
+        trim: true
     },
     page_link: {
         type: String,
         required: false,
-    },
-    page_status: {
-        type: String,
-        required: false,
+        trim: true
     },
     preference_level: {
         type: String,
         required: false,
+        trim: true
     },
     content_creation: {
         type: String,
         required: false,
+        trim: true
     },
     ownership_type: {
         type: String,
         required: false,
+        trim: true
     },
     rate_type: {
         type: String,
         required: false,
+        trim: true
     },
     variable_type: {
         type: String,
         required: false,
+        trim: true
     },
     description: {
         type: String,
         required: false,
+        trim: true
     },
     page_closed_by: {
         type: Number,
