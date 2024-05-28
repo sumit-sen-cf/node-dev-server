@@ -777,18 +777,18 @@ exports.addPageMasterValidation = async (req, res, next) => {
         page_price_type_id: Joi.required(),
     });
     const schema = Joi.object({
-        page_profile_type_id : Joi.required(),
-        page_category_id : Joi.required(),
-        platform_id : Joi.required(),
-        vendor_id : Joi.required(),
-        page_name : Joi.string().email().optional(),
-        page_name_type : Joi.optional(),
-        page_link : Joi.optional(),
-        preference_level : Joi.optional(),
-        content_creation : Joi.optional(),
+        page_profile_type_id: Joi.required(),
+        page_category_id: Joi.required(),
+        platform_id: Joi.required(),
+        vendor_id: Joi.required(),
+        page_name: Joi.string().email().optional(),
+        page_name_type: Joi.optional(),
+        page_link: Joi.optional(),
+        preference_level: Joi.optional(),
+        content_creation: Joi.optional(),
         ownership_type: Joi.optional(),
         rate_type: Joi.optional(),
-        variable_type : Joi.optional(),
+        variable_type: Joi.optional(),
         description: Joi.optional(),
         page_closed_by: Joi.optional(),
         followers_count: Joi.optional(),
@@ -818,18 +818,18 @@ exports.updatePageMasterValidation = async (req, res, next) => {
         page_price_type_id: Joi.optional(),
     });
     const schema = Joi.object({
-        page_profile_type_id : Joi.optional(),
-        page_category_id : Joi.optional(),
-        platform_id : Joi.optional(),
-        vendor_id : Joi.optional(),
-        page_name : Joi.optional(),
-        page_name_type : Joi.optional(),
-        page_link : Joi.optional(),
-        preference_level : Joi.optional(),
-        content_creation : Joi.optional(),
+        page_profile_type_id: Joi.optional(),
+        page_category_id: Joi.optional(),
+        platform_id: Joi.optional(),
+        vendor_id: Joi.optional(),
+        page_name: Joi.optional(),
+        page_name_type: Joi.optional(),
+        page_link: Joi.optional(),
+        preference_level: Joi.optional(),
+        content_creation: Joi.optional(),
         ownership_type: Joi.optional(),
         rate_type: Joi.optional(),
-        variable_type : Joi.optional(),
+        variable_type: Joi.optional(),
         description: Joi.optional(),
         page_closed_by: Joi.optional(),
         followers_count: Joi.optional(),
@@ -840,6 +840,76 @@ exports.updatePageMasterValidation = async (req, res, next) => {
         last_updated_by: Joi.required(),
         // Adding validation for the array of objects
         page_price_multiple: Joi.array().items(page_price_multiple_obj).optional(),
+    })
+}
+
+//@2 PMS Page Price_Multiple collection Validations
+exports.addPagePriceMultipleValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        page_master_id: Joi.optional(),
+        page_price_type_id: Joi.optional(),
+        price: Joi.number(),
+        created_by: Joi.number(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+exports.updatePagePriceMultipleValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        page_master_id: Joi.optional(),
+        page_price_type_id: Joi.optional(),
+        price: Joi.number(),
+        created_by: Joi.number(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+//@2 PMS Page Price_Type collection Validations
+
+exports.addPagePriceTypeValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        name: Joi.string(),
+        description: Joi.optional(),
+        platfrom_id: Joi.optional(),
+        created_by: Joi.number(),
+    });
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
+};
+
+exports.updatePagePriceTypeValidation = async (req, res, next) => {
+    const body = req.body;
+    const schema = Joi.object({
+        name: Joi.string(),
+        description: Joi.optional(),
+        platfrom_id: Joi.optional(),
+        created_by: Joi.number(),
     });
     const { error, value } = schema.validate(body, {
         abortEarly: false,

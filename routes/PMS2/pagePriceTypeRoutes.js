@@ -8,13 +8,13 @@ const {
     getAllPriceTypeDetailsBasedOnPlateform,
 } = require("../../controllers/PMS2/pagePriceTypeController");
 const {
-    addPayCycleValidation,
-    updatePayCycleValidation,
+    addPagePriceTypeValidation,
+    updatePagePriceTypeValidation,
 } = require("../../helper/validation");
 const router = express.Router();
 
-router.post("/pagePriceType", addPagePriceType);
-router.put("/pagePriceType/:id", updateSinglePagePriceTypeDetails);
+router.post("/pagePriceType", addPagePriceTypeValidation, addPagePriceType);
+router.put("/pagePriceType/:id", updatePagePriceTypeValidation, updateSinglePagePriceTypeDetails);
 router.get("/pagePriceType", getAllPagePriceTypeDetails);
 router.get("/pagePriceType/:id", getSinglePagePriceTypeDetails);
 router.get("/pagePriceTypesForPlatformId/:id", getAllPriceTypeDetailsBasedOnPlateform);
