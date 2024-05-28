@@ -59,6 +59,10 @@ const phpFinanceModel = new mongoose.Schema({
         type: String,
         required: false
     },
+    cust_id: {
+        type: String,
+        required: false
+    },
     cust_name: {
         type: String,
         required: false
