@@ -45,42 +45,84 @@ exports.addAccountCompanyType = async (req, res) => {
 /**
  * PUT- Api is to used for the company type data update By-ID in the DB collection.
  */
+// exports.editAccountCompanyType = async (req, res) => {
+//     try {
+//         //get id from params
+//         const { id } = req.params;
+
+//         //get data from the body
+//         const { company_type_name, description, updated_by } = req.body;
+
+//         //check data available
+//         const accountCompanyTypeData = await accountCompanyType.findOne({ _id: id });
+//         if (!accountCompanyTypeData) {
+//             return res.send("Invalid company-type Id...");
+//         }
+
+//         //data update in db collection
+//         await accountCompanyType.updateOne({
+//             _id: id
+//         }, {
+//             $set: {
+//                 company_type_name,
+//                 description,
+//                 updated_by
+//             }
+//         });
+//         //send success response
+//         return res.status(200).json({
+//             status: 200,
+//             message: "account company type data updated successfully!",
+//         });
+//     } catch (error) {
+//         return res.status(500).json({
+//             status: 500,
+//             message: error.message ? error.message : message.ERROR_MESSAGE,
+//         });
+//     }
+// };
+
+
 exports.editAccountCompanyType = async (req, res) => {
     try {
-        //get id from params
+        // Get ID from params
         const { id } = req.params;
 
-        //get data from the body
+        // Get data from the body
         const { company_type_name, description, updated_by } = req.body;
 
-        //check data available
-        const accountCompanyTypeData = await accountCompanyType.findOne({ _id: id });
-        if (!accountCompanyTypeData) {
-            return res.send("Invalid company-type Id...");
+        // Update data in db collection
+        const updatedAccountCompanyType = await accountCompanyType.findByIdAndUpdate(
+            id,
+            {
+                $set: {
+                    company_type_name,
+                    description,
+                    updated_by
+                }
+            },
+            { new: true } // Option to return the modified document rather than the original
+        );
+
+        // Check if the update was successful
+        if (!updatedAccountCompanyType) {
+            return res.status(404).send("Invalid company-type ID...");
         }
 
-        //data update in db collection
-        await accountCompanyType.updateOne({
-            _id: id
-        }, {
-            $set: {
-                company_type_name,
-                description,
-                updated_by
-            }
-        });
-        //send success response
+        // Send success response
         return res.status(200).json({
             status: 200,
-            message: "account company type data updated successfully!",
+            message: "Account company type data updated successfully!",
+            data: updatedAccountCompanyType
         });
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
+            message: error.message ? error.message : "An error occurred while updating the account company type data.",
         });
     }
-};
+}
+
 
 /**
  * GET- Api is to used to get company type data By-ID from DB collection.

@@ -81,37 +81,73 @@ exports.getDocumentMasterDetails = async (req, res) => {
 /**
  * Api is to used for the update_document_master data in the DB collection.
  */
+// exports.updateDocumentMaster = async (req, res) => {
+//     try {
+//         const { id } = req.params
+//         const { document_name, is_visible, description, updated_by } = req.body;
+//         const editDocumentMaster = await accountDocumentMasterModel.findOne({ _id: id })
+//         // if check duplicacy document_name
+//         if (!editDocumentMaster) {
+//             return res.status(400).json({ message: "Document master id invalid, please check!" });
+//         }
+//         // update data in the database collection
+//         await accountDocumentMasterModel.updateOne({ _id: editDocumentMaster.id }, {
+//             $set: {
+//                 document_name,
+//                 is_visible,
+//                 description,
+//                 updated_by
+//             }
+//         })
+//         // Return a success response with the created document data
+//         return res.status(200).json({
+//             status: 200,
+//             message: "Document master data updated successfully!",
+//         })
+//     } catch (error) {
+//         // If an error occurs, return a 500 status code with an error message
+//         return res.status(500).json({
+//             status: 500,
+//             message: error.message ? error.message : "An error occurred while retrieving the document master data.",
+//         });
+//     }
+// }
+
 exports.updateDocumentMaster = async (req, res) => {
     try {
         const { id } = req.params
         const { document_name, is_visible, description, updated_by } = req.body;
-        const editDocumentMaster = await accountDocumentMasterModel.findOne({ _id: id })
+        const editDocumentMaster = await accountDocumentMasterModel.findByIdAndUpdate(
+            id,
+            {
+                $set: {
+                    document_name,
+                    is_visible,
+                    description,
+                    updated_by
+                }
+            },
+            { new: true }
+        );
         // if check duplicacy document_name
         if (!editDocumentMaster) {
             return res.status(400).json({ message: "Document master id invalid, please check!" });
         }
-        // update data in the database collection
-        await accountDocumentMasterModel.updateOne({ _id: editDocumentMaster.id }, {
-            $set: {
-                document_name,
-                is_visible,
-                description,
-                updated_by
-            }
-        })
-        // Return a success response with the created document data
+        // Return a success response with the updated document data
         return res.status(200).json({
             status: 200,
             message: "Document master data updated successfully!",
-        })
+            data: editDocumentMaster
+        });
     } catch (error) {
         // If an error occurs, return a 500 status code with an error message
         return res.status(500).json({
             status: 500,
-            message: error.message ? error.message : "An error occurred while retrieving the document master data.",
+            message: error.message ? error.message : "An error occurred while updating the document master data.",
         });
     }
 }
+
 
 /**
  * Api is to used for the get_document_master_list data in the DB collection.

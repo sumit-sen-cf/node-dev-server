@@ -121,15 +121,60 @@ exports.getDocumentOverviewDetails = async (req, res) => {
 /**
  * Api is to used for the update_document_overview data in the DB collection.
  */
+// exports.updateDocumentOverview = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const { account_id, document_master_id, document_no, description, updated_by } = req.body;
+//         const editDocumentOverview = await accountDocumentOverviewModel.findOne({ _id: id });
+
+//         if (!editDocumentOverview) {
+//             return res.status(400).json({ message: "Document overview id invalid, please check!" });
+//         }
+
+//         const bucketName = vari.BUCKET_NAME;
+//         const bucket = storage.bucket(bucketName);
+
+//         // Check if files were uploaded
+//         if (req.files && req.files.document_image_upload && req.files.document_image_upload[0].originalname) {
+//             const blob1 = bucket.file(req.files.document_image_upload[0].originalname);
+//             editDocumentOverview.document_image_upload = blob1.name;
+//             const blobStream1 = blob1.createWriteStream();
+//             blobStream1.on("finish", () => {
+//                 //after file upload finishes
+//             });
+//             blobStream1.end(req.files.document_image_upload[0].buffer);
+//         }
+
+//         // Update account document overview data
+//         await accountDocumentOverviewModel.updateOne({ _id: editDocumentOverview.id }, {
+//             $set: {
+//                 account_id,
+//                 document_master_id,
+//                 document_no,
+//                 description,
+//                 updated_by
+//             }
+//         });
+
+//         // Send success response
+//         return res.status(200).json({
+//             status: 200,
+//             message: "Document overview data updated successfully!",
+//         });
+//     } catch (error) {
+//         return res.status(500).json({
+//             // If an error occurs, return a 500 status code with an error message
+//             status: 500,
+//             message: error.message ? error.message : "An error occurred while updating the document overview data.",
+//         });
+//     }
+// };
+
+
 exports.updateDocumentOverview = async (req, res) => {
     try {
         const { id } = req.params;
         const { account_id, document_master_id, document_no, description, updated_by } = req.body;
-        const editDocumentOverview = await accountDocumentOverviewModel.findOne({ _id: id });
-
-        if (!editDocumentOverview) {
-            return res.status(400).json({ message: "Document overview id invalid, please check!" });
-        }
 
         const bucketName = vari.BUCKET_NAME;
         const bucket = storage.bucket(bucketName);
@@ -137,38 +182,50 @@ exports.updateDocumentOverview = async (req, res) => {
         // Check if files were uploaded
         if (req.files && req.files.document_image_upload && req.files.document_image_upload[0].originalname) {
             const blob1 = bucket.file(req.files.document_image_upload[0].originalname);
-            editDocumentOverview.document_image_upload = blob1.name;
             const blobStream1 = blob1.createWriteStream();
-            blobStream1.on("finish", () => {
-                //after file upload finishes
+
+            await new Promise((resolve, reject) => {
+                blobStream1.on("finish", resolve);
+                blobStream1.on("error", reject);
+                blobStream1.end(req.files.document_image_upload[0].buffer);
             });
-            blobStream1.end(req.files.document_image_upload[0].buffer);
+
+            req.body.document_image_upload = blob1.name; // Add the uploaded file name to the request body
         }
 
-        // Update account document overview data
-        await accountDocumentOverviewModel.updateOne({ _id: editDocumentOverview.id }, {
-            $set: {
-                account_id,
-                document_master_id,
-                document_no,
-                description,
-                updated_by
-            }
-        });
+        // Update account document overview data using findByIdAndUpdate
+        const updatedDocumentOverview = await accountDocumentOverviewModel.findByIdAndUpdate(
+            id,
+            {
+                $set: {
+                    account_id,
+                    document_master_id,
+                    document_no,
+                    description,
+                    updated_by,
+                    document_image_upload: req.body.document_image_upload // Include this line if the file was uploaded
+                }
+            },
+            { new: true } // This option returns the updated document
+        );
+
+        if (!updatedDocumentOverview) {
+            return res.status(400).json({ message: "Document overview id invalid, please check!" });
+        }
 
         // Send success response
         return res.status(200).json({
             status: 200,
             message: "Document overview data updated successfully!",
+            data: updatedDocumentOverview
         });
     } catch (error) {
         return res.status(500).json({
-            // If an error occurs, return a 500 status code with an error message
             status: 500,
             message: error.message ? error.message : "An error occurred while updating the document overview data.",
         });
     }
-};
+}
 
 
 /**
