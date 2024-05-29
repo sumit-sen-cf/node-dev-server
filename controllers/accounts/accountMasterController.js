@@ -368,11 +368,25 @@ exports.getAllAccountBillingDetails = async (req, res) => {
  */
 exports.getSingleAccountBillingDetails = async (req, res) => {
     try {
+        let matchQuery = {};
+        if (req.query?._id == (true || 'true')) {
+            matchQuery = {
+                _id: mongoose.Types.ObjectId(req.params.id),
+                deleted: false
+            }
+        } else if (req.query?._id == (false || 'false')) {
+            matchQuery = {
+                account_id: Number(req.params.id),
+                deleted: false
+            }
+        } else {
+            matchQuery = {
+                _id: mongoose.Types.ObjectId(req.params.id),
+                deleted: false
+            }
+        }
         //data get from the db collection
-        const accountBillingData = await accountBilling.findOne({
-            account_id: pareseInt(req.params.id),
-            deleted: false
-        });
+        const accountBillingData = await accountBilling.findOne(matchQuery);
 
         //send success response
         return res.status(200).send({
