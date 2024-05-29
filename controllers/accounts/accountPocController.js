@@ -75,41 +75,95 @@ exports.getAccountPocDetails = async (req, res) => {
 /**
  * Api is to used for the update_account_poc data in the DB collection.
  */
+// exports.updateAccountPoc = async (req, res) => {
+//     try {
+//         const { id } = req.params
+//         const { account_id, contact_name, contact_no, alternative_contact_no, email, department, designation, description, updated_by } = req.body;
+//         const editAccountPocData = await accountPocModel.findOne({ _id: id })
+//         // if check by account_poc_id 
+//         if (!editAccountPocData) {
+//             return res.status(400).json({ message: "Account poc id invalid, please check!" });
+//         }
+//         //update account poc data
+//         await accountPocModel.updateOne({ _id: editAccountPocData.id }, {
+//             $set: {
+//                 account_id,
+//                 contact_name,
+//                 description,
+//                 contact_no,
+//                 alternative_contact_no,
+//                 email,
+//                 department,
+//                 designation,
+//                 updated_by
+//             }
+//         })
+//         //send success response
+//         return res.status(200).json({
+//             status: 200,
+//             message: "Account poc data updated successfully!",
+//         })
+//     } catch (error) {
+//         return res.status(500).json({
+//             status: 500,
+//             message: error.message ? error.message : message.ERROR_MESSAGE,
+//         });
+//     }
+// }
+
 exports.updateAccountPoc = async (req, res) => {
     try {
-        const { id } = req.params
-        const { account_id, contact_name, contact_no, alternative_contact_no, email, department, designation, description, updated_by } = req.body;
-        const editAccountPocData = await accountPocModel.findOne({ _id: id })
-        // if check by account_poc_id 
-        if (!editAccountPocData) {
+        const { id } = req.params;
+        const {
+            account_id,
+            contact_name,
+            contact_no,
+            alternative_contact_no,
+            email,
+            department,
+            designation,
+            description,
+            updated_by
+        } = req.body;
+
+        // update account poc data
+        const updatedAccountPocData = await accountPocModel.findByIdAndUpdate(
+            { _id: id },
+            {
+                $set: {
+                    account_id,
+                    contact_name,
+                    contact_no,
+                    alternative_contact_no,
+                    email,
+                    department,
+                    designation,
+                    description,
+                    updated_by
+                }
+            },
+            { new: true }
+        );
+
+        // if account poc not found
+        if (!updatedAccountPocData) {
             return res.status(400).json({ message: "Account poc id invalid, please check!" });
         }
-        //update account poc data
-        await accountPocModel.updateOne({ _id: editAccountPocData.id }, {
-            $set: {
-                account_id,
-                contact_name,
-                description,
-                contact_no,
-                alternative_contact_no,
-                email,
-                department,
-                designation,
-                updated_by
-            }
-        })
-        //send success response
+
+        // send success response
         return res.status(200).json({
             status: 200,
             message: "Account poc data updated successfully!",
-        })
+            data: updatedAccountPocData
+        });
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
+            message: error.message ? error.message : "An error occurred while updating account poc data.",
         });
     }
-}
+};
+
 
 /**
  * Api is to used for the update_account_poc data in the DB collection.

@@ -68,36 +68,73 @@ exports.getAccountTypeData = async (req, res) => {
 /**
  * Api is to used for the update_account_type data in the DB collection.
  */
+// exports.updateAccountTypeData = async (req, res) => {
+//     try {
+//         const { id } = req.params
+//         const { account_type_name, description, updated_by } = req.body;
+//         const editAccountTypeData = await accountTypesModel.findOne({ _id: id })
+//         // if check by account_type_id 
+//         if (!editAccountTypeData) {
+//             return res.status(400).json({ message: "Account type id invalid, please check!" });
+//         }
+//         //update account type data
+//         await accountTypesModel.updateOne({ _id: editAccountTypeData.id }, {
+//             $set: {
+//                 account_type_name,
+//                 description,
+//                 updated_by
+//             }
+//         })
+
+//         //send success response
+//         return res.status(200).json({
+//             status: 200,
+//             message: "Account type data updated successfully!",
+//         })
+//     } catch (error) {
+//         return res.status(500).json({
+//             status: 500,
+//             message: error.message ? error.message : message.ERROR_MESSAGE,
+//         });
+//     }
+// }
+
 exports.updateAccountTypeData = async (req, res) => {
     try {
-        const { id } = req.params
+        const { id } = req.params;
         const { account_type_name, description, updated_by } = req.body;
-        const editAccountTypeData = await accountTypesModel.findOne({ _id: id })
-        // if check by account_type_id 
-        if (!editAccountTypeData) {
+
+        // update account type data
+        const updatedAccountTypeData = await accountTypesModel.findByIdAndUpdate(
+            { _id: id },
+            {
+                $set: {
+                    account_type_name,
+                    description,
+                    updated_by,
+                }
+            },
+            { new: true }
+        );
+
+        // if account type not found
+        if (!updatedAccountTypeData) {
             return res.status(400).json({ message: "Account type id invalid, please check!" });
         }
-        //update account type data
-        await accountTypesModel.updateOne({ _id: editAccountTypeData.id }, {
-            $set: {
-                account_type_name,
-                description,
-                updated_by
-            }
-        })
 
-        //send success response
+        // send success response
         return res.status(200).json({
             status: 200,
             message: "Account type data updated successfully!",
-        })
+            data: updatedAccountTypeData
+        });
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
+            message: error.message ? error.message : "An error occurred while updating account type data.",
         });
     }
-}
+};
 
 /**
  * Api is to used for the get_account_type_list data in the DB collection.
