@@ -12,6 +12,9 @@ module.exports = Object.freeze({
   SWAGGER_ADMIN: 1,
   SWAGGER_DEVELOPER: 2,
 
+  // GCP Image URL
+  GCP_VENDOR_FOLDER_URL: "https://storage.googleapis.com/dev-backend-bucket/InVendorDocs",
+
   /* JWT  */
   SECRET_KEY_LOGIN: "thisissecret12",
   SECRET_KEY_DOC_LOGIN: "docloginsect1234d",

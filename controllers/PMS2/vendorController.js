@@ -125,14 +125,58 @@ exports.getVendorDetails = async (req, res) => {
  */
 exports.getAllVendorList = async (req, res) => {
     try {
-        const page = (req.query.page  && parseInt(req.query.page) ) || 1;
-        const limit = (req.query.limit  && parseInt(req.query.limit) ) || 50;
+        const page = req.query.page ? parseInt(req.query.page) : null;
+        const limit = req.query.limit ? parseInt(req.query.limit) : null;
         const skip = (page - 1) * limit;
-        const vendorDataList = await vendorModel.find({
-            status: { $ne: constant.DELETED },
-        }).skip(skip).limit(limit);
-        if (vendorDataList?.length <= 0) {
-            return response.returnFalse(200, req, res, `No Record Found`, []);
+        let vendorDataList;
+
+        let matchQuery = {
+            status: { $ne: constant.DELETED }
+        };
+
+        let addFieldsObj = {
+            $addFields: {
+                pan_image_url: {
+                    $cond: {
+                        if: { $ne: ["$pan_image", ""] },
+                        then: {
+                            $concat: [
+                                constant.GCP_VENDOR_FOLDER_URL,
+                                "/",
+                                "$pan_image",
+                            ],
+                        },
+                        else: "$pan_image",
+                    },
+                }, gst_image_url: {
+                    $cond: {
+                        if: { $ne: ["$gst_image", ""] },
+                        then: {
+                            $concat: [
+                                constant.GCP_VENDOR_FOLDER_URL,
+                                "/",
+                                "$gst_image",
+                            ],
+                        },
+                        else: "$gst_image",
+                    },
+                },
+            },
+        }
+
+        if (page && limit) {
+            const skip = (page - 1) * limit;
+            vendorDataList = await vendorModel.aggregate([
+                { $match: matchQuery },
+                { $skip: skip },
+                { $limit: limit },
+                addFieldsObj
+            ]);
+        } else {
+            vendorDataList = await vendorModel.aggregate([
+                { $match: matchQuery },
+                addFieldsObj
+            ]);
         }
         const vendorDataCount = await vendorModel.countDocuments()
         return response.returnTrueWithPagination(
