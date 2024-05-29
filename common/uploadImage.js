@@ -27,4 +27,4 @@ const uploadImage = (file, folder) => {
     });
 };
 
-module.exports = { storage, uploadImage };
+module.exports = { uploadImage };

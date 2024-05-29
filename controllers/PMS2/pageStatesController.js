@@ -387,7 +387,6 @@ exports.addPageStates = [upload, async (req, res) => {
             data: pageStatesAdded
         });
     } catch (error) {
-        console.log("error------", error)
         return res.status(500).json({
             message: error.message
         });
@@ -525,7 +524,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         },
                         else: "$Age_upload",
                     },
-                },country_image_url: {
+                }, country_image_url: {
                     $cond: {
                         if: { $ne: ["$country_image", ""] },
                         then: {
@@ -571,7 +570,6 @@ exports.getAllPageStatesList = async (req, res) => {
             }
         );
     } catch (error) {
-        console.log("error-------------", error)
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 }
