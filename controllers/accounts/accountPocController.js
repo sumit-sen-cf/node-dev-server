@@ -128,7 +128,7 @@ exports.updateAccountPoc = async (req, res) => {
 
         // update account poc data
         const updatedAccountPocData = await accountPocModel.findByIdAndUpdate(
-            id,
+            { _id: id },
             {
                 $set: {
                     account_id,

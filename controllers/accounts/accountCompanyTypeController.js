@@ -93,7 +93,7 @@ exports.editAccountCompanyType = async (req, res) => {
 
         // Update data in db collection
         const updatedAccountCompanyType = await accountCompanyType.findByIdAndUpdate(
-            id,
+            { _id: id },
             {
                 $set: {
                     company_type_name,

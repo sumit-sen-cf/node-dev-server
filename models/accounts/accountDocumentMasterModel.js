@@ -4,12 +4,8 @@ const accountDocMasterSchema = new mongoose.Schema({
     document_name: {
         type: String,
         required: true,
-        unique: true
-    },
-    is_visible: {
-        type: Boolean,
-        required: true,
-        default: false
+        unique: true,
+        trim: true
     },
     description: {
         type: String,

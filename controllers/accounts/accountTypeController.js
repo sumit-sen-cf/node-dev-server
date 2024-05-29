@@ -106,7 +106,7 @@ exports.updateAccountTypeData = async (req, res) => {
 
         // update account type data
         const updatedAccountTypeData = await accountTypesModel.findByIdAndUpdate(
-            id,
+            { _id: id },
             {
                 $set: {
                     account_type_name,
@@ -135,8 +135,6 @@ exports.updateAccountTypeData = async (req, res) => {
         });
     }
 };
-
-
 
 /**
  * Api is to used for the get_account_type_list data in the DB collection.

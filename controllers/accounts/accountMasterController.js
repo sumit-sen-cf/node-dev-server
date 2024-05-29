@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const accountMaster = require('../../models/accounts/accountMasterModel');
 const accountBilling = require('../../models/accounts/accountBillingModel');
 const accountPocModel = require('../../models/accounts/accountPocModel');
+const accountDocumentOverviewModel = require('../../models/accounts/accountDocumentOverviewModel');
 
 /**
  * POST- Api is to used for the account master data add in the DB collection.
@@ -16,7 +17,7 @@ exports.addAccountDetails = async (req, res) => {
             how_many_offices, connected_office, connect_billing_street, connect_billing_city,
             connect_billing_state, connect_billing_country, head_office, head_billing_street,
             head_billing_city, head_billing_state, head_billing_country, pin_code, company_email,
-            account_poc
+            account_poc, account_documents
         } = req.body;
 
         // Check for duplicate contact_no in accountPoc
@@ -80,6 +81,22 @@ exports.addAccountDetails = async (req, res) => {
         //add data in db collection
         const addAccountPocData = await accountPocModel.insertMany(accountPocDataUpdatedArray);
 
+
+        let accountDocumentsUpdatedArray = [];
+        let accountDocumentsDetails = account_documents || [];
+
+        //account Documents details obj add in array
+        if (accountDocumentsDetails.length && Array.isArray(accountDocumentsDetails)) {
+            for (let element of accountDocumentsDetails) {
+                element.account_id = addAccountMasterData.account_id;
+                element.created_by = created_by;
+                accountDocumentsUpdatedArray.push(element);
+            }
+        }
+
+        //add data in db collection
+        const addAccountDocumentsData = await accountDocumentOverviewModel.insertMany(accountDocumentsUpdatedArray);
+
         //send success response
         return res.status(200).json({
             status: 200,
@@ -87,7 +104,8 @@ exports.addAccountDetails = async (req, res) => {
             data: {
                 accountMaster: addAccountMasterData,
                 accountBilling: addAccountBillingData,
-                accountPoc: addAccountPocData
+                accountPoc: addAccountPocData,
+                accountDocuments: addAccountDocumentsData
             }
         });
     } catch (error) {
@@ -350,11 +368,25 @@ exports.getAllAccountBillingDetails = async (req, res) => {
  */
 exports.getSingleAccountBillingDetails = async (req, res) => {
     try {
+        let matchQuery = {};
+        if (req.query?._id == (true || 'true')) {
+            matchQuery = {
+                _id: mongoose.Types.ObjectId(req.params.id),
+                deleted: false
+            }
+        } else if (req.query?._id == (false || 'false')) {
+            matchQuery = {
+                account_id: Number(req.params.id),
+                deleted: false
+            }
+        } else {
+            matchQuery = {
+                _id: mongoose.Types.ObjectId(req.params.id),
+                deleted: false
+            }
+        }
         //data get from the db collection
-        const accountBillingData = await accountBilling.findOne({
-            _id: mongoose.Types.ObjectId(req.params.id),
-            deleted: false
-        });
+        const accountBillingData = await accountBilling.findOne(matchQuery);
 
         //send success response
         return res.status(200).send({

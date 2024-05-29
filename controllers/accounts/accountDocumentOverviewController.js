@@ -195,7 +195,7 @@ exports.updateDocumentOverview = async (req, res) => {
 
         // Update account document overview data using findByIdAndUpdate
         const updatedDocumentOverview = await accountDocumentOverviewModel.findByIdAndUpdate(
-            id,
+            { _id: id },
             {
                 $set: {
                     account_id,
@@ -333,3 +333,43 @@ exports.deleteDocumentOverview = async (req, res) => {
         });
     }
 };
+
+/**
+ * Api is to used for multiple update_account_documents data in the DB collection.
+ */
+exports.updateMultipleAccountDocuments = async (req, res) => {
+    try {
+        // get poc data from body
+        let accountDocumentsDetails = (req.body?.account_documents) || [];
+        const { updated_by } = req.body;
+
+        //account Poc details obj add in array
+        if (accountDocumentsDetails.length && Array.isArray(accountDocumentsDetails)) {
+            for (let element of accountDocumentsDetails) {
+                if (element?._id) {
+                    element.updated_by = updated_by;
+                } else {
+                    element.created_by = updated_by;
+                }
+                //update data in db collection
+                await accountDocumentOverviewModel.updateOne({
+                    _id: element._id
+                }, {
+                    $set: element
+                }, {
+                    upsert: true
+                });
+            }
+        }
+        //send success response
+        return res.status(200).json({
+            status: 200,
+            message: "Account Documents multiple data updated successfully!",
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
+    }
+}
