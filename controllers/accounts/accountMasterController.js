@@ -370,7 +370,7 @@ exports.getSingleAccountBillingDetails = async (req, res) => {
     try {
         //data get from the db collection
         const accountBillingData = await accountBilling.findOne({
-            _id: mongoose.Types.ObjectId(req.params.id),
+            account_id: pareseInt(req.params.id),
             deleted: false
         });
 
