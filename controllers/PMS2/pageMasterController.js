@@ -101,13 +101,20 @@ exports.getSinglePageMasterDetails = async (req, res) => {
 
 exports.getAllPageMasterDetails = async (req, res) => {
     try {
-        const page = (req.query.page && parseInt(req.query.page)) || 1;
-        const limit = (req.query.limit && parseInt(req.query.limit)) || 50;
+        const page = req.query.page ? parseInt(req.query.page) : null;
+        const limit = req.query.limit ? parseInt(req.query.limit) : null;
         const skip = (page - 1) * limit;
-
-        const pageMasterDetails = await pageMasterModel.find({
-            status: { $ne: constant.DELETED },
-        }).skip(skip).limit(limit);
+        let pageMasterDetails;
+        
+        if (page && limit) {
+            pageMasterDetails = await pageMasterModel.find({
+                status: { $ne: constant.DELETED },
+            }).skip(skip).limit(limit);
+        } else {
+            pageMasterDetails = await pageMasterModel.find({
+                status: { $ne: constant.DELETED },
+            });
+        }
 
         if (pageMasterDetails?.length <= 0) {
             return response.returnFalse(200, req, res, `No Record Found`, []);
