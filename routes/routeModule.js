@@ -1,5 +1,6 @@
 const accountRoutes = require('./accounts');
 const salesRoutes = require('./sales');
+const salesBookingRoutes = require('./Sales/salesBookingRoutes');
 const vendorTypeRoutes = require('./PMS2/vendorTypeRoutes');
 const vendorGroupLinkRoutes = require('./PMS2/vendorGroupLinkRoutes');
 const vendorPlatformRoutes = require('./PMS2/vendorPlatformRoutes');
@@ -39,5 +40,7 @@ exports.routeModulesV1 = [
 exports.routeModules = [
     accountRoutes,
     salesRoutes,
+    //new sales booking starts
+    salesBookingRoutes
 ];
 

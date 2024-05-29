@@ -4,7 +4,8 @@ const accountDocMasterSchema = new mongoose.Schema({
     document_name: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true
     },
     description: {
         type: String,
