@@ -125,8 +125,8 @@ exports.getVendorDetails = async (req, res) => {
  */
 exports.getAllVendorList = async (req, res) => {
     try {
-        const page = req.query.page ? parseInt(req.query.page) : null;
-        const limit = req.query.limit ? parseInt(req.query.limit) : null;
+        const page = (req.query.page && parseInt(req.query.page)) || 1;
+        const limit = (req.query.limit && parseInt(req.query.limit)) || 50;
         const skip = (page - 1) * limit;
         let vendorDataList;
 
