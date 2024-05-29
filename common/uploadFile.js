@@ -1,5 +1,6 @@
 const multer = require("multer");
 const path = require("path");
+const vari = require('../variables.js')
 const { Storage } = require("@google-cloud/storage");
 
 exports.upload = multer({
@@ -20,40 +21,28 @@ const upload1 = multer({
     fileSize: 500 * 1024 * 1024,
   },
 });
-
 exports.upload1 = upload1;
 
-// exports.upload = multer({
-//   dest: "./uploads",
-// });
+const uploadToGCP = (req, obj, fieldName) => {
+  return new Promise((resolve, reject) => {
+      if (req.file) {
+          const bucketName = vari.BUCKET_NAME;
+          const bucket = storage.bucket(bucketName);
+          const blob = bucket.file(req.file.originalname);
 
-// //Generate actual fileName with view functionality
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
+          obj[fieldName] = blob.name;
 
-//     if (file.fieldname === "upload_logo") {
-//       cb(null, "./uploads/logo");
-//     } else if (file.fieldname === "creatorImageToServer") {
-//       cb(null, "./uploads/Creator_s Avatar");
-//     } else if (file.fieldname === "campaignImageToServer") {
-//       cb(null, "./uploads/Campaign_s Avatar");
-//     } else if (file.fieldname === "brandImageToServer") {
-//       cb(null, "./uploads/Brand_s Avatar");
-//     } else if (file.fieldname === "doc_image") {
-//       cb(null, "./uploads/userDocuments");
-//     } else if (file.fieldname === "Product_image") {
-//       cb(null, "./uploads/productImage");
-//     } else if (file.fieldname === "content_sec_file") {
-//       cb(null, "./uploads/contentSecFiles");
-//     } else if (file.fieldname === "data_upload") {
-//       cb(null, "./uploads/dataimages");
-//     } else {
-//       cb(null, "./uploads");
-//     }
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, file.originalname);
-//   },
-// });
-
-// const uploadfile = multer({ storage: storage });
+          const blobStream = blob.createWriteStream();
+          blobStream.on("finish", () => {
+              resolve("Success");
+          });
+          blobStream.on("error", (err) => {
+              reject(err);
+          });
+          blobStream.end(req.file.buffer);
+      } else {
+          reject(new Error("No file found in the request."));
+      }
+  });
+};
+exports.uploadToGCP = uploadToGCP

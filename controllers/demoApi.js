@@ -1,6 +1,6 @@
 const demoModel = require('../models/demoModel.js');
 const vari = require("../variables.js");
-const {storage} = require('../common/uploadFile.js')
+const {storage, uploadToGCP} = require('../common/uploadFile.js')
 
 exports.addDemo = async (req, res) =>{
     try{
@@ -20,17 +20,13 @@ exports.addDemo = async (req, res) =>{
             // t13 : req?.file?.filename
         })
 
-        if(req.file){
-            const bucketName = vari.BUCKET_NAME;
-            const bucket = storage.bucket(bucketName);
-            const blob = bucket.file(req.file.originalname);
-            simc.t13 = blob.name;
-            const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => { 
-                // res.status(200).send("Success") 
-            });
-            blobStream.end(req.file.buffer);
-        }
+        uploadToGCP(req, simc, 't13')
+        .then((message) => {
+            res.status(200).send(message);
+        })
+        .catch((error) => {
+            res.status(500).send(error.message);
+        });
         const simv = await simc.save();
         res.send({simv,status:200});
     } catch(err){
