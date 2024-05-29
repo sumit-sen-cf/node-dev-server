@@ -18,12 +18,11 @@ exports.addDocumentMaster = async (req, res) => {
                 message: "Document master name already exists!",
             });
         }
-        const { document_name, is_visible, description, created_by } = req.body;
+        const { document_name, description, created_by } = req.body;
 
         // Store data in the database collection
         const createDocumentMaster = await accountDocumentMasterModel.create({
             document_name: document_name,
-            is_visible: is_visible,
             description: description,
             created_by: created_by,
         });
@@ -84,7 +83,7 @@ exports.getDocumentMasterDetails = async (req, res) => {
 exports.updateDocumentMaster = async (req, res) => {
     try {
         const { id } = req.params
-        const { document_name, is_visible, description, updated_by } = req.body;
+        const { document_name, description, updated_by } = req.body;
         const editDocumentMaster = await accountDocumentMasterModel.findOne({ _id: id })
         // if check duplicacy document_name
         if (!editDocumentMaster) {
@@ -94,7 +93,6 @@ exports.updateDocumentMaster = async (req, res) => {
         await accountDocumentMasterModel.updateOne({ _id: editDocumentMaster.id }, {
             $set: {
                 document_name,
-                is_visible,
                 description,
                 updated_by
             }
@@ -144,7 +142,6 @@ exports.getDocumentMasterList = async (req, res) => {
         }, {
             $project: {
                 document_name: 1,
-                is_visible: 1,
                 description: 1,
                 created_by: 1,
                 updated_by: 1,

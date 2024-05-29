@@ -6,11 +6,6 @@ const accountDocMasterSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    is_visible: {
-        type: Boolean,
-        required: true,
-        default: false
-    },
     description: {
         type: String,
         required: false,
