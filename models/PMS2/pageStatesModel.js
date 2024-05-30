@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const pageStatesSchema = new mongoose.Schema({
     page_master_id: {
         type: Schema.Types.ObjectId,
-        required: true,
+        required: false,
         ref: "pms2pagemastermodels"
     },
     reach: {

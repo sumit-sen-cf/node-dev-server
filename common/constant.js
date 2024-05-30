@@ -14,8 +14,8 @@ module.exports = Object.freeze({
 
   // GCP Image URL
   GCP_VENDOR_FOLDER_URL: "https://storage.googleapis.com/dev-backend-bucket/InVendorDocs",
-
   GCP_PAGE_STATES_FOLDER_URL: "https://storage.googleapis.com/dev-backend-bucket/PMS2Docs",
+  GCP_SALES_BOOKING_FOLDER_URL: "https://storage.googleapis.com/dev-backend-bucket/SalesRecordServiceFiles",
 
 
   /* JWT  */
@@ -44,5 +44,5 @@ module.exports = Object.freeze({
   CONST_MAIL_USER_FOR_ALERT: "naveen@creativefuel.io",
   CONST_SUMIT_MAIL: "sumit@creativefuel.io",
   CONST_MAIL_PASS_FOR_ALERT: "absolwvkdihbvahf",
-  
+
 });
