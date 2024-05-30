@@ -4,6 +4,7 @@ const multer = require("multer");
 const vari = require("../../variables");
 const { storage } = require('../../common/uploadFile.js');
 const constant = require("../../common/constant.js");
+const { uploadImage, deleteImage } = require('../../common/uploadImage.js');
 
 
 // exports.addPageStates = async (req, res) => {
@@ -296,9 +297,6 @@ exports.deletePageStatesDetails = async (req, res) => {
     }
 };
 
-
-const { uploadImage } = require('../../common/uploadImage.js');
-
 const upload = multer({
     storage: multer.memoryStorage()
 }).fields([
@@ -399,7 +397,7 @@ exports.updatePageStates = [upload, async (req, res) => {
 
         // Fetch the old document and update it
         const updatedPageStates = await pageStatesModel.findByIdAndUpdate(
-            id,
+            { _id: id },
             { ...req.body },
         );
 
@@ -423,15 +421,16 @@ exports.updatePageStates = [upload, async (req, res) => {
             if (req.files && req.files[fieldName] && req.files[fieldName][0]) {
 
                 // Delete old image if present
-
-                // if (updatedPageStates[fieldName]) {
-                //     await deleteImage(updatedPageStates[fieldName]);
-                // }
-
+                if (updatedPageStates[fieldName]) {
+                    await deleteImage(`PMS2Docs/${updatedPageStates[fieldName]}`);
+                }
                 // Upload new image
                 updatedPageStates[fieldName] = await uploadImage(req.files[fieldName][0], "PMS2Docs");
             }
         }
+
+        // Save the updated document with the new image URLs
+        await updatedPageStates.save();
 
         return response.returnTrue(200, req, res, "Page states data updated successfully!", updatedPageStates);
     } catch (error) {
@@ -568,6 +567,28 @@ exports.getAllPageStatesList = async (req, res) => {
                 total_page: Math.ceil(pageStatesCount / limit),
 
             }
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+}
+
+exports.getStatesHistory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const statesHistoryDetails = await pageStatesModel.findOne({
+            page_master_id: id,
+            status: { $ne: constant.DELETED },
+        });
+        if (!statesHistoryDetails) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Page states history details retrive successfully!",
+            statesHistoryDetails
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
