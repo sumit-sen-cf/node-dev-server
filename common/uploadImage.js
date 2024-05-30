@@ -27,4 +27,20 @@ const uploadImage = (file, folder) => {
     });
 };
 
-module.exports = { uploadImage };
+
+// Function to delete image from Google Cloud Storage
+const deleteImage = (filePath) => {
+    return new Promise((resolve, reject) => {
+        const file = bucket.file(filePath);
+
+        file.delete((err, apiResponse) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(apiResponse);
+        });
+    });
+};
+
+
+module.exports = { uploadImage, deleteImage };
