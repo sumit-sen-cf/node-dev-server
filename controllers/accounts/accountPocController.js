@@ -47,8 +47,8 @@ exports.addAccountPoc = async (req, res) => {
  */
 exports.getAccountPocDetails = async (req, res) => {
     try {
-        const accountPocData = await accountPocModel.findOne({
-            _id: mongoose.Types.ObjectId(req.params.id)
+        const accountPocData = await accountPocModel.find({
+            account_id: Number(req.params.id)
         });
 
         //data not get check
@@ -75,42 +75,6 @@ exports.getAccountPocDetails = async (req, res) => {
 /**
  * Api is to used for the update_account_poc data in the DB collection.
  */
-// exports.updateAccountPoc = async (req, res) => {
-//     try {
-//         const { id } = req.params
-//         const { account_id, contact_name, contact_no, alternative_contact_no, email, department, designation, description, updated_by } = req.body;
-//         const editAccountPocData = await accountPocModel.findOne({ _id: id })
-//         // if check by account_poc_id 
-//         if (!editAccountPocData) {
-//             return res.status(400).json({ message: "Account poc id invalid, please check!" });
-//         }
-//         //update account poc data
-//         await accountPocModel.updateOne({ _id: editAccountPocData.id }, {
-//             $set: {
-//                 account_id,
-//                 contact_name,
-//                 description,
-//                 contact_no,
-//                 alternative_contact_no,
-//                 email,
-//                 department,
-//                 designation,
-//                 updated_by
-//             }
-//         })
-//         //send success response
-//         return res.status(200).json({
-//             status: 200,
-//             message: "Account poc data updated successfully!",
-//         })
-//     } catch (error) {
-//         return res.status(500).json({
-//             status: 500,
-//             message: error.message ? error.message : message.ERROR_MESSAGE,
-//         });
-//     }
-// }
-
 exports.updateAccountPoc = async (req, res) => {
     try {
         const { id } = req.params;
@@ -163,7 +127,6 @@ exports.updateAccountPoc = async (req, res) => {
         });
     }
 };
-
 
 /**
  * Api is to used for the update_account_poc data in the DB collection.
@@ -298,7 +261,11 @@ exports.updateMultipleAccountPoc = async (req, res) => {
         //account Poc details obj add in array
         if (accountPocDetails.length && Array.isArray(accountPocDetails)) {
             for (let element of accountPocDetails) {
-                element.updated_by = updated_by;
+                if (element?._id) {
+                    element.updated_by = updated_by;
+                } else {
+                    element.created_by = updated_by;
+                }
 
                 //update data in db collection
                 await accountPocModel.updateOne({
