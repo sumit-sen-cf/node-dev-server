@@ -9,7 +9,7 @@ const deleteSalesbookingModel = require("../../models/SMS/deleteSalesbookingMode
 const upload = multer({
     storage: multer.memoryStorage()
 }).fields([
-    { name: "plan_file", maxCount: 1 },
+    { name: "record_service_file", maxCount: 1 },
 ]);
 
 /**
@@ -58,14 +58,14 @@ exports.addSalesBooking = [upload, async (req, res) => {
             created_by: req.body.created_by,
         })
 
-        if (req.files && req.files.plan_file && req.files.plan_file[0].originalname) {
+        if (req.files && req.files.record_service_file && req.files.record_service_file[0].originalname) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
-            const blob1 = bucket.file(req.files.plan_file[0].originalname);
-            simc.plan_file = blob1.name;
+            const blob1 = bucket.file(req.files.record_service_file[0].originalname);
+            simc.record_service_file = blob1.name;
             const blobStream1 = blob1.createWriteStream();
             blobStream1.on("finish", () => { });
-            blobStream1.end(req.files.plan_file[0].buffer);
+            blobStream1.end(req.files.record_service_file[0].buffer);
         }
 
         //save data in the collection
@@ -127,7 +127,7 @@ exports.editSalesBooking = [upload, async (req, res) => {
             incentive_amount: req.body.incentive_amount,
             earned_incentive_amount: req.body.earned_incentive_amount,
             unearned_incentive_amount: req.body.unearned_incentive_amount,
-            plan_file: req.files && req.files?.plan_file && req.files?.plan_file[0] ? req.files?.plan_file[0].originalname : existingSalesBooking.plan_file,
+            record_service_file: req.files && req.files?.record_service_file && req.files?.record_service_file[0] ? req.files?.record_service_file[0].originalname : existingSalesBooking.record_service_file,
             payment_type: req.body.payment_type,
             final_invoice: req.body.final_invoice,
             updated_by: req.body.updated_by,
@@ -139,14 +139,14 @@ exports.editSalesBooking = [upload, async (req, res) => {
             return res.status(500).send({ success: false })
         }
 
-        if (req.files && req.files.plan_file && req.files.plan_file[0].originalname) {
+        if (req.files && req.files.record_service_file && req.files.record_service_file[0].originalname) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
-            const blob1 = bucket.file(req.files.plan_file[0].originalname);
-            editSalesBooking.plan_file = blob1.name;
+            const blob1 = bucket.file(req.files.record_service_file[0].originalname);
+            editSalesBooking.record_service_file = blob1.name;
             const blobStream1 = blob1.createWriteStream();
             blobStream1.on("finish", () => { });
-            blobStream1.end(req.files.plan_file[0].buffer);
+            blobStream1.end(req.files.record_service_file[0].buffer);
         }
 
         //success response send
@@ -409,14 +409,14 @@ exports.deleteSalesBooking = [upload, async (req, res) => {
             final_invoice: salesBookingData.final_invoice,
             deleted_by: salesBookingData.deleted_by,
         })
-        if (req.files && req.files.plan_file && req.files.plan_file[0].originalname) {
+        if (req.files && req.files.record_service_file && req.files.record_service_file[0].originalname) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
-            const blob1 = bucket.file(req.files.plan_file[0].originalname);
-            addNewDeletedData.plan_file = blob1.name;
+            const blob1 = bucket.file(req.files.record_service_file[0].originalname);
+            addNewDeletedData.record_service_file = blob1.name;
             const blobStream1 = blob1.createWriteStream();
             blobStream1.on("finish", () => { });
-            blobStream1.end(req.files.plan_file[0].buffer);
+            blobStream1.end(req.files.record_service_file[0].buffer);
         }
         await addNewDeletedData.save();
         const dataDelete = await salesBooking.deleteOne({ _id: req.params.id })

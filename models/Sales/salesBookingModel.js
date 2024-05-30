@@ -86,6 +86,10 @@ const salesBooking = new mongoose.Schema({
         type: String,
         required: false,
     },
+    record_service_file: {
+        type: String,
+        required: false,
+    },
     // plan_file: {
     //     type: String,
     //     required: false,
