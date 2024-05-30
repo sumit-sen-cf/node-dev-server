@@ -409,7 +409,8 @@ exports.addUser = async (req, res) => {
             user_designation: req.body.user_designation,
             joining_date: doj,
             onboard_status: req.body.onboard_status,
-            created_by: req.body.created_by
+            created_by: req.body.created_by,
+            emergency_contact_person_name2: req.body.emergency_contact_person_name2
         })
 
         if (req.files && req.files.image && req.files.image[0].originalname) {
