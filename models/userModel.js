@@ -672,7 +672,7 @@ const userModel = new mongoose.Schema({
         required: false,
         default: "false"
     },
-    emergency_contact_person_name2: {
+    emergency_contact_person_name2: { //This is use for check the user's salary in PF,PF&ESIC,Inhand
         type: String,
         required: false,
         default: ""

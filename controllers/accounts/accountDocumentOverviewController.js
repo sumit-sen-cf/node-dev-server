@@ -4,6 +4,7 @@ const accountDocumentOverviewModel = require("../../models/accounts/accountDocum
 const multer = require("multer");
 const vari = require("../../variables.js");
 const { storage } = require('../../common/uploadFile.js');
+const { uploadImage, deleteImage } = require("../../common/uploadImage.js");
 const imageUrl = vari.IMAGE_URL; // Retrieve the base URL for image storage from configuration
 
 const upload = multer({
@@ -15,6 +16,7 @@ const upload = multer({
 /**
  * Api is to used for the add_account_document_overview data in the DB collection.
  */
+
 exports.addDocumentOverview = [
     upload, async (req, res) => {
         try {
@@ -27,16 +29,14 @@ exports.addDocumentOverview = [
                 description: description,
                 created_by: created_by,
             });
-            const bucketName = vari.BUCKET_NAME;
-            const bucket = storage.bucket(bucketName);
-
-            if (req.files.document_image_upload && req.files.document_image_upload[0].originalname) {
-                const blob1 = bucket.file(req.files.document_image_upload[0].originalname);
-                addCustomerDocumentData.document_image_upload = blob1.name;
-                const blobStream1 = blob1.createWriteStream();
-                blobStream1.on("finish", () => {
-                });
-                blobStream1.end(req.files.document_image_upload[0].buffer);
+            // Define the image fields 
+            const imageFields = {
+                document_image_upload: 'DocumentImagesUpload',
+            };
+            for (const [field] of Object.entries(imageFields)) {            //itreates 
+                if (req.files[field] && req.files[field][0]) {
+                    addCustomerDocumentData[field] = await uploadImage(req.files[field][0], "AccountDocument");
+                }
             }
             await addCustomerDocumentData.save();
             // Return a success response with the created document data
@@ -53,7 +53,7 @@ exports.addDocumentOverview = [
             });
         }
     }
-];
+]
 
 /**
  * Api is to used for the get Document overview data in the DB collection.
@@ -89,61 +89,55 @@ exports.getDocumentOverviewDetails = async (req, res) => {
 /**
  * Api is to used for the update_document_overview data in the DB collection.
  */
-exports.updateDocumentOverview = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { account_id, document_master_id, document_no, description, updated_by } = req.body;
 
-        const bucketName = vari.BUCKET_NAME;
-        const bucket = storage.bucket(bucketName);
+exports.updateDocumentOverview = [
+    upload, async (req, res) => {
+        try {
+            const { id } = req.params;
+            // Fetch the old document and update it
+            const updatedDocumentOverview = await accountDocumentOverviewModel.findByIdAndUpdate(
+                { _id: id },
+                { ...req.body },
+            );
 
-        // Check if files were uploaded
-        if (req.files && req.files.document_image_upload && req.files.document_image_upload[0].originalname) {
-            const blob1 = bucket.file(req.files.document_image_upload[0].originalname);
-            const blobStream1 = blob1.createWriteStream();
+            if (!updatedDocumentOverview) {
+                return response.returnFalse(404, req, res, `Page states not found`, {});
+            }
 
-            await new Promise((resolve, reject) => {
-                blobStream1.on("finish", resolve);
-                blobStream1.on("error", reject);
-                blobStream1.end(req.files.document_image_upload[0].buffer);
-            });
+            // Define the image fields 
+            const imageFields = {
+                document_image_upload: 'DocumentImagesUpload',
+            };
 
-            req.body.document_image_upload = blob1.name; // Add the uploaded file name to the request body
-        }
+            // Remove old images not present in new data and upload new images
+            for (const [fieldName] of Object.entries(imageFields)) {
+                if (req.files && req.files[fieldName] && req.files[fieldName][0]) {
 
-        // Update account document overview data using findByIdAndUpdate
-        const updatedDocumentOverview = await accountDocumentOverviewModel.findByIdAndUpdate(
-            { _id: id },
-            {
-                $set: {
-                    account_id,
-                    document_master_id,
-                    document_no,
-                    description,
-                    updated_by,
-                    document_image_upload: req.body.document_image_upload // Include this line if the file was uploaded
+                    // Delete old image if present
+                    if (updatedDocumentOverview[fieldName]) {
+                        await deleteImage(`AccountDocument/${updatedDocumentOverview[fieldName]}`);
+                    }
+                    // Upload new image
+                    updatedDocumentOverview[fieldName] = await uploadImage(req.files[fieldName][0], "AccountDocument");
                 }
-            },
-            { new: true } // This option returns the updated document
-        );
+            }
 
-        if (!updatedDocumentOverview) {
-            return res.status(400).json({ message: "Document overview id invalid, please check!" });
+            // Save the updated document with the new image URLs
+            await updatedDocumentOverview.save();
+
+            return res.status(200).json({
+                status: 200,
+                messgae: "Document overview data update successfully!",
+                data: updatedDocumentOverview,
+            })
+        } catch (error) {
+            return res.status(500).json({
+                status: 500,
+                message: error.message ? error.message : message.ERROR_MESSAGE,
+            });
         }
-
-        // Send success response
-        return res.status(200).json({
-            status: 200,
-            message: "Document overview data updated successfully!",
-            data: updatedDocumentOverview
-        });
-    } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : "An error occurred while updating the document overview data.",
-        });
     }
-}
+]
 
 /**
  * Api is to used for the get_document_overview_list data in the DB collection.

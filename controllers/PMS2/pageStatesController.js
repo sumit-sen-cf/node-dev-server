@@ -320,6 +320,8 @@ exports.addPageStates = [upload, async (req, res) => {
             percentage_country4_name, percentage_country5_name, story_view_date, created_by
         } = req.body;
 
+        console.log("addPageStates-----------------------------", req.body)
+
         const createPageStates = new pageStatesModel({
             page_master_id,
             reach,
@@ -362,7 +364,7 @@ exports.addPageStates = [upload, async (req, res) => {
             story_view_date,
             created_by,
         });
-
+        console.log("createPageStates---------------------", createPageStates)
         // Define the image fields 
         const imageFields = {
             reach_image: 'ReachImages',
@@ -379,6 +381,8 @@ exports.addPageStates = [upload, async (req, res) => {
             }
         }
         const pageStatesAdded = await createPageStates.save();
+        console.log("pageStatesAdded---------------------", pageStatesAdded)
+
 
         return res.status(200).json({
             message: "Page states data added successfully!",
@@ -393,13 +397,55 @@ exports.addPageStates = [upload, async (req, res) => {
 
 exports.updatePageStates = [upload, async (req, res) => {
     try {
+        console.log("req.body-------------------------", req.body)
         const { id } = req.params;
 
+        const updateData = {
+          //  page_master_id: req.body.page_master_id,
+            reach: req.body.reach,
+            impression: req.body.impression,
+            engagement: req.body.engagement,
+            story_view: req.body.story_view,
+            stats_for: req.body.stats_for,
+            start_date: req.body.start_date,
+            end_date: req.body.end_date,
+            city1_name: req.body.city1_name,
+            city2_name: req.body.city2_name,
+            city3_name: req.body.city3_name,
+            city4_name: req.body.city4_name,
+            city5_name: req.body.city5_name,
+            percentage_city1_name: req.body.percentage_city1_name,
+            percentage_city2_name: req.body.percentage_city2_name,
+            percentage_city3_name: req.body.percentage_city3_name,
+            percentage_city4_name: req.body.percentage_city4_name,
+            percentage_city5_name: req.body.percentage_city5_name,
+            male_percent: req.body.male_percent,
+            female_percent: req.body.female_percent,
+            Age_13_17_percent: req.body.Age_13_17_percent,
+            Age_18_24_percent: req.body.Age_18_24_percent,
+            Age_25_34_percent: req.body.Age_25_34_percent,
+            Age_35_44_percent: req.body.Age_35_44_percent,
+            Age_45_54_percent: req.body.Age_45_54_percent,
+            Age_55_64_percent: req.body.Age_55_64_percent,
+            Age_65_plus_percent: req.body.Age_65_plus_percent,
+            profile_visit: req.body.profile_visit,
+            country1_name: req.body.country1_name,
+            country2_name: req.body.country2_name,
+            country3_name: req.body.country3_name,
+            country4_name: req.body.country4_name,
+            country5_name: req.body.country5_name,
+            percentage_country1_name: req.body.percentage_country1_name,
+            percentage_country2_name: req.body.percentage_country2_name,
+            percentage_country3_name: req.body.percentage_country3_name,
+            percentage_country4_name: req.body.percentage_country4_name,
+            percentage_country5_name: req.body.percentage_country5_name,
+            story_view_date: req.body.story_view_date,
+            last_updated_by: req.body.last_updated_by
+
+        }
         // Fetch the old document and update it
         const updatedPageStates = await pageStatesModel.findByIdAndUpdate(
-            { _id: id },
-            { ...req.body },
-        );
+            { _id: id }, updateData, { new: true });
 
         if (!updatedPageStates) {
             return response.returnFalse(404, req, res, `Page states not found`, {});
@@ -430,7 +476,7 @@ exports.updatePageStates = [upload, async (req, res) => {
         }
 
         // Save the updated document with the new image URLs
-        await updatedPageStates.save();
+        const data = await updatedPageStates.save();
 
         return response.returnTrue(200, req, res, "Page states data updated successfully!", updatedPageStates);
     } catch (error) {
