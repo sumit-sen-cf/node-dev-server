@@ -45,44 +45,6 @@ exports.addAccountCompanyType = async (req, res) => {
 /**
  * PUT- Api is to used for the company type data update By-ID in the DB collection.
  */
-// exports.editAccountCompanyType = async (req, res) => {
-//     try {
-//         //get id from params
-//         const { id } = req.params;
-
-//         //get data from the body
-//         const { company_type_name, description, updated_by } = req.body;
-
-//         //check data available
-//         const accountCompanyTypeData = await accountCompanyType.findOne({ _id: id });
-//         if (!accountCompanyTypeData) {
-//             return res.send("Invalid company-type Id...");
-//         }
-
-//         //data update in db collection
-//         await accountCompanyType.updateOne({
-//             _id: id
-//         }, {
-//             $set: {
-//                 company_type_name,
-//                 description,
-//                 updated_by
-//             }
-//         });
-//         //send success response
-//         return res.status(200).json({
-//             status: 200,
-//             message: "account company type data updated successfully!",
-//         });
-//     } catch (error) {
-//         return res.status(500).json({
-//             status: 500,
-//             message: error.message ? error.message : message.ERROR_MESSAGE,
-//         });
-//     }
-// };
-
-
 exports.editAccountCompanyType = async (req, res) => {
     try {
         // Get ID from params
