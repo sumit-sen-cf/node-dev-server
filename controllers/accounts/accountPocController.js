@@ -242,6 +242,7 @@ exports.updateMultipleAccountPoc = async (req, res) => {
         // get poc data from body
         let accountPocDetails = (req.body?.account_poc) || [];
         const { updated_by } = req.body;
+        const accountId = Number(req.params.id);
 
         // Check for duplicate contact_no in accountPoc
         if (accountPocDetails && Array.isArray(accountPocDetails)) {
@@ -258,23 +259,38 @@ exports.updateMultipleAccountPoc = async (req, res) => {
             }
         }
 
+        // Get distinct IDs from the database
+        const distinctIds = await accountPocModel.distinct('_id', {
+            account_id: accountId
+        });
+
+        // Create a set of IDs from accountPocDetails
+        const documentIds = new Set(accountPocDetails.map(doc => doc?._id));
+
+        // Delete documents that are not included in accountPocDetails
+        for (let id of distinctIds) {
+            if (!documentIds.has(id.toString())) {
+                await accountPocModel.deleteOne({ _id: id });
+            }
+        }
+
         //account Poc details obj add in array
         if (accountPocDetails.length && Array.isArray(accountPocDetails)) {
             for (let element of accountPocDetails) {
                 if (element?._id) {
+                    // Existing document: update it
                     element.updated_by = updated_by;
+                    await accountPocModel.updateOne({
+                        _id: element._id
+                    }, {
+                        $set: element
+                    });
                 } else {
+                    // New document: insert it
                     element.created_by = updated_by;
+                    element.account_id = accountId;
+                    await accountPocModel.create(element);
                 }
-
-                //update data in db collection
-                await accountPocModel.updateOne({
-                    _id: element._id
-                }, {
-                    $set: element
-                }, {
-                    upsert: true
-                });
             }
         }
         //send success response

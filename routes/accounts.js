@@ -44,7 +44,7 @@ router.put("/accounts/update_account_poc/:id", verifyToken, validation.accountPo
 router.get("/accounts/get_account_poc/:id", verifyToken, accountPoc.getAccountPocDetails);
 router.get("/accounts/get_account_poc_list", verifyToken, accountPoc.getAccountPocList);
 router.delete("/accounts/delete_account_poc/:id", verifyToken, accountPoc.deleteAccountPoc);
-router.put("/accounts/update_multiple_account_poc", verifyToken, accountPoc.updateMultipleAccountPoc);
+router.put("/accounts/update_multiple_account_poc/:id", verifyToken, accountPoc.updateMultipleAccountPoc);
 
 /**
  * account company type routes update_multiple_account_poc
@@ -78,6 +78,6 @@ router.put("/accounts/update_document_overview/:id", verifyToken, validation.acc
 router.get("/accounts/get_document_overview/:id", verifyToken, accountDocumentOverview.getDocumentOverviewDetails);
 router.get("/accounts/get_document_overview_list", verifyToken, accountDocumentOverview.getDocumentOverviewList);
 router.delete("/accounts/delete_document_overview_list/:id", verifyToken, accountDocumentOverview.deleteDocumentOverview);
-router.put("/accounts/update_multiple_account_documents", verifyToken, accountDocumentOverview.updateMultipleAccountDocuments);
+router.put("/accounts/update_multiple_account_documents/:id", verifyToken, accountDocumentOverview.updateMultipleAccountDocuments);
 
 module.exports = router; 

@@ -66,6 +66,7 @@ exports.createVendorData = async (req, res) => {
         if (bankDetails.length) {
             await bankDetails.forEach(element => {
                 element.vendor_id = addVendorData._id;
+                element.created_by = created_by;
                 bankDataUpdatedArray.push(element);
             });
         }
@@ -74,6 +75,7 @@ exports.createVendorData = async (req, res) => {
         if (vendorLinkDetails.length) {
             await vendorLinkDetails.forEach(element => {
                 element.vendor_id = addVendorData._id;
+                element.created_by = created_by;
                 vendorlinksUpdatedArray.push(element);
             });
         }
@@ -330,28 +332,43 @@ exports.updateVendorData = async (req, res) => {
         let bankDetails = (req.body?.bank_details && JSON.parse(req.body.bank_details)) || [];
         let vendorLinkDetails = (req.body?.vendorLinks && JSON.parse(req.body.vendorLinks)) || [];
 
-        // Update vendor links
-        if (bankDetails.length) {
+        //update bank details
+        if (bankDetails.length && Array.isArray(bankDetails)) {
             for (const element of bankDetails) {
-                await bankDetailsModel.updateOne({
-                    _id: element._id
-                }, element,
-                    {
-                        upsert: true
-                    }
-                );
+                if (element?._id) {
+                    // Existing document: update it
+                    element.updated_by = updated_by;
+                    await bankDetailsModel.updateOne({
+                        _id: element._id
+                    }, {
+                        $set: element
+                    });
+                } else {
+                    // New document: insert it
+                    element.created_by = updated_by;
+                    element.vendor_id = vendor_id;
+                    await bankDetailsModel.create(element);
+                }
             }
         }
-        // Update vendor links
-        if (vendorLinkDetails.length) {
+
+        //update vendor links
+        if (vendorLinkDetails.length && Array.isArray(vendorLinkDetails)) {
             for (const element of vendorLinkDetails) {
-                await vendorGroupLinkModel.updateOne({
-                    _id: element._id
-                }, element,
-                    {
-                        upsert: true
-                    }
-                );
+                if (element?._id) {
+                    // Existing document: update it
+                    element.updated_by = updated_by;
+                    await vendorGroupLinkModel.updateOne({
+                        _id: element._id
+                    }, {
+                        $set: element
+                    });
+                } else {
+                    // New document: insert it
+                    element.created_by = updated_by;
+                    element.vendor_id = vendor_id;
+                    await vendorGroupLinkModel.create(element);
+                }
             }
         }
         // Send success response

@@ -250,29 +250,46 @@ exports.deleteDocumentOverview = async (req, res) => {
  */
 exports.updateMultipleAccountDocuments = async (req, res) => {
     try {
-        // get doc data from body
+        // Get doc data from body
         let accountDocumentsDetails = (req.body?.account_documents) || [];
         const { updated_by } = req.body;
+        const accountId = Number(req.params.id);
 
-        //account Poc details obj add in array
+        // Get distinct IDs from the database
+        const distinctIds = await accountDocumentOverviewModel.distinct('_id', {
+            account_id: accountId
+        });
+
+        // Create a set of IDs from accountDocumentsDetails
+        const documentIds = new Set(accountDocumentsDetails.map(doc => doc?._id));
+
+        // Delete documents that are not included in accountDocumentsDetails
+        for (let id of distinctIds) {
+            if (!documentIds.has(id.toString())) {
+                await accountDocumentOverviewModel.deleteOne({ _id: id });
+            }
+        }
+
+        // Update or insert documents
         if (accountDocumentsDetails.length && Array.isArray(accountDocumentsDetails)) {
             for (let element of accountDocumentsDetails) {
                 if (element?._id) {
+                    // Existing document: update it
                     element.updated_by = updated_by;
+                    await accountDocumentOverviewModel.updateOne({
+                        _id: element._id
+                    }, {
+                        $set: element
+                    });
                 } else {
+                    // New document: insert it
                     element.created_by = updated_by;
+                    element.account_id = accountId;
+                    await accountDocumentOverviewModel.create(element);
                 }
-                //update data in db collection
-                await accountDocumentOverviewModel.updateOne({
-                    _id: element._id
-                }, {
-                    $set: element
-                }, {
-                    upsert: true
-                });
             }
         }
-        //send success response
+        // Send success response
         return res.status(200).json({
             status: 200,
             message: "Account Documents multiple data updated successfully!",

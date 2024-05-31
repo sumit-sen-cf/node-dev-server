@@ -105,7 +105,7 @@ exports.getAllPageMasterDetails = async (req, res) => {
         const limit = req.query.limit ? parseInt(req.query.limit) : null;
         const skip = (page - 1) * limit;
         let pageMasterDetails;
-        
+
         if (page && limit) {
             pageMasterDetails = await pageMasterModel.find({
                 status: { $ne: constant.DELETED },
@@ -189,20 +189,22 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
         let pagePriceDetails = (req.body?.page_price_multiple) || [];
 
         // Update vendor links
-        if (pagePriceDetails.length) {
+        if (pagePriceDetails.length && Array.isArray(pagePriceDetails)) {
             for (const element of pagePriceDetails) {
                 if (element?._id) {
+                    // Existing document: update it
                     element.last_updated_by = last_updated_by;
+                    await pagePriceMultipleModel.updateOne({
+                        _id: element._id
+                    }, {
+                        $set: element
+                    });
                 } else {
+                    // New document: insert it
                     element.created_by = last_updated_by;
+                    element.page_master_id = pageMasterDetails._id;
+                    await pagePriceMultipleModel.create(element);
                 }
-                await pagePriceMultipleModel.updateOne({
-                    _id: element._id
-                }, element,
-                    {
-                        upsert: true
-                    }
-                );
             }
         }
 
