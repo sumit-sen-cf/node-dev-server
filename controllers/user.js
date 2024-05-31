@@ -5035,7 +5035,12 @@ exports.sendOfferLetterMail = async (req, res) => {
         const attachment = req.file;
         const email = req.body.email_id;
         const userId = +req.body.user_id;
-        const userData = await userModel.findOne({ user_id: userId }).select({ emergency_contact_relation1: 1 });
+        const userData = await userModel.findOne({ user_id: userId }).select({ user_name: 1, emergency_contact_relation1: 1 });
+        const userName = userData.user_name;
+
+        const templatePath = path.join(__dirname, "offerlettertemplate.ejs");
+        const template = await fs.promises.readFile(templatePath, "utf-8");
+        const html = ejs.render(template, { userName });
         //we are using emergency_contact_relation1 as email send status
         if (userId && userData && userData.emergency_contact_relation1 === 'false') {
             const mailTransporter = nodemailer.createTransport({
@@ -5049,7 +5054,7 @@ exports.sendOfferLetterMail = async (req, res) => {
                 from: "onboarding@creativefuel.io",
                 to: [email, "onboarding@creativefuel.io"],
                 subject: "Your Offer Letter Inside from Creativefuel!!",
-                html: 'your offer letter',
+                html: html,
                 attachments: attachment
                     ? [
                         {
