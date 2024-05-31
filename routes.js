@@ -166,6 +166,10 @@ const { createCustomerDocument, getcustomerDocumentDetail, updateCustomerDocumen
 const { createPagePurchasePrice, getPagePurchasePrice, updatePagePurchasePrice, getPagePurchasePriceList, deletePagePurchasePriceData, getAllPagePurchasePriceList, getAllDataList, getAllListData } = require("./controllers/PMS/pmsPagePurchasePriceController.js");
 const { addExeHistory, updateExeHistory, getExeHistoryList, getExeHistoryDetails, getAllExeData } = require("./controllers/PMS/exeHistoryController.js");
 
+
+//Opcampaign
+const opCampaign = require("./controllers/opCampaign.js");
+
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
 });
@@ -1885,6 +1889,10 @@ router.put("/edit_dynamic_table_data", dynamicTablesModel.editDynamicTablesData)
 // admin password and email routes
 router.post('/change_selected_user_password', adminController.changePassOfSelectedUsers);
 router.post('/change_all_user_password', adminController.changePassOfUsers);
-router.post('/send_email_to_all_users', adminController.sendPassEmailToUsers)
+router.post('/send_email_to_all_users', adminController.sendPassEmailToUsers);
 
+//OpCampaign Routes Start Here
+router.post('/opcampaign', opCampaign.addOpCampaign);
+router.get('/opcampaign', opCampaign.getOpCampaigns);
+router.delete('/opcampaign/:campaign_id', opCampaign.deleteCampaign);
 module.exports = router;

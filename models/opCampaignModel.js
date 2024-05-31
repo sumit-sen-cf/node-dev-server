@@ -6,23 +6,23 @@ const opCampaignModel = new mongoose.Schema({
     type: Number,
     unique: true,
   },
-  pre_brand_id:{
+  pre_brand_id: {
     type: String,
     required: true
   },
-  pre_campaign_id:{
+  pre_campaign_id: {
     type: String,
     required: true
   },
-  pre_industry_id:{
+  pre_industry_id: {
     type: String,
     required: true
   },
-  pre_agency_id:{
+  pre_agency_id: {
     type: String,
     required: true
   },
-  pre_goal_id:{
+  pre_goal_id: {
     type: String,
     required: true
   },
@@ -30,15 +30,15 @@ const opCampaignModel = new mongoose.Schema({
     type: String,
     default: "",
   },
-  campaign_close_by:{
+  campaign_close_by: {
     type: Number,
     required: false
   },
-  details:{
+  details: {
     type: String,
     required: false
   },
-  captions:{
+  captions: {
     type: String,
     required: false
   },
@@ -52,52 +52,52 @@ const opCampaignModel = new mongoose.Schema({
   // operation code start
 
   // bhushan code start
-  sale_booking_execution_id:{
+  sale_booking_execution_id: {
     type: String
   },
-  sale_booking_id:{
+  sale_booking_id: {
     type: String
   },
-  start_date:{
+  start_date: {
     type: String
   },
-  end_date:{
+  end_date: {
     type: String
   },
-  summary:{
+  summary: {
     type: String
   },
-  remarks:{
+  remarks: {
     type: String
   },
-  created_by:{
+  created_by: {
     type: String
   },
-  creation_date:{
+  creation_date: {
     type: String
   },
-  last_updated_date:{
+  last_updated_date: {
     type: String
   },
-  sale_booking_date:{
+  sale_booking_date: {
     type: String
   },
-  campaign_amount:{
+  campaign_amount: {
     type: String
   },
-  execution_date:{
+  execution_date: {
     type: String
   },
-  execution_remark:{
+  execution_remark: {
     type: String
   },
-  execution_done_by:{
+  execution_done_by: {
     type: String
   },
-  cust_name:{
+  cust_name: {
     type: String
   },
-  loggedin_user_id:{
+  loggedin_user_id: {
     type: Number
   },
   execution_status: {
@@ -236,9 +236,9 @@ const opCampaignModel = new mongoose.Schema({
   // sumit schema end
 });
 
-campaignSchema.pre("save", async function (next) {
+opCampaignModel.pre("save", async function (next) {
   if (!this.campaign_id) {
-    const lastObj = await this.constructor.findOne({},{},{ sort: { campaign_id: -1 } });
+    const lastObj = await this.constructor.findOne({}, {}, { sort: { campaign_id: -1 } });
     if (lastObj && lastObj.campaign_id) {
       this.campaign_id = lastObj.campaign_id + 1;
     } else {

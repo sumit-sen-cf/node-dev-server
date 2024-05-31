@@ -3589,35 +3589,36 @@ exports.forgotPass = async (req, res) => {
             user_login_password: encryptedPass
         });
 
-        // const templatePath = path.join(__dirname, "forgotemailtemp.ejs");
-        // const template = await fs.promises.readFile(templatePath, "utf-8");
-        // const html = ejs.render(template, {
-        //     email,
-        //     password: getRandomPassword
-        // });
+        const templatePath = path.join(__dirname, "forgotemailtemp.ejs");
+        const template = await fs.promises.readFile(templatePath, "utf-8");
+        const html = ejs.render(template, {
+            email,
+            password: getRandomPassword
+        });
 
         /* dynamic email temp code start */
-        let contentList = await emailTempModel.findOne({ email_for_id: '65be3461ad52cfd11fa27e54', send_email: true })
+        // let contentList = await emailTempModel.findOne({ email_for_id: '65be3461ad52cfd11fa27e54', send_email: true })
 
-        const filledEmailContent = contentList.email_content
-            .replace("{{user_email}}", email)
-            .replace("{{user_password}}", getRandomPassword);
+        // const filledEmailContent = contentList.email_content
+        //     .replace("{{user_email}}", email)
+        //     .replace("{{user_password}}", getRandomPassword);
 
-        const html = filledEmailContent;
+        // const html = filledEmailContent;
         /* dynamic email temp code end */
 
         let transport = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: "onboarding@creativefuel.io",
-                pass: "zboiicwhuvakthth",
+                user: "Reset@creativefuel.io",
+                pass: "vjhjvgdvulxaqgbq",
             },
         });
 
         let mailOptions = {
-            from: "onboarding@creativefuel.io",
+            from: "Reset@creativefuel.io",
             to: email,
-            subject: contentList.email_sub,
+            // subject: contentList.email_sub,
+            subject: "Forgot Password",
             html: html,
         };
 
