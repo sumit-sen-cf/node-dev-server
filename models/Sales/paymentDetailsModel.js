@@ -18,7 +18,7 @@ const paymentDeatils = new Schema({
     },
     created_by: {
         type: Number,
-        required: true,
+        required: false,
         default: 0,
     },
     updated_by: {
@@ -29,4 +29,4 @@ const paymentDeatils = new Schema({
 }, {
     timestamps: true
 });
-module.exports = mongoose.model('paymentDeatilsModel', paymentDeatils);
+module.exports = mongoose.model('salesPaymentDeatilsModel', paymentDeatils);
