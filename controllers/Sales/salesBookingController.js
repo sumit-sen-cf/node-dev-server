@@ -217,7 +217,6 @@ exports.getAllSalesBooking = async (req, res) => {
             }
         );
     } catch (error) {
-        console.log("error----------", error)
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 }
