@@ -3,7 +3,7 @@ const vari = require("../../variables");
 const multer = require("multer");
 const { storage } = require('../../common/uploadFile');
 const salesBookingStatus = require('../../models/SMS/salesBookingStatus');
-const deleteSalesbookingModel = require("../../models/SMS/deleteSalesbookingModel");
+const deleteSalesbookingModel = require("../../models/Sales/deletedSalesBookingModel.js");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
@@ -168,14 +168,10 @@ exports.editSalesBooking = [
 
 exports.getAllSalesBooking = async (req, res) => {
     try {
-        const page = (req.query.page && parseInt(req.query.page)) || null;
-        const limit = (req.query.limit && parseInt(req.query.limit)) || null;
+        const page = (req.query?.page && parseInt(req.query.page)) || null;
+        const limit = (req.query?.limit && parseInt(req.query.limit)) || null;
         const skip = (page && limit) ? (page - 1) * limit : 0;
-        let saleBookingList;
 
-        let matchQuery = {
-            status: { $ne: constant.DELETED }
-        };
         let addFieldsObj = {
             $addFields: {
                 record_service_file_url: {
@@ -183,7 +179,7 @@ exports.getAllSalesBooking = async (req, res) => {
                         if: { $ne: ["$record_service_file", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_SALES_BOOKING_FOLDER_URL,
                                 "/",
                                 "$record_service_file",
                             ],
@@ -194,7 +190,7 @@ exports.getAllSalesBooking = async (req, res) => {
             },
         };
 
-        const pipeline = [{ $match: matchQuery }, addFieldsObj];
+        const pipeline = [addFieldsObj];
 
         if (page && limit) {
             pipeline.push(
@@ -204,7 +200,7 @@ exports.getAllSalesBooking = async (req, res) => {
         }
 
         saleBookingList = await salesBookingModel.aggregate(pipeline);
-        const salesBookingCount = await salesBookingModel.countDocuments(matchQuery);
+        const salesBookingCount = await salesBookingModel.countDocuments(addFieldsObj);
 
         return response.returnTrueWithPagination(
             200,
@@ -217,10 +213,11 @@ exports.getAllSalesBooking = async (req, res) => {
                 end_record: skip + saleBookingList.length,
                 total_records: salesBookingCount,
                 current_page: page || 1,
-                total_page: page && limit ? Math.ceil(salesBookingCount / limit) : 1,
+                total_page: (page && limit) ? Math.ceil(salesBookingCount / limit) : 1,
             }
         );
     } catch (error) {
+        console.log("error----------", error)
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 }
@@ -233,7 +230,6 @@ exports.getSingleSalesBooking = async (req, res) => {
         const { id } = req.params;
         const salesBookingDetail = await salesBookingModel.findOne({
             _id: id,
-            status: { $ne: constant.DELETED },
         });
         if (!salesBookingDetail) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
@@ -242,7 +238,7 @@ exports.getSingleSalesBooking = async (req, res) => {
             200,
             req,
             res,
-            "Page states details retrive successfully!",
+            "Sales booking details retrive successfully!",
             salesBookingDetail
         );
     } catch (error) {
@@ -255,59 +251,28 @@ exports.getSingleSalesBooking = async (req, res) => {
  */
 exports.deleteSalesBooking = [upload, async (req, res) => {
     try {
-        const salesBookingData = await salesBookingModel.findById(req.params.id);
+        let deletedBy = (req.body?.deleted_by) || 0;
+        let salesBookingData = await salesBookingModel.findById(req.params.id);
         if (!salesBookingData) {
             return res.status(404).json({ success: false, message: 'Sales Booking Data not found' });
         }
 
-        // Create a new instance of deleteSalesbookingModel with data from salesBookingData
-        const addNewDeletedData = new deleteSalesbookingModel({
-            account_id: salesBookingData.account_id,
-            sale_booking_date: salesBookingData.sale_booking_date,
-            campaign_amount: salesBookingData.campaign_amount,
-            campaign_name: salesBookingData.campaign_name,
-            brand_id: salesBookingData.brand_id,
-            base_amount: salesBookingData.base_amount,
-            gst_amount: salesBookingData.gst_amount,
-            description: salesBookingData.description,
-            credit_approval_status: salesBookingData.credit_approval_status,
-            reason_credit_approval: salesBookingData.reason_credit_approval,
-            reason_credit_approval_own_reason: salesBookingData.reason_credit_approval_own_reason || "",
-            balance_payment_ondate: salesBookingData.balance_payment_ondate,
-            gst_status: salesBookingData.gst_status,
-            tds_status: salesBookingData.tds_status,
-            Booking_close_date: salesBookingData.Booking_close_date,
-            tds_verified_amount: salesBookingData.tds_verified_amount,
-            tds_verified_remark: salesBookingData.tds_verified_remark,
-            booking_remarks: salesBookingData.booking_remarks,
-            incentive_status: salesBookingData.incentive_status,
-            payment_credit_status: salesBookingData.payment_credit_status,
-            booking_status: salesBookingData.booking_status,
-            incentive_sharing_user_id: salesBookingData.incentive_sharing_user_id,
-            incentive_sharing_percent: salesBookingData.incentive_sharing_percent,
-            bad_debt: salesBookingData.bad_debt,
-            bad_debt_reason: salesBookingData.bad_debt_reason,
-            no_badge_achivement: salesBookingData.no_badge_achivement,
-            old_sale_booking_id: salesBookingData.old_sale_booking_id,
-            sale_booking_type: salesBookingData.sale_booking_type,
-            service_taken_amount: salesBookingData.service_taken_amount,
-            get_incentive_status: salesBookingData.get_incentive_status,
-            incentive_amount: salesBookingData.incentive_amount,
-            earned_incentive_amount: salesBookingData.earned_incentive_amount,
-            unearned_incentive_amount: salesBookingData.unearned_incentive_amount,
-            payment_type: salesBookingData.payment_type,
-            final_invoice: salesBookingData.final_invoice,
-            deleted_by: salesBookingData.deleted_by,
-            record_service_file: salesBookingData.record_service_file,
-            // Add any additional fields that may be necessary
-        });
+        // Prepare the data to be inserted into the deletedSalesBookingModel
+        const salesBookingCopy = salesBookingData.toObject();
+        delete salesBookingCopy._id;
+        delete salesBookingCopy.createdAt;
+        delete salesBookingCopy.updatedAt;
+        delete salesBookingCopy.__v;
+        salesBookingCopy.deleted_by = deletedBy;
+
+        // Insert the data into the deletedSalesBookingModel
+        const addNewDeletedData = await deleteSalesbookingModel.create(salesBookingCopy);
 
         if (salesBookingData && salesBookingData.record_service_file) {
             // Move the uploaded file to the 'DeletedSalesRecordService' directory
             await moveImage("SalesRecordServiceFiles", "DeletedSalesRecordService", salesBookingData.record_service_file);
         }
-        // Save the new deleted data record
-        await addNewDeletedData.save();
+
         // Delete the sales booking record
         await salesBookingModel.deleteOne({ _id: req.params.id });
 
@@ -328,89 +293,7 @@ exports.deleteSalesBooking = [upload, async (req, res) => {
  */
 exports.getNewSalesBooking = async (req, res) => {
     try {
-        const newDeleteSalesBokingData = await deleteSalesbookingModel.aggregate([
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "createdUserData",
-                },
-            }, {
-                $unwind: {
-                    path: "$createdUserData",
-                    preserveNullAndEmptyArrays: true,
-                },
-            }, {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "updated_by",
-                    foreignField: "user_id",
-                    as: "lastUpdatedUserData",
-                },
-            }, {
-                $unwind: {
-                    path: "$lastUpdatedUserData",
-                    preserveNullAndEmptyArrays: true,
-                },
-            }, {
-                $lookup: {
-                    from: "accountMasterModel",
-                    localField: "account_id",
-                    foreignField: "account_id",
-                    as: "accountMasterData",
-                },
-            }, {
-                $unwind: {
-                    path: "$accountMasterData",
-                    preserveNullAndEmptyArrays: true,
-                },
-            }, {
-                $project: {
-                    account_id: 1,
-                    account_name: "$accountMasterData.account_name",
-                    sale_booking_date: 1,
-                    campaign_amount: 1,
-                    campaign_name: 1,
-                    brand_id: 1,
-                    base_amount: 1,
-                    gst_amount: 1,
-                    description: 1,
-                    credit_approval_status: 1,
-                    reason_credit_approval: 1,
-                    reason_credit_approval_own_reason: 1,
-                    balance_payment_ondate: 1,
-                    gst_status: 1,
-                    tds_status: 1,
-                    Booking_close_date: 1,
-                    tds_verified_amount: 1,
-                    tds_verified_remark: 1,
-                    booking_remarks: 1,
-                    incentive_status: 1,
-                    payment_credit_status: 1,
-                    booking_status: 1,
-                    incentive_sharing_user_id: 1,
-                    incentive_sharing_percent: 1,
-                    bad_debt: 1,
-                    bad_debt_reason: 1,
-                    no_badge_achivement: 1,
-                    old_sale_booking_id: 1,
-                    sale_booking_type: 1,
-                    service_taken_amount: 1,
-                    get_incentive_status: 1,
-                    incentive_amount: 1,
-                    earned_incentive_amount: 1,
-                    unearned_incentive_amount: 1,
-                    payment_type: 1,
-                    final_invoice: 1,
-                    created_by: 1,
-                    created_by_name: "$createdUserData.user_name",
-                    updated_by: 1,
-                    updated_by_name: "$lastUpdatedUserData.user_name",
-                    createdAt: 1,
-                    updatedAt: 1
-                }
-            }]);
+        const newDeleteSalesBokingData = await deleteSalesbookingModel.find()
 
         //if data not found
         if (!newDeleteSalesBokingData) {
@@ -434,7 +317,7 @@ exports.getAllStatusForCreditApprovalSalesBookingList = async (req, res) => {
         let status = req.query?.status;
 
         //get all data in DB collection
-        const SalesBookingData = await salesBooking.aggregate([{
+        const SalesBookingData = await salesBookingModel.aggregate([{
             $match: {
                 payment_credit_status: "sent_for_credit_approval",
                 credit_approval_status: status,
@@ -563,7 +446,7 @@ exports.editCreditApprovalStatusChange = async (req, res) => {
         }
 
         //status change in sale booking collection.
-        await salesBooking.updateOne({
+        await salesBookingModel.updateOne({
             sale_booking_id: Number(saleBookingId),
             credit_approval_status: "pending"
         }, {
@@ -584,7 +467,7 @@ exports.editCreditApprovalStatusChange = async (req, res) => {
 exports.addSalesBookingStatus = async (req, res) => {
     try {
         //salesBookingStatus data obj create 
-        const simc = new salesBookingStatus({
+        const createSalesBookingStatus = new salesBookingStatus({
             status_name: req.body.status_name,
             status_desc: req.body.status_desc,
             status_type: req.body.status_type,
@@ -592,19 +475,21 @@ exports.addSalesBookingStatus = async (req, res) => {
         })
 
         //save data in the collection
-        const simv = await simc.save();
+        const salesBookingStatusAdd = await createSalesBookingStatus.save();
 
         //success response send
-        return response.returnTrue(200, req, res, "Sales Booking Status Created Successfully", simv);
+        return response.returnTrue(200, req, res, "Sales Booking Status Created Successfully", salesBookingStatusAdd);
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
 };
 
-
+/**
+ * Api is to used for the sales booking status data get in the DB collection.
+ */
 exports.getSalesBookingPaymentDetail = async (req, res) => {
     try {
-        const salesBookingGetData = await salesBooking.aggregate([
+        const salesBookingGetData = await salesBookingModel.aggregate([
             {
                 $match: {
                     sale_booking_id: Number(req.params.id)
