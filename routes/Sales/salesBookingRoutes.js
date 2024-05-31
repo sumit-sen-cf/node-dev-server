@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const Sales = require("../../controllers/Sales/salesBookingController");
-const paymentDetailsController = require("../../controllers/SMS/paymentDetailsController");
 const salesBookingPayment = require("../../controllers/SMS/salesBookingPaymentController");
 
 router.get("/sales", (req, res) => {
@@ -31,15 +30,6 @@ router.post("/sales/add_sales_booking_status", Sales.addSalesBookingStatus);
  */
 router.get("/sales/credit_approval_status_for_sales_booking_list", Sales.getAllStatusForCreditApprovalSalesBookingList);
 router.put("/sales/credit_approval_status_status_change/:id", Sales.editCreditApprovalStatusChange);
-
-/**
- * payment details routes
- */
-router.post("/sales/add_payment_details", paymentDetailsController.createPaymentDetails);
-router.get("/sales/get_payment_details/:id", paymentDetailsController.getPaymentDetails);
-router.put("/sales/update_payment_details/:id", paymentDetailsController.updatePaymentDetails);
-router.get("/sales/getlist_payment_details", paymentDetailsController.getPaymentDetailList);
-router.delete("/sales/delete_payment_details/:id", paymentDetailsController.deletePaymentDetails);
 
 /**
  * sales booking payment details routes
