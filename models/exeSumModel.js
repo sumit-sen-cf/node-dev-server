@@ -11,12 +11,12 @@ const exeSumModel = new mongoose.Schema({
     id: {
         type: Number,
         required: false,
-        unique: true,
+        unique: true
     },
     sale_booking_execution_id: {
         type: String,
-        required: false,
-        default: ""
+        required: true,
+        unique: true,
     },
     sale_booking_id: {
         type: String,
