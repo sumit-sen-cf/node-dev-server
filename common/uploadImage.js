@@ -42,5 +42,19 @@ const deleteImage = (filePath) => {
     });
 };
 
+// Function to move image to Google Cloud Storage
+const moveImage = (soureceFolder, designationFolder, fileName) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const srcFileName = `${soureceFolder}/${fileName}`;
+            const desiFileName = `${designationFolder}/${fileName}`;
 
-module.exports = { uploadImage, deleteImage };
+            const blob = bucket.file(srcFileName).move(desiFileName);
+            resolve(blob);
+        } catch (err) {
+            resolve();
+        }
+    });
+};
+
+module.exports = { uploadImage, deleteImage, moveImage };

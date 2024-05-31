@@ -5,8 +5,9 @@ const { storage } = require('../../common/uploadFile');
 const salesBookingStatus = require('../../models/SMS/salesBookingStatus');
 const deleteSalesbookingModel = require("../../models/SMS/deleteSalesbookingModel");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
-const { uploadImage, deleteImage } = require("../../common/uploadImage");
+const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
+const pageStatesModel = require("../../models/PMS2/pageStatesModel.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -164,18 +165,17 @@ exports.editSalesBooking = [
 /**
  * Api is to get all the sales booking data from DB collection.
  */
+
 exports.getAllSalesBooking = async (req, res) => {
     try {
-        //get all data in DB collection
-        const page = (req.query.page && parseInt(req.query.page)) || 1;
-        const limit = (req.query.limit && parseInt(req.query.limit)) || 50;
-        const skip = (page - 1) * limit;
-        let salesBookingList;
+        const page = (req.query.page && parseInt(req.query.page)) || null;
+        const limit = (req.query.limit && parseInt(req.query.limit)) || null;
+        const skip = (page && limit) ? (page - 1) * limit : 0;
+        let saleBookingList;
 
         let matchQuery = {
             status: { $ne: constant.DELETED }
         };
-
         let addFieldsObj = {
             $addFields: {
                 record_service_file_url: {
@@ -183,7 +183,7 @@ exports.getAllSalesBooking = async (req, res) => {
                         if: { $ne: ["$record_service_file", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_SALES_BOOKING_FOLDER_URL,
+                                constant.GCP_VENDOR_FOLDER_URL,
                                 "/",
                                 "$record_service_file",
                             ],
@@ -192,35 +192,32 @@ exports.getAllSalesBooking = async (req, res) => {
                     },
                 },
             },
-        }
+        };
+
+        const pipeline = [{ $match: matchQuery }, addFieldsObj];
+
         if (page && limit) {
-            const skip = (page - 1) * limit;
-            salesBookingList = await salesBookingModel.aggregate([
-                { $match: matchQuery },
+            pipeline.push(
                 { $skip: skip },
-                { $limit: limit },
-                addFieldsObj
-            ]);
-        } else {
-            salesBookingList = await salesBookingModel.aggregate([
-                { $match: matchQuery },
-                addFieldsObj
-            ]);
+                { $limit: limit }
+            );
         }
-        const salesBookingCount = await salesBookingModel.countDocuments()
+
+        saleBookingList = await salesBookingModel.aggregate(pipeline);
+        const salesBookingCount = await salesBookingModel.countDocuments(matchQuery);
+
         return response.returnTrueWithPagination(
             200,
             req,
             res,
-            "Sales booking data list fetch successfully!",
-            salesBookingList,
+            "Sales booking list retreive successfully!",
+            saleBookingList,
             {
                 start_record: skip + 1,
-                end_record: skip + salesBookingList?.length,
+                end_record: skip + saleBookingList.length,
                 total_records: salesBookingCount,
-                currentPage: page,
-                total_page: Math.ceil(salesBookingCount / limit),
-
+                current_page: page || 1,
+                total_page: page && limit ? Math.ceil(salesBookingCount / limit) : 1,
             }
         );
     } catch (error) {
@@ -253,126 +250,15 @@ exports.getSingleSalesBooking = async (req, res) => {
     }
 }
 
-
 /**
  * Api is to delete sales booking data from DB collection.
  */
-// exports.deleteSalesBooking = [upload, async (req, res) => {
-//     try {
-//         const salesBookingData = await salesBooking.findById(req.params.id);
-//         if (!salesBookingData) {
-//             return res.status(404).json({ success: false, message: 'Sales Booking Data not found' });
-//         }
-//         const addNewDeletedData = new deleteSalesbookingModel({
-//             account_id: salesBookingData.account_id,
-//             sale_booking_date: salesBookingData.sale_booking_date,
-//             campaign_amount: salesBookingData.campaign_amount,
-//             campaign_name: salesBookingData.campaign_name,
-//             brand_id: salesBookingData.brand_id,
-//             base_amount: salesBookingData.base_amount,
-//             gst_amount: salesBookingData.gst_amount,
-//             description: salesBookingData.description,
-//             credit_approval_status: salesBookingData.credit_approval_status,
-//             reason_credit_approval: salesBookingData.reason_credit_approval,
-//             reason_credit_approval_own_reason: salesBookingData.reason_credit_approval_own_reason || "",
-//             balance_payment_ondate: salesBookingData.balance_payment_ondate,
-//             gst_status: salesBookingData.gst_status,
-//             tds_status: salesBookingData.tds_status,
-//             Booking_close_date: salesBookingData.Booking_close_date,
-//             tds_verified_amount: salesBookingData.tds_verified_amount,
-//             tds_verified_remark: salesBookingData.tds_verified_remark,
-//             booking_remarks: salesBookingData.booking_remarks,
-//             incentive_status: salesBookingData.incentive_status,
-//             payment_credit_status: salesBookingData.payment_credit_status,
-//             booking_status: salesBookingData.booking_status,
-//             incentive_sharing_user_id: salesBookingData.incentive_sharing_user_id,
-//             incentive_sharing_percent: salesBookingData.incentive_sharing_percent,
-//             bad_debt: salesBookingData.bad_debt,
-//             bad_debt_reason: salesBookingData.bad_debt_reason,
-//             no_badge_achivement: salesBookingData.no_badge_achivement,
-//             old_sale_booking_id: salesBookingData.old_sale_booking_id,
-//             sale_booking_type: salesBookingData.sale_booking_type,
-//             service_taken_amount: salesBookingData.service_taken_amount,
-//             get_incentive_status: salesBookingData.get_incentive_status,
-//             incentive_amount: salesBookingData.incentive_amount,
-//             earned_incentive_amount: salesBookingData.earned_incentive_amount,
-//             unearned_incentive_amount: salesBookingData.unearned_incentive_amount,
-//             payment_type: salesBookingData.payment_type,
-//             final_invoice: salesBookingData.final_invoice,
-//             deleted_by: salesBookingData.deleted_by,
-//         })
-//         if (req.files && req.files.record_service_file && req.files.record_service_file[0].originalname) {
-//             const bucketName = vari.BUCKET_NAME;
-//             const bucket = storage.bucket(bucketName);
-//             const blob1 = bucket.file(req.files.record_service_file[0].originalname);
-//             addNewDeletedData.record_service_file = blob1.name;
-//             const blobStream1 = blob1.createWriteStream();
-//             blobStream1.on("finish", () => { });
-//             blobStream1.end(req.files.record_service_file[0].buffer);
-//         }
-//         await addNewDeletedData.save();
-//         const dataDelete = await salesBooking.deleteOne({ _id: req.params.id })
-//             .then(item => {
-//                 if (item) {
-//                     return res.status(200).json({
-//                         success: true,
-//                         message: 'sales Booking Data deleted',
-//                         data: dataDelete
-//                     })
-//                 } else {
-//                     return res.status(404).json({ success: false, message: 'sales Booking Data not found' })
-//                 }
-//             })
-//             .catch(err => {
-//                 return res.status(400).json({ success: false, message: err })
-//             })
-//     } catch (error) {
-//         return res.status(500).json({
-//             message: error.message ? error.message : message.ERROR_MESSAGE,
-//         });
-//     }
-// }]
-
-const fs = require('fs');
-const path = require('path');
-
 exports.deleteSalesBooking = [upload, async (req, res) => {
     try {
         const salesBookingData = await salesBookingModel.findById(req.params.id);
         if (!salesBookingData) {
             return res.status(404).json({ success: false, message: 'Sales Booking Data not found' });
         }
-
-        // Handle the uploaded image file if it exists
-        let uploadedFilePath = null;
-        if (req.files && req.files.record_service_file && req.files.record_service_file[0]) {
-            // Step 1: Upload the image to the initial directory
-            uploadedFilePath = await uploadImage(req.files.record_service_file[0], "SalesRecordServiceFiles");
-
-            console.log("uploadedFilePath-------------------------------------", uploadedFilePath);
-
-            // Step 2: Move the uploaded file to the 'deletedSalesRecord' directory
-            const newDirectory = path.join(__dirname, 'DeletedSalesRecordServiceFiles');
-            try {
-                await fs.mkdir(newDirectory, { recursive: true });
-            } catch (mkdirError) {
-                console.error("Error creating directory:", mkdirError);
-                return res.status(500).json({ success: false, message: "Error creating directory for deleted files" });
-            }
-
-            const fileName = path.basename(uploadedFilePath);
-            const newFilePath = path.join(newDirectory, fileName);
-
-            try {
-                await fs.rename(uploadedFilePath, newFilePath);
-                console.log(`Successfully moved ${uploadedFilePath} to ${newFilePath}`);
-                uploadedFilePath = newFilePath;  // Update the path to the new location
-            } catch (renameError) {
-                console.error("Error moving file:", renameError);
-                return res.status(500).json({ success: false, message: "Error moving file to deleted files directory" });
-            }
-        }
-
 
         // Create a new instance of deleteSalesbookingModel with data from salesBookingData
         const addNewDeletedData = new deleteSalesbookingModel({
@@ -412,33 +298,30 @@ exports.deleteSalesBooking = [upload, async (req, res) => {
             payment_type: salesBookingData.payment_type,
             final_invoice: salesBookingData.final_invoice,
             deleted_by: salesBookingData.deleted_by,
+            record_service_file: salesBookingData.record_service_file,
             // Add any additional fields that may be necessary
         });
 
+        if (salesBookingData && salesBookingData.record_service_file) {
+            // Move the uploaded file to the 'DeletedSalesRecordService' directory
+            await moveImage("SalesRecordServiceFiles", "DeletedSalesRecordService", salesBookingData.record_service_file);
+        }
         // Save the new deleted data record
         await addNewDeletedData.save();
-        console.log("addNewDeletedData-------------------------------------------------------", addNewDeletedData)
-
         // Delete the sales booking record
-        const dataDelete = await salesBookingModel.deleteOne({ _id: req.params.id });
-        if (dataDelete.deletedCount === 1) {
-            return res.status(200).json({
-                success: true,
-                message: 'Sales Booking Data deleted',
-                data: dataDelete,
-            });
-        } else {
-            return res.status(404).json({ success: false, message: 'Sales Booking Data not found' });
-        }
+        await salesBookingModel.deleteOne({ _id: req.params.id });
+
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Page states deleted successfully!",
+            addNewDeletedData,
+        )
     } catch (error) {
-        return res.status(500).json({
-            message: error.message ? error.message : "Internal Server Error",
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 }];
-
-
-
 
 /**
  * Api is to get_delete_sales_booking data from DB collection.
@@ -806,3 +689,5 @@ exports.getSalesBookingPaymentDetail = async (req, res) => {
         });
     }
 }
+
+
