@@ -2,6 +2,7 @@ const response = require("../common/response.js");
 const opCampaignModel = require("../models/opCampaignModel.js");
 
 exports.addOpCampaign = async (req, res) => {
+    console.log("body", req.body)
     try {
         const campagin = new opCampaignModel({
             pre_brand_id: req.body.pre_brand_id,
@@ -10,6 +11,7 @@ exports.addOpCampaign = async (req, res) => {
             pre_agency_id: req.body.pre_agency_id,
             pre_goal_id: req.body.pre_goal_id,
             hash_tag: req.body.hash_tag,
+            commitments: req.body.commitments,
             campaign_close_by: req.body.campaign_close_by,
             details: req.body.details,
             captions: req.body.captions,
@@ -86,8 +88,8 @@ exports.getOpCampaigns = async (req, res) => {
                 {
                     $lookup: {
                         from: "brandmodels",
-                        localField: "_id",
-                        foreignField: "pre_brand_id",
+                        localField: "pre_brand_id",
+                        foreignField: "_id",
                         as: "brandData",
                     },
                 },
@@ -100,8 +102,8 @@ exports.getOpCampaigns = async (req, res) => {
                 {
                     $lookup: {
                         from: "execampaignmodels",
-                        localField: "_id",
-                        foreignField: "pre_campaign_id",
+                        localField: "pre_campaign_id",
+                        foreignField: "_id",
                         as: "exeCampData",
                     },
                 },
@@ -114,8 +116,8 @@ exports.getOpCampaigns = async (req, res) => {
                 {
                     $lookup: {
                         from: "industrymasters",
-                        localField: "_id",
-                        foreignField: "pre_industry_id",
+                        localField: "pre_industry_id",
+                        foreignField: "_id",
                         as: "industryData",
                     },
                 },
@@ -128,8 +130,8 @@ exports.getOpCampaigns = async (req, res) => {
                 {
                     $lookup: {
                         from: "agencymasters",
-                        localField: "_id",
-                        foreignField: "pre_agency_id",
+                        localField: "pre_agency_id",
+                        foreignField: "_id",
                         as: "agencyData",
                     },
                 },
@@ -142,8 +144,8 @@ exports.getOpCampaigns = async (req, res) => {
                 {
                     $lookup: {
                         from: "goalmasters",
-                        localField: "_id",
-                        foreignField: "pre_goal_id",
+                        localField: "pre_goal_id",
+                        foreignField: "_id",
                         as: "goalData",
                     },
                 },
@@ -200,6 +202,7 @@ exports.getOpCampaigns = async (req, res) => {
                         campaign_close_by: 1,
                         details: 1,
                         captions: 1,
+                        commitments: 1,
                         updated_date: 1,
                         created_date: 1,
                         sale_booking_execution_id: 1,
@@ -321,7 +324,7 @@ exports.getOpCampaigns = async (req, res) => {
 // };
 
 exports.deleteCampaign = async (req, res) => {
-    opCampaignModel.deleteOne({ campaign_id: req.params.campaign_id }).then(item => {
+    opCampaignModel.deleteOne({ _id: req.params._id }).then(item => {
         if (item) {
             return res.status(200).json({ success: true, message: 'Campaign Data deleted' })
         } else {

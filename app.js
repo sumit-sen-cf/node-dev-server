@@ -38,32 +38,8 @@ app.use(
 );
 
 app.use(cors());
-
-// Implement ip authentication for specific routes
-// app.use('/api/sales', restrictIPMiddleware);
-
-// app.use(cors({
-//   origin: [vari.ALLOWED_URL, vari.ALLOWED_URL],
-//   methods: 'GET,HEAD,PUT,POST,DELETE',
-//   credentials: true,
-// }));
-// app.use(function (req, res, next) {
-//   res.setHeader("Access-Control-Allow-Origin", vari.ALLOWED_URL);
-//   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,PATCH,DELETE");
-//   res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type");
-//   res.setHeader("Access-Control-Allow-Credentials", true);
-//   next();
-// });
-
 app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use("/api", routes);
-
-// //all seprate route files require
-// var routesFile = requireDirectory(module, './routes');
-
-// for (i in routesFile) {
-//   app.use("/api/" + i, require("./routes/" + i));
-// }
 
 // New Version Route Configuration
 registerRoutes(app, "/api/", routeModules);
