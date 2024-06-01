@@ -1,96 +1,52 @@
 const { message } = require("../../common/message")
 const mongoose = require("mongoose");
 const salesPaymentModeModel = require("../../models/Sales/paymentModeModels");
+const response = require("../../common/response");
+const paymentModeModels = require("../../models/Sales/paymentModeModels");
 
 /**
  * Api is to used for the sales_payment_mode data add in the DB collection.
  */
-exports.createSalesPaymentmode = async (req, res) => {
+exports.createPaymentmode = async (req, res) => {
     try {
         const { payment_mode_name, created_by } = req.body;
-        const addSalesPaymentModeDetails = new salesPaymentModeModel({
+        const addPayementMode = await salesPaymentModeModel.create({
             payment_mode_name: payment_mode_name,
             created_by: created_by,
         });
-        await addSalesPaymentModeDetails.save();
-        return res.status(200).json({
-            status: 200,
-            message: "Sales payment mode details data added successfully!",
-            data: addSalesPaymentModeDetails,
-        });
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Payment Details Created Successfully",
+            addPayementMode
+        );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
 /**
  * Api is to used for the sales_payment_mode data get_ByID in the DB collection.
  */
-exports.getSalesPaymentMode = async (req, res) => {
+exports.getPaymentModeDetails = async (req, res) => {
     try {
-        const salesPaymentModeData = await salesPaymentModeModel.aggregate([
-            {
-                $match: { _id: mongoose.Types.ObjectId(req.params.id) },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "managed_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $project: {
-                    payment_mode_name: 1,
-                    created_by: 1,
-                    updated_by: 1,
-                    managed_by_name: "$user.user_name",
-                    created_by_name: "$user.user_name",
-                    createdAt: 1,
-                    updated_date: 1,
-                },
-            },
-        ])
-        if (salesPaymentModeData) {
-            return res.status(200).json({
-                status: 200,
-                message: "Sales payment mode details successfully!",
-                data: salesPaymentModeData[0],
-            });
+        const { id } = req.params;
+        const paymentModeDetails = await salesPaymentModeModel.findOne({
+            _id: id,
+        });
+        if (!paymentModeDetails) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
         }
-        return res.status(404).json({
-            status: 404,
-            message: message.DATA_NOT_FOUND,
-        });
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Payment mode details retrive successfully!",
+            paymentModeDetails
+        );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -98,123 +54,88 @@ exports.getSalesPaymentMode = async (req, res) => {
 /**
  * Api is to used for the sales_payment_mode data update in the DB collection.
  */
-exports.updateSalesPaymentMode = async (req, res) => {
+exports.updatePaymentMode = async (req, res) => {
     try {
         const { id } = req.params;
-        const { payment_mode_name, managed_by, updated_by } = req.body;
-        const salesPaymentModeData = await salesPaymentModeModel.findOne({ _id: id });
-        if (!salesPaymentModeData) {
-            return res.send("Invalid sales_payment_mode Id...");
-        }
-        await salesPaymentModeData.save();
-        const salesPaymentModeUpdated = await salesPaymentModeModel.findOneAndUpdate({ _id: id }, {
+        const { payment_mode_name, updated_by } = req.body;
+
+        const paymentModeUpdated = await paymentModeModels.findByIdAndUpdate({ _id: id }, {
             $set: {
                 payment_mode_name,
                 updated_by
             },
-        }, {
-            new: true
-        });
-        return res.status(200).json({
-            message: "Sales payment mode data updated successfully!",
-            data: salesPaymentModeUpdated,
-        });
+        }, { new: true }
+        );
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Payment mode update successfully!",
+            paymentModeUpdated
+        );
     } catch (error) {
-        return res.status(500).json({
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
 /**
  * Api is to used for the sales_payment_mode data get_list in the DB collection.
  */
-exports.getSalesPaymentModeList = async (req, res) => {
+exports.getPaymentModeList = async (req, res) => {
     try {
-        const salesPaymentModeListData = await salesPaymentModeModel.aggregate([
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "managed_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $project: {
-                    payment_mode_name: 1,
-                    managed_by: 1,
-                    managed_by_name: "$user.user_name",
-                    created_date_time: 1,
-                    created_by: 1,
-                    created_by_name: "$user.user_name",
-                    last_updated_date: 1,
-                    updated_by: 1,
-                },
-            },
-        ])
-        if (salesPaymentModeListData) {
-            return res.status(200).json({
-                status: 200,
-                message: "Sales payment mode details list successfully!",
-                data: salesPaymentModeListData,
-            });
+        const page = req.query?.page ? parseInt(req.query.page) : null;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+        const skip = (page && limit) ? (page - 1) * limit : 0;
+
+        const paymentModeList = await salesPaymentModeModel.find().skip(skip).limit(limit);
+        const paymentModeCount = await salesPaymentModeModel.countDocuments();
+
+        if (paymentModeList.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
         }
-        return res.status(404).json({
-            status: 404,
-            message: message.DATA_NOT_FOUND,
-        });
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Payment mode list retrieved successfully!",
+            paymentModeList,
+            {
+                start_record: page && limit ? skip + 1 : 1,
+                end_record: page && limit ? skip + paymentModeList.length : paymentModeList.length,
+                total_records: paymentModeCount,
+                current_page: page || 1,
+                total_page: page && limit ? Math.ceil(paymentModeCount / limit) : 1,
+            }
+        );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
 /**
  * Api is to used for the sales_payment_mode data delete in the DB collection.
  */
-exports.deleteSalesPaymentMode = async (req, res) => {
+exports.deletePaymentMode = async (req, res) => {
     try {
         const { params } = req;
         const { id } = params;
-        const salesPaymentModeDelete = await salesPaymentModeModel.findOne({ _id: id });
-        if (!salesPaymentModeDelete) {
+        const paymentModeDelete = await salesPaymentModeModel.findOne({ _id: id });
+        if (!paymentModeDelete) {
             return res.status(404).json({
                 status: 404,
-                message: message.DATA_NOT_FOUND,
+                message: "Data not found!",
             });
         }
         await salesPaymentModeModel.deleteOne({ _id: id });
-        return res.status(200).json({
-            status: 200,
-            message: "Sales payment mode data deleted successfully!",
-        });
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Payment details deleted successfully!",
+            paymentModeDelete,
+        );
+
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };

@@ -445,7 +445,7 @@ exports.addVendorValidation = async (req, res, next) => {
 
     // Define the schema for the individual objects in the array
     const bankDetailsSchema = Joi.object({
-        vendor_id: Joi.required(),
+        vendor_id: Joi.optional(),
         bank_name: Joi.string(),
         account_type: Joi.string(),
         account_number: Joi.string(),
@@ -455,10 +455,10 @@ exports.addVendorValidation = async (req, res, next) => {
         created_by: Joi.number()
     });
     const vendorGroupLinkDataSchema = Joi.object({
-        vendor_id: Joi.required(),
-        type: Joi.required(),
-        link: Joi.required(),
-        created_by: Joi.number().required(),
+        vendor_id: Joi.optional(),
+        type: Joi.string(),
+        link: Joi.string(),
+        created_by: Joi.number(),
     });
     const schema = Joi.object({
         vendor_type: Joi.string(),
@@ -467,8 +467,8 @@ exports.addVendorValidation = async (req, res, next) => {
         payment_method: Joi.string(),
         vendor_name: Joi.string(),
         country_code: Joi.number(),
-        mobile: Joi.number().min(1000000000).max(99999999999999),
-        alternate_mobile: Joi.number().min(1000000000).max(99999999999999),
+        mobile: Joi.number(),
+        alternate_mobile: Joi.number(),
         email: Joi.string().email(),
         personal_address: Joi.string(),
         pan_no: Joi.number(),

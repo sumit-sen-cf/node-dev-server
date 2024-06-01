@@ -17,9 +17,10 @@ const requireDirectory = require('require-directory');
 const { registerRoutes } = require("./helper/helper.js");
 const { routeModulesV1, routeModules } = require("./routes/routeModule.js");
 const { restrictIPMiddleware } = require("./middleware/ipAuthMiddleware.js");
-// const axios = require("axios");
 require("./controllers/autoMail.js");
 require("./controllers/assetAutoMail.js");
+const https = require("https");
+const fs = require("fs");
 
 const app = express();
 cron.cronImplement();
@@ -53,7 +54,6 @@ registerRoutes(app, "/api/v1", routeModulesV1);
 const docBackendRouter = require("./doc/customization_src/routes/backend_routes.js");
 const docFrontendRouter = require("./doc/customization_src/routes/frontend_routes.js");
 app.use("/", docBackendRouter);
-// app.use("/", cronImplement);
 app.use("/", docFrontendRouter);
 app.use(
   "/api-docs/:token",
@@ -68,7 +68,6 @@ const openai = new OpenAI({
 
 app.post("/chat", async (req, res) => {
   const { prompt } = req.body;
-
   const completion = await openai.completions.create({
     model: "text-davinci-003",
     prompt: prompt,
@@ -92,7 +91,24 @@ mongoose
     console.log(err);
   });
 
-app.listen(vari.PORT, () => {
-  console.log("server is running at " + vari.API_URL);
+// ssl code start
+const httpsOptions = {
+  cert: fs.readFileSync('./jarvis_work.crt'),
+  ca: fs.readFileSync('./jarvis_work.ca-bundle'),
+  key: fs.readFileSync('./jarvis.work.key'),
+};
 
+const httpsServer = https.createServer(httpsOptions,app);
+const httpApp = express();
+httpApp.get('*', (req, res) => {
+  res.redirect(`https://${req.headers.host}${req.url}`);
 });
+
+httpsServer.listen(vari.PORT, () => {
+  console.log('HTTP server is running on port'+vari.API_URL);
+});
+// ssl code end
+
+// app.listen(vari.PORT, () => {
+//   console.log("server is running at " + vari.API_URL);
+// });

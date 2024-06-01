@@ -1,33 +1,23 @@
 const paymentDetailsModel = require("../../models/Sales/paymentDetailsModel");
 const { message } = require("../../common/message")
 const mongoose = require("mongoose");
-
+const response = require("../../common/response");
 
 /**
  * Api is to used for the payment_details data add in the DB collection.
  */
 exports.createPaymentDetails = async (req, res) => {
     try {
-        const { title, details, gst_bank, managed_by, created_by, updated_by } = req.body;
-        const addPaymentDetails = new paymentDetailsModel({
+        const { title, details, gst_bank, created_by } = req.body;
+        const addPaymentDetails = await paymentDetailsModel.create({
             title: title,
             details: details,
             gst_bank: gst_bank,
-            managed_by: managed_by,
             created_by: created_by,
-            updated_by: updated_by
         });
-        await addPaymentDetails.save();
-        return res.status(200).json({
-            status: 200,
-            message: "Payment details data added successfully!",
-            data: addPaymentDetails,
-        });
+        return response.returnTrue(200, req, res, "Payment Details Created Successfully", addPaymentDetails);
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -36,54 +26,22 @@ exports.createPaymentDetails = async (req, res) => {
  */
 exports.getPaymentDetails = async (req, res) => {
     try {
-        const paymentDetailsData = await paymentDetailsModel.aggregate([
-            {
-                $match: { _id: mongoose.Types.ObjectId(req.params.id) },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $project: {
-                    title: 1,
-                    details: 1,
-                    gst_bank: 1,
-                    managed_by: 1,
-                    created_date_time: 1,
-                    created_by: 1,
-                    created_by_name: "$user.user_name",
-                    last_updated_date: 1,
-                    updated_by: 1,
-                },
-            },
-        ])
-        if (paymentDetailsData) {
-            return res.status(200).json({
-                status: 200,
-                message: "Payment details successfully!",
-                data: paymentDetailsData[0],
-            });
+        const { id } = req.params;
+        const paymentDetails = await paymentDetailsModel.findOne({
+            _id: id,
+        });
+        if (!paymentDetails) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
         }
-        return res.status(404).json({
-            status: 404,
-            message: message.DATA_NOT_FOUND,
-        });
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Payment details retrive successfully!",
+            paymentDetails
+        );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -93,32 +51,26 @@ exports.getPaymentDetails = async (req, res) => {
 exports.updatePaymentDetails = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, details, gst_bank, managed_by, created_by, updated_by } = req.body;
-        const paymentDetailData = await paymentDetailsModel.findOne({ _id: id });
-        if (!paymentDetailData) {
-            return res.send("Invalid payment_details Id...");
-        }
-        await paymentDetailData.save();
-        const paymentDetailsUpdatedData = await paymentDetailsModel.findOneAndUpdate({ _id: id }, {
+        const { title, details, gst_bank, updated_by } = req.body;
+
+        const paymentDetailsUpdatedData = await paymentDetailsModel.findByIdAndUpdate({ _id: id }, {
             $set: {
                 title,
                 details,
                 gst_bank,
-                managed_by,
-                created_by,
                 updated_by
             },
-        },
-            { new: true }
+        }, { new: true }
         );
-        return res.status(200).json({
-            message: "Payment_details data updated successfully!",
-            data: paymentDetailsUpdatedData,
-        });
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Payment details update successfully!",
+            paymentDetailsUpdatedData
+        );
     } catch (error) {
-        return res.status(500).json({
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -128,53 +80,35 @@ exports.updatePaymentDetails = async (req, res) => {
  */
 exports.getPaymentDetailList = async (req, res) => {
     try {
-        const paymentDetailListData = await paymentDetailsModel.aggregate([
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $project: {
-                    title: 1,
-                    details: 1,
-                    gst_bank: 1,
-                    managed_by: 1,
-                    created_date_time: 1,
-                    created_by: 1,
-                    created_by_name: "$user.user_name",
-                    last_updated_date: 1,
-                    updated_by: 1,
-                },
-            },
-        ])
-        if (paymentDetailListData) {
-            return res.status(200).json({
-                status: 200,
-                message: "Payment details list successfully!",
-                data: paymentDetailListData,
-            });
+        const page = req.query?.page ? parseInt(req.query.page) : null;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+        const skip = (page && limit) ? (page - 1) * limit : 0;
+
+        const paymentDetailsList = await paymentDetailsModel.find().skip(skip).limit(limit);
+        const paymentDetailsCount = await paymentDetailsModel.countDocuments();
+
+        if (paymentDetailsList.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
         }
-        return res.status(404).json({
-            status: 404,
-            message: message.DATA_NOT_FOUND,
-        });
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Payment details list retrieved successfully!",
+            paymentDetailsList,
+            {
+                start_record: page && limit ? skip + 1 : 1,
+                end_record: page && limit ? skip + paymentDetailsList.length : paymentDetailsList.length,
+                total_records: paymentDetailsCount,
+                current_page: page || 1,
+                total_page: page && limit ? Math.ceil(paymentDetailsCount / limit) : 1,
+            }
+        );
+
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
-};
+}
 
 /**
  * Api is to used for the payment_details data delete in the DB collection.
@@ -187,18 +121,19 @@ exports.deletePaymentDetails = async (req, res) => {
         if (!paymentDetailsDataDelete) {
             return res.status(404).json({
                 status: 404,
-                message: message.DATA_NOT_FOUND,
+                message: "Data not found!",
             });
         }
         await paymentDetailsModel.deleteOne({ _id: id });
-        return res.status(200).json({
-            status: 200,
-            message: "Payment_details data deleted successfully!",
-        });
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Payment details deleted successfully!",
+            paymentDetailsDataDelete,
+        );
+
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };

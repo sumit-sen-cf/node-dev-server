@@ -17,7 +17,7 @@ const accountDocumentOverviewSchema = new mongoose.Schema({
     },
     document_no: {
         type: String,
-        required: true,
+        required: false,
     },
     description: {
         type: String,
