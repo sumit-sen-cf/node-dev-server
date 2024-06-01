@@ -11,7 +11,7 @@ const bankDetailsSchema = new mongoose.Schema({
     },
     bank_name: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
     },
     account_type: {
