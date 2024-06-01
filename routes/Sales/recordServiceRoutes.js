@@ -10,5 +10,6 @@ router.put("/sales/record_service/:id", recordServiceController.updateRecordServ
 router.get("/sales/record_service/:id", recordServiceController.getRecordServiceMasterDetail);
 router.get("/sales/record_service", recordServiceController.getRecordServiceMasterList);
 router.delete("/sales/record_service/:id", recordServiceController.deleteRecordServiceMaster);
+router.get("/sales/record_service_deleted", recordServiceController.getRecordServiceDataDeleted);
 
 module.exports = router; 
