@@ -8,26 +8,25 @@ const recordServicePagesModel = require("../../models/Sales/recordServicePageMod
  */
 exports.createRecordServicePage = async (req, res) => {
     try {
-        const { record_service_master_id, sale_booking_id, sales_service_master_id, pageMast_id, page_post_type, page_rate, page_sale_rate,
-            remarks, sale_executive_id, created_by, last_updated_by } = req.body;
-        const addRecordServicePageDetails = new recordServicePagesModel({
-            record_service_master_id: record_service_master_id,
+        const { record_service_id, sale_booking_id, sales_service_master_id, page_master_id, page_post_type, page_rate, page_sale_rate,
+            remarks, sale_executive_id, created_by } = req.body;
+
+        const recordServicePageAdded = await recordServicePagesModel.create({
+            record_service_id: record_service_id,
             sale_booking_id: sale_booking_id,
             sales_service_master_id: sales_service_master_id,
-            pageMast_id: pageMast_id,
+            page_master_id: page_master_id,
             page_post_type: page_post_type,
             page_rate: page_rate,
             page_sale_rate: page_sale_rate,
             sale_executive_id: sale_executive_id,
-            created_by: created_by,
             remarks: remarks,
-            last_updated_by: last_updated_by
+            created_by: created_by,
         });
-        await addRecordServicePageDetails.save();
         return res.status(200).json({
             status: 200,
             message: "Record service page data added successfully!",
-            data: addRecordServicePageDetails,
+            data: recordServicePageAdded,
         });
     } catch (error) {
         return res.status(500).json({
