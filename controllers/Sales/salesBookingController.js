@@ -68,7 +68,7 @@ exports.addSalesBooking = [
             };
             for (const [field] of Object.entries(imageFields)) {            //itreates 
                 if (req.files[field] && req.files[field][0]) {
-                    createSaleBooking[field] = await uploadImage(req.files[field][0], "SalesRecordServiceFiles");
+                    createSaleBooking[field] = await uploadImage(req.files[field][0], "SalesBookingFiles");
                 }
             }
 
@@ -126,7 +126,7 @@ exports.editSalesBooking = [
                 unearned_incentive_amount: req.body.unearned_incentive_amount,
                 payment_type: req.body.payment_type,
                 final_invoice: req.body.final_invoice,
-                created_by: req.body.created_by,
+                updated_by: req.body.updated_by,
             };
 
             // Fetch the old document and update it
@@ -147,10 +147,10 @@ exports.editSalesBooking = [
 
                     // Delete old image if present
                     if (updatedSalesBooking[fieldName]) {
-                        await deleteImage(`SalesRecordServiceFiles/${updatedSalesBooking[fieldName]}`);
+                        await deleteImage(`SalesBookingFiles/${updatedSalesBooking[fieldName]}`);
                     }
                     // Upload new image
-                    updatedSalesBooking[fieldName] = await uploadImage(req.files[fieldName][0], "SalesRecordServiceFiles");
+                    updatedSalesBooking[fieldName] = await uploadImage(req.files[fieldName][0], "SalesBookingFiles");
                 }
             }
             // Save the updated document with the new image URLs
@@ -269,7 +269,7 @@ exports.deleteSalesBooking = [upload, async (req, res) => {
 
         if (salesBookingData && salesBookingData.record_service_file) {
             // Move the uploaded file to the 'DeletedSalesRecordService' directory
-            await moveImage("SalesRecordServiceFiles", "DeletedSalesRecordService", salesBookingData.record_service_file);
+            await moveImage("SalesBookingFiles", "DeletedSalesBookingService", salesBookingData.record_service_file);
         }
 
         // Delete the sales booking record

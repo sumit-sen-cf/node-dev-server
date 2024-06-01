@@ -15,7 +15,8 @@ module.exports = Object.freeze({
   // GCP Image URL
   GCP_VENDOR_FOLDER_URL: "https://storage.googleapis.com/dev-backend-bucket/InVendorDocs",
   GCP_PAGE_STATES_FOLDER_URL: "https://storage.googleapis.com/dev-backend-bucket/PMS2Docs",
-  GCP_SALES_BOOKING_FOLDER_URL: "https://storage.googleapis.com/dev-backend-bucket/SalesRecordServiceFiles",
+  GCP_SALES_BOOKING_FOLDER_URL: "https://storage.googleapis.com/dev-backend-bucket/SalesBookingFiles",
+  GCP_SALES_RECORD_SERVICE_FOLDER_URL: "https://storage.googleapis.com/dev-backend-bucket/SalesRecordServiceFiles",
 
 
   /* JWT  */

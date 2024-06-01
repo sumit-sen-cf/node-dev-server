@@ -19,6 +19,8 @@ const pageMasterRoutes = require("./PMS2/pageMasterRoutes");
 const pageStatesRoutes = require("./PMS2/pageStatesRoutes");
 const paymentDetailsRoutes = require("./Sales/paymentDetailsRoutes");
 const paymentModeRoutes = require("./Sales/paymentModeRoutes");
+const serviceMasterRoutes = require("./Sales/salesServiceMasterRoutes");
+const recordServiceRoutes = require("./Sales/recordServiceRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -47,6 +49,8 @@ exports.routeModules = [
     //new sales booking starts
     salesBookingRoutes,
     paymentDetailsRoutes,
-    paymentModeRoutes
+    paymentModeRoutes,
+    serviceMasterRoutes,
+    recordServiceRoutes
 ];
 

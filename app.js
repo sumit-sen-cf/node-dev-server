@@ -91,24 +91,24 @@ mongoose
     console.log(err);
   });
 
-// ssl code start
-const httpsOptions = {
-  cert: fs.readFileSync('./jarvis_work.crt'),
-  ca: fs.readFileSync('./jarvis_work.ca-bundle'),
-  key: fs.readFileSync('./jarvis.work.key'),
-};
+// // ssl code start
+// const httpsOptions = {
+//   cert: fs.readFileSync('./jarvis_work.crt'),
+//   ca: fs.readFileSync('./jarvis_work.ca-bundle'),
+//   key: fs.readFileSync('./jarvis.work.key'),
+// };
 
-const httpsServer = https.createServer(httpsOptions,app);
-const httpApp = express();
-httpApp.get('*', (req, res) => {
-  res.redirect(`https://${req.headers.host}${req.url}`);
-});
+// const httpsServer = https.createServer(httpsOptions,app);
+// const httpApp = express();
+// httpApp.get('*', (req, res) => {
+//   res.redirect(`https://${req.headers.host}${req.url}`);
+// });
 
-httpsServer.listen(vari.PORT, () => {
-  console.log('HTTP server is running on port'+vari.API_URL);
-});
+// httpsServer.listen(vari.PORT, () => {
+//   console.log('HTTP server is running on port'+vari.API_URL);
+// });
 // ssl code end
 
-// app.listen(vari.PORT, () => {
-//   console.log("server is running at " + vari.API_URL);
-// });
+app.listen(vari.PORT, () => {
+  console.log("server is running at " + vari.API_URL);
+});
