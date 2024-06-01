@@ -1894,5 +1894,5 @@ router.post('/send_email_to_all_users', adminController.sendPassEmailToUsers);
 //OpCampaign Routes Start Here
 router.post('/opcampaign', opCampaign.addOpCampaign);
 router.get('/opcampaign', opCampaign.getOpCampaigns);
-router.delete('/opcampaign/:campaign_id', opCampaign.deleteCampaign);
+router.delete('/opcampaign/:_id', opCampaign.deleteCampaign);
 module.exports = router;

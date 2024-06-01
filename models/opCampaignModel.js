@@ -1,5 +1,16 @@
 const { default: mongoose } = require("mongoose");
 
+// const commitmentModel = new mongoose.Schema({
+//   key: {
+//     type: String,
+//     required: true,
+//   },
+//   value: {
+//     type: Number,
+//     required: true,
+//   },
+// });
+
 const opCampaignModel = new mongoose.Schema({
   // operation code start
   campaign_id: {
@@ -7,24 +18,29 @@ const opCampaignModel = new mongoose.Schema({
     unique: true,
   },
   pre_brand_id: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "brandmodels"
   },
   pre_campaign_id: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "execampaignmodels"
   },
   pre_industry_id: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "industrymasters"
   },
   pre_agency_id: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "agencymasters"
   },
   pre_goal_id: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "goalmasters"
   },
   hash_tag: {
     type: String,
@@ -34,6 +50,7 @@ const opCampaignModel = new mongoose.Schema({
     type: Number,
     required: false
   },
+  commitments: [mongoose.Schema.Types.Mixed],
   details: {
     type: String,
     required: false
