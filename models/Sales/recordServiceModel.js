@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const constant = require("../../common/constant");
 
 const recordServiceMaster = new Schema({
     sale_booking_id: {
@@ -83,7 +84,12 @@ const recordServiceMaster = new Schema({
     updated_by: {
         type: Number,
         required: false,
-    }
+    },
+    status: {
+        type: Number,
+        required: false,
+        default: constant?.ACTIVE,
+    },
 }, {
     timestamps: true
 });

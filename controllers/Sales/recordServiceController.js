@@ -3,7 +3,11 @@ const multer = require("multer");
 const vari = require("../../variables.js");
 const { storage } = require('../../common/uploadFile.js');
 const { message } = require("../../common/message");
-const recordServiceMasterModel = require("../../models/Sales/recordServiceModel.js");
+const salesRecordServiceModel = require("../../models/Sales/recordServiceModel.js");
+const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage.js");
+const response = require("../../common/response.js");
+const constant = require("../../common/constant.js");
+const deletedSalesBookingModel = require("../../models/Sales/deletedSalesBookingModel.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -14,151 +18,62 @@ const upload = multer({
 exports.createRecordServiceMaster = [
     upload, async (req, res) => {
         try {
-            const { sale_booking_id, sales_service_master_id, amount, no_of_hours, goal, day, quantity, brand_name, hashtag, individual_amount, start_date,
-                end_date, per_month_amount, no_of_creators, deliverables_info, remarks, sale_executive_id, created_by, last_updated_by } = req.body;
-            const addRecordServiceMasterData = new recordServiceMasterModel({
-                sale_booking_id: sale_booking_id,
-                sales_service_master_id: sales_service_master_id,
-                amount: amount,
-                no_of_hours: no_of_hours,
-                goal: goal,
-                day: day,
-                quantity: quantity,
-                brand_name: brand_name,
-                hashtag: hashtag,
-                individual_amount: individual_amount,
-                start_date: start_date,
-                end_date: end_date,
-                per_month_amount: per_month_amount,
-                no_of_creators: no_of_creators,
-                deliverables_info: deliverables_info,
-                remarks: remarks,
-                sale_executive_id: sale_executive_id,
-                created_by: created_by,
-                last_updated_by: last_updated_by
+            const addRecordServiceMaster = new salesRecordServiceModel({
+                sale_booking_id: req.body.sale_booking_id,
+                sales_service_master_id: req.body.sales_service_master_id,
+                amount: req.body.amount,
+                no_of_hours: req.body.no_of_hours,
+                goal: req.body.goal,
+                day: req.body.day,
+                quantity: req.body.quantity,
+                brand_name: req.body.brand_name,
+                hashtag: req.body.hashtag,
+                individual_amount: req.body.individual_amount,
+                start_date: req.body.start_date,
+                end_date: req.body.end_date,
+                per_month_amount: req.body.per_month_amount,
+                no_of_creators: req.body.no_of_creators,
+                deliverables_info: req.body.deliverables_info,
+                remarks: req.body.remarks,
+                sale_executive_id: req.body.sale_executive_id,
+                created_by: req.body.created_by,
             });
-            const bucketName = vari.BUCKET_NAME;
-            const bucket = storage.bucket(bucketName);
-
-            if (req.files.excel_upload && req.files.excel_upload[0].originalname) {
-                const blob1 = bucket.file(req.files.excel_upload[0].originalname);
-                addRecordServiceMasterData.excel_upload = blob1.name;
-                const blobStream1 = blob1.createWriteStream();
-                blobStream1.on("finish", () => {
-                });
-                blobStream1.end(req.files.excel_upload[0].buffer);
+            // Define the image fields 
+            const imageFields = {
+                excel_upload: 'ExcelUploadFile',
+            };
+            for (const [field] of Object.entries(imageFields)) {            //itreates 
+                if (req.files[field] && req.files[field][0]) {
+                    addRecordServiceMaster[field] = await uploadImage(req.files[field][0], "SalesRecordServiceFiles");
+                }
             }
-            await addRecordServiceMasterData.save();
-            return res.status(200).json({
-                status: 200,
-                message: "Record service master data added successfully!",
-                data: addRecordServiceMasterData,
-            });
-        } catch (error) {
-            return res.status(500).json({
-                status: 500,
-                message: error.message ? error.message : message.ERROR_MESSAGE,
-            });
+            await addRecordServiceMaster.save();
+            return response.returnTrue(200, req, res, "Sales record service created successfully", addRecordServiceMaster);
+
+        } catch (err) {
+            return response.returnFalse(500, req, res, err.message, {});
         }
     }];
 
 
 exports.getRecordServiceMasterDetail = async (req, res) => {
     try {
-        const imageUrl = vari.IMAGE_URL;
-        const recordServiceMasterData = await recordServiceMasterModel.aggregate([
-            {
-                $match: { _id: mongoose.Types.ObjectId(req.params.id) },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "last_updated_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "sale_executive_id",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $project: {
-                    sale_booking_id: 1,
-                    sales_service_master_id: 1,
-                    amount: 1,
-                    no_of_hours: 1,
-                    goal: 1,
-                    day: 1,
-                    quantity: 1,
-                    brand_name: 1,
-                    hashtag: 1,
-                    individual_amount: 1,
-                    start_date: 1,
-                    end_date: 1,
-                    per_month_amount: 1,
-                    no_of_creators: 1,
-                    deliverables_info: 1,
-                    remarks: 1,
-                    sale_executive_id: 1,
-                    sale_executive_by_name: "$user.user_name",
-                    created_date_time: 1,
-                    created_by: 1,
-                    created_by_name: "$user.user_name",
-                    last_updated_date: 1,
-                    last_updated_by: 1,
-                    excel_upload: {
-                        $concat: [imageUrl, "$excel_upload"],
-                    },
-                },
-            },
-        ])
-        if (recordServiceMasterData) {
-            return res.status(200).json({
-                status: 200,
-                message: "Record service master details successfully!",
-                data: recordServiceMasterData,
-            });
+        const { id } = req.params;
+        const recordServiceDetail = await salesRecordServiceModel.findOne({
+            _id: id,
+        });
+        if (!recordServiceDetail) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
         }
-        return res.status(404).json({
-            status: 404,
-            message: message.DATA_NOT_FOUND,
-        });
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Sales record service details retrive successfully!",
+            recordServiceDetail
+        );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -170,213 +85,111 @@ exports.updateRecordServiceMaster = [
     upload, async (req, res) => {
         try {
             const { id } = req.params;
-            const { sale_booking_id, sales_service_master_id, amount, no_of_hours, goal, day, quantity, brand_name, hashtag,
-                individual_amount, start_date, end_date, per_month_amount, no_of_creators, deliverables_info, remarks,
-                sale_executive_id, created_by, last_updated_by } = req.body;
-            const recordServiceMasterData = await recordServiceMasterModel.findOne({ _id: id });
-            if (!recordServiceMasterData) {
-                return res.send("Invalid record_Service_master Id...");
-            }
-            if (req.files) {
-                recordServiceMasterData.excel_upload = req.files["excel_upload"] ? req.files["excel_upload"][0].filename : recordServiceMasterData.excel_upload;
-            }
-            const bucketName = vari.BUCKET_NAME;
-            const bucket = storage.bucket(bucketName);
+            const updateData = {
+                sale_booking_id: req.body.sale_booking_id,
+                sales_service_master_id: req.body.sales_service_master_id,
+                amount: req.body.amount,
+                no_of_hours: req.body.no_of_hours,
+                goal: req.body.goal,
+                day: req.body.day,
+                quantity: req.body.quantity,
+                brand_name: req.body.brand_name,
+                hashtag: req.body.hashtag,
+                individual_amount: req.body.individual_amount,
+                start_date: req.body.start_date,
+                end_date: req.body.end_date,
+                per_month_amount: req.body.per_month_amount,
+                no_of_creators: req.body.no_of_creators,
+                deliverables_info: req.body.deliverables_info,
+                remarks: req.body.remarks,
+                updated_by: req.body.updated_by,
+            };
 
-            if (req.files?.excel_upload && req.files?.excel_upload[0].originalname) {
-                const blob1 = bucket.file(req.files.excel_upload[0].originalname);
-                recordServiceMasterData.excel_upload = blob1.name;
-                const blobStream1 = blob1.createWriteStream();
-                blobStream1.on("finish", () => {
-                });
-                blobStream1.end(req.files.excel_upload[0].buffer);
+            // Fetch the old document and update it
+            const updatedRecordService = await salesRecordServiceModel.findByIdAndUpdate({ _id: id }, updateData, { new: true });
+
+            if (!updatedRecordService) {
+                return response.returnFalse(404, req, res, `Record service data not found`, {});
             }
-            await recordServiceMasterData.save();
-            const recordServiceMasterUpdated = await recordServiceMasterModel.findOneAndUpdate({ _id: id }, {
-                $set: {
-                    sale_booking_id,
-                    sales_service_master_id,
-                    amount,
-                    no_of_hours,
-                    goal,
-                    day,
-                    quantity,
-                    brand_name,
-                    hashtag,
-                    individual_amount,
-                    start_date,
-                    end_date,
-                    no_of_creators,
-                    deliverables_info,
-                    per_month_amount,
-                    sale_executive_id,
-                    remarks,
-                    created_by,
-                    last_updated_by
-                },
-            },
-                { new: true }
-            );
-            return res.status(200).json({
-                message: "Record service master data updated successfully!",
-                data: recordServiceMasterUpdated,
-            });
+
+            // Define the image fields 
+            const imageFields = {
+                excel_upload: 'ExcelUploadFile',
+            };
+
+            // Remove old images not present in new data and upload new images
+            for (const [fieldName] of Object.entries(imageFields)) {
+                if (req.files && req.files[fieldName] && req.files[fieldName][0]) {
+
+                    // Delete old image if present
+                    if (updatedRecordService[fieldName]) {
+                        await deleteImage(`SalesRecordServiceFiles/${updatedRecordService[fieldName]}`);
+                    }
+                    // Upload new image
+                    updatedRecordService[fieldName] = await uploadImage(req.files[fieldName][0], "SalesRecordServiceFiles");
+                }
+            }
+            // Save the updated document with the new image URLs
+            await updatedRecordService.save();
+
+            return response.returnTrue(200, req, res, "Record service data updated successfully!", updatedRecordService);
         } catch (error) {
-            return res.status(500).json({
-                message: error.message ? error.message : message.ERROR_MESSAGE,
-            });
+            return response.returnFalse(500, req, res, `${error.message}`, {});
         }
     }];
 
 exports.getRecordServiceMasterList = async (req, res) => {
     try {
-        const imageUrl = vari.IMAGE_URL;
-        const recordServiceMasterList = await recordServiceMasterModel.aggregate([
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "last_updated_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "sale_executive_id",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "salesbookings",
-                    localField: "sale_booking_id",
-                    foreignField: "sale_booking_id",
-                    as: "salesbooking",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$salesbooking",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "salesservicemasters",
-                    localField: "sales_service_master_id",
-                    foreignField: "_id",
-                    as: "salesservicemaster",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$salesservicemaster",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "customermasts",
-                    localField: "salesbooking.customer_id",
-                    foreignField: "customer_id",
-                    as: "customermastsData",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$customermastsData",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
+        const page = (req.query?.page && parseInt(req.query.page)) || null;
+        const limit = (req.query?.limit && parseInt(req.query.limit)) || null;
+        const skip = (page && limit) ? (page - 1) * limit : 0;
 
-            {
-                $project: {
-                    sale_booking_id: 1,
-                    sales_service_master_id: 1,
-                    amount: 1,
-                    no_of_hours: 1,
-                    goal: 1,
-                    day: 1,
-                    quantity: 1,
-                    brand_name: 1,
-                    hashtag: 1,
-                    individual_amount: 1,
-                    start_date: 1,
-                    end_date: 1,
-                    per_month_amount: 1,
-                    no_of_creators: 1,
-                    deliverables_info: 1,
-                    remarks: 1,
-                    sale_executive_id: 1,
-                    sale_executive_by_name: "$user.user_name",
-                    sale_executive_by_id: "$user.user_id",
-                    created_date_time: 1,
-                    created_by: 1,
-                    created_by_name: "$user.user_name",
-                    last_updated_date: 1,
-                    last_updated_by: 1,
-                    excel_upload: {
-                        $concat: [imageUrl, "$excel_upload"],
+        let addFieldsObj = {
+            $addFields: {
+                excel_upload_url: {
+                    $cond: {
+                        if: { $ne: ["$excel_upload", ""] },
+                        then: {
+                            $concat: [
+                                constant.GCP_SALES_RECORD_SERVICE_FOLDER_URL,
+                                "/",
+                                "$excel_upload",
+                            ],
+                        },
+                        else: "$excel_upload",
                     },
-                    Sales_Booking: "$salesbooking",
-                    Salesservicemasters: "$salesservicemaster",
-                    customer_name: "$customermastsData.customer_name"
-
                 },
             },
-            {
-                $group: {
-                    _id: "$_id",
-                    data: { $first: "$$ROOT" }
-                }
-            },
-            {
-                $replaceRoot: { newRoot: "$data" }
-            }
-        ])
-        if (recordServiceMasterList) {
-            return res.status(200).json({
-                status: 200,
-                message: "Record service master details list successfully!",
-                data: recordServiceMasterList,
-            });
+        };
+
+        const pipeline = [addFieldsObj];
+
+        if (page && limit) {
+            pipeline.push(
+                { $skip: skip },
+                { $limit: limit }
+            );
         }
-        return res.status(404).json({
-            status: 404,
-            message: message.DATA_NOT_FOUND,
-        });
+
+        recordServiceList = await salesRecordServiceModel.aggregate(pipeline);
+        const recordServiceCount = await salesRecordServiceModel.countDocuments(addFieldsObj);
+
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Record service list retreive successfully!",
+            recordServiceList,
+            {
+                start_record: skip + 1,
+                end_record: skip + recordServiceList.length,
+                total_records: recordServiceCount,
+                current_page: page || 1,
+                total_page: (page && limit) ? Math.ceil(recordServiceCount / limit) : 1,
+            }
+        );
     } catch (error) {
-        return res.status(500).json({
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -386,24 +199,39 @@ exports.getRecordServiceMasterList = async (req, res) => {
  */
 exports.deleteRecordServiceMaster = async (req, res) => {
     try {
-        const { params } = req;
-        const { id } = params;
-        const recordServiceMasterDelete = await recordServiceMasterModel.findOne({ _id: id });
-        if (!recordServiceMasterDelete) {
-            return res.status(404).json({
-                status: 404,
-                message: message.DATA_NOT_FOUND,
-            });
+        const { id } = req.params;
+        const recordServiceDeleted = await salesRecordServiceModel.findOneAndUpdate({ _id: id, status: { $ne: constant.DELETED } },
+            {
+                $set: {
+                    status: constant.DELETED,
+                },
+            },
+            { new: true }
+        );
+        if (!recordServiceDeleted) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
         }
-        await recordServiceMasterModel.deleteOne({ _id: id });
-        return res.status(200).json({
-            status: 200,
-            message: "Record service master data deleted successfully!",
-        });
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            `Record service deleted successfully id ${id}`,
+            recordServiceDeleted
+        );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+}
+
+exports.getRecordServiceDataDeleted = async (req, res) => {
+    try {
+        const recordServiceDeleted = await salesRecordServiceModel.find({ status: constant.DELETED });
+
+        if (!recordServiceDeleted) {
+            return response.returnFalse(200, req, res, 'No Records Found', {});
+        }
+        return response.returnTrue(200, req, res, 'Record Service data retrieved successfully!', recordServiceDeleted);
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
