@@ -6,9 +6,9 @@ const salesServiceMasterController = require("../../controllers/Sales/salesServi
  * sales service master routes
  */
 router.post("/sales/service_master", salesServiceMasterController.createSalesServiceMaster);
-router.put("/sales/service_master/:id", salesServiceMasterController.updateSalesServiceMasterDetails);
-router.get("/sales/service_master/:id", salesServiceMasterController.getSalesServiceMasterDetails);
-router.get("/sales/service_master", salesServiceMasterController.getSalesServiceMasterList);
-router.delete("/sales/service_master/:id", salesServiceMasterController.deleteSalesServiceMaster);
+router.put("/sales/service_master/:id", salesServiceMasterController.updateSalesServiceMaster);
+router.get("/sales/service_master/:id", salesServiceMasterController.getServiceMasterDetails);
+router.get("/sales/service_master", salesServiceMasterController.getServiceMasterList);
+router.delete("/sales/service_master/:id", salesServiceMasterController.deleteServiceMaster);
 
 module.exports = router; 
