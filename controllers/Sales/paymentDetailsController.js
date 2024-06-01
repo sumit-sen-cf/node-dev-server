@@ -80,7 +80,6 @@ exports.updatePaymentDetails = async (req, res) => {
  */
 exports.getPaymentDetailList = async (req, res) => {
     try {
-
         const page = req.query?.page ? parseInt(req.query.page) : null;
         const limit = req.query?.limit ? parseInt(req.query.limit) : null;
         const skip = (page && limit) ? (page - 1) * limit : 0;
@@ -122,7 +121,7 @@ exports.deletePaymentDetails = async (req, res) => {
         if (!paymentDetailsDataDelete) {
             return res.status(404).json({
                 status: 404,
-                message: message.DATA_NOT_FOUND,
+                message: "Data not found!",
             });
         }
         await paymentDetailsModel.deleteOne({ _id: id });

@@ -5,11 +5,11 @@ const paymentModeController = require("../../controllers/Sales/paymentModeContro
 /**
  * sales payment mode routes
  */
-router.post("/sales/payment_mode", paymentModeController.createSalesPaymentmode);
-router.put("/sales/payment_mode/:id", paymentModeController.updateSalesPaymentMode);
-router.get("/sales/payment_mode/:id", paymentModeController.getSalesPaymentMode);
-router.get("/sales/payment_mode", paymentModeController.getSalesPaymentModeList);
-router.delete("/sales/payment_mode/:id", paymentModeController.deleteSalesPaymentMode);
+router.post("/sales/payment_mode", paymentModeController.createPaymentmode);
+router.put("/sales/payment_mode/:id", paymentModeController.updatePaymentMode);
+router.get("/sales/payment_mode/:id", paymentModeController.getPaymentModeDetails);
+router.get("/sales/payment_mode", paymentModeController.getPaymentModeList);
+router.delete("/sales/payment_mode/:id", paymentModeController.deletePaymentMode);
 
 
 module.exports = router; 

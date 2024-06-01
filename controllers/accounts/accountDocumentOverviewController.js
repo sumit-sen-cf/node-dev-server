@@ -60,9 +60,41 @@ exports.addDocumentOverview = [
  */
 exports.getDocumentOverviewDetails = async (req, res) => {
     try {
-        const documentOverviewData = await accountDocumentOverviewModel.find({
-            account_id: Number(req.params.id)
-        });
+        const documentOverviewData = await accountDocumentOverviewModel.aggregate([
+            {
+                $match: { _id: mongoose.Types.ObjectId(req.params.id) },
+            },
+            {
+                $lookup: {
+                    from: "accountdocumentmastermodels",
+                    localField: "document_master_id",
+                    foreignField: "_id",
+                    as: "documentMaster",
+                }
+            },
+            {
+                $unwind: {
+                    path: "$documentMaster",
+                    preserveNullAndEmptyArrays: true,
+                }
+            },
+            {
+                $project: {
+                    account_id: 1,
+                    document_master_id: 1,
+                    document_no: 1,
+                    description: 1,
+                    created_by: 1,
+                    updated_by: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    document_name: "$documentMaster.document_name",
+                    document_image_upload: {
+                        $concat: [imageUrl, "$document_image_upload"],
+                    }
+                }
+            },
+        ]);
 
         //data not get check
         if (!documentOverviewData) {
@@ -167,7 +199,22 @@ exports.getDocumentOverviewList = async (req, res) => {
         // Aggregate pipeline to fetch document overview details along with the user who created the document
         const documentOverviewMasterList = await accountDocumentOverviewModel.aggregate([{
             $match: matchQuery
-        }, {
+        },
+        {
+            $lookup: {
+                from: "accountdocumentmastermodels",
+                localField: "document_master_id",
+                foreignField: "_id",
+                as: "documentMaster",
+            }
+        },
+        {
+            $unwind: {
+                path: "$documentMaster",
+                preserveNullAndEmptyArrays: true,
+            }
+        },
+        {
             $project: {
                 account_id: 1,
                 document_master_id: 1,
@@ -177,6 +224,7 @@ exports.getDocumentOverviewList = async (req, res) => {
                 updated_by: 1,
                 createdAt: 1,
                 updatedAt: 1,
+                document_name: "$documentMaster.document_name",
                 document_image_upload: {
                     $concat: [imageUrl, "$document_image_upload"],
                 }
