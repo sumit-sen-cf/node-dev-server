@@ -171,7 +171,7 @@ exports.getRecordServiceMasterList = async (req, res) => {
             );
         }
 
-        recordServiceList = await salesRecordServiceModel.aggregate(pipeline);
+       const recordServiceList = await salesRecordServiceModel.aggregate(pipeline);
         const recordServiceCount = await salesRecordServiceModel.countDocuments(addFieldsObj);
 
         return response.returnTrueWithPagination(
@@ -222,16 +222,3 @@ exports.deleteRecordServiceMaster = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 }
-
-exports.getRecordServiceDataDeleted = async (req, res) => {
-    try {
-        const recordServiceDeleted = await salesRecordServiceModel.find({ status: constant.DELETED });
-
-        if (!recordServiceDeleted) {
-            return response.returnFalse(200, req, res, 'No Records Found', {});
-        }
-        return response.returnTrue(200, req, res, 'Record Service data retrieved successfully!', recordServiceDeleted);
-    } catch (error) {
-        return response.returnFalse(500, req, res, `${error.message}`, {});
-    }
-};

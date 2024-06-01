@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Sales = require("../../controllers/Sales/salesBookingController");
 const salesBookingPayment = require("../../controllers/SMS/salesBookingPaymentController");
+const { verifyToken } = require("../../middleware/auth");
 
 router.get("/sales", (req, res) => {
     res.send({ message: "Welcome to Sales module." });
@@ -10,14 +11,14 @@ router.get("/sales", (req, res) => {
 /**
  * sales booking routes
  */
-router.post("/sales/sales_booking", Sales.addSalesBooking);
-router.put("/sales/sales_booking/:id", Sales.editSalesBooking);
-router.get("/sales/sales_booking/:id", Sales.getSingleSalesBooking);
-router.get("/sales/sales_booking", Sales.getAllSalesBooking);
-router.delete("/sales/sales_booking/:id", Sales.deleteSalesBooking);
+router.post("/sales/sales_booking", verifyToken, Sales.addSalesBooking);
+router.put("/sales/sales_booking/:id", verifyToken, Sales.editSalesBooking);
+router.get("/sales/sales_booking/:id", verifyToken, Sales.getSingleSalesBooking);
+router.get("/sales/sales_booking", verifyToken, Sales.getAllSalesBooking);
+router.delete("/sales/sales_booking/:id", verifyToken, Sales.deleteSalesBooking);
 
-router.get("/sales/get_all_new_deleted_data", Sales.getNewSalesBooking);
-router.get("/sales/get_all_list_sales_booking/:id", Sales.getSalesBookingPaymentDetail);
+router.get("/sales/get_all_new_deleted_data", verifyToken, Sales.getNewSalesBooking);
+router.get("/sales/get_all_list_sales_booking/:id", verifyToken, Sales.getSalesBookingPaymentDetail);
 
 
 /**
