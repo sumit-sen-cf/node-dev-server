@@ -2,6 +2,7 @@ const userModel = require('../models/userModel.js');
 const multer = require("multer");
 const jwt = require("jsonwebtoken");
 const axios = require('axios');
+const mongoose = require('mongoose');
 // const fetch = require('node-fetch');
 const userAuthModel = require('../models/userAuthModel.js');
 const path = require("path");
@@ -63,302 +64,6 @@ const upload = multer({
     { name: "annexure_pdf", maxCount: 1 },
     { name: "bank_proof_image", maxCount: 5 },
 ]);
-
-// let userCounter = 0;
-// let invoice_template_no = 1;
-// exports.addUser = [upload, async (req, res) => {
-//     try {
-
-//         const latestUser = await userModel.findOne({}).sort({ created_At: -1 });
-//         let latestInvoiceNo = latestUser.invoice_template_no + 1;
-
-//         if (latestInvoiceNo > 9) {
-//             latestInvoiceNo = 1
-//         }
-
-//         let encryptedPass;
-//         if (req.body.user_login_password) {
-//             encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
-//         }
-
-//         let empId = await generateEmpId(req.body.dept_id);
-
-//         const simc = new userModel({
-//             user_name: req.body.user_name,
-//             user_designation: req.body.user_designation,
-//             user_email_id: req.body.user_email_id,
-//             user_login_id: req.body.user_login_id.toLowerCase().trim(),
-//             user_login_password: encryptedPass,
-//             user_report_to_id: req.body.user_report_to_id,
-//             user_contact_no: req.body.user_contact_no,
-//             dept_id: req.body.dept_id,
-//             location_id: req.body.location_id,
-//             created_by: req.body.created_by,
-//             role_id: req.body.role_id,
-//             sitting_id: req.body.sitting_id,
-//             job_type: req.body.job_type,
-//             PersonalNumber: req.body.personal_number,
-//             Report_L1: req.body.report_L1,
-//             Report_L2: req.body.report_L2,
-//             Report_L3: req.body.report_L3,
-//             PersonalEmail: req.body.Personal_email,
-//             joining_date: req.body.joining_date,
-//             releaving_date: req.body.releaving_date,
-//             level: req.body.level,
-//             room_id: req.body.room_id,
-//             salary: req.body.salary,
-//             year_salary: req.body.year_salary,
-//             att_status: req.body.att_status,
-//             SpokenLanguages: req.body.SpokenLanguages,
-//             Gender: req.body.Gender,
-//             Nationality: req.body.Nationality,
-//             DOB: req.body.DOB,
-//             Age: req.body.Age,
-//             fatherName: req.body.FatherName,
-//             motherName: req.body.MotherName,
-//             Hobbies: req.body?.Hobbies?.split(',').map(Number),
-//             BloodGroup: req.body.BloodGroup,
-//             MartialStatus: req.body.MartialStatus,
-//             DateofMarriage: req.body.DateofMarriage,
-//             tds_applicable: req.body.salary >= 30000 ? 'Yes' : req.body.tds_applicable,
-//             tds_per: req.body.salary >= 30000 ? 1 : req.body.tds_per,
-//             onboard_status: req.body.onboard_status,
-//             image_remark: req.body.image_remark,
-//             image_validate: req.body.image_validate,
-//             uid_remark: req.body.uid_remark,
-//             uid_validate: req.body.uid_validate,
-//             pan_remark: req.body.pan_remark,
-//             pan_validate: req.body.pan_validate,
-//             highest_upload_remark: req.body.highest_upload_remark,
-//             highest_upload_validate: req.body.highest_upload_validate,
-//             other_upload_remark: req.body.other_upload_remark,
-//             other_upload_validate: req.body.other_upload_validate,
-//             user_status: req.body.user_status,
-//             lastupdated: req.body.lastupdated,
-//             sub_dept_id: req.body.sub_dept_id == null ? 0 : req.body.sub_dept_id,
-//             pan_no: req.body.pan_no,
-//             uid_no: req.body.uid_no,
-//             spouse_name: req.body.spouse_name,
-//             highest_qualification_name: req.body.highest_qualification_name,
-//             tenth_marksheet_validate: req.body.tenth_marksheet_validate,
-//             twelveth_marksheet_validate: req.body.twelveth_marksheet_validate,
-//             UG_Marksheet_validate: req.body.UG_Marksheet_validate,
-//             passport_validate: req.body.passport_validate,
-//             pre_off_letter_validate: req.body.pre_off_letter_validate,
-//             pre_expe_letter_validate: req.body.pre_expe_letter_validate,
-//             pre_relieving_letter_validate: req.body.pre_relieving_letter_validate,
-//             bankPassBook_Cheque_validate: req.body.bankPassBook_Cheque_validate,
-//             tenth_marksheet_validate_remark: req.body.tenth_marksheet_validate_remark,
-//             twelveth_marksheet_validate_remark: req.body.twelveth_marksheet_validate_remark,
-//             UG_Marksheet_validate_remark: req.body.UG_Marksheet_validate_remark,
-//             passport_validate_remark: req.body.passport_validate,
-//             pre_off_letter_validate_remark: req.body.pre_off_letter_validate_remark,
-//             pre_expe_letter_validate_remark: req.body.pre_expe_letter_validate_remark,
-//             pre_relieving_letter_validate_remark: req.body.pre_relieving_letter_validate_remark,
-//             bankPassBook_Cheque_validate_remark: req.body.bankPassBook_Cheque_validate_remark,
-//             current_address: req.body.current_address,
-//             current_city: req.body.current_city,
-//             current_state: req.body.current_state,
-//             current_pin_code: req.body.current_pin_code,
-//             permanent_address: req.body.permanent_address,
-//             permanent_city: req.body.permanent_city,
-//             permanent_state: req.body.permanent_state,
-//             permanent_pin_code: req.body.permanent_pin_code,
-//             joining_date_extend: req.body.joining_date_extend,
-//             joining_date_extend_status: req.body.joining_date_extend_status,
-//             joining_date_extend_reason: req.body.joining_date_extend_reason,
-//             invoice_template_no: latestInvoiceNo,
-//             // image: req.files.image ? req.files.image[0].filename : '',
-//             UID: req.files.UID ? req.files.UID[0].filename : '',
-//             pan: req.files.pan ? req.files.pan[0].filename : '',
-//             highest_upload: req.files.highest_upload ? req.files.highest_upload[0].filename : '',
-//             other_upload: req.files.other_upload ? req.files.other_upload[0].filename : '',
-//             tenth_marksheet: req.files.tenth_marksheet ? req.files.tenth_marksheet[0].filename : '',
-//             twelveth_marksheet: req.files.twelveth_marksheet ? req.files.twelveth_marksheet[0].filename : '',
-//             UG_Marksheet: req.files.UG_Marksheet ? req.files.UG_Marksheet[0].filename : '',
-//             passport: req.files.passport ? req.files.passport[0].filename : '',
-//             pre_off_letter: req.files.pre_off_letter ? req.files.pre_off_letter[0].filename : '',
-//             pre_expe_letter: req.files.pre_expe_letter ? req.files.pre_expe_letter[0].filename : '',
-//             pre_relieving_letter: req.files.pre_relieving_letter ? req.files.pre_relieving_letter[0].filename : '',
-//             bankPassBook_Cheque: req.files.bankPassBook_Cheque ? req.files.bankPassBook_Cheque[0].filename : '',
-//             joining_extend_document: req.files.joining_extend_document ? req.files.joining_extend_document[0].filename : '',
-//             digital_signature_image: req.files.digital_signature_image ? req.files.digital_signature_image[0].filename : '',
-//             userSalaryStatus: req.body.userSalaryStatus,
-//             bank_name: req.body.bank_name,
-//             ifsc_code: req.body.ifsc_code,
-//             account_no: req.body.account_no,
-//             guardian_name: req.body.guardian_name,
-//             guardian_address: req.body.guardian_address,
-//             relation_with_guardian: req.body.relation_with_guardian,
-//             gaurdian_number: req.body.gaurdian_number,
-//             emergency_contact1: req.body.emergency_contact1,
-//             emergency_contact2: req.body.emergency_contact2,
-//             ctc: req.body.ctc,
-//             offer_letter_send: req.body.offer_letter_send,
-//             annexure_pdf: req.files.annexure_pdf ? req.files.annexure_pdf[0].filename : '',
-//             profileflag: req.body.profileflag,
-//             nick_name: req.body.nick_name,
-//             offer_later_date: req.body.offer_later_date,
-//             annexure_pdf: req.files.annexure_pdf ? req.files.annexure_pdf[0].filename : '',
-//             latitude: req.body.latitude,
-//             longitude: req.body.longitude,
-//             beneficiary: req.body.beneficiary,
-//             emp_id: empId,
-//             alternate_contact: req.body.alternate_contact,
-//             cast_type: req.body.cast_type,
-//             emergency_contact_person_name1: req.body.emergency_contact_person_name1,
-//             emergency_contact_person_name2: req.body.emergency_contact_person_name2,
-//             emergency_contact_relation1: req.body.emergency_contact_relation1,
-//             emergency_contact_relation2: req.body.emergency_contact_relation2,
-//             document_percentage_mandatory: req.body.document_percentage_mandatory,
-//             document_percentage_non_mandatory: req.body.document_percentage_non_mandatory,
-//             document_percentage: req.body.document_percentage,
-//             bank_type: req.body.bank_type,
-//             upi_Id: req.body.upi_Id,
-//             user_credit_limit: req.body.user_credit_limit
-//         })
-
-//         if (req.files.image && req.files.image[0].originalname) {
-//             const allowedTypes = ['image/jpeg', 'image/png'];
-//             const maxFileSize = 1 * 1024 * 1024;
-//             const imageFile = req.files.image[0];
-//             if (allowedTypes.includes(imageFile.mimetype) && imageFile.size <= maxFileSize) {
-//                 const bucketName = vari.BUCKET_NAME;
-//                 const bucket = storage.bucket(bucketName);
-//                 const blob1 = bucket.file(imageFile.originalname);
-//                 simc.image = blob1.name;
-//                 const blobStream1 = blob1.createWriteStream();
-//                 blobStream1.on("finish", () => { });
-//                 blobStream1.end(imageFile.buffer);
-//             } else {
-//                 res.status(400).send('Invalid file type or file exceeds size limit (1MB)');
-//             }
-
-//             // const bucketName = vari.BUCKET_NAME;
-//             // const bucket = storage.bucket(bucketName);
-//             // const blob1 = bucket.file(req.files.image[0].originalname);
-//             // simc.image = blob1.name;
-//             // const blobStream1 = blob1.createWriteStream();
-//             // blobStream1.on("finish", () => { });
-//             // blobStream1.end(req.files.image[0].buffer);
-//         }
-
-//         // if(req.body.salary>= 30000){
-
-//         // }
-//         const simv = await simc.save();
-
-//         // Genreate a pdf file for offer later
-//         if (simv?.offer_letter_send) {
-//             helper.generateOfferLaterPdf(simv);
-
-//         }
-//         //Generate documents for respective user id
-//         const docs = await documentModel.find();
-//         if (docs.length !== 0) {
-//             const newDocuments = docs.map(item => ({
-//                 doc_id: item._id,
-//                 user_id: simv?.user_id,
-//             }));
-//             await userDocManagmentModel.insertMany(newDocuments);
-//         }
-//         //End Generate documents for respective user id
-
-//         if (simv) {
-//             // const joining = simv.joining_date;
-//             // const convertDate = new Date(joining);
-//             // const extractDate = convertDate.getDate();
-//             // const joiningMonth = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(convertDate);
-//             // const joiningYear = String(convertDate.getUTCFullYear());
-//             // const work_days = 31 - extractDate;
-//             // const bonus = 0;
-//             // const presentDays = work_days - 0;
-//             // const perdaysal = simv.salary / 30;
-//             // const totalSalary = perdaysal * presentDays;
-//             // const netSalary = totalSalary + bonus;
-//             // const tdsDeduction = netSalary * (simv.tds_per) / 100;
-//             // const ToPay = netSalary - tdsDeduction;
-
-//             // const checkIfAttendanceExist = await attendanceModel.findOne({
-//             //     month: req.body.month,
-//             //     year: req.body.year
-//             // })
-//             // if (checkIfAttendanceExist) {
-//             //     const lastInserted = new attendanceModel({
-//             //         dept: simv.dept_id,
-//             //         user_id: simv.user_id,
-//             //         user_name: req.body.user_name,
-//             //         noOfabsent: 0,
-//             //         month: joiningMonth,
-//             //         year: joiningYear,
-//             //         bonus: 0,
-//             //         total_salary: simv.salary && simv.salary.toFixed(2),
-//             //         tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-//             //         net_salary: netSalary && netSalary.toFixed(2),
-//             //         toPay: ToPay && ToPay.toFixed(2),
-//             //         remark: "",
-//             //         created_by: 99
-//             //     })
-//             //     await lastInserted.save();
-//             // }
-
-//             const objectData = await objModel.find();
-
-//             for (const object of objectData) {
-//                 const objectId = object.obj_id;
-//                 let insert = 0;
-//                 let view = 0;
-//                 let update = 0;
-//                 let delete_flag = 0;
-
-//                 if (simv.role_id === 1) {
-//                     insert = 1;
-//                     view = 1;
-//                     update = 1;
-//                     delete_flag = 1;
-//                 }
-
-//                 const userAuthDocument = {
-//                     Juser_id: simv.user_id,
-//                     obj_id: objectId,
-//                     insert: insert,
-//                     view: view,
-//                     update: update,
-//                     delete_flag: delete_flag,
-//                     creation_date: new Date(),
-//                     created_by: simv.created_by || 0,
-//                     last_updated_by: simv.created_by || 0,
-//                     last_updated_date: new Date(),
-//                 };
-
-//                 await userAuthModel.create(userAuthDocument);
-//             }
-//             const deptDesiData = await deptDesiAuthModel.find({});
-//             await Promise.all(deptDesiData.map(async (deptDesi) => {
-//                 if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
-//                     const updatedData = await userAuthModel.updateOne(
-//                         {
-//                             obj_id: deptDesi.obj_id,
-//                             Juser_id: simv.user_id
-//                         },
-//                         {
-//                             $set: {
-//                                 insert: deptDesi.insert,
-//                                 view: deptDesi.view,
-//                                 update: deptDesi.update,
-//                                 delete_flag: deptDesi.delete_flag
-//                             }
-//                         },
-//                         { new: true }
-//                     );
-//                 }
-//             }));
-//         }
-//         res.send({ simv, status: 200 });
-//     } catch (err) {
-//         return res.status(500).send({ error: err.message, sms: 'This user cannot be created' })
-//     }
-// }];
 
 exports.addUser = async (req, res) => {
     try {
@@ -470,172 +175,6 @@ exports.addUser = async (req, res) => {
         res.status(500).send({ error: err.message, sms: 'This user cannot be created' });
     }
 };
-
-// exports.addUserForGeneralInformation = [upload, async (req, res) => {
-//     try {
-//         // let encryptedPass;
-//         // //for user password encription
-//         // if (req.body.user_login_password) {
-//         //     encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
-//         // }
-
-//         const encryptedPass = req.body.user_login_password ? await bcrypt.hash(req.body.user_login_password, 10) : null;
-
-//         // let empId = await generateEmpId(req.body.dept_id);
-
-//         //user data obj create 
-//         const simc = new userModel({
-//             //for personal information
-//             user_name: req.body.user_name,
-//             PersonalEmail: req.body.Personal_email,
-//             PersonalNumber: req.body.personal_number,
-//             alternate_contact: req.body.alternate_contact,
-//             Gender: req.body.Gender,
-//             DOB: req.body.DOB,
-//             Age: req.body.Age,
-//             Nationality: req.body.Nationality,
-//             MartialStatus: req.body.MartialStatus,
-//             created_by: req.body.created_by,
-//             //for official information
-//             job_type: req.body.job_type,
-//             dept_id: req.body.dept_id,
-//             sub_dept_id: req.body.sub_dept_id == null ? 0 : req.body.sub_dept_id,
-//             user_designation: req.body.user_designation,
-//             Report_L1: req.body.report_L1,
-//             Report_L2: req.body.report_L2,
-//             Report_L3: req.body.report_L3,
-//             role_id: req.body.role_id,
-//             user_email_id: req.body.user_email_id, //for offical
-//             user_contact_no: req.body.user_contact_no, //for offical
-//             user_login_id: req.body.user_login_id.toLowerCase().trim(),
-//             user_login_password: encryptedPass,
-//             user_status: req.body.user_status,
-//             joining_date: req.body.joining_date,
-//             sitting_id: req.body.sitting_id,
-//             room_id: req.body.room_id,
-//             upi_Id: req.body.upi_Id,
-//             // emp_id: empId,
-//             user_credit_limit: req.body.user_credit_limit,
-//             created_date_time: req.body.created_date_time,
-//         })
-
-//         if (req.files && req.files.image && req.files.image[0].originalname) {
-//             const bucketName = vari.BUCKET_NAME;
-//             const bucket = storage.bucket(bucketName);
-//             const blob1 = bucket.file(req.files.image[0].originalname);
-//             simc.image = blob1.name;
-//             const blobStream1 = blob1.createWriteStream();
-//             blobStream1.on("finish", () => { });
-//             blobStream1.end(req.files.image[0].buffer);
-//         }
-
-//         const simv = await simc.save();
-
-//         // // Genreate a pdf file for offer later
-//         // if (simv?.offer_letter_send) {
-//         //     helper.generateOfferLaterPdf(simv);
-
-//         // }
-//         //Generate documents for respective user id
-//         const docs = await documentModel.find();
-//         if (docs.length !== 0) {
-//             const newDocuments = docs.map(item => ({
-//                 doc_id: item._id,
-//                 user_id: simv?.user_id,
-//             }));
-//             await userDocManagmentModel.insertMany(newDocuments);
-//         }
-//         //End Generate documents for respective user id
-
-//         if (simv) {
-//             const objectData = await objModel.find();
-
-//             for (const object of objectData) {
-//                 // const objectId = object.obj_id;
-//                 // let insert = 0;
-//                 // let view = 0;
-//                 // let update = 0;
-//                 // let delete_flag = 0;
-
-//                 // if (simv.role_id === 1) {
-//                 //     insert = 1;
-//                 //     view = 1;
-//                 //     update = 1;
-//                 //     delete_flag = 1;
-//                 // }
-
-//                 // const userAuthDocument = {
-//                 //     Juser_id: simv.user_id,
-//                 //     obj_id: objectId,
-//                 //     insert: insert,
-//                 //     view: view,
-//                 //     update: update,
-//                 //     delete_flag: delete_flag,
-//                 //     creation_date: new Date(),
-//                 //     created_by: simv.created_by || 0,
-//                 //     last_updated_by: simv.created_by || 0,
-//                 //     last_updated_date: new Date(),
-//                 // };
-
-//                 // await userAuthModel.create(userAuthDocument);
-//                 const objectId = object.obj_id;
-//                 let insert = 0, view = 0, update = 0, delete_flag = 0;
-
-//                 if (simv.role_id === 1) {
-//                     insert = view = update = delete_flag = 1;
-//                 }
-
-//                 const userAuthDocument = {
-//                     Juser_id: simv.user_id,
-//                     obj_id: objectId,
-//                     insert, view, update, delete_flag,
-//                     creation_date: new Date(),
-//                     created_by: simv.created_by || 0,
-//                     last_updated_by: simv.created_by || 0,
-//                     last_updated_date: new Date(),
-//                 };
-
-//                 await userAuthModel.create(userAuthDocument);
-//             }
-//             // const deptDesiData = await deptDesiAuthModel.find({});
-//             // await Promise.all(deptDesiData.map(async (deptDesi) => {
-//             //     if (deptDesi && deptDesi.dept_id == req.body.dept_id && deptDesi.desi_id == req.body.user_designation) {
-//             //         const updatedData = await userAuthModel.updateOne(
-//             //             {
-//             //                 obj_id: deptDesi.obj_id,
-//             //                 Juser_id: simv.user_id
-//             //             },
-//             //             {
-//             //                 $set: {
-//             //                     insert: deptDesi.insert,
-//             //                     view: deptDesi.view,
-//             //                     update: deptDesi.update,
-//             //                     delete_flag: deptDesi.delete_flag
-//             //                 }
-//             //             },
-//             //             { new: true }
-//             //         );
-//             //     }
-//             // }));
-//             const deptDesiData = await deptDesiAuthModel.findOne({
-//                 dept_id: req.body.dept_id,
-//                 desi_id: req.body.user_designation
-//             });
-//             if (deptDesiData) {
-//                 await userAuthModel.updateMany(
-//                     { obj_id: deptDesiData.obj_id, Juser_id: simv.user_id },
-//                     { $set: { insert: deptDesiData.insert, view: deptDesiData.view, update: deptDesiData.update, delete_flag: deptDesiData.delete_flag } }
-//                 );
-//             }
-//         }
-
-//         //send success response
-//         res.send({ simv, status: 200 });
-//     } catch (err) {
-//         return res.status(500).send({ error: err.message, sms: 'This user cannot be created' })
-//     }
-// }];
-
 
 exports.addUserForGeneralInformation = [upload, async (req, res) => {
     try {
@@ -1228,373 +767,10 @@ exports.getWFHUsersByDept = async (req, res) => {
 };
 
 
-// exports.getAllUsers = async (req, res) => {
-//     try {
-//         const singlesim = await userModel.aggregate([
-//             {
-//                 $lookup: {
-//                     from: 'departmentmodels',
-//                     localField: 'dept_id',
-//                     foreignField: 'dept_id',
-//                     as: 'department'
-//                 }
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$department",
-//                     preserveNullAndEmptyArrays: true
-//                 }
-//             },
-//             {
-//                 $lookup: {
-//                     from: 'designationmodels',
-//                     localField: 'user_designation',
-//                     foreignField: 'desi_id',
-//                     as: 'designation'
-//                 }
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$designation",
-//                     preserveNullAndEmptyArrays: true
-//                 }
-//             },
-//             {
-//                 $lookup: {
-//                     from: 'rolemodels',
-//                     localField: 'role_id',
-//                     foreignField: 'role_id',
-//                     as: 'role'
-//                 }
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$role",
-//                     preserveNullAndEmptyArrays: true
-//                 }
-//             },
-//             {
-//                 $lookup: {
-//                     from: "usermodels",
-//                     localField: "user_report_to_id",
-//                     foreignField: "user_id",
-//                     as: "reportTo"
-//                 }
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$reportTo",
-//                     preserveNullAndEmptyArrays: true
-//                 }
-//             },
-//             {
-//                 $lookup: {
-//                     from: "usermodels",
-//                     localField: "Report_L1",
-//                     foreignField: "user_id",
-//                     as: "reportL1"
-//                 }
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$reportL1",
-//                     preserveNullAndEmptyArrays: true
-//                 }
-//             },
-//             {
-//                 $lookup: {
-//                     from: "usermodels",
-//                     localField: "Report_L2",
-//                     foreignField: "user_id",
-//                     as: "reportL2"
-//                 }
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$reportL2",
-//                     preserveNullAndEmptyArrays: true
-//                 }
-//             },
-//             {
-//                 $lookup: {
-//                     from: "usermodels",
-//                     localField: "Report_L3",
-//                     foreignField: "user_id",
-//                     as: "reportL3"
-//                 }
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$reportL3",
-//                     preserveNullAndEmptyArrays: true
-//                 }
-//             },
-//             // {
-//             //     $lookup: {
-//             //         from: 'userdocmanagementmodels',
-//             //         localField: 'user_id',
-//             //         foreignField: 'user_id',
-//             //         as: 'userdocuments'
-//             //     }
-//             // },
-//             // {
-//             //     $unwind: {
-//             //         path: "$userdocuments",
-//             //         preserveNullAndEmptyArrays: true
-//             //     }
-//             // },
-//             // {
-//             //     $lookup: {
-//             //         from: 'documentmodels',
-//             //         localField: 'userdocuments.doc_id',
-//             //         foreignField: 'doc_id',
-//             //         as: 'documents'
-//             //     }
-//             // },
-//             // {
-//             //     $addFields: {
-//             //         requiredDocuments: {
-//             //             $filter: {
-//             //                 input: "$documents",
-//             //                 as: "doc",
-//             //                 cond: "$$doc.isRequired"
-//             //             }
-//             //         }
-//             //     }
-//             // },
-//             {
-//                 $lookup: {
-//                     from: "usermodels",
-//                     localField: "created_by",
-//                     foreignField: "user_id",
-//                     as: "createdByUserData",
-//                 }
-//             }, {
-//                 $unwind: {
-//                     path: "$createdByUserData",
-//                     preserveNullAndEmptyArrays: true,
-//                 },
-//             },
-//             {
-//                 $project: {
-//                     user_id: "$user_id",
-//                     user_name: "$user_name",
-//                     user_credit_limit: "$user_credit_limit",
-//                     account_type: "$account_type",
-//                     branch_name: "$branch_name",
-//                     offer_later_status: "$offer_later_status",
-//                     user_designation: "$user_designation",
-//                     user_email_id: "$user_email_id",
-//                     user_login_id: "$user_login_id",
-//                     user_login_password: "$user_login_password",
-//                     user_report_to_id: "$user_report_to_id",
-//                     created_At: "$created_At",
-//                     last_updated: "$lastupdated",
-//                     created_by: "$created_by",
-//                     user_contact_no: "$user_contact_no",
-//                     dept_id: "$dept_id",
-//                     location_id: "$location_id",
-//                     role_id: "$role_id",
-//                     sitting_id: "$sitting_id",
-//                     image: "$image",
-//                     job_type: "$job_type",
-//                     PersonalNumber: "$PersonalNumber",
-//                     Report_L1: "$Report_L1",
-//                     Report_L2: "$Report_L2",
-//                     Report_L3: "$Report_L3",
-//                     PersonalEmail: "$PersonalEmail",
-//                     level: "$level",
-//                     joining_date: "$joining_date",
-//                     releaving_date: "$releaving_date",
-//                     room_id: "$room_id",
-//                     UID: "$UID",
-//                     pan: "$pan",
-//                     highest_upload: "$highest_upload",
-//                     other_upload: "$other_upload",
-//                     salary: "$salary",
-//                     year_salary: "$year_salary",
-//                     SpokenLanguages: "$SpokenLanguages",
-//                     Gender: "$Gender",
-//                     Nationality: "$Nationality",
-//                     DOB: "$DOB",
-//                     Age: "$Age",
-//                     fatherName: "$fatherName",
-//                     motherName: "$motherName",
-//                     Hobbies: "$Hobbies",
-//                     BloodGroup: "$BloodGroup",
-//                     MartialStatus: "$MartialStatus",
-//                     DateOfMarriage: "$DateOfMarriage",
-//                     onboard_status: "$onboard_status",
-//                     tbs_applicable: "$tds_applicable",
-//                     tds_per: "$tds_per",
-//                     image_remark: "$image_remark",
-//                     image_validate: "$image_validate",
-//                     uid_remark: "$uid_remark",
-//                     uid_validate: "$uid_validate",
-//                     pan_remark: "$pan_remark",
-//                     pan_validate: "$pan_validate",
-//                     highest_upload_remark: "$highest_upload_remark",
-//                     highest_upload_validate: "$highest_upload_validate",
-//                     other_upload_remark: "$other_upload_remark",
-//                     other_upload_validate: "$other_upload_validate",
-//                     user_status: "$user_status",
-//                     sub_dept_id: "$sub_dept_id",
-//                     pan_no: "$pan_no",
-//                     uid_no: "$uid_no",
-//                     spouse_name: "$spouse_name",
-//                     highest_qualification_name: "$highest_qualification_name",
-//                     tenth_marksheet: "$tenth_marksheet",
-//                     twelveth_marksheet: "$twelveth_marksheet",
-//                     UG_Marksheet: "$UG_Marksheet",
-//                     passport: "$passport",
-//                     pre_off_letter: "$pre_off_letter",
-//                     pre_expe_letter: "$pre_expe_letter",
-//                     pre_relieving_letter: "$pre_relieving_letter",
-//                     bankPassBook_Cheque: "$bankPassBook_Cheque",
-//                     tenth_marksheet_validate: "$tenth_marksheet_validate",
-//                     twelveth_marksheet_validate: "$twelveth_marksheet_validate",
-//                     UG_Marksheet_validate: "$UG_Marksheet_validate",
-//                     passport_validate: "$passport_validate",
-//                     pre_off_letter_validate: "$pre_off_letter_validate",
-//                     pre_expe_letter_validate: "$pre_expe_letter_validate",
-//                     pre_relieving_letter_validate: "$pre_relieving_letter_validate",
-//                     bankPassBook_Cheque_validate: "$bankPassBook_Cheque_validate",
-//                     tenth_marksheet_validate_remark: "$tenth_marksheet_validate_remark",
-//                     twelveth_marksheet_validate_remark: "$twelveth_marksheet_validate_remark",
-//                     UG_Marksheet_validate_remark: "$UG_Marksheet_validate_remark",
-//                     passport_validate_remark: "$passport_validate_remark",
-//                     pre_off_letter_validate_remark: "$pre_off_letter_validate_remark",
-//                     pre_expe_letter_validate_remark: "$pre_expe_letter_validate_remark",
-//                     pre_relieving_letter_validate_remark: "$pre_relieving_letter_validate_remark",
-//                     bankPassBook_Cheque_validate_remark: "$bankPassBook_Cheque_validate_remark",
-//                     current_address: "$current_address",
-//                     current_city: "$current_city",
-//                     current_state: "$current_state",
-//                     current_pin_code: "$current_pin_code",
-//                     att_status: "$att_status",
-//                     permanent_address: "$permanent_address",
-//                     permanent_city: "$permanent_city",
-//                     permanent_state: "$permanent_state",
-//                     permanent_pin_code: "$permanent_pin_code",
-//                     joining_date_extend: "$joining_date_extend",
-//                     joining_date_extend_status: "$joining_date_extend_status",
-//                     joining_date_extend_reason: "$joining_date_extend_reason",
-//                     joining_date_reject_reason: "$joining_date_reject_reason",
-//                     joining_extend_document: "$joining_extend_document",
-//                     invoice_template_no: "$invoice_template_no",
-//                     userSalaryStatus: "$userSalaryStatus",
-//                     digital_signature_image: "$digital_signature_image",
-//                     department_name: "$department.dept_name",
-//                     Role_name: "$role.Role_name",
-//                     report: "$reportTo.user_name",
-//                     Report_L1N: "$reportL1.user_name",
-//                     Report_L2N: "$reportL2.user_name",
-//                     Report_L3N: "$reportL3.user_name",
-//                     designation_name: "$designation.desi_name",
-//                     userSalaryStatus: '$userSalaryStatus',
-//                     digital_signature_image: "$digital_signature_image",
-//                     bank_name: "$bank_name",
-//                     ifsc_code: "$ifsc_code",
-//                     account_no: "$account_no",
-//                     guardian_name: "$guardian_name",
-//                     guardian_address: "$guardian_address",
-//                     relation_with_guardian: "$relation_with_guardian",
-//                     gaurdian_number: "$gaurdian_number",
-//                     emergency_contact1: "$emergency_contact1",
-//                     emergency_contact2: "$emergency_contact2",
-//                     ctc: "$ctc",
-//                     offer_letter_send: "$offer_letter_send",
-//                     annexure_pdf: "$annexure_pdf",
-//                     profileflag: "$profileflag",
-//                     nick_name: "$nick_name",
-//                     showOnboardingModal: "$showOnboardingModal",
-//                     coc_flag: "$coc_flag",
-//                     latitude: "$latitude",
-//                     longitude: "$longitude",
-//                     beneficiary: "$beneficiary",
-//                     emp_id: "$emp_id",
-//                     alternate_contact: "$alternate_contact",
-//                     cast_type: "$cast_type",
-//                     bank_type: "$bank_type",
-//                     emergency_contact_person_name1: "$emergency_contact_person_name1",
-//                     emergency_contact_person_name2: "$emergency_contact_person_name2",
-//                     emergency_contact_relation1: "$emergency_contact_relation1",
-//                     emergency_contact_relation2: "$emergency_contact_relation2",
-//                     document_percentage_mandatory: "$document_percentage_mandatory",
-//                     document_percentage_non_mandatory: "$document_percentage_non_mandatory",
-//                     document_percentage: "$document_percentage",
-//                     upi_Id: "$upi_Id",
-//                     created_by: "$created_by",
-//                     created_by_name: "$createdByUserData.user_name",
-//                     created_date_time: "$created_date_time"
-//                     // documentPercentage: {
-//                     //     $multiply: [
-//                     //         {
-//                     //             $divide: [
-//                     //                 { $size: "$requiredDocuments" },
-//                     //                 { $size: "$documents" }
-//                     //             ]
-//                     //         },
-//                     //         100
-//                     //     ]
-//                     // }
-//                 }
-//             }
-//         ]).sort({ user_id: -1 });
-//         const userImagesBaseUrl = `${vari.IMAGE_URL}`;
-//         const fieldsToCheck = [
-//             'user_name', 'PersonalEmail', 'PersonalNumber', 'fatherName', 'Gender', 'motherName',
-//             'Hobbies', 'BloodGroup', 'SpokenLanguage', 'DO', 'Nationality', 'guardian_name',
-//             'guardian_contact', 'emergency_contact', 'guardian_address', 'relation_with_guardian',
-//             'current_address', 'current_city', 'current_state', 'current_pin_code',
-//             'permanent_address', 'permanent_city', 'permanent_state', 'permanent_pin_code',
-//         ];
-//         const dataWithImageUrl = singlesim.map((user) => {
-//             const filledFields = fieldsToCheck.filter(field => user[field] !== null && user[field] !== undefined && user[field] !== '').length;
-//             const percentageFilled = (filledFields / fieldsToCheck.length) * 100;
-
-//             return {
-//                 ...user,
-//                 image_url: user.image ? userImagesBaseUrl + user.image : null,
-//                 uid_url: user.UID ? userImagesBaseUrl + user.UID : null,
-//                 pan_url: user.pan ? userImagesBaseUrl + user.pan : null,
-//                 highest_upload_url: user.highest_upload
-//                     ? userImagesBaseUrl + user.highest_upload
-//                     : null,
-//                 other_upload_url: user.other_upload
-//                     ? userImagesBaseUrl + user.other_upload
-//                     : null,
-//                 tenth_marksheet_url: user.tenth_marksheet ? userImagesBaseUrl + user.tenth_marksheet : null,
-//                 twelveth_marksheet_url: user.twelveth_marksheet ? userImagesBaseUrl + user.twelveth_marksheet : null,
-//                 UG_Marksheet_url: user.UG_Marksheet ? userImagesBaseUrl + user.UG_Marksheet : null,
-//                 pasport_url: user.passport ? userImagesBaseUrl + user.passport : null,
-//                 pre_off_letter_url: user.pre_off_letter ? userImagesBaseUrl + user.pre_off_letter : null,
-//                 pre_expe_letter_url: user.pre_expe_letter ? userImagesBaseUrl + user.pre_expe_letter : null,
-//                 Pre_relieving_letter_url: user.pre_relieving_letter ? userImagesBaseUrl + user.pre_relieving_letter : null,
-//                 bankPassBook_Cheque_url: user.bankPassBook_Cheque ? userImagesBaseUrl + user.bankPassBook_Cheque : null,
-//                 joining_extend_document_url: user.joining_extend_document ? userImagesBaseUrl + user.joining_extend_document : null,
-//                 digital_signature_image_url: user.digital_signature_image ? userImagesBaseUrl + user.digital_signature_image : null,
-//                 annexure_pdf_url: user.annexure_pdf ? userImagesBaseUrl + user.annexure_pdf : null,
-//                 percentage_filled: percentageFilled.toFixed(2) + '%',
-//                 documentPercentage: (Number(user.document_percentage_mandatory) + Number(user.document_percentage_non_mandatory)) / 2
-//             };
-//         });
-//         if (dataWithImageUrl?.length === 0) {
-//             res
-//                 .status(200)
-//                 .send({ success: true, data: [], message: "No Record found" });
-//         } else {
-//             res.status(200).send({ data: dataWithImageUrl });
-//         }
-//     } catch (err) {
-//         res.status(500).send({ error: err.message, sms: 'Error getting all users' })
-//     }
-// }
-
-
 exports.getAllUsers = async (req, res) => {
     try {
-        const pipeline = [
+        const userImagesBaseUrl = `${vari.IMAGE_URL}`;
+        const userDataPipeline = [
             {
                 $lookup: {
                     from: 'departmentmodels',
@@ -1683,10 +859,10 @@ exports.getAllUsers = async (req, res) => {
                     joining_date: 1,
                     releaving_date: 1,
                     room_id: 1,
-                    UID: 1,
-                    pan: 1,
-                    highest_upload: 1,
-                    other_upload: 1,
+                    // UID: 1,
+                    // pan: 1,
+                    // highest_upload: 1,
+                    // other_upload: 1,
                     salary: 1,
                     year_salary: 1,
                     SpokenLanguages: 1,
@@ -1703,46 +879,46 @@ exports.getAllUsers = async (req, res) => {
                     onboard_status: 1,
                     tbs_applicable: 1,
                     tds_per: 1,
-                    image_remark: 1,
-                    image_validate: 1,
-                    uid_remark: 1,
-                    uid_validate: 1,
-                    pan_remark: 1,
-                    pan_validate: 1,
-                    highest_upload_remark: 1,
-                    highest_upload_validate: 1,
-                    other_upload_remark: 1,
-                    other_upload_validate: 1,
+                    // image_remark: 1,
+                    // image_validate: 1,
+                    // uid_remark: 1,
+                    // uid_validate: 1,
+                    // pan_remark: 1,
+                    // pan_validate: 1,
+                    // highest_upload_remark: 1,
+                    // highest_upload_validate: 1,
+                    // other_upload_remark: 1,
+                    // other_upload_validate: 1,
                     user_status: 1,
                     sub_dept_id: 1,
                     pan_no: 1,
                     uid_no: 1,
                     spouse_name: 1,
-                    highest_qualification_name: 1,
-                    tenth_marksheet: 1,
-                    twelveth_marksheet: 1,
-                    UG_Marksheet: 1,
-                    passport: 1,
+                    // highest_qualification_name: 1,
+                    // tenth_marksheet: 1,
+                    // twelveth_marksheet: 1,
+                    // UG_Marksheet: 1,
+                    // passport: 1,
                     pre_off_letter: 1,
-                    pre_expe_letter: 1,
-                    pre_relieving_letter: 1,
-                    bankPassBook_Cheque: 1,
-                    tenth_marksheet_validate: 1,
-                    twelveth_marksheet_validate: 1,
-                    UG_Marksheet_validate: 1,
-                    passport_validate: 1,
-                    pre_off_letter_validate: 1,
-                    pre_expe_letter_validate: 1,
-                    pre_relieving_letter_validate: 1,
-                    bankPassBook_Cheque_validate: 1,
-                    tenth_marksheet_validate_remark: 1,
-                    twelveth_marksheet_validate_remark: 1,
-                    UG_Marksheet_validate_remark: 1,
-                    passport_validate_remark: 1,
-                    pre_off_letter_validate_remark: 1,
-                    pre_expe_letter_validate_remark: 1,
-                    pre_relieving_letter_validate_remark: 1,
-                    bankPassBook_Cheque_validate_remark: 1,
+                    // pre_expe_letter: 1,
+                    // pre_relieving_letter: 1,
+                    // bankPassBook_Cheque: 1,
+                    // tenth_marksheet_validate: 1,
+                    // twelveth_marksheet_validate: 1,
+                    // UG_Marksheet_validate: 1,
+                    // passport_validate: 1,
+                    // pre_off_letter_validate: 1,
+                    // pre_expe_letter_validate: 1,
+                    // pre_relieving_letter_validate: 1,
+                    // bankPassBook_Cheque_validate: 1,
+                    // tenth_marksheet_validate_remark: 1,
+                    // twelveth_marksheet_validate_remark: 1,
+                    // UG_Marksheet_validate_remark: 1,
+                    // passport_validate_remark: 1,
+                    // pre_off_letter_validate_remark: 1,
+                    // pre_expe_letter_validate_remark: 1,
+                    // pre_relieving_letter_validate_remark: 1,
+                    // bankPassBook_Cheque_validate_remark: 1,
                     current_address: 1,
                     current_city: 1,
                     current_state: 1,
@@ -1759,7 +935,6 @@ exports.getAllUsers = async (req, res) => {
                     joining_extend_document: 1,
                     invoice_template_no: 1,
                     userSalaryStatus: 1,
-                    digital_signature_image: 1,
                     department_name: "$department.dept_name",
                     Role_name: "$role.Role_name",
                     report: "$reportTo.user_name",
@@ -1796,9 +971,10 @@ exports.getAllUsers = async (req, res) => {
                     emergency_contact_person_name2: 1,
                     emergency_contact_relation1: 1,
                     emergency_contact_relation2: 1,
-                    document_percentage_mandatory: 1,
-                    document_percentage_non_mandatory: 1,
-                    document_percentage: 1,
+                    image_url: { $concat: [userImagesBaseUrl, "$image"] },
+                    // document_percentage_mandatory: 1,
+                    // document_percentage_non_mandatory: 1,
+                    // document_percentage: 1,
                     upi_Id: 1,
                     created_by: 1,
                     created_by_name: "$createdByUserData.user_name",
@@ -1806,56 +982,13 @@ exports.getAllUsers = async (req, res) => {
                 }
             }
         ];
+        const users = await mongoose.model('userModel').aggregate(userDataPipeline).exec();
+        return res.status(200).send({ data: users });
 
-        const users = await userModel.aggregate(pipeline).sort({ user_id: -1 });
-
-        if (users.length === 0) {
-            return res.status(200).send({ success: true, data: [], message: "No Record found" });
-        }
-
-        const userImagesBaseUrl = `${vari.IMAGE_URL}`;
-        const fieldsToCheck = [
-            'user_name', 'PersonalEmail', 'PersonalNumber', 'fatherName', 'Gender', 'motherName',
-            'Hobbies', 'BloodGroup', 'SpokenLanguage', 'DO', 'Nationality', 'guardian_name',
-            'guardian_contact', 'emergency_contact', 'guardian_address', 'relation_with_guardian',
-            'current_address', 'current_city', 'current_state', 'current_pin_code',
-            'permanent_address', 'permanent_city', 'permanent_state', 'permanent_pin_code',
-        ];
-
-        const dataWithImageUrl = users.map(user => {
-            const filledFields = fieldsToCheck.filter(field => user[field] !== null && user[field] !== undefined && user[field] !== '').length;
-            const percentageFilled = (filledFields / fieldsToCheck.length) * 100;
-
-            return {
-                ...user,
-                image_url: user.image ? userImagesBaseUrl + user.image : null,
-                uid_url: user.UID ? userImagesBaseUrl + user.UID : null,
-                pan_url: user.pan ? userImagesBaseUrl + user.pan : null,
-                highest_upload_url: user.highest_upload ? userImagesBaseUrl + user.highest_upload : null,
-                other_upload_url: user.other_upload ? userImagesBaseUrl + user.other_upload : null,
-                tenth_marksheet_url: user.tenth_marksheet ? userImagesBaseUrl + user.tenth_marksheet : null,
-                twelveth_marksheet_url: user.twelveth_marksheet ? userImagesBaseUrl + user.twelveth_marksheet : null,
-                UG_Marksheet_url: user.UG_Marksheet ? userImagesBaseUrl + user.UG_Marksheet : null,
-                passport_url: user.passport ? userImagesBaseUrl + user.passport : null,
-                pre_off_letter_url: user.pre_off_letter ? userImagesBaseUrl + user.pre_off_letter : null,
-                pre_expe_letter_url: user.pre_expe_letter ? userImagesBaseUrl + user.pre_expe_letter : null,
-                pre_relieving_letter_url: user.pre_relieving_letter ? userImagesBaseUrl + user.pre_relieving_letter : null,
-                bankPassBook_Cheque_url: user.bankPassBook_Cheque ? userImagesBaseUrl + user.bankPassBook_Cheque : null,
-                joining_extend_document_url: user.joining_extend_document ? userImagesBaseUrl + user.joining_extend_document : null,
-                digital_signature_image_url: user.digital_signature_image ? userImagesBaseUrl + user.digital_signature_image : null,
-                annexure_pdf_url: user.annexure_pdf ? userImagesBaseUrl + user.annexure_pdf : null,
-                percentage_filled: percentageFilled.toFixed(2) + '%',
-                documentPercentage: (Number(user.document_percentage_mandatory) + Number(user.document_percentage_non_mandatory)) / 2
-            };
-        });
-
-        return res.status(200).send({ data: dataWithImageUrl });
     } catch (err) {
         return res.status(500).send({ error: err.message, sms: 'Error getting all users' });
     }
 };
-
-
 
 exports.getSingleUser = async (req, res) => {
     try {
