@@ -169,6 +169,7 @@ const { addExeHistory, updateExeHistory, getExeHistoryList, getExeHistoryDetails
 
 //Opcampaign
 const opCampaign = require("./controllers/opCampaign.js");
+const opCampaignPlan = require("./controllers/opCampaignPlan.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -929,7 +930,7 @@ router.post("/offer_letter_send_in_mail", upload.single("attachment"), user.send
 
 //---------------------------------------------------------------------------All Routes OF Attendance Module Starts Here ---------------------------------------------------------------------------------------------------//
 
-router.post("/add_attendance", attendance.addAttendance);
+// router.post("/add_attendance", attendance.addAttendance);
 router.post(
   "/get_salary_by_id_month_year",
 
@@ -1895,4 +1896,14 @@ router.post('/send_email_to_all_users', adminController.sendPassEmailToUsers);
 router.post('/opcampaign', opCampaign.addOpCampaign);
 router.get('/opcampaign', opCampaign.getOpCampaigns);
 router.delete('/opcampaign/:_id', opCampaign.deleteCampaign);
+//OpCampaign Routes End Here
+
+//OpCampaign Plan Routes
+router.post('/opcampaignplan', opCampaignPlan.addCampaignPlan);
+router.get('/opcampaignplan/:id', opCampaignPlan.getCampaignPlan);
+router.get('/opcampaignplan/:_id', opCampaignPlan.getSingleCampaignPlan);
+router.put('/opcampaignplan/:id', opCampaignPlan.updateSingleCampaignPlan);
+router.delete('/opcampaignplan/:id', opCampaignPlan.deleteCampaignPlanDataByCampaignId);
+router.delete('/opcampaignplan/:id', opCampaignPlan.deleteCampaignPlan);
+
 module.exports = router;
