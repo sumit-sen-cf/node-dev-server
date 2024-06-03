@@ -57,7 +57,12 @@ const salesBookingPayment = new Schema({
     updated_by: {
         type: Number,
         required: false,
-    }
+    },
+    status: {
+        type: Number,
+        required: false,
+        default: constant?.ACTIVE,
+    },
 }, {
     timestamps: true
 });

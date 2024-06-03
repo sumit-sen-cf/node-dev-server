@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const vari = require("../../variables.js");
 const { message } = require("../../common/message");
 const recordServicePagesModel = require("../../models/Sales/recordServicePageModel.js");
+const response = require("../../common/response.js");
+const constant = require("../../common/constant.js");
 
 /**
  * Api is to used for the record_service_page data add in the DB collection.
@@ -37,90 +39,23 @@ exports.createRecordServicePage = async (req, res) => {
 };
 
 
-exports.getRecordServiceMasterDetail = async (req, res) => {
+exports.getRecordServicePagesDetail = async (req, res) => {
     try {
-        const recordServicePageData = await recordServicePagesModel.aggregate([
-            {
-                $match: { _id: mongoose.Types.ObjectId(req.params.id) },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "last_updated_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "sale_executive_id",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $project: {
-                    record_service_master_id: 1,
-                    sale_booking_id: 1,
-                    sales_service_master_id: 1,
-                    pageMast_id: 1,
-                    page_post_type: 1,
-                    page_rate: 1,
-                    page_sale_rate: 1,
-                    remarks: 1,
-                    sale_executive_id: 1,
-                    sale_executive_by_name: "$user.user_name",
-                    created_date_time: 1,
-                    created_by: 1,
-                    created_by_name: "$user.user_name",
-                    last_updated_date: 1,
-                    last_updated_by: 1,
-                },
-            },
-        ])
-        if (recordServicePageData) {
-            return res.status(200).json({
-                status: 200,
-                message: "Record service page details successfully!",
-                data: recordServicePageData,
-            });
+        const recordServicePagesDetails = await recordServicePagesModel.findOne({
+            status: { $ne: constant.DELETED },
+        });
+        if (!recordServicePagesDetails) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
         }
-        return res.status(404).json({
-            status: 404,
-            message: message.DATA_NOT_FOUND,
-        });
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Record service master details retrive successfully!",
+            recordServicePagesDetails
+        );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -129,15 +64,12 @@ exports.getRecordServiceMasterDetail = async (req, res) => {
  */
 exports.updateRecordServicePage = async (req, res) => {
     try {
+
         const { id } = req.params;
         const { record_service_master_id, sale_booking_id, sales_service_master_id, pageMast_id, page_post_type, page_rate, page_sale_rate,
-            remarks, sale_executive_id, created_by, last_updated_by } = req.body;
-        const recordServicePageData = await recordServicePagesModel.findOne({ _id: id });
-        if (!recordServicePageData) {
-            return res.send("Invalid record_service_page Id...");
-        }
-        await recordServicePageData.save();
-        const recordServicePageUpdated = await recordServicePagesModel.findOneAndUpdate({ _id: id }, {
+            remarks, sale_executive_id, updated_by } = req.body;
+
+        const recprdServicePageUpdated = await recordServicePagesModel.findByIdAndUpdate({ _id: id }, {
             $set: {
                 record_service_master_id,
                 sale_booking_id,
@@ -148,20 +80,19 @@ exports.updateRecordServicePage = async (req, res) => {
                 page_sale_rate,
                 sale_executive_id,
                 remarks,
-                created_by,
-                last_updated_by
+                updated_by
             },
-        },
-            { new: true }
+        }, { new: true }
         );
-        return res.status(200).json({
-            message: "Record service page data updated successfully!",
-            data: recordServicePageUpdated,
-        });
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Record service page update successfully!",
+            recprdServicePageUpdated
+        );
     } catch (error) {
-        return res.status(500).json({
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -171,111 +102,41 @@ exports.updateRecordServicePage = async (req, res) => {
  */
 exports.getRecordServicePageList = async (req, res) => {
     try {
-        const imageUrl = vari.IMAGE_URL;
-        const recordServicePageListData = await recordServicePagesModel.aggregate([
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "recordservicemasters",
-                    localField: "record_service_master_id",
-                    foreignField: "_id",
-                    as: "recordservicemaster",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$recordservicemaster",
-                    preserveNullAndEmptyArrays: true,
-                },
-            }, {
-                $lookup: {
-                    from: "salesbookings",
-                    localField: "sale_booking_id",
-                    foreignField: "sale_booking_id",
-                    as: "salesbooking",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$salesbooking",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $lookup: {
-                    from: "salesservicemasters",
-                    localField: "sales_service_master_id",
-                    foreignField: "_id",
-                    as: "salesservicemaster",
-                },
-            },
-            {
-                $unwind: {
-                    path: "$salesservicemaster",
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
-            {
-                $project: {
-                    record_service_master_id: 1,
-                    sale_booking_id: 1,
-                    sales_service_master_id: 1,
-                    pageMast_id: 1,
-                    page_post_type: 1,
-                    page_rate: 1,
-                    page_sale_rate: 1,
-                    remarks: 1,
-                    sale_executive_id: 1,
-                    sale_executive_by_name: "$user.user_name",
-                    created_date_time: 1,
-                    created_by: 1,
-                    created_by_name: "$user.user_name",
-                    last_updated_date: 1,
-                    last_updated_by: 1,
-                    Sales_Booking: "$salesbooking",
-                    salesservicemasters: "$salesservicemaster",
-                    recordservicemaster: "$recordservicemaster"
-                },
-            },
-            {
-                $group: {
-                    _id: "$_id",
-                    data: { $first: "$$ROOT" }
-                }
-            },
-            {
-                $replaceRoot: { newRoot: "$data" }
-            }
-        ])
-        if (recordServicePageListData) {
-            return res.status(200).json({
-                status: 200,
-                message: "Record Service Page details list successfully!",
-                data: recordServicePageListData,
-            });
+        // Extract page and limit from query parameters, default to null if not provided
+        const page = req.query?.page ? parseInt(req.query.page) : null;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+
+        // Calculate the number of records to skip based on the current page and limit
+        const skip = (page && limit) ? (page - 1) * limit : 0;
+
+        // Retrieve the list of records with pagination applied
+        const recordServicePageList = await recordServicePagesModel.find().skip(skip).limit(limit);
+
+        // Get the total count of records in the collection
+        const recordServicePageCount = await recordServicePagesModel.countDocuments();
+
+        // If no records are found, return a response indicating no records found
+        if (recordServicePageList.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
         }
-        return res.status(404).json({
-            status: 404,
-            message: message.DATA_NOT_FOUND,
-        });
+        // Return a success response with the list of records and pagination details
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Record service list retrieved successfully!",
+            recordServicePageList,
+            {
+                start_record: page && limit ? skip + 1 : 1,
+                end_record: page && limit ? skip + recordServicePageList.length : recordServicePageList.length,
+                total_records: recordServicePageCount,
+                current_page: page || 1,
+                total_page: page && limit ? Math.ceil(recordServicePageCount / limit) : 1,
+            }
+        );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        // Return an error response in case of any exceptions
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -284,24 +145,38 @@ exports.getRecordServicePageList = async (req, res) => {
  */
 exports.deleteRecordServicePage = async (req, res) => {
     try {
-        const { params } = req;
-        const { id } = params;
-        const recordServicePageDelete = await recordServicePagesModel.findOne({ _id: id });
-        if (!recordServicePageDelete) {
-            return res.status(404).json({
-                status: 404,
-                message: message.DATA_NOT_FOUND,
-            });
+        // Extract the id from request parameters
+        const { id } = req.params;
+
+        // Attempt to find and update the record with the given id and status not equal to DELETED
+        const recordServicePageDeleted = await recordServicePagesModel.findOneAndUpdate(
+            {
+                _id: id,
+                status: { $ne: constant.DELETED }
+            },
+            {
+                $set: {
+                    // Update the status to DELETED
+                    status: constant.DELETED,
+                },
+            },
+            // Return the updated document
+            { new: true }
+        );
+        // If no record is found or updated, return a response indicating no record found
+        if (!recordServicePageDeleted) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
         }
-        await recordServicePagesModel.deleteOne({ _id: id });
-        return res.status(200).json({
-            status: 200,
-            message: "Record service page data deleted successfully!",
-        });
+        // Return a success response with the updated record details
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            `Record service deleted succesfully! for id ${id}`,
+            recordServicePageDeleted
+        );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        // Return an error response in case of any exceptions
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };

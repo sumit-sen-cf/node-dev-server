@@ -48,9 +48,11 @@ exports.createRecordServiceMaster = [
                 }
             }
             await addRecordServiceMaster.save();
+            // Return a success response with the updated record details
             return response.returnTrue(200, req, res, "Sales record service created successfully", addRecordServiceMaster);
 
         } catch (err) {
+            // Return an error response in case of any exceptions
             return response.returnFalse(500, req, res, err.message, {});
         }
     }];
@@ -58,13 +60,13 @@ exports.createRecordServiceMaster = [
 
 exports.getRecordServiceMasterDetail = async (req, res) => {
     try {
-        const { id } = req.params;
         const recordServiceDetail = await salesRecordServiceModel.findOne({
-            _id: id,
+            status: { $ne: constant.DELETED },
         });
         if (!recordServiceDetail) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
+        // Return a success response with the updated record details
         return response.returnTrue(
             200,
             req,
@@ -73,6 +75,7 @@ exports.getRecordServiceMasterDetail = async (req, res) => {
             recordServiceDetail
         );
     } catch (error) {
+        // Return an error response in case of any exceptions
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
@@ -132,16 +135,21 @@ exports.updateRecordServiceMaster = [
             // Save the updated document with the new image URLs
             await updatedRecordService.save();
 
+            // Return a success response with the updated record details
             return response.returnTrue(200, req, res, "Record service data updated successfully!", updatedRecordService);
         } catch (error) {
+            // Return an error response in case of any exceptions
             return response.returnFalse(500, req, res, `${error.message}`, {});
         }
     }];
 
 exports.getRecordServiceMasterList = async (req, res) => {
     try {
-        const page = (req.query?.page && parseInt(req.query.page)) || null;
-        const limit = (req.query?.limit && parseInt(req.query.limit)) || null;
+        // Extract page and limit from query parameters, default to null if not provided
+        const page = req.query?.page ? parseInt(req.query.page) : null;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+
+        // Calculate the number of records to skip based on the current page and limit
         const skip = (page && limit) ? (page - 1) * limit : 0;
 
         let addFieldsObj = {
@@ -170,10 +178,10 @@ exports.getRecordServiceMasterList = async (req, res) => {
                 { $limit: limit }
             );
         }
-
-       const recordServiceList = await salesRecordServiceModel.aggregate(pipeline);
+        const recordServiceList = await salesRecordServiceModel.aggregate(pipeline);
         const recordServiceCount = await salesRecordServiceModel.countDocuments(addFieldsObj);
 
+        // Return a success response with the list of records and pagination details
         return response.returnTrueWithPagination(
             200,
             req,
@@ -189,6 +197,7 @@ exports.getRecordServiceMasterList = async (req, res) => {
             }
         );
     } catch (error) {
+        // Return an error response in case of any exceptions
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
@@ -200,7 +209,9 @@ exports.getRecordServiceMasterList = async (req, res) => {
 exports.deleteRecordServiceMaster = async (req, res) => {
     try {
         const { id } = req.params;
-        const recordServiceDeleted = await salesRecordServiceModel.findOneAndUpdate({ _id: id, status: { $ne: constant.DELETED } },
+        const recordServiceDeleted = await salesRecordServiceModel.findOneAndUpdate({
+            _id: id, status: { $ne: constant.DELETED }
+        },
             {
                 $set: {
                     status: constant.DELETED,
@@ -211,6 +222,7 @@ exports.deleteRecordServiceMaster = async (req, res) => {
         if (!recordServiceDeleted) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
+        // Return a success response with the updated record details
         return response.returnTrue(
             200,
             req,
@@ -219,6 +231,7 @@ exports.deleteRecordServiceMaster = async (req, res) => {
             recordServiceDeleted
         );
     } catch (error) {
+        // Return an error response in case of any exceptions
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 }
