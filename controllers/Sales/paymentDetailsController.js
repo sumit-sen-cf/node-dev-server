@@ -1,6 +1,4 @@
 const paymentDetailsModel = require("../../models/Sales/paymentDetailsModel");
-const { message } = require("../../common/message")
-const mongoose = require("mongoose");
 const response = require("../../common/response");
 const constant = require("../../common/constant");
 
@@ -29,8 +27,12 @@ exports.createPaymentDetails = async (req, res) => {
  */
 exports.getPaymentDetails = async (req, res) => {
     try {
+        const { id } = req.params;
         const paymentDetails = await paymentDetailsModel.findOne({
-            status: { $ne: constant.DELETED },
+            _id: id,
+            status: {
+                $ne: constant.DELETED
+            }
         });
         if (!paymentDetails) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
@@ -57,15 +59,18 @@ exports.updatePaymentDetails = async (req, res) => {
         const { id } = req.params;
         const { title, details, gst_bank, updated_by } = req.body;
 
-        const paymentDetailsUpdatedData = await paymentDetailsModel.findByIdAndUpdate({ _id: id }, {
+        const paymentDetailsUpdatedData = await paymentDetailsModel.findByIdAndUpdate({
+            _id: id
+        }, {
             $set: {
                 title,
                 details,
                 gst_bank,
                 updated_by
             },
-        }, { new: true }
-        );
+        }, {
+            new: true
+        });
         // Return a success response with the updated record details
         return response.returnTrue(
             200,
@@ -94,7 +99,11 @@ exports.getPaymentDetailList = async (req, res) => {
         const skip = (page && limit) ? (page - 1) * limit : 0;
 
         // Retrieve the list of records with pagination applied
-        const paymentDetailsList = await paymentDetailsModel.find().skip(skip).limit(limit);
+        const paymentDetailsList = await paymentDetailsModel.find({
+            status: {
+                $ne: constant.DELETED
+            }
+        }).skip(skip).limit(limit);
 
         // Get the total count of records in the collection
         const paymentDetailsCount = await paymentDetailsModel.countDocuments();
@@ -130,19 +139,19 @@ exports.getPaymentDetailList = async (req, res) => {
 exports.deletePaymentDetails = async (req, res) => {
     try {
         const { id } = req.params;
-        const paymentDetailDeleted = await paymentDetailsModel.findOneAndUpdate(
-            {
-                _id: id,
-                status: { $ne: constant.DELETED }
-            },
-            {
-                $set: {
-                    // Update the status to DELETED
-                    status: constant.DELETED,
-                },
-            },
-            { new: true }
-        );
+        const paymentDetailDeleted = await paymentDetailsModel.findOneAndUpdate({
+            _id: id,
+            status: {
+                $ne: constant.DELETED
+            }
+        }, {
+            $set: {
+                // Update the status to DELETED
+                status: constant.DELETED,
+            }
+        }, {
+            new: true
+        });
         if (!paymentDetailDeleted) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }

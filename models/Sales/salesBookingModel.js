@@ -11,6 +11,11 @@ const salesBooking = new mongoose.Schema({
         required: false,
         ref: "accountMasterModel"
     },
+    is_draft_save: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
     sale_booking_date: {
         type: Date,
         default: Date.now,
