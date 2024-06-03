@@ -1,6 +1,7 @@
 const response = require("../common/response.js");
 const opCampaignPlanModel = require("../models/opCampaignPlanModel.js")
-
+const XLSX = require('xlsx');
+const axios = require('axios');
 
 exports.addCampaignPlan = async (req, res) => {
 
@@ -114,3 +115,22 @@ exports.deleteCampaignPlan = async (req, res) => {
         return res.status(400).json({ success: false, message: err.message })
     })
 };
+
+exports.getNsendExcelDataInJson = async (req, res) => {
+    try {
+        const excelUrl = req.body.excelUrl;
+        const response = await axios.get(excelUrl, { responseType: 'arraybuffer' });
+
+        const workbook = XLSX.read(response.data, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[1];
+        const sheet = workbook.Sheets[sheetName];
+
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+        const nonEmptyData = jsonData.filter(obj => Object.keys(obj).length !== 0);
+
+        res.json(nonEmptyData);
+    } catch (error) {
+        console.error('Error extracting data from Excel:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
