@@ -12,5 +12,4 @@ router.get("/sales/payment_mode/:id", verifyToken, paymentModeController.getPaym
 router.get("/sales/payment_mode", verifyToken, paymentModeController.getPaymentModeList);
 router.delete("/sales/payment_mode/:id", verifyToken, paymentModeController.deletePaymentMode);
 
-
 module.exports = router; 
