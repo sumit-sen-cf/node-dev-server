@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
 const paymentDeatils = new Schema({
@@ -25,7 +26,12 @@ const paymentDeatils = new Schema({
         type: Number,
         required: false,
         default: 0
-    }
+    },
+    status: {
+        type: Number,
+        required: false,
+        default: constant?.ACTIVE,
+    },
 }, {
     timestamps: true
 });
