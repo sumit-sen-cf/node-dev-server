@@ -41,6 +41,7 @@
     "razorpay": "^2.9.2",
     "require-directory": "^2.1.1",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0"
+    "swagger-ui-express": "^5.0.0",
+    "xlsx": "^0.18.5"
   }
 }
