@@ -292,7 +292,7 @@ exports.deleteSalesBooking = [upload, async (req, res) => {
  */
 exports.getNewSalesBooking = async (req, res) => {
     try {
-        const newDeleteSalesBokingData = await deleteSalesbookingModel.find()
+        const newDeleteSalesBokingData = await deleteSalesbookingModel.find({});
 
         //if data not found
         if (!newDeleteSalesBokingData) {
