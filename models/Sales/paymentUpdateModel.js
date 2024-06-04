@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
 const salesBookingPayment = new Schema({
