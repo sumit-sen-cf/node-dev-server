@@ -334,3 +334,43 @@ exports.deleteCampaign = async (req, res) => {
         return res.status(400).json({ success: false, message: err })
     })
 };
+
+const getCurrentTimeRange = (rangeType) => {
+    const now = new Date();
+    let start;
+  
+    switch (rangeType) {
+      case 1:
+        start = new Date(now.setHours(0, 0, 0, 0));
+        break;
+      case 7:
+        const firstDayOfWeek = now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1);
+        start = new Date(now.setDate(firstDayOfWeek));
+        start.setHours(0, 0, 0, 0);
+        break;
+      case 30:
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 12:
+        start = new Date(now.getFullYear(), 0, 1);
+        break;
+      default:
+        throw new Error('Invalid range type');
+    }
+  
+    return { start, end: new Date() };
+};
+
+exports.filterCampagin = async (req, res) => {
+    const {rangeType} = req.body;
+    if(![1,7,12,30].includes(rangeType)){
+        return res.status(400).json({error:'Invalid Date Range'})
+    }
+    const {start,end} = getCurrentTimeRange(rangeType);
+    try{
+        const campaigns = await opCampaignModel.find({created_date:{$gte:start,$lte:end}})
+        res.json(campaigns)
+    }catch(err){
+        res.status(500).json({error:'error while fetching campaign data'})
+    }
+}

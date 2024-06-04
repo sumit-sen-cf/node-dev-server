@@ -1905,5 +1905,7 @@ router.get('/opcampaignplan/:_id', opCampaignPlan.getSingleCampaignPlan);
 router.put('/opcampaignplan/:id', opCampaignPlan.updateSingleCampaignPlan);
 router.delete('/opcampaignplan/:id', opCampaignPlan.deleteCampaignPlanDataByCampaignId);
 router.delete('/opcampaignplan/:id', opCampaignPlan.deleteCampaignPlan);
+router.get('/get_excel_data_in_json_from_url', opCampaignPlan.getNsendExcelDataInJson)
+router.get('/get_filter_campaigns', opCampaign.filterCampagin)
 
 module.exports = router;
