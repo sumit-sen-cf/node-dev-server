@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const constant = require("../../common/constant");
+const { required } = require("joi");
 const Schema = mongoose.Schema;
 
 const vendorSchema = new Schema({
@@ -22,6 +23,16 @@ const vendorSchema = new Schema({
         type: Schema.Types.ObjectId,
         required: true,
         ref: "pms2paymentmethodmodels"
+    },
+    primary_page: {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: "pms2pagemastermodels"
+    },
+    page_count: {
+        type: Number,
+        required: false,
+        default: 0
     },
     vendor_name: {
         type: String,
