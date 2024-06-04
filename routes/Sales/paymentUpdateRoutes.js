@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
+const { verifyToken } = require("../../middleware/auth");
 const paymentUpdateController = require("../../controllers/Sales/paymentUpdateController");
 const { verifyToken } = require("../../middleware/auth");
 
 /**
- * sales booking payment update details routes
+ * sales booking payment update routes
  */
 router.post("/sales/payment_update", verifyToken, paymentUpdateController.createPaymentUpdate);
 router.put("/sales/payment_update/:id", verifyToken, paymentUpdateController.updatePaymentDeatil);
@@ -14,7 +15,5 @@ router.delete("/sales/payment_update/:id", verifyToken, paymentUpdateController.
 
 router.get("/sales/getAll_pending_sales_booking_payment_list", verifyToken, paymentUpdateController.salesBookingPaymentPendingDetailsList);
 router.get("/sales/getAll_rejected_sales_booking_payment_list", verifyToken, paymentUpdateController.salesBookingPaymentRejectedDetailsList);
-
-
 
 module.exports = router; 
