@@ -2,6 +2,7 @@ const { message } = require("../../common/message")
 const mongoose = require("mongoose");
 const salesServiceMasterModel = require("../../models/Sales/salesServiceMasterModel");
 const response = require("../../common/response");
+const constant = require("../../common/constant");
 
 /**
  * Api is to used for the sales_service_master data add in the DB collection.
@@ -50,6 +51,7 @@ exports.getServiceMasterDetails = async (req, res) => {
         const { id } = req.params;
         const serviceMasterDetail = await salesServiceMasterModel.findOne({
             _id: id,
+            status: { $ne: constant.DELETED },
         });
         if (!serviceMasterDetail) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
@@ -150,24 +152,31 @@ exports.getServiceMasterList = async (req, res) => {
  */
 exports.deleteServiceMaster = async (req, res) => {
     try {
-        const { params } = req;
-        const { id } = params;
-        const serviceMaster = await salesServiceMasterModel.findOne({ _id: id });
-        if (!serviceMaster) {
-            return res.status(404).json({
-                status: 404,
-                message: "Data not found!",
-            });
+        const { id } = req.params;
+        const serviceMasterDeleted = await salesServiceMasterModel.findOneAndUpdate({
+            _id: id,
+            status: { $ne: constant.DELETED }
+        },
+            {
+                $set: {
+                    status: constant.DELETED,
+                },
+            },
+            { new: true }
+        );
+        if (!serviceMasterDeleted) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
         }
-        await salesServiceMasterModel.deleteOne({ _id: id });
-        return response.returnTrueWithPagination(
+        // Return a success response with the updated record details
+        return response.returnTrue(
             200,
             req,
             res,
-            "Sales service master deleted successfully!",
-            serviceMaster
+            `Service master deleted successfully id ${id}`,
+            serviceMasterDeleted
         );
     } catch (error) {
+        // Return an error response in case of any exceptions
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };

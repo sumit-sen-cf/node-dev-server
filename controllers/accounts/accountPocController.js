@@ -244,20 +244,20 @@ exports.updateMultipleAccountPoc = async (req, res) => {
         const { updated_by } = req.body;
         const accountId = Number(req.params.id);
 
-        // Check for duplicate contact_no in accountPoc
-        if (accountPocDetails && Array.isArray(accountPocDetails)) {
-            for (let i = 0; i < accountPocDetails.length; i++) {
-                const existingPoc = await accountPocModel.findOne({
-                    contact_no: accountPocDetails[i].contact_no
-                });
-                if (existingPoc) {
-                    return res.status(400).json({
-                        status: 400,
-                        message: `Contact number ${accountPocDetails[i].contact_no} already exists.`
-                    });
-                }
-            }
-        }
+        // // Check for duplicate contact_no in accountPoc
+        // if (accountPocDetails && Array.isArray(accountPocDetails)) {
+        //     for (let i = 0; i < accountPocDetails.length; i++) {
+        //         const existingPoc = await accountPocModel.findOne({
+        //             contact_no: accountPocDetails[i].contact_no
+        //         });
+        //         if (existingPoc) {
+        //             return res.status(400).json({
+        //                 status: 400,
+        //                 message: `Contact number ${accountPocDetails[i].contact_no} already exists.`
+        //             });
+        //         }
+        //     }
+        // }
 
         // Get distinct IDs from the database
         const distinctIds = await accountPocModel.distinct('_id', {

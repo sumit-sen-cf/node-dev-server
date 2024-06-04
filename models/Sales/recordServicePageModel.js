@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
 const recordServicePages = new Schema({
@@ -49,7 +50,12 @@ const recordServicePages = new Schema({
     updated_by: {
         type: Number,
         required: false,
-    }
+    },
+    status: {
+        type: Number,
+        required: false,
+        default: constant?.ACTIVE,
+    },
 }, {
     timestamps: true
 });

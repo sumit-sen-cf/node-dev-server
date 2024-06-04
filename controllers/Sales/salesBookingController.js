@@ -59,6 +59,7 @@ exports.addSalesBooking = [
                 unearned_incentive_amount: req.body.unearned_incentive_amount,
                 payment_type: req.body.payment_type,
                 final_invoice: req.body.final_invoice,
+                is_draft_save: req.body.is_draft_save,
                 created_by: req.body.created_by,
             })
 
@@ -126,6 +127,7 @@ exports.editSalesBooking = [
                 unearned_incentive_amount: req.body.unearned_incentive_amount,
                 payment_type: req.body.payment_type,
                 final_invoice: req.body.final_invoice,
+                is_draft_save: req.body.is_draft_save,
                 updated_by: req.body.updated_by,
             };
 
@@ -199,7 +201,7 @@ exports.getAllSalesBooking = async (req, res) => {
             );
         }
 
-        saleBookingList = await salesBookingModel.aggregate(pipeline);
+        const saleBookingList = await salesBookingModel.aggregate(pipeline);
         const salesBookingCount = await salesBookingModel.countDocuments(addFieldsObj);
 
         return response.returnTrueWithPagination(
@@ -292,7 +294,7 @@ exports.deleteSalesBooking = [upload, async (req, res) => {
  */
 exports.getNewSalesBooking = async (req, res) => {
     try {
-        const newDeleteSalesBokingData = await deleteSalesbookingModel.find()
+        const newDeleteSalesBokingData = await deleteSalesbookingModel.find({});
 
         //if data not found
         if (!newDeleteSalesBokingData) {

@@ -8,7 +8,7 @@ const { verifyToken } = require("../../middleware/auth");
  */
 router.post("/sales/record_service_pages", verifyToken, recordServicePageController.createRecordServicePage);
 router.put("/sales/record_service_pages/:id", verifyToken, recordServicePageController.updateRecordServicePage);
-router.get("/sales/record_service_pages/:id", verifyToken, recordServicePageController.getRecordServiceMasterDetail);
+router.get("/sales/record_service_pages/:id", verifyToken, recordServicePageController.getRecordServicePagesDetail);
 router.get("/sales/record_service_pages", verifyToken, recordServicePageController.getRecordServicePageList);
 router.delete("/sales/record_service_pages/:id", verifyToken, recordServicePageController.deleteRecordServicePage);
 
