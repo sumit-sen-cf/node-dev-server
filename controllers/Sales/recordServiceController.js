@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const vari = require("../../variables.js");
 const { storage } = require('../../common/uploadFile.js');
-const { message } = require("../../common/message");
 const salesRecordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage.js");
 const response = require("../../common/response.js");
