@@ -41,7 +41,9 @@ exports.createRecordServicePage = async (req, res) => {
 
 exports.getRecordServicePagesDetail = async (req, res) => {
     try {
+        const { id } = req.params;
         const recordServicePagesDetails = await recordServicePagesModel.findOne({
+            _id: id,
             status: { $ne: constant.DELETED },
         });
         if (!recordServicePagesDetails) {

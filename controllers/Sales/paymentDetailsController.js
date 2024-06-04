@@ -29,7 +29,9 @@ exports.createPaymentDetails = async (req, res) => {
  */
 exports.getPaymentDetails = async (req, res) => {
     try {
+        const { id } = req.params;
         const paymentDetails = await paymentDetailsModel.findOne({
+            _id: id,
             status: { $ne: constant.DELETED },
         });
         if (!paymentDetails) {
