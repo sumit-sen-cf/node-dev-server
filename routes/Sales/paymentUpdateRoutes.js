@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const { verifyToken } = require("../../middleware/auth");
 const paymentUpdateController = require("../../controllers/Sales/paymentUpdateController");
-const { verifyToken } = require("../../middleware/auth");
 
 /**
  * sales booking payment update routes
