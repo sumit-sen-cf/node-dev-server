@@ -30,9 +30,7 @@ exports.getPaymentDetails = async (req, res) => {
         const { id } = req.params;
         const paymentDetails = await paymentDetailsModel.findOne({
             _id: id,
-            status: {
-                $ne: constant.DELETED
-            }
+            status: { $ne: constant.DELETED },
         });
         if (!paymentDetails) {
             return response.returnFalse(200, req, res, `No Record Found`, {});

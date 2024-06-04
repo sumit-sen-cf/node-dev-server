@@ -34,7 +34,9 @@ exports.createPaymentmode = async (req, res) => {
  */
 exports.getPaymentModeDetails = async (req, res) => {
     try {
+        const { id } = req.params;
         const paymentModeDetails = await salesPaymentModeModel.findOne({
+            _id: id,
             status: { $ne: constant.DELETED }
         });
         if (!paymentModeDetails) {
@@ -53,7 +55,6 @@ exports.getPaymentModeDetails = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
-
 
 /**
  * Api is to used for the sales_payment_mode data update in the DB collection.

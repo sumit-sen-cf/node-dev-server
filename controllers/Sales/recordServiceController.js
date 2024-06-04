@@ -59,7 +59,9 @@ exports.createRecordServiceMaster = [
 
 exports.getRecordServiceMasterDetail = async (req, res) => {
     try {
+        const { id } = req.params;
         const recordServiceDetail = await salesRecordServiceModel.findOne({
+            _id: id,
             status: { $ne: constant.DELETED },
         });
         if (!recordServiceDetail) {

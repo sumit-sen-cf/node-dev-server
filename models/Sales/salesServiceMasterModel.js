@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
 const salesServiceMaster = new Schema({
@@ -86,7 +87,12 @@ const salesServiceMaster = new Schema({
     updated_by: {
         type: Number,
         required: false,
-    }
+    },
+    status: {
+        type: Number,
+        required: false,
+        default: constant?.ACTIVE,
+    },
 }, {
     timestamps: true
 });
