@@ -2,6 +2,7 @@ const response = require("../common/response.js");
 const opCampaignPlanModel = require("../models/opCampaignPlanModel.js")
 const XLSX = require('xlsx');
 const axios = require('axios');
+const mongoose = require('mongoose');
 
 exports.addCampaignPlan = async (req, res) => {
 
@@ -47,7 +48,7 @@ exports.addCampaignPlan = async (req, res) => {
 }
 
 exports.getCampaignPlan = async (req, res) => {
-    const id = req.params.id;
+    const id = mongoose.Types.ObjectId(req.params.id);
 
     const data = await opCampaignPlanModel.find({ campaignId: id })
 
