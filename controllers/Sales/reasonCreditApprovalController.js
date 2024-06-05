@@ -1,7 +1,7 @@
-const { message } = require("../../common/message");
 const response = require("../../common/response");
 const constant = require("../../common/constant");
 const saleReasonCreditApprovalModel = require("../../models/Sales/reasonCreditApprovalModel")
+
 /**
  * Api is to used for the reason_credit_approval data add in the DB collection.
  */

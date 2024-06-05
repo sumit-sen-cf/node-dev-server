@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const vari = require("../../variables.js");
-const { message } = require("../../common/message");
 const recordServicePagesModel = require("../../models/Sales/recordServicePageModel.js");
 const response = require("../../common/response.js");
 const constant = require("../../common/constant.js");
