@@ -5,7 +5,7 @@ const axios = require('axios');
 
 exports.addCampaignPlan = async (req, res) => {
 
-    const { pages, campaignId, campaignName, planName } = req.body;
+    const { pages, campaignId, campaignName, planName, postPerPage, storyPerPage } = req.body;
 
     if (!Array.isArray(pages) || !campaignId || !campaignName || !planName) {
         return res.send("Invalid Input Data");
@@ -21,6 +21,8 @@ exports.addCampaignPlan = async (req, res) => {
         planName,
         campaignId,
         campaignName,
+        postPerPage,
+        storyPerPage,
         postRemaining: page.postPerPage,
         storyRemaining: page.storyPerPage,
         ...page
@@ -130,7 +132,7 @@ exports.getNsendExcelDataInJson = async (req, res) => {
 
         res.json(nonEmptyData);
     } catch (error) {
-        console.error('Error extracting data from Excel:', error);
+        console.error('Error extracting data from Excel:', error.message);
         res.status(500).json({ error: 'Internal server error' });
     }
 }
