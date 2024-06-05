@@ -170,6 +170,7 @@ const { addExeHistory, updateExeHistory, getExeHistoryList, getExeHistoryDetails
 //Opcampaign
 const opCampaign = require("./controllers/opCampaign.js");
 const opCampaignPlan = require("./controllers/opCampaignPlan.js");
+const opCampaignPhase = require("./controllers/opCampaignPhase.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1895,7 +1896,10 @@ router.post('/send_email_to_all_users', adminController.sendPassEmailToUsers);
 //OpCampaign Routes Start Here
 router.post('/opcampaign', opCampaign.addOpCampaign);
 router.get('/opcampaign', opCampaign.getOpCampaigns);
+router.get('/opcampaign/:id', opCampaign.getSingleOpCampaign);
 router.delete('/opcampaign/:_id', opCampaign.deleteCampaign);
+router.post('/get_filter_campaigns', opCampaign.filterCampagin);
+router.get('/get_data', opCampaign.getCampaignWithFilterData);
 //OpCampaign Routes End Here
 
 //OpCampaign Plan Routes
@@ -1905,7 +1909,10 @@ router.get('/opcampaignplan/:_id', opCampaignPlan.getSingleCampaignPlan);
 router.put('/opcampaignplan/:id', opCampaignPlan.updateSingleCampaignPlan);
 router.delete('/opcampaignplan/:id', opCampaignPlan.deleteCampaignPlanDataByCampaignId);
 router.delete('/opcampaignplan/:id', opCampaignPlan.deleteCampaignPlan);
-router.get('/get_excel_data_in_json_from_url', opCampaignPlan.getNsendExcelDataInJson)
-router.get('/get_filter_campaigns', opCampaign.filterCampagin)
+router.post('/get_excel_data_in_json_from_url', opCampaignPlan.getNsendExcelDataInJson);
+
+//OpCampaign Phase
+router.post('/opCampaignPhase', opCampaignPhase.addCampaignPhase);
+router.get('/opCampaignPhase', opCampaignPhase.getOpCampaignPhases);
 
 module.exports = router;
