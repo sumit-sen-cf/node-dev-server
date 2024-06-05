@@ -55,8 +55,8 @@ exports.createRecordServiceMaster = [
 exports.getRecordServiceMasterDetail = async (req, res) => {
     try {
         const { id } = req.params;
-        const recordServiceDetail = await salesRecordServiceModel.findOne({
-            _id: id,
+        const recordServiceDetail = await salesRecordServiceModel.find({
+            sale_booking_id: id,
             status: { $ne: constant.DELETED },
         });
         if (!recordServiceDetail) {
@@ -265,9 +265,7 @@ exports.updateMultipleRecordService = async (req, res) => {
             message: "Record Services multiple data updated successfully!",
         })
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        // Return an error response in case of any exceptions
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 }
