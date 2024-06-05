@@ -11,5 +11,6 @@ router.put("/sales/record_service/:id", verifyToken, recordServiceController.upd
 router.get("/sales/record_service/:id", verifyToken, recordServiceController.getRecordServiceMasterDetail);
 router.get("/sales/record_service", verifyToken, recordServiceController.getRecordServiceMasterList);
 router.delete("/sales/record_service/:id", verifyToken, recordServiceController.deleteRecordServiceMaster);
+router.put("/sales/update_multiple_record_service/:id", verifyToken, recordServiceController.updateMultipleRecordService);
 
 module.exports = router; 

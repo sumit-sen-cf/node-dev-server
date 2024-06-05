@@ -1,12 +1,8 @@
-const mongoose = require("mongoose");
 const multer = require("multer");
-const vari = require("../../variables.js");
-const { storage } = require('../../common/uploadFile.js');
 const salesRecordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage.js");
 const response = require("../../common/response.js");
 const constant = require("../../common/constant.js");
-const deletedSalesBookingModel = require("../../models/Sales/deletedSalesBookingModel.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -56,7 +52,6 @@ exports.createRecordServiceMaster = [
         }
     }];
 
-
 exports.getRecordServiceMasterDetail = async (req, res) => {
     try {
         const { id } = req.params;
@@ -80,7 +75,6 @@ exports.getRecordServiceMasterDetail = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
-
 
 /**
  * Api is to used for the record_service_master data update in the DB collection.
@@ -203,7 +197,6 @@ exports.getRecordServiceMasterList = async (req, res) => {
     }
 };
 
-
 /**
  * Api is to used for the reocrd_service_master data delete in the DB collection.
  */
@@ -234,5 +227,47 @@ exports.deleteRecordServiceMaster = async (req, res) => {
     } catch (error) {
         // Return an error response in case of any exceptions
         return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+}
+
+/**
+ * Api is to used for multiple update_record service data in the DB collection.
+ */
+exports.updateMultipleRecordService = async (req, res) => {
+    try {
+        // get record service data from body
+        let recordServiceDetails = (req.body?.record_services) || [];
+        const { updated_by } = req.body;
+        const saleBookingId = Number(req.params.id);
+
+        //Record service details obj add in array
+        if (recordServiceDetails.length && Array.isArray(recordServiceDetails)) {
+            for (let element of recordServiceDetails) {
+                if (element?._id) {
+                    // Existing document: update it
+                    element.updated_by = updated_by;
+                    await salesRecordServiceModel.updateOne({
+                        _id: element._id
+                    }, {
+                        $set: element
+                    });
+                } else {
+                    // New document: insert it
+                    element.created_by = updated_by;
+                    element.sale_booking_id = saleBookingId;
+                    await salesRecordServiceModel.create(element);
+                }
+            }
+        }
+        //send success response
+        return res.status(200).json({
+            status: 200,
+            message: "Record Services multiple data updated successfully!",
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: error.message ? error.message : message.ERROR_MESSAGE,
+        });
     }
 }
