@@ -2,6 +2,7 @@ const response = require("../common/response.js");
 const opCampaignPlanModel = require("../models/opCampaignPlanModel.js")
 const XLSX = require('xlsx');
 const axios = require('axios');
+const mongoose = require('mongoose');
 
 exports.addCampaignPlan = async (req, res) => {
 
@@ -47,23 +48,47 @@ exports.addCampaignPlan = async (req, res) => {
 }
 
 exports.getCampaignPlan = async (req, res) => {
-    const id = req.params.id;
+    try {
+        const id = mongoose.Types.ObjectId(req.params.id);
 
-    const data = await opCampaignPlanModel.find({ campaignId: id })
+        const data = await opCampaignPlanModel.find({ campaignId: id });
 
-    if (!data) {
-        return res.send("Data not found");
+        if (!data || data.length === 0) {
+            return res.status(404).send("Data not found");
+        }
+
+        const response = await axios.get(
+            'https://purchase.creativefuel.io/webservices/RestController.php?view=inventoryDataList'
+        );
+        const inventoryDataList = response.data.body;
+
+        const inventoryDataMap = inventoryDataList.reduce((acc, item) => {
+            acc[item.p_id] = {
+                page_name: item.page_name,
+                follower_count: item.follower_count,
+                page_link: item.page_link,
+                cat_name: item.cat_name
+            };
+            return acc;
+        }, {});
+
+        const mergedData = data.map(plan => {
+            const inventoryInfo = inventoryDataMap[plan.p_id] || {};
+            return {
+                ...plan._doc,  
+                ...inventoryInfo  
+            };
+        });
+
+        return res.status(200).json({
+            message: "Campaign Plan data fetched successfully",
+            data: mergedData
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send("Internal Server Error");
     }
-
-    response.returnTrue(
-        200,
-        req,
-        res,
-        "Campaign Plan  data Fetched Successfully",
-        data
-    );
-}
-
+};
 
 exports.getSingleCampaignPlan = async (req, res) => {
 
@@ -135,4 +160,17 @@ exports.getNsendExcelDataInJson = async (req, res) => {
         console.error('Error extracting data from Excel:', error.message);
         res.status(500).json({ error: 'Internal server error' });
     }
+}
+
+exports.replacePlanPage = async (req, res, next) => {
+    const id = req.body._id;
+
+    const result = await opCampaignPlanModel.findByIdAndUpdate(req.body._id,
+        { 
+            p_id: req.body.new_pid
+        }, 
+        { new: true }
+    );
+
+    res.status(200).json({ data: result })
 }

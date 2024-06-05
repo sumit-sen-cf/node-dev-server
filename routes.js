@@ -1910,9 +1910,11 @@ router.put('/opcampaignplan/:id', opCampaignPlan.updateSingleCampaignPlan);
 router.delete('/opcampaignplan/:id', opCampaignPlan.deleteCampaignPlanDataByCampaignId);
 router.delete('/opcampaignplan/:id', opCampaignPlan.deleteCampaignPlan);
 router.post('/get_excel_data_in_json_from_url', opCampaignPlan.getNsendExcelDataInJson);
+router.post('/replace_plan_pages', opCampaignPlan.replacePlanPage);
 
 //OpCampaign Phase
 router.post('/opCampaignPhase', opCampaignPhase.addCampaignPhase);
-router.get('/opCampaignPhase', opCampaignPhase.getOpCampaignPhases);
+router.get('/opCampaignPhase/:id', opCampaignPhase.getOpCampaignPhases);
+router.post('/replace_phase_pages', opCampaignPhase.replacePhasePage)
 
 module.exports = router;
