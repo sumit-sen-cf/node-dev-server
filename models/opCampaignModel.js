@@ -50,7 +50,10 @@ const opCampaignModel = new mongoose.Schema({
     type: Number,
     required: false
   },
-  commitments: [mongoose.Schema.Types.Mixed],
+  commitments: [{
+    selectValue: Number,
+    textValue: String
+  }],
   details: {
     type: String,
     required: false

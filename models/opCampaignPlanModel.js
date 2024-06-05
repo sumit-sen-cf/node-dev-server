@@ -11,15 +11,15 @@ const opCampaignPlanModel = new mongoose.Schema({
     },
     postPerPage: {
         type: String,
-        required: true
+        default: 1,
     },
     postRemaining: {
-        type: String,
-        default: ""
+        type: Number,
+        default: 0
     },
     storyPerPage: {
         type: Number,
-        required: true
+        default: 1,
     },
     campaignId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -28,7 +28,7 @@ const opCampaignPlanModel = new mongoose.Schema({
     },
     storyRemaining: {
         type: Number,
-        default: ""
+        default: 0
     },
     createdAt: {
         type: Date,

@@ -126,7 +126,7 @@ exports.getSingleRegisterCampign = async (req, res, next) => {
     }
     return res.status(200).send({ success: true, data: campaign });
   } catch (err) {
-    res
+    return res
       .status(500)
       .send({ error: err.message, message: "Error getting all Campaigns" });
   }
