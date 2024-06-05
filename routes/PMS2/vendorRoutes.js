@@ -5,7 +5,7 @@ const { updateVendorValidation, updateArrayOfVendorValidation, addVendorValidati
 const router = express.Router();
 
 
-router.post("/vendor", addVendorValidation, upload, createVendorData);
+router.post("/vendor",  upload, createVendorData);
 router.get("/vendor/:id", getVendorDetails);
 router.get("/vendor", getAllVendorList);
 router.put("/vendor/:vendor_id", updateArrayOfVendorValidation, upload, updateVendorData);

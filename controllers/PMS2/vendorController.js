@@ -245,7 +245,7 @@ exports.getAllVendorList = async (req, res) => {
         };
 
         const pipeline = [{ $match: matchQuery }, addFieldsObj];
-        
+
         if (page && limit) {
             pipeline.push(
                 { $skip: skip },
