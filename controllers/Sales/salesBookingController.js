@@ -1,13 +1,12 @@
 const response = require("../../common/response");
 const vari = require("../../variables");
 const multer = require("multer");
-const { storage } = require('../../common/uploadFile');
+const salesBookingModel = require("../../models/Sales/salesBookingModel");
 const salesBookingStatus = require('../../models/SMS/salesBookingStatus');
 const deleteSalesbookingModel = require("../../models/Sales/deletedSalesBookingModel.js");
-const salesBookingModel = require("../../models/Sales/salesBookingModel");
+const recordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
-const pageStatesModel = require("../../models/PMS2/pageStatesModel.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -76,8 +75,25 @@ exports.addSalesBooking = [
             //save data in the collection
             const saleBookingAdded = await createSaleBooking.save();
 
+            let recordServicesDataUpdatedArray = [];
+            let recordServicesDetails = (req.body?.record_services && JSON.parse(req.body.record_services)) || [];
+
+            //Record Service details obj add in array
+            if (recordServicesDetails.length && Array.isArray(recordServicesDetails)) {
+                for (let element of recordServicesDetails) {
+                    element.sale_booking_id = saleBookingAdded.sale_booking_id;
+                    element.created_by = req.body.created_by;
+                    recordServicesDataUpdatedArray.push(element);
+                }
+            }
+
+            //add data in db collection
+            const recordServicesData = await recordServiceModel.insertMany(recordServicesDataUpdatedArray);
+
             //success response send
-            return response.returnTrue(200, req, res, "Sales Booking Created Successfully", saleBookingAdded);
+            return response.returnTrue(200, req, res,
+                "Sales Booking Created Successfully",
+                { saleBookingAdded, recordServicesData });
         } catch (err) {
             return response.returnFalse(500, req, res, err.message, {});
         }
