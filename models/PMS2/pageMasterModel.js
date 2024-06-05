@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const constant = require("../../common/constant");
+const { required } = require("joi");
 const Schema = mongoose.Schema;
 
 const pageMasterSchema = new Schema({
@@ -28,6 +29,11 @@ const pageMasterSchema = new Schema({
         required: true,
         unique: true,
         trim: true
+    },
+    primary_page: {
+        type: Boolean,
+        required: false,
+        default: false,
     },
     page_name_type: {
         type: String,
