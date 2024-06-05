@@ -59,31 +59,30 @@ exports.getReasonCreditApprovalDetail = async (req, res) => {
  */
 exports.updateReasonCreditApproval = async (req, res) => {
     try {
+        // Extract the id from request parameters
         const { id } = req.params;
-        const { reason, day_count, reason_order, reason_type } = req.body;
-        const reasonCreditApprovalData = await saleReasonCreditApprovalModel.findOne({ _id: id });
-        if (!reasonCreditApprovalData) {
-            return res.send("Invalid reason credit approval Id...");
-        }
-        await reasonCreditApprovalData.save();
-        const reasonCreditApprovalUpdatedData = await saleReasonCreditApprovalModel.findOneAndUpdate({ _id: id }, {
+        const { reason, day_count, reason_order, reason_type, updated_by } = req.body;
+        const reasonCreditApprovalUpdated = await saleReasonCreditApprovalModel.findByIdAndUpdate({ _id: id }, {
             $set: {
                 reason,
                 day_count,
                 reason_order,
                 reason_type,
+                updated_by
             },
-        },
-            { new: true }
+        }, { new: true }
         );
-        return res.status(200).json({
-            message: "Reason credit approval data updated successfully!",
-            data: reasonCreditApprovalUpdatedData,
-        });
+        // Return a success response with the updated record details
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Reason credit approval update successfully!",
+            reasonCreditApprovalUpdated
+        );
     } catch (error) {
-        return res.status(500).json({
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        // Return an error response in case of any exceptions
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 /**
