@@ -326,7 +326,9 @@ exports.updateUserForGeneralInformation = [upload, async (req, res) => {
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
             upi_Id: req.body.upi_Id,
-            user_credit_limit: req.body.user_credit_limit
+            user_credit_limit: req.body.user_credit_limit,
+            ctc: req.body.ctc,
+            emergency_contact_person_name2: req.body.emergency_contact_person_name2
         }, { new: true });
 
         if (!editsim) {
