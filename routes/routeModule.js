@@ -25,7 +25,8 @@ const recordServicePagesRoutes = require("./Sales/recordServicePageRoutes");
 const paymentUpdateRoutes = require("./Sales/paymentUpdateRoutes");
 const executionRoutes = require("./Sales/executionRoutes");
 const reasonCreditApprovalRoutes = require("./Sales/reasonCreditApprovalRoutes");
-const incentivePlanRoutes = require("./Sales/incentivePlanRoutes")
+const incentivePlanRoutes = require("./Sales/incentivePlanRoutes");
+const badgesMasterRoutes = require("./Sales/badgesMasterRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -61,6 +62,7 @@ exports.routeModules = [
     paymentUpdateRoutes,
     executionRoutes,
     reasonCreditApprovalRoutes,
-    incentivePlanRoutes
+    incentivePlanRoutes,
+    badgesMasterRoutes
 ];
 
