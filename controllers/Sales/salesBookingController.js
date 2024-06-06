@@ -28,6 +28,7 @@ exports.addSalesBooking = [
                 sale_booking_date: req.body.sale_booking_date,
                 campaign_amount: req.body.campaign_amount,
                 campaign_name: req.body.campaign_name,
+                campaign_id: req.body.campaign_id,
                 brand_id: req.body.brand_id,
                 base_amount: req.body.base_amount,
                 gst_amount: req.body.gst_amount,
@@ -125,6 +126,7 @@ exports.editSalesBooking = [
                 sale_booking_date: req.body.sale_booking_date,
                 campaign_amount: req.body.campaign_amount,
                 campaign_name: req.body.campaign_name,
+                campaign_id: req.body.campaign_id,
                 brand_id: req.body.brand_id,
                 base_amount: req.body.base_amount,
                 gst_amount: req.body.gst_amount,
@@ -159,6 +161,18 @@ exports.editSalesBooking = [
                 is_draft_save: req.body.is_draft_save,
                 updated_by: req.body.updated_by,
             };
+
+            //draft status check
+            if (req.body?.is_draft_save) {
+                updateData["booking_status"] = saleBookingStatus['04'].status;
+            } else {
+                if (req.body.payment_credit_status == "sent_for_payment_approval") {
+                    updateData["booking_status"] = saleBookingStatus['01'].status;
+                }
+                if (req.body.payment_credit_status == "self_credit_used") {
+                    updateData["booking_status"] = saleBookingStatus['05'].status;
+                }
+            }
 
             // Fetch the old document and update it
             const updatedSalesBooking = await salesBookingModel.findByIdAndUpdate({ _id: id }, updateData, { new: true });

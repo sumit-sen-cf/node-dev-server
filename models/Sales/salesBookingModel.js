@@ -29,6 +29,10 @@ const salesBooking = new mongoose.Schema({
         type: String,
         required: false,
     },
+    campaign_id: {
+        type: Schema.Types.ObjectId,
+        required: false,
+    },
     brand_id: {
         type: Schema.Types.ObjectId,
         required: false,
