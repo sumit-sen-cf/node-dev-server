@@ -31,9 +31,9 @@ const pageMasterSchema = new Schema({
         trim: true
     },
     primary_page: {
-        type: Boolean,
+        type: String,
+        enum: ["yes", "no"],
         required: false,
-        default: false,
     },
     page_name_type: {
         type: String,

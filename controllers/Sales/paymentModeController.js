@@ -1,4 +1,3 @@
-const { message } = require("../../common/message")
 const mongoose = require("mongoose");
 const salesPaymentModeModel = require("../../models/Sales/paymentModeModels");
 const response = require("../../common/response");
@@ -160,7 +159,7 @@ exports.deletePaymentMode = async (req, res) => {
             200,
             req,
             res,
-            `PAyment mode deleted succesfully! for id ${id}`,
+            `Payment mode deleted succesfully! for id ${id}`,
             paymentModeDeleted
         );
     } catch (error) {

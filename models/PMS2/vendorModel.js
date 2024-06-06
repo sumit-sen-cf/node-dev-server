@@ -34,6 +34,10 @@ const vendorSchema = new Schema({
         required: false,
         default: 0
     },
+    primary_field: {
+        type: String,
+        required: false,
+    },
     vendor_name: {
         type: String,
         required: true,
