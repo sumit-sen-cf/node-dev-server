@@ -54,7 +54,7 @@ exports.addExeCampaign = async (req, res) => {
 exports.getExeCampaignById = async (req, res) => {
   try {
     const exeCampaign = await exeCampaignSchema.findOne({
-        exeCmpId: parseInt(req.params.id),
+      exeCmpId: parseInt(req.params.id),
     });
     if (!exeCampaign) {
       return response.returnFalse(200, req, res, "No Record Found !", {});
@@ -75,7 +75,7 @@ exports.getExeCampaignById = async (req, res) => {
 exports.editExeCampaign = async (req, res) => {
   try {
     let check = await exeCampaignSchema.findOne({
-      exeCmpName:  req.body?.exeCmpName.toLowerCase().trim(),
+      exeCmpName: req.body?.exeCmpName.toLowerCase().trim(),
       exeCmpId: { $ne: req.body?.exeCmpId },
     });
     if (check) {
