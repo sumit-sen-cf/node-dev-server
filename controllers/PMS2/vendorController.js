@@ -9,7 +9,7 @@ const imageUrl = vari.IMAGE_URL;
 
 exports.createVendorData = async (req, res) => {
     try {
-        const { vendor_type, vendor_platform, pay_cycle, payment_method, vendor_name, country_code, mobile, alternate_mobile, email, personal_address, pan_no, gst_no,
+        const { vendor_type, vendor_platform, pay_cycle, payment_method, primary_field, vendor_name, country_code, mobile, alternate_mobile, email, personal_address, pan_no, gst_no,
             company_name, company_address, company_city, company_pincode, company_state, threshold_limit,
             home_address, home_city, home_state, created_by, vendor_category,
         } = req.body;
@@ -18,6 +18,7 @@ exports.createVendorData = async (req, res) => {
             vendor_platform,
             pay_cycle,
             payment_method,
+            primary_field,
             vendor_name,
             country_code,
             mobile,
@@ -280,7 +281,7 @@ exports.updateVendorData = async (req, res) => {
     try {
         const { vendor_id } = req.params; // Assuming vendor_id is passed as a URL parameter
         const {
-            vendor_type, vendor_platform, pay_cycle, payment_method, vendor_name, country_code, mobile, alternate_mobile,
+            vendor_type, vendor_platform, pay_cycle, payment_method, primary_field, vendor_name, country_code, mobile, alternate_mobile,
             email, personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode,
             company_state, threshold_limit, home_address, home_city, home_state, updated_by, vendor_category
         } = req.body;
@@ -295,6 +296,7 @@ exports.updateVendorData = async (req, res) => {
         existingVendor.vendor_platform = vendor_platform;
         existingVendor.pay_cycle = pay_cycle;
         existingVendor.payment_method = payment_method;
+        existingVendor.primary_field = primary_field;
         existingVendor.vendor_name = vendor_name;
         existingVendor.country_code = country_code;
         existingVendor.mobile = mobile;

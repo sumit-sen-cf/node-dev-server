@@ -27,6 +27,7 @@ const executionRoutes = require("./Sales/executionRoutes");
 const reasonCreditApprovalRoutes = require("./Sales/reasonCreditApprovalRoutes");
 const incentivePlanRoutes = require("./Sales/incentivePlanRoutes");
 const badgesMasterRoutes = require("./Sales/badgesMasterRoutes");
+const bankNameRoutes = require("./PMS2/bankNameRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -45,7 +46,8 @@ exports.routeModulesV1 = [
     pagePriceTypeRoutes,
     pagePriceMultipleRoutes,
     pageMasterRoutes,
-    pageStatesRoutes
+    pageStatesRoutes,
+    bankNameRoutes
 ];
 
 //used for the http://localhost:8080/api/end-points
