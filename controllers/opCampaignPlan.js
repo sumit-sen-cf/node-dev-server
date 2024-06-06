@@ -75,8 +75,8 @@ exports.getCampaignPlan = async (req, res) => {
         const mergedData = data.map(plan => {
             const inventoryInfo = inventoryDataMap[plan.p_id] || {};
             return {
-                ...plan._doc,  
-                ...inventoryInfo  
+                ...plan._doc,
+                ...inventoryInfo
             };
         });
 
@@ -132,7 +132,7 @@ exports.deleteCampaignPlanDataByCampaignId = async (req, res) => {
 };
 
 exports.deleteCampaignPlan = async (req, res) => {
-    opCampaignPlanModel.deleteOne({ _id: req.params.id }).then(item => {
+    opCampaignPlanModel.deleteOne({ _id: req.params._id }).then(item => {
         if (item) {
             return res.status(200).json({ success: true, message: 'Campaign Plan Data deleted' })
         } else {
@@ -166,9 +166,9 @@ exports.replacePlanPage = async (req, res, next) => {
     const id = req.body._id;
 
     const result = await opCampaignPlanModel.findByIdAndUpdate(req.body._id,
-        { 
+        {
             p_id: req.body.new_pid
-        }, 
+        },
         { new: true }
     );
 
