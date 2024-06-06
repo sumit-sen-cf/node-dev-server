@@ -7,6 +7,7 @@ const deleteSalesbookingModel = require("../../models/Sales/deletedSalesBookingM
 const recordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
+const { saleBookingStatus } = require("../../helper/status.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -43,7 +44,7 @@ exports.addSalesBooking = [
                 booking_remarks: req.body.booking_remarks,
                 incentive_status: req.body.incentive_status,
                 payment_credit_status: req.body.payment_credit_status,
-                booking_status: req.body.booking_status,
+                // booking_status: req.body.booking_status,
                 incentive_sharing_user_id: req.body.incentive_sharing_user_id,
                 incentive_sharing_percent: req.body.incentive_sharing_percent,
                 bad_debt: req.body.bad_debt,
@@ -69,6 +70,18 @@ exports.addSalesBooking = [
             for (const [field] of Object.entries(imageFields)) {            //itreates 
                 if (req.files[field] && req.files[field][0]) {
                     createSaleBooking[field] = await uploadImage(req.files[field][0], "SalesBookingFiles");
+                }
+            }
+
+            //draft status check
+            if (req.body?.is_draft_save) {
+                createSaleBooking["booking_status"] = saleBookingStatus['04'].status;
+            } else {
+                if (req.body.payment_credit_status == "sent_for_payment_approval") {
+                    createSaleBooking["booking_status"] = saleBookingStatus['01'].status;
+                }
+                if (req.body.payment_credit_status == "self_credit_used") {
+                    createSaleBooking["booking_status"] = saleBookingStatus['05'].status;
                 }
             }
 
@@ -128,7 +141,7 @@ exports.editSalesBooking = [
                 booking_remarks: req.body.booking_remarks,
                 incentive_status: req.body.incentive_status,
                 payment_credit_status: req.body.payment_credit_status,
-                booking_status: req.body.booking_status,
+                // booking_status: req.body.booking_status,
                 incentive_sharing_user_id: req.body.incentive_sharing_user_id,
                 incentive_sharing_percent: req.body.incentive_sharing_percent,
                 bad_debt: req.body.bad_debt,
