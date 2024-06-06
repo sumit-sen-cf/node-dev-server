@@ -1,4 +1,5 @@
 const { default: mongoose } = require("mongoose");
+const constant = require("../common/constant");
 // const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const exeCampaignSchema = new mongoose.Schema({
@@ -12,6 +13,7 @@ const exeCampaignSchema = new mongoose.Schema({
     lowercase: true,
     required: true,
     trim: true,
+    unique: true,
   },
   exe_hash_tag: {
     type: String,
@@ -35,10 +37,6 @@ const exeCampaignSchema = new mongoose.Schema({
     type: Number,
     required: false
   },
-  status: {
-    type: String,
-    enum: ['active', 'inactive']
-  },
   created_by: {
     type: Number,
     required: false
@@ -46,7 +44,12 @@ const exeCampaignSchema = new mongoose.Schema({
   updated_by: {
     type: Number,
     required: false
-  }
+  },
+  status: {
+    type: Number,
+    required: false,
+    default: constant?.ACTIVE,
+  },
 }, {
   timestamps: true
 });

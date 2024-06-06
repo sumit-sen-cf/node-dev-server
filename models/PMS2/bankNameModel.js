@@ -41,4 +41,4 @@ const bankNameSchema = new Schema(
     }
 );
 
-module.exports = mongoose.model("Pms2BankNameModel", bankNameSchema);
+module.exports = mongoose.model("pms2BankNameModel", bankNameSchema);

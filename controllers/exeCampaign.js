@@ -1,5 +1,74 @@
+const constant = require("../common/constant.js");
 const response = require("../common/response.js");
+const { uploadImage } = require("../common/uploadImage.js");
 const exeCampaignSchema = require("../models/executionCampaignModel.js");
+const multer = require("multer");
+
+const upload = multer({
+  storage: multer.memoryStorage()
+}).fields([
+  { name: "exe_campaign_image", maxCount: 10 }
+]);
+
+exports.addExeCampaign = [
+  upload,
+  async (req, res) => {
+    try {
+      const { exe_campaign_id, exe_campaign_name, exe_hash_tag, brand_id, user_id, agency_id, created_by } = req.body
+      const exeCampaignAdded = new exeCampaignSchema({
+        exe_campaign_id,
+        exe_campaign_name,
+        exe_hash_tag,
+        brand_id,
+        user_id,
+        agency_id,
+        created_by
+      });
+      // Define the image fields 
+      const imageFields = {
+        exe_campaign_image: 'ExeCampaignImages',
+      };
+      for (const [field] of Object.entries(imageFields)) {    //itreates 
+        if (req.files[field] && req.files[field][0]) {
+          exeCampaignAdded[field] = await uploadImage(req.files[field][0], "ExeCampaignImages");
+        }
+      }
+      await exeCampaignAdded.save();
+      return response.returnTrue(
+        200,
+        req,
+        res,
+        "Execution campaign created successfully",
+        exeCampaignAdded
+      );
+    } catch (err) {
+      return response.returnFalse(500, req, res, err.message, {});
+    }
+  }];
+
+exports.getExeCampaignById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const exeCampaignDetails = await exeCampaignSchema.findOne({
+      _id: id,
+      status: { $ne: constant.DELETED }
+    });
+    if (exeCampaignDetails) {
+      return response.returnFalse(200, req, res, `No Record Found`, {});
+    }
+    // Return a success response with the updated record details
+    return response.returnTrue(
+      200,
+      req,
+      res,
+      "Execution campaign details retrive successfully!",
+      exeCampaignDetails
+    );
+  } catch (error) {
+    // Return an error response in case of any exceptions
+    return response.returnFalse(500, req, res, `${error.message}`, {});
+  }
+};
 
 exports.getExeCampaigns = async (req, res) => {
   try {
@@ -21,61 +90,10 @@ exports.getExeCampaigns = async (req, res) => {
   }
 };
 
-exports.addExeCampaign = async (req, res) => {
-  try {
-    let check = await exeCampaignSchema.findOne({
-      exeCmpName: req.body?.exeCmpName.toLowerCase().trim(),
-    });
-    if (check) {
-      return response.returnFalse(
-        200,
-        req,
-        res,
-        "Execution camapaign name must be unique",
-        {}
-      );
-    }
-    const exeCampaignObj = new exeCampaignSchema({
-      ...req.body,
-    });
-    const savedExeCampaign = await exeCampaignObj.save();
-    return response.returnTrue(
-      200,
-      req,
-      res,
-      "Execution campaign created successfully",
-      savedExeCampaign
-    );
-  } catch (err) {
-    return response.returnFalse(500, req, res, err.message, {});
-  }
-};
-
-exports.getExeCampaignById = async (req, res) => {
-  try {
-    const exeCampaign = await exeCampaignSchema.findOne({
-        exeCmpId: parseInt(req.params.id),
-    });
-    if (!exeCampaign) {
-      return response.returnFalse(200, req, res, "No Record Found !", {});
-    } else {
-      return response.returnTrue(
-        200,
-        req,
-        res,
-        "Data Fetched Successfully.",
-        exeCampaign
-      );
-    }
-  } catch (err) {
-    return response.returnTrue(500, req, res, err.message, {});
-  }
-};
-
 exports.editExeCampaign = async (req, res) => {
   try {
     let check = await exeCampaignSchema.findOne({
-      exeCmpName:  req.body?.exeCmpName.toLowerCase().trim(),
+      exeCmpName: req.body?.exeCmpName.toLowerCase().trim(),
       exeCmpId: { $ne: req.body?.exeCmpId },
     });
     if (check) {
