@@ -1,4 +1,5 @@
 const { default: mongoose } = require("mongoose");
+const Schema = mongoose.Schema;
 const constant = require("../common/constant");
 // const AutoIncrement = require('mongoose-sequence')(mongoose);
 
@@ -26,7 +27,7 @@ const exeCampaignSchema = new mongoose.Schema({
     default: "",
   },
   brand_id: {
-    type: Number,
+    type: Schema.Types.ObjectId,
     required: false
   },
   user_id: {
