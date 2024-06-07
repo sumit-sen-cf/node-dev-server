@@ -15,15 +15,7 @@ router.put("/sales/sales_booking/:id", verifyToken, Sales.editSalesBooking);
 router.get("/sales/sales_booking/:id", verifyToken, Sales.getSingleSalesBooking);
 router.get("/sales/sales_booking", verifyToken, Sales.getAllSalesBooking);
 router.delete("/sales/sales_booking/:id", verifyToken, Sales.deleteSalesBooking);
-
-router.get("/sales/get_all_new_deleted_data", verifyToken, Sales.getNewSalesBooking);
-router.get("/sales/get_all_list_sales_booking/:id", verifyToken, Sales.getSalesBookingPaymentDetail);
-
-
-/**
- * sales booking status routes
- */
-router.post("/sales/add_sales_booking_status", Sales.addSalesBookingStatus);
+router.get("/sales/deleted_sale_booking_list", verifyToken, Sales.getDeletedSalesBookingList);
 
 /**
  * sales booking credit approval status Api's
