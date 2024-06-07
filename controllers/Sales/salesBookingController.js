@@ -1,13 +1,13 @@
 const response = require("../../common/response");
 const vari = require("../../variables");
 const multer = require("multer");
-const { storage } = require('../../common/uploadFile');
+const salesBookingModel = require("../../models/Sales/salesBookingModel");
 const salesBookingStatus = require('../../models/SMS/salesBookingStatus');
 const deleteSalesbookingModel = require("../../models/Sales/deletedSalesBookingModel.js");
-const salesBookingModel = require("../../models/Sales/salesBookingModel");
+const recordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
-const pageStatesModel = require("../../models/PMS2/pageStatesModel.js");
+const { saleBookingStatus } = require("../../helper/status.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -28,6 +28,7 @@ exports.addSalesBooking = [
                 sale_booking_date: req.body.sale_booking_date,
                 campaign_amount: req.body.campaign_amount,
                 campaign_name: req.body.campaign_name,
+                campaign_id: req.body.campaign_id,
                 brand_id: req.body.brand_id,
                 base_amount: req.body.base_amount,
                 gst_amount: req.body.gst_amount,
@@ -44,7 +45,7 @@ exports.addSalesBooking = [
                 booking_remarks: req.body.booking_remarks,
                 incentive_status: req.body.incentive_status,
                 payment_credit_status: req.body.payment_credit_status,
-                booking_status: req.body.booking_status,
+                // booking_status: req.body.booking_status,
                 incentive_sharing_user_id: req.body.incentive_sharing_user_id,
                 incentive_sharing_percent: req.body.incentive_sharing_percent,
                 bad_debt: req.body.bad_debt,
@@ -73,11 +74,40 @@ exports.addSalesBooking = [
                 }
             }
 
+            //draft status check
+            if (req.body?.is_draft_save) {
+                createSaleBooking["booking_status"] = saleBookingStatus['04'].status;
+            } else {
+                if (req.body.payment_credit_status == "sent_for_payment_approval") {
+                    createSaleBooking["booking_status"] = saleBookingStatus['01'].status;
+                }
+                if (req.body.payment_credit_status == "self_credit_used") {
+                    createSaleBooking["booking_status"] = saleBookingStatus['05'].status;
+                }
+            }
+
             //save data in the collection
             const saleBookingAdded = await createSaleBooking.save();
 
+            let recordServicesDataUpdatedArray = [];
+            let recordServicesDetails = (req.body?.record_services && JSON.parse(req.body.record_services)) || [];
+
+            //Record Service details obj add in array
+            if (recordServicesDetails.length && Array.isArray(recordServicesDetails)) {
+                for (let element of recordServicesDetails) {
+                    element.sale_booking_id = saleBookingAdded.sale_booking_id;
+                    element.created_by = req.body.created_by;
+                    recordServicesDataUpdatedArray.push(element);
+                }
+            }
+
+            //add data in db collection
+            const recordServicesData = await recordServiceModel.insertMany(recordServicesDataUpdatedArray);
+
             //success response send
-            return response.returnTrue(200, req, res, "Sales Booking Created Successfully", saleBookingAdded);
+            return response.returnTrue(200, req, res,
+                "Sales Booking Created Successfully",
+                { saleBookingAdded, recordServicesData });
         } catch (err) {
             return response.returnFalse(500, req, res, err.message, {});
         }
@@ -96,6 +126,7 @@ exports.editSalesBooking = [
                 sale_booking_date: req.body.sale_booking_date,
                 campaign_amount: req.body.campaign_amount,
                 campaign_name: req.body.campaign_name,
+                campaign_id: req.body.campaign_id,
                 brand_id: req.body.brand_id,
                 base_amount: req.body.base_amount,
                 gst_amount: req.body.gst_amount,
@@ -112,7 +143,7 @@ exports.editSalesBooking = [
                 booking_remarks: req.body.booking_remarks,
                 incentive_status: req.body.incentive_status,
                 payment_credit_status: req.body.payment_credit_status,
-                booking_status: req.body.booking_status,
+                // booking_status: req.body.booking_status,
                 incentive_sharing_user_id: req.body.incentive_sharing_user_id,
                 incentive_sharing_percent: req.body.incentive_sharing_percent,
                 bad_debt: req.body.bad_debt,
@@ -130,6 +161,18 @@ exports.editSalesBooking = [
                 is_draft_save: req.body.is_draft_save,
                 updated_by: req.body.updated_by,
             };
+
+            //draft status check
+            if (req.body?.is_draft_save) {
+                updateData["booking_status"] = saleBookingStatus['04'].status;
+            } else {
+                if (req.body.payment_credit_status == "sent_for_payment_approval") {
+                    updateData["booking_status"] = saleBookingStatus['01'].status;
+                }
+                if (req.body.payment_credit_status == "self_credit_used") {
+                    updateData["booking_status"] = saleBookingStatus['05'].status;
+                }
+            }
 
             // Fetch the old document and update it
             const updatedSalesBooking = await salesBookingModel.findByIdAndUpdate({ _id: id }, updateData, { new: true });

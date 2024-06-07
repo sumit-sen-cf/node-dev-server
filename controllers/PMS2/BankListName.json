@@ -1,0 +1,274 @@
+{
+    "banks": [
+        {
+            "sr_no": "1",
+            "bank_name": "Bank of Baroda",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "2",
+            "bank_name": "Bank of India",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "3",
+            "bank_name": "Bank of Maharashtra",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "4",
+            "bank_name": "Canara Bank",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "5",
+            "bank_name": "Central Bank of India",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "6",
+            "bank_name": "Indian Bank",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "7",
+            "bank_name": "Indian Overseas Bank",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "8",
+            "bank_name": "Punjab\u0026 Sind Bank",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "9",
+            "bank_name": "Punjab National Bank",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "10",
+            "bank_name": "State Bank of India",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "11",
+            "bank_name": "UCO Bank",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "12",
+            "bank_name": "Union Bank of India",
+            "type_of_bank": "Public Sector Bank"
+        },
+        {
+            "sr_no": "13",
+            "bank_name": "Axis Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "14",
+            "bank_name": "Bandhan Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "15",
+            "bank_name": "CSB Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "16",
+            "bank_name": "City Union Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "17",
+            "bank_name": "DCB Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "18",
+            "bank_name": "Dhanlaxmi Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "19",
+            "bank_name": "Federal Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "20",
+            "bank_name": "HDFC Bank Ltd",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "21",
+            "bank_name": "ICICI Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "22",
+            "bank_name": "IndusInd Bank Ltd",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "23",
+            "bank_name": "IDFC First Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "24",
+            "bank_name": "ammu \u0026 Kashmir Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "25",
+            "bank_name": "Karnataka Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "26",
+            "bank_name": "Karur Vysya Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "27",
+            "bank_name": "Kotak Mahindra Bank Ltd",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "28",
+            "bank_name": "Nainital Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "29",
+            "bank_name": "RBL Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "30",
+            "bank_name": "South Indian Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "31",
+            "bank_name": "Tamilnad Mercantile Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "32",
+            "bank_name": "YES Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "33",
+            "bank_name": "IDBI Bank Ltd.",
+            "type_of_bank": "Private Sector Bank"
+        },
+        {
+            "sr_no": "34",
+            "bank_name": "Au Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "35",
+            "bank_name": "Capital Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "36",
+            "bank_name": "Equitas Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "37",
+            "bank_name": "Suryoday Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "38",
+            "bank_name": "Ujjivan Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "39",
+            "bank_name": "Utkarsh Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "40",
+            "bank_name": "ESAF Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "41",
+            "bank_name": "Fincare Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "42",
+            "bank_name": "ana Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "43",
+            "bank_name": "North East Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "44",
+            "bank_name": "Shivalik Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "45",
+            "bank_name": "Unity Small Finance Bank Limited",
+            "type_of_bank": "Small Finance Bank"
+        },
+        {
+            "sr_no": "46",
+            "bank_name": "India Post Payments Bank Limited",
+            "type_of_bank": "Payment Bank"
+        },
+        {
+            "sr_no": "47",
+            "bank_name": "Fino Payments Bank Limited",
+            "type_of_bank": "Payment Bank"
+        },
+        {
+            "sr_no": "48",
+            "bank_name": "Paytm Payments Bank Limited",
+            "type_of_bank": "Payment Bank"
+        },
+        {
+            "sr_no": "49",
+            "bank_name": "Airtel Payments Bank Limited",
+            "type_of_bank": "Payment Bank"
+        },
+        {
+            "sr_no": "50",
+            "bank_name": "Andhra Pragathi Grameena Bank",
+            "type_of_bank": "Regional Rural Bank"
+        },
+        {
+            "sr_no": "51",
+            "bank_name": "Andhra Pradesh Grameena Vikas Bank",
+            "type_of_bank": "Regional Rural Bank"
+        },
+        {
+            "sr_no": "52",
+            "bank_name": "Arunachal Pradesh Rural Bank",
+            "type_of_bank": "Regional Rural Bank"
+        },
+        {
+            "sr_no": "53",
+            "bank_name": "Aryavart Bank",
+            "type_of_bank": "Regional Rural Bank"
+        },
+        {
+            "sr_no": "54",
+            "bank_name": "Assam Gramin Vikash Bank",
+            "type_of_bank": "Regional Rural Bank"
+        }
+    ]
+}

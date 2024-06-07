@@ -29,10 +29,19 @@ const vendorSchema = new Schema({
         required: false,
         ref: "pms2pagemastermodels"
     },
+    bank_name: {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: "pms2BankNameModel"
+    },
     page_count: {
         type: Number,
         required: false,
         default: 0
+    },
+    primary_field: {
+        type: String,
+        required: false,
     },
     vendor_name: {
         type: String,

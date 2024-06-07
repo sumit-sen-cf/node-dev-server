@@ -29,6 +29,10 @@ const salesBooking = new mongoose.Schema({
         type: String,
         required: false,
     },
+    campaign_id: {
+        type: Schema.Types.ObjectId,
+        required: false,
+    },
     brand_id: {
         type: Schema.Types.ObjectId,
         required: false,
@@ -109,12 +113,12 @@ const salesBooking = new mongoose.Schema({
     },
     payment_credit_status: {
         type: String,
-        enum: ['sent_for_payment_approval', 'sent_for_credit_approval'],//0-1
+        enum: ['sent_for_payment_approval', 'sent_for_credit_approval', 'self_credit_used'],//0-1
     },
     booking_status: {
-        type: Number,//refers to the sales booking status model
+        type: String,  //refers to the sales booking status model
         required: false,
-        ref: "salesBookingStatus"
+        // ref: "salesBookingStatus"
     },
     incentive_sharing_user_id: {
         type: Number,

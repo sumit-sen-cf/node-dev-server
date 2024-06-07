@@ -71,4 +71,4 @@ const salesBookingExecution = new Schema({
 },
     { timestamps: true },
 );
-module.exports = mongoose.model('saleBookingExecutionModel', salesBookingExecution);
+module.exports = mongoose.model('salesBookingExecutionModel', salesBookingExecution);

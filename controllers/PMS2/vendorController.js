@@ -1,23 +1,32 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
-const { uploadImage } = require("../../common/upload");
+const { uploadImage, deleteImage } = require('../../common/uploadImage.js');
 const bankDetailsModel = require("../../models/PMS2/bankDetailsModel");
 const vendorGroupLinkModel = require("../../models/PMS2/vendorGroupLinkModel");
 const vendorModel = require("../../models/PMS2/vendorModel");
 const vari = require("../../variables.js");
 const imageUrl = vari.IMAGE_URL;
+const multer = require("multer");
 
-exports.createVendorData = async (req, res) => {
+const upload = multer({
+    storage: multer.memoryStorage()
+}).fields([
+    { name: "pan_image", maxCount: 1 },
+    { name: "gst_image", maxCount: 1 },
+]);
+
+exports.createVendorData = [upload, async (req, res) => {
     try {
-        const { vendor_type, vendor_platform, pay_cycle, payment_method, vendor_name, country_code, mobile, alternate_mobile, email, personal_address, pan_no, gst_no,
+        const { vendor_type, vendor_platform, pay_cycle, bank_name, payment_method, primary_field, vendor_name, country_code, mobile, alternate_mobile, email, personal_address, pan_no, gst_no,
             company_name, company_address, company_city, company_pincode, company_state, threshold_limit,
-            home_address, home_city, home_state, created_by, vendor_category,
-        } = req.body;
+            home_address, home_city, home_state, created_by, vendor_category, } = req.body;
         const addVendorData = vendorModel({
             vendor_type,
             vendor_platform,
             pay_cycle,
+            bank_name,
             payment_method,
+            primary_field,
             vendor_name,
             country_code,
             mobile,
@@ -38,14 +47,17 @@ exports.createVendorData = async (req, res) => {
             home_state,
             created_by
         });
-
-        if (req.files?.pan_image && req.files.pan_image[0]) {
-            addVendorData.pan_image = await uploadImage(req.files.pan_image[0]);
+        // Define the image fields 
+        const imageFields = {
+            pan_image: 'PanImages',
+            gst_image: 'GstImages',
+        };
+        for (const [field] of Object.entries(imageFields)) {            //itreates 
+            if (req.files[field] && req.files[field][0]) {
+                addVendorData[field] = await uploadImage(req.files[field][0], "PMS2VendorImages");
+            }
         }
 
-        if (req.files?.gst_image && req.files.gst_image[0]) {
-            addVendorData.gst_image = await uploadImage(req.files.gst_image[0]);
-        }
         const vendorDataSaved = await addVendorData.save();
         if (!vendorDataSaved) {
             return response.returnFalse(
@@ -95,7 +107,7 @@ exports.createVendorData = async (req, res) => {
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
-};
+}];
 
 /**
  * Api is get the vendor model data BY-Id
@@ -280,7 +292,7 @@ exports.updateVendorData = async (req, res) => {
     try {
         const { vendor_id } = req.params; // Assuming vendor_id is passed as a URL parameter
         const {
-            vendor_type, vendor_platform, pay_cycle, payment_method, vendor_name, country_code, mobile, alternate_mobile,
+            vendor_type, vendor_platform, pay_cycle, bank_name, payment_method, primary_field, vendor_name, country_code, mobile, alternate_mobile,
             email, personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode,
             company_state, threshold_limit, home_address, home_city, home_state, updated_by, vendor_category
         } = req.body;
@@ -294,7 +306,9 @@ exports.updateVendorData = async (req, res) => {
         existingVendor.vendor_type = vendor_type;
         existingVendor.vendor_platform = vendor_platform;
         existingVendor.pay_cycle = pay_cycle;
+        existingVendor.bank_name = bank_name;
         existingVendor.payment_method = payment_method;
+        existingVendor.primary_field = primary_field;
         existingVendor.vendor_name = vendor_name;
         existingVendor.country_code = country_code;
         existingVendor.mobile = mobile;
@@ -381,7 +395,7 @@ exports.updateVendorData = async (req, res) => {
 exports.updateVendorDetails = async (req, res) => {
     try {
         const { id } = req.params;
-        const { type, vendor_platform, pay_cycle, payment_method, vendor_name, country_code, mobile, alternate_mobile, email, personal_address, pan_no, gst_no,
+        const { type, vendor_platform, pay_cycle, payment_method, bank_name, vendor_name, country_code, mobile, alternate_mobile, email, personal_address, pan_no, gst_no,
             company_name, company_address, company_city, company_pincode, company_state, threshold_limit,
             home_address, home_city, home_state, updated_by, vendor_category, } = req.body;
 
@@ -390,6 +404,7 @@ exports.updateVendorDetails = async (req, res) => {
             vendor_platform,
             pay_cycle,
             payment_method,
+            bank_name,
             vendor_name,
             country_code,
             mobile,

@@ -1,55 +1,67 @@
 const { default: mongoose } = require("mongoose");
+const constant = require("../common/constant");
 // const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const exeCampaignSchema = new mongoose.Schema({
-  exeCmpId: {
+  exe_campaign_id: {
     type: Number,
-    required: false,
     unique: true,
+    required: false,
   },
-  exeCmpName: {
+  exe_campaign_name: {
     type: String,
     lowercase: true,
+    required: true,
     trim: true,
+    unique: true,
   },
-  exeHashTag: {
+  exe_hash_tag: {
     type: String,
+    required: false,
     default: "",
   },
-  exeRemark: {
+  exe_campaign_image: {
     type: String,
+    required: false,
     default: "",
   },
-  exeUserId: {
+  brand_id: {
     type: Number,
+    required: false
   },
-
-  agencyId: {
+  user_id: {
     type: Number,
+    required: false
   },
-  updatedAt: {
-    type: Date,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedBy: {
+  agency_id: {
     type: Number,
+    required: false
   },
-  brandId: {
+  created_by: {
     type: Number,
-  }
+    required: false
+  },
+  updated_by: {
+    type: Number,
+    required: false
+  },
+  status: {
+    type: Number,
+    required: false,
+    default: constant?.ACTIVE,
+  },
+}, {
+  timestamps: true
 });
 
 exeCampaignSchema.pre('save', async function (next) {
-  if (!this.exeCmpId) {
-    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'exeCmpId': -1 } });
+  if (!this.exe_campaign_id) {
+    const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'exe_campaign_id': -1 } });
 
-    if (lastAgency && lastAgency.exeCmpId) {
-      this.exeCmpId = lastAgency.exeCmpId + 1;
+    if (lastAgency && lastAgency.exe_campaign_id) {
+      this.exe_campaign_id = lastAgency.exe_campaign_id + 1;
     } else {
-      this.exeCmpId = 1;
+      this.exe_campaign_id = 20000;
     }
   }
   next();

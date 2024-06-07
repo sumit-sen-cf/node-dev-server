@@ -11,22 +11,26 @@ const pageStatesSchema = new mongoose.Schema({
     reach: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     impression: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     engagement: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     story_view: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     story_view_date: {
         type: Date,
@@ -93,27 +97,32 @@ const pageStatesSchema = new mongoose.Schema({
     percentage_city1_name: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     percentage_city2_name: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     percentage_city3_name: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     percentage_city4_name: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     percentage_city5_name: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     city_image: {
         type: String,
@@ -123,17 +132,20 @@ const pageStatesSchema = new mongoose.Schema({
     male_percent: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     female_percent: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     Age_13_17_percent: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     Age_upload: {
         type: String,
@@ -143,32 +155,38 @@ const pageStatesSchema = new mongoose.Schema({
     Age_18_24_percent: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     Age_25_34_percent: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     Age_35_44_percent: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     Age_45_54_percent: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     Age_55_64_percent: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     Age_65_plus_percent: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     //   quater:{
     //     type: String,
@@ -178,7 +196,8 @@ const pageStatesSchema = new mongoose.Schema({
     profile_visit: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     country1_name: {
         type: String,
@@ -208,27 +227,32 @@ const pageStatesSchema = new mongoose.Schema({
     percentage_country1_name: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     percentage_country2_name: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     percentage_country3_name: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     percentage_country4_name: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     percentage_country5_name: {
         type: Number,
         required: false,
-        default: 0
+        default: ""
+
     },
     country_image: {
         type: String,
@@ -242,12 +266,14 @@ const pageStatesSchema = new mongoose.Schema({
     created_by: {
         type: Number,
         required: false,
-        default: 0,
+        default: ""
+        ,
     },
     last_updated_by: {
         type: Number,
         required: false,
-        default: 0,
+        default: ""
+        ,
     },
     status: {
         type: Number,
