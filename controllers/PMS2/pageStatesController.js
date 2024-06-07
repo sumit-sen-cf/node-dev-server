@@ -304,9 +304,6 @@ exports.getPageStatesDetails = async (req, res) => {
     }
 };
 
-
-
-
 exports.getAllPageStatesList = async (req, res) => {
     try {
         const page = (req.query.page && parseInt(req.query.page)) || null;
