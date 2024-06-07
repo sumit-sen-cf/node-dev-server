@@ -5,10 +5,9 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 
 exports.addCampaignPlan = async (req, res) => {
+    const { pages, campaignId, planName, postPerPage, storyPerPage } = req.body;
 
-    const { pages, campaignId, campaignName, planName, postPerPage, storyPerPage } = req.body;
-
-    if (!Array.isArray(pages) || !campaignId || !campaignName || !planName) {
+    if (!Array.isArray(pages) || !campaignId || !planName) {
         return res.send("Invalid Input Data");
     }
 
@@ -18,18 +17,18 @@ exports.addCampaignPlan = async (req, res) => {
         }
     }
 
-    const insertData = pages.map(page => ({
-        planName,
-        campaignId,
-        campaignName,
-        postPerPage,
-        storyPerPage,
-        postRemaining: page.postPerPage,
-        storyRemaining: page.storyPerPage,
-        ...page
-    }));
-
     try {
+
+        const insertData = pages.map(page => ({
+            planName,
+            campaignId,
+            postPerPage: page.postPerPage || postPerPage,
+            storyPerPage: page.storyPerPage || storyPerPage,
+            postRemaining: page.postPerPage,
+            storyRemaining: page.storyPerPage,
+            ...page
+        }));
+
         await opCampaignPlanModel.insertMany(insertData);
 
         const campaignPlanData = await opCampaignPlanModel.find({ campaignId });
@@ -38,14 +37,13 @@ exports.addCampaignPlan = async (req, res) => {
             200,
             req,
             res,
-            "Campaign Plan  Created Successfully",
+            "Campaign Plan Created Successfully",
             campaignPlanData
         );
     } catch (error) {
-        return response.returnFalse(500, req, res, err.message, {});
+        return response.returnFalse(500, req, res, error.message, {});
     }
-
-}
+};
 
 exports.getCampaignPlan = async (req, res) => {
     try {
@@ -54,7 +52,7 @@ exports.getCampaignPlan = async (req, res) => {
         const data = await opCampaignPlanModel.find({ campaignId: id });
 
         if (!data || data.length === 0) {
-            return res.status(404).send("Data not found");
+            return res.status(200).json({ data: [], msg: "Data not found" });
         }
 
         const response = await axios.get(
@@ -162,15 +160,49 @@ exports.getNsendExcelDataInJson = async (req, res) => {
     }
 }
 
+
 exports.replacePlanPage = async (req, res, next) => {
-    const id = req.body._id;
+    const { campaignId, p_id, new_pid, old_pid } = req.body;
 
-    const result = await opCampaignPlanModel.findByIdAndUpdate(req.body._id,
-        {
-            p_id: req.body.new_pid
-        },
-        { new: true }
-    );
+    if (!campaignId || !Array.isArray(p_id) || !Array.isArray(new_pid) || !Array.isArray(old_pid) || !phaseName) {
+        return res.status(400).json({ success: false, message: 'CampaignId, p_id, new_pid, old_pid are required' });
+    }
 
-    res.status(200).json({ data: result })
-}
+    try {
+        const planData = await opCampaignPlanModel.findOne({ campaignId }).select({ planName: 1 });
+
+        if (!planData) {
+            return res.status(404).json({ success: false, message: 'Plan data not found for the given campaignId' });
+        }
+
+        const results = await Promise.all(p_id.map(async (pid, index) => {
+            const planExists = await opCampaignPlanModel.findOne({ campaignId, p_id: pid });
+
+            if (phaseExists && planExists) {
+                await opCampaignPlanModel.deleteOne({ campaignId, p_id: pid });
+
+                const newPlan = await opCampaignPlanModel.create({
+                    planName: planData.planName,
+                    p_id: new_pid[index],
+                    postPerPage: 1,
+                    storyPerPage: 1,
+                    campaignId
+                });
+                return { newPlan };
+            } else {
+                return null;
+            }
+        }));
+
+        const validResults = results.filter(result => result !== null);
+
+        if (validResults.length === 0) {
+            return res.status(404).json({ success: false, message: 'No valid plans found for the provided p_id array' });
+        }
+
+        res.status(200).json({ success: true, data: validResults });
+
+    } catch (error) {
+        next(error);
+    }
+};

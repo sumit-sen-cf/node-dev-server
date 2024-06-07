@@ -1,14 +1,13 @@
 const response = require("../common/response.js");
 const opCampaignPhaseModel = require("../models/opCampaignPhaseModel.js");
 const opCampaignPlanModel = require("../models/opCampaignPlanModel.js");
+const opExecutionModel = require("../models/opExecutionModel.js")
+const axios = require('axios');
+const mongoose = require('mongoose');
 
 exports.addCampaignPhase = async (req, res) => {
 
-    const { pages, campaignId, planId, phaseName, start_date, end_date, postPerPage, storyPerPage } = req.body;
-
-    if (!Array.isArray(pages) || !campaignId || !campaignName || !phaseName || !planId || !start_date || !end_date || !postPerPage || !storyPerPage) {
-        return res.send("Invalid Input Data");
-    }
+    const { pages, campaignId, phaseName, start_date, end_date, description, postPerPage, storyPerPage } = req.body;
 
     for (const page of pages) {
         if (!page.postPerPage || !page.storyPerPage) {
@@ -16,33 +15,40 @@ exports.addCampaignPhase = async (req, res) => {
         }
     }
 
-    const insertData = pages.map(page => ({
-        campaignId,
-        planId,
-        phaseName,
-        start_date,
-        end_date,
-        postRemaining: page.postPerPage,
-        storyRemaining: page.storyPerPage,
-        ...page
-    }));
-
     try {
+        const insertData = pages.map(page => ({
+            campaignId,
+            phaseName,
+            start_date,
+            end_date,
+            description,
+            postRemaining: page.postPerPage,
+            storyRemaining: page.storyPerPage,
+            ...page
+        }));
+
         const campaignPhaseData = await opCampaignPhaseModel.insertMany(insertData);
 
-        // const campaignPlanData = await opCampaignPhaseModel.find({ campaignId });
+        const executionData = campaignPhaseData.map(phase => ({
+            phase_id: phase._id,
+            campaignId: phase.campaignId,
+            p_id: phase.p_id,
+            phaseName: phase.phaseName,
+            start_date: phase.start_date,
+            end_date: phase.end_date
+        }));
 
-        return response.returnTrue(
-            200,
-            req,
-            res,
-            "Campaign Phase  Created Successfully",
-            campaignPhaseData
-        );
+        const executionResult = await opExecutionModel.insertMany(executionData);
+
+        res.status(200).send({
+            message: "Campaign Phase Created Successfully",
+            campaignPhaseData,
+            executionResult
+        });
+
     } catch (error) {
-        return response.returnFalse(500, req, res, err.message, {});
+        return response.returnFalse(500, req, res, error.message, {});
     }
-
 }
 
 exports.getOpCampaignPhases = async (req, res) => {
@@ -50,35 +56,7 @@ exports.getOpCampaignPhases = async (req, res) => {
         const campaignPhases = await opCampaignPhaseModel
             .aggregate([
                 {
-                    $match: { campaignId: req.params.id }
-                },
-                {
-                    $lookup: {
-                        from: "opcampaignmodels",
-                        localField: "campaignId",
-                        foreignField: "_id",
-                        as: "campaignData",
-                    },
-                },
-                {
-                    $unwind: {
-                        path: "$campaignData",
-                        preserveNullAndEmptyArrays: true,
-                    },
-                },
-                {
-                    $lookup: {
-                        from: "opcampaignplanmodels",
-                        localField: "pre_campaign_id",
-                        foreignField: "_id",
-                        as: "campaignPlanData",
-                    },
-                },
-                {
-                    $unwind: {
-                        path: "$campaignPlanData",
-                        preserveNullAndEmptyArrays: true,
-                    },
+                    $match: { campaignId: mongoose.Types.ObjectId(req.params.id) }
                 },
                 {
                     $project: {
@@ -87,16 +65,7 @@ exports.getOpCampaignPhases = async (req, res) => {
                         p_id: 1,
                         description: 1,
                         postPerPage: 1,
-                        storyPerPage: 1,
-                        planId: 1,
-                        plan_data: {
-                            planName: "$campaignPlanData.planName"
-                        },
-                        campaignId: 1,
-                        campaign_data: {
-                            campaignName: "$campaignData.campaignName"
-                        }
-
+                        storyPerPage: 1
                     },
                 }
             ]);
@@ -126,20 +95,31 @@ exports.getOpCampaignPhases = async (req, res) => {
     }
 };
 
+
 exports.deleteCampaignPhaseDataByCampaignId = async (req, res) => {
-    opCampaignPhaseModel.deleteMany({ campaignId: req.params.id }).then(item => {
-        if (item) {
-            return res.status(200).json({ success: true, message: 'Campaign Phase Data deleted By Campaign Id' })
-        } else {
-            return res.status(404).json({ success: false, message: 'Campaign Phase Data by this Campaign Id not found' })
-        }
-    }).catch(err => {
-        return res.status(400).json({ success: false, message: err.message })
-    })
+    const { campaignId, p_id } = req.body;
+
+    if (!campaignId || !p_id) {
+        return res.status(400).json({ success: false, message: 'CampaignId and p_id are required' });
+    }
+
+    try {
+        const phaseDeletionResult = await opCampaignPhaseModel.deleteOne({ campaignId: campaignId, p_id: p_id });
+
+        const planDeletionResult = await opCampaignPlanModel.deleteOne({ campaignId: campaignId, p_id: p_id });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Page Deleted From Plan and Phase'
+        });
+
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Internal Server Error', error: err.message });
+    }
 };
 
 exports.deleteCampaignPhase = async (req, res) => {
-    opCampaignPhaseModel.deleteOne({ _id: req.params.id }).then(item => {
+    opCampaignPhaseModel.deleteOne({ _id: req.params._id }).then(item => {
         if (item) {
             return res.status(200).json({ success: true, message: 'Campaign Phase Data deleted' })
         } else {
@@ -151,19 +131,58 @@ exports.deleteCampaignPhase = async (req, res) => {
 };
 
 exports.replacePhasePage = async (req, res, next) => {
-    const id = req.body._id;
+    const { campaignId, new_pid, old_pid, phaseName } = req.body;
 
-    const result = await opCampaignPlanModel.findByIdAndUpdate(req.body._id,
-        { 
-            p_id: req.body.new_pid
-        }, 
-        { new: true }
-    );
+    try {
+        const planData = await opCampaignPlanModel.findOne({ campaignId }).select({ planName: 1 });
+        const phaseData = await opCampaignPhaseModel.findOne({ campaignId, phaseName }).select({ phaseName: 1, description: 1, start_date: 1, end_date: 1 });
 
-    const result2 = await opCampaignPhaseModel.findOneAndUpdate({ campaignId: id, p_id: req.body.old_pid }, 
-    {
-        p_id: req.body.new_pid
-    })
+        if (!planData || !phaseData) {
+            return res.status(404).json({ success: false, message: 'Plan or Phase data not found for the given campaignId and phaseName' });
+        }
 
-    res.status(200).json({ data: result })
-}
+        const results = await Promise.all(new_pid.map(async (p_id, index) => {
+            const phaseExists = await opCampaignPhaseModel.findOne({ campaignId, p_id: old_pid });
+            const planExists = await opCampaignPlanModel.findOne({ campaignId, p_id: old_pid });
+
+            if (phaseExists && planExists) {
+                await opCampaignPhaseModel.deleteOne({ campaignId, p_id: old_pid });
+                await opCampaignPlanModel.deleteOne({ campaignId, p_id: old_pid });
+
+                const newPlan = await opCampaignPlanModel.create({
+                    planName: planData.planName,
+                    p_id: new_pid[index],
+                    postPerPage: 1,
+                    storyPerPage: 1,
+                    campaignId
+                });
+
+                const newPhase = await opCampaignPhaseModel.create({
+                    phaseName: phaseData.phaseName,
+                    p_id: new_pid[index],
+                    description: phaseData.description,
+                    postPerPage: 1,
+                    storyPerPage: 1,
+                    campaignId,
+                    start_date: phaseData.start_date,
+                    end_date: phaseData.end_date
+                });
+
+                return { newPlan, newPhase };
+            } else {
+                return null;
+            }
+        }));
+
+        const validResults = results.filter(result => result !== null);
+
+        if (validResults.length === 0) {
+            return res.status(404).json({ success: false, message: 'No valid phases or plans found for the provided p_id array' });
+        }
+
+        res.status(200).json({ success: true, data: validResults });
+
+    } catch (error) {
+        next(error);
+    }
+};
