@@ -1,6 +1,10 @@
 const { default: mongoose } = require("mongoose");
 
 const opCampaignPlanModel = new mongoose.Schema({
+    // planId: {
+    //     type: Number,
+    //     unique: true,
+    // },
     planName: {
         type: String,
         required: true
@@ -61,6 +65,20 @@ const opCampaignPlanModel = new mongoose.Schema({
     }
 
 });
+
+
+// opCampaignPlanModel.pre('save', async function (next) {
+//     if (!this.plan_id) {
+//         const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'plan_id': -1 } });
+
+//         if (lastAgency && lastAgency.plan_id) {
+//             this.plan_id = lastAgency.plan_id + 1;
+//         } else {
+//             this.plan_id = 1;
+//         }
+//     }
+//     next();
+// });
 
 module.exports = mongoose.model(
     "opCampaignPlanModel",
