@@ -127,7 +127,7 @@ const assignmentSchema = new mongoose.Schema({
   executed_at: {
     type: Date
   },
-  
+
   verified_by: {
     // type:mongoose.SchemaTypes.ObjectId,
     // ref:'userModels',
@@ -182,13 +182,13 @@ const assignmentSchema = new mongoose.Schema({
   },
   post_captions: {
     type: String,
-    default:''
+    default: ''
   },
-  post_media:{
+  post_media: {
     type: String,
-    default:''
+    default: ''
   },
-  last_link_hit_date:{
+  last_link_hit_date: {
     type: Date,
     default: null
   },
@@ -214,13 +214,13 @@ const assignmentSchema = new mongoose.Schema({
   },
   story_captions: {
     type: String,
-    default:''
+    default: ''
   },
-  story_media:{
+  story_media: {
     type: String,
-    default:''
+    default: ''
   },
-  story_last_link_hit_date:{
+  story_last_link_hit_date: {
     type: Date,
     default: null
   }
