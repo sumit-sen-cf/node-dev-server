@@ -14,9 +14,8 @@ exports.addExeCampaign = [
   upload,
   async (req, res) => {
     try {
-      const { exe_campaign_id, exe_campaign_name, exe_hash_tag, brand_id, user_id, agency_id, created_by } = req.body
+      const { exe_campaign_name, exe_hash_tag, brand_id, user_id, agency_id, created_by } = req.body
       const exeCampaignAdded = new exeCampaignSchema({
-        exe_campaign_id,
         exe_campaign_name,
         exe_hash_tag,
         brand_id,
@@ -110,6 +109,45 @@ exports.getExeCampaigns = async (req, res) => {
   }
 };
 
+exports.getExeCampaignsNameWiseData = async (req, res) => {
+  try {
+    // Extract page and limit from query parameters, default to null if not provided
+    const page = req.query?.page ? parseInt(req.query.page) : null;
+    const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+
+    // Calculate the number of records to skip based on the current page and limit
+    const skip = (page && limit) ? (page - 1) * limit : 0;
+
+    // Retrieve the list of records with pagination applied
+    const exeCampaignList = await exeCampaignSchema.find({}, { exe_campaign_name: 1 }).skip(skip).limit(limit);
+
+    // Get the total count of records in the collection
+    const exeCamapignCount = await exeCampaignSchema.countDocuments();
+
+    // If no records are found, return a response indicating no records found
+    if (exeCampaignList.length === 0) {
+      return response.returnFalse(200, req, res, `No Record Found`, []);
+    }
+    // Return a success response with the list of records and pagination details
+    return response.returnTrueWithPagination(
+      200,
+      req,
+      res,
+      "Execution campaign name list retrieved successfully!",
+      exeCampaignList,
+      {
+        start_record: page && limit ? skip + 1 : 1,
+        end_record: page && limit ? skip + exeCampaignList.length : exeCampaignList.length,
+        total_records: exeCamapignCount,
+        current_page: page || 1,
+        total_page: page && limit ? Math.ceil(exeCamapignCount / limit) : 1,
+      }
+    );
+  } catch (error) {
+    // Return an error response in case of any exceptions
+    return response.returnFalse(500, req, res, `${error.message}`, {});
+  }
+};
 
 exports.editExeCampaign = [
   upload, async (req, res) => {
@@ -117,7 +155,6 @@ exports.editExeCampaign = [
       const { id } = req.params;
 
       let updateData = {
-        exe_campaign_id: req.body.exe_campaign_id,
         exe_campaign_name: req.body.exe_campaign_name,
         exe_hash_tag: req.body.exe_hash_tag,
         brand_id: req.body.brand_id,
