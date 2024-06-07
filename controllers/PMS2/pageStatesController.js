@@ -7,8 +7,6 @@ const constant = require("../../common/constant.js");
 const { uploadImage, deleteImage } = require('../../common/uploadImage.js');
 const { default: mongoose } = require("mongoose");
 
-
-
 const upload = multer({
     storage: multer.memoryStorage()
 }).fields([
@@ -297,7 +295,7 @@ exports.getPageStatesDetails = async (req, res) => {
             req,
             res,
             "Page states details retrive successfully!",
-            pageStatesDetails
+            pageStatesDetails[0]
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
