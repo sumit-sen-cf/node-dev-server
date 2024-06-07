@@ -175,10 +175,10 @@ exports.getOpCampaigns = async (req, res) => {
                         pre_campaign_id: 1,
                         campaign_data: {
                             _id: "$exeCampData._id",
-                            exeCmpId: "$exeCampData.exeCmpId",
-                            exeCmpName: "$exeCampData.exeCmpName",
-                            exeHashTag: "$exeCampData.exeHashTag",
-                            exeRemark: "$exeCampData.exeRemark"
+                            exeCmpId: "$exeCampData.exe_campaign_id",
+                            exeCmpName: "$exeCampData.exe_campaign_name",
+                            exeHashTag: "$exeCampData.exe_hash_tag",
+                            // exeRemark: "$exeCampData.exeRemark"
                         },
                         pre_industry_id: 1,
                         industry_data: {
@@ -367,10 +367,10 @@ exports.getSingleOpCampaign = async (req, res) => {
                         pre_campaign_id: 1,
                         campaign_data: {
                             _id: "$exeCampData._id",
-                            exeCmpId: "$exeCampData.exeCmpId",
-                            exeCmpName: "$exeCampData.exeCmpName",
-                            exeHashTag: "$exeCampData.exeHashTag",
-                            exeRemark: "$exeCampData.exeRemark"
+                            exeCmpId: "$exeCampData.exe_campaign_id",
+                            exeCmpName: "$exeCampData.exe_campaign_name",
+                            exeHashTag: "$exeCampData.exe_hash_tag",
+                            // exeRemark: "$exeCampData.exeRemark"
                         },
                         pre_industry_id: 1,
                         industry_data: {
@@ -868,10 +868,10 @@ exports.getCampaignWithFilterData = async (req, res) => {
                 pre_campaign_id: 1,
                 campaign_data: {
                     _id: "$exeCampData._id",
-                    exeCmpId: "$exeCampData.exeCmpId",
-                    exeCmpName: "$exeCampData.exeCmpName",
-                    exeHashTag: "$exeCampData.exeHashTag",
-                    exeRemark: "$exeCampData.exeRemark"
+                    exeCmpId: "$exeCampData.exe_campaign_id",
+                    exeCmpName: "$exeCampData.exe_campaign_name",
+                    exeHashTag: "$exeCampData.exe_hash_tag",
+                    // exeRemark: "$exeCampData.exeRemark"
                 },
                 pre_industry_id: 1,
                 industry_data: {

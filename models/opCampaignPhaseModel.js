@@ -1,6 +1,10 @@
 const { default: mongoose } = require("mongoose");
 
 const opCampaignPhaseModel = new mongoose.Schema({
+    // phaseId: {
+    //     type: Number,
+    //     unique: true
+    // },
     phaseName: {
         type: String,
         required: true
@@ -11,15 +15,15 @@ const opCampaignPhaseModel = new mongoose.Schema({
     },
     description: {
         type: String,
-        default:""
+        default: ""
     },
     postRemaining: {
-        type: String,
-        default: ""
+        type: Number,
+        default: 0
     },
     storyRemaining: {
         type: Number,
-        default: ""
+        default: 0
     },
     postPerPage: {
         type: Number,
@@ -35,9 +39,8 @@ const opCampaignPhaseModel = new mongoose.Schema({
         ref: "opcampaignmodels"
     },
     planId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: "opcampaignplanmodels"
+        type: Number,
+        required: false
     },
     start_date: {
         type: Date
@@ -76,5 +79,19 @@ const opCampaignPhaseModel = new mongoose.Schema({
         default: false,
     }
 });
+
+
+// opCampaignPhaseModel.pre('save', async function (next) {
+//     if (!this.phaseId) {
+//         const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'phaseId': -1 } });
+
+//         if (lastAgency && lastAgency.phaseId) {
+//             this.phaseId = lastAgency.phaseId + 1;
+//         } else {
+//             this.phaseId = 1;
+//         }
+//     }
+//     next();
+// });
 
 module.exports = mongoose.model("opCampaignPhaseModel", opCampaignPhaseModel);
