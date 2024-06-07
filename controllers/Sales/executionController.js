@@ -35,10 +35,7 @@ exports.createExecution = async (req, res) => {
         );
 
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -64,10 +61,7 @@ exports.getExecutionDetails = async (req, res) => {
             executionDetail
         );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -107,9 +101,7 @@ exports.updateExecutionDetial = async (req, res) => {
             executionUpdated
         );
     } catch (error) {
-        return res.status(500).json({
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -151,10 +143,7 @@ exports.getExcutionList = async (req, res) => {
             }
         );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -194,9 +183,6 @@ exports.deleteExecution = async (req, res) => {
             executionDeleted
         );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };

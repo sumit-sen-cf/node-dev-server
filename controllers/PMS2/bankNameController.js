@@ -9,6 +9,7 @@ exports.addBankName = async (req, res) => {
             sr_no,
             bank_name,
             type_of_bank,
+            description,
             created_by,
         });
         return response.returnTrue(
@@ -91,13 +92,14 @@ exports.updateBankName = async (req, res) => {
     try {
         // Extract the id from request parameters
         const { id } = req.params;
-        const { sr_no, bank_name, type_of_bank, updated_by } = req.body;
+        const { sr_no, bank_name, type_of_bank, description, updated_by } = req.body;
 
         const bankNameUpdated = await bankNameModel.findByIdAndUpdate({ _id: id }, {
             $set: {
                 sr_no,
                 bank_name,
                 type_of_bank,
+                description,
                 updated_by
             },
         }, {

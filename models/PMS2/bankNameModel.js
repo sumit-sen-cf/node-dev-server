@@ -20,6 +20,11 @@ const bankNameSchema = new Schema(
             required: false,
             trim: true,
         },
+        description: {
+            type: String,
+            required: false,
+            trim: true,
+        },
         created_by: {
             type: Number,
             required: true,
