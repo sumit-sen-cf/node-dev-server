@@ -279,6 +279,31 @@ exports.deletePageMasterDetails = async (req, res) => {
     }
 };
 
+exports.getPageMasterDataVendorWise = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const pageMasterDetail = await pageMasterModel.find({
+            vendor_id: id,
+            status: {
+                $ne: constant.DELETED
+            }
+        });
+        if (!pageMasterDetail) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Successfully Fetch page master detail Data vendor id wise",
+            pageMasterDetail
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+
 // exports.addPageMaster = async (req, res) => {
 //     try {
 //         //get data from body
