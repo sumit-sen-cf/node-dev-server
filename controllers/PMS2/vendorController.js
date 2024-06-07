@@ -329,14 +329,23 @@ exports.updateVendorData = async (req, res) => {
         existingVendor.updated_by = updated_by;
         existingVendor.vendor_category = vendor_category;
 
-        if (req.files?.pan_image && req.files.pan_image[0]) {
-            existingVendor.pan_image = await uploadImage(req.files.pan_image[0]);
-        }
+        const imageFields = {
+            pan_image: 'PanImages',
+            gst_image: 'GstImages',
+        };
 
-        if (req.files?.gst_image && req.files.gst_image[0]) {
-            existingVendor.gst_image = await uploadImage(req.files.gst_image[0]);
-        }
+        // Remove old images not present in new data and upload new images
+        for (const [fieldName] of Object.entries(imageFields)) {
+            if (req.files && req.files[fieldName] && req.files[fieldName][0]) {
 
+                // Delete old image if present
+                if (existingVendor[fieldName]) {
+                    await deleteImage(`PMS2VendorImages/${existingVendor[fieldName]}`);
+                }
+                // Upload new image
+                existingVendor[fieldName] = await uploadImage(req.files[fieldName][0], "PMS2VendorImages");
+            }
+        }
         // Save updated vendor data
         const updatedVendorData = await existingVendor.save();
         if (!updatedVendorData) {

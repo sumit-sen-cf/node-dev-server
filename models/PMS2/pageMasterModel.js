@@ -32,7 +32,7 @@ const pageMasterSchema = new Schema({
     },
     primary_page: {
         type: String,
-        enum: ["yes", "no"],
+        enum: ["Yes", "No"],
         required: false,
     },
     page_name_type: {
