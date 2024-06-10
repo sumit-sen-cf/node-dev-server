@@ -22,8 +22,9 @@ const salesBookingExecution = new Schema({
     },
     execution_status: {
         type: String,
-        enum: ["pending_for_sent_execution", "Sent_for_execution", "execution_accepted", "execution_completed",
+        enum: ["Sent_for_execution", "execution_accepted", "execution_completed",
             "execution_rejected", "execution_paused"],
+        default: "Sent_for_execution"
     },
     execution_time: {
         type: String,
@@ -33,10 +34,10 @@ const salesBookingExecution = new Schema({
         type: String,
         required: false
     },
-    execution_excel: {
-        type: String,
-        required: false,
-    },
+    // execution_excel: {
+    //     type: String,
+    //     required: false,
+    // },
     execution_done_by: {
         type: String,
         required: false,
@@ -49,10 +50,10 @@ const salesBookingExecution = new Schema({
         type: String,
         required: false,
     },
-    execution_sent_date: {
-        type: String,
-        required: false,
-    },
+    // execution_sent_date: {
+    //     type: String,
+    //     required: false,
+    // },
     created_by: {
         type: Number,
         required: true,

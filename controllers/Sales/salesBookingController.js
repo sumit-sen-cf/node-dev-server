@@ -109,8 +109,7 @@ exports.addSalesBooking = [
                 "Sales Booking Created Successfully",
                 { saleBookingAdded, recordServicesData });
         } catch (err) {
-        // Return an error response in case of any exceptions
-        return response.returnFalse(500, req, res, `${error.message}`, {});
+            return response.returnFalse(500, req, res, err.message, {});
         }
     }];
 
@@ -204,8 +203,8 @@ exports.editSalesBooking = [
 
             return response.returnTrue(200, req, res, "Sales booking data updated successfully!", updatedSalesBooking);
         } catch (error) {
-        // Return an error response in case of any exceptions
-        return response.returnFalse(500, req, res, `${error.message}`, {});
+            // Return an error response in case of any exceptions
+            return response.returnFalse(500, req, res, `${error.message}`, {});
         }
     }];
 
