@@ -26,10 +26,7 @@ exports.createIncentivePlan = async (req, res) => {
         );
     } catch (error) {
         // Return an error response in case of any exceptions
-        return res.status(500).json({
-            error: error.message,
-            message: 'Internal Server Error,Please try again later!'
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -57,10 +54,7 @@ exports.getIncentivePlanDetails = async (req, res) => {
         );
     } catch (error) {
         // Return an error response in case of any exceptions
-        return res.status(500).json({
-            error: error.message,
-            message: 'Internal Server Error,Please try again later!'
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 /**
@@ -95,10 +89,7 @@ exports.updateIncentivePlan = async (req, res) => {
         );
     } catch (error) {
         // Return an error response in case of any exceptions
-        return res.status(500).json({
-            error: error.message,
-            message: 'Internal Server Error,Please try again later!'
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     };
 };
 
@@ -142,10 +133,7 @@ exports.getIncentivePlanList = async (req, res) => {
         );
     } catch (error) {
         // Return an error response in case of any exceptions
-        return res.status(500).json({
-            error: error.message,
-            message: 'Internal Server Error,Please try again later!'
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     };
 };
 
@@ -185,9 +173,6 @@ exports.deleteIncentivePlan = async (req, res) => {
         );
     } catch (error) {
         // Return an error response in case of any exceptions
-        return res.status(500).json({
-            error: error.message,
-            message: 'Internal Server Error,Please try again later!'
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     };
 };

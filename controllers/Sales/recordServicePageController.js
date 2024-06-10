@@ -24,16 +24,15 @@ exports.createRecordServicePage = async (req, res) => {
             remarks: remarks,
             created_by: created_by,
         });
-        return res.status(200).json({
-            status: 200,
-            message: "Record service page data added successfully!",
-            data: recordServicePageAdded,
-        });
+        return res.response.returnTrue(
+            200,
+            req,
+            res,
+            "Record service page data added successfully!",
+            recordServicePageAdded,
+        );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 

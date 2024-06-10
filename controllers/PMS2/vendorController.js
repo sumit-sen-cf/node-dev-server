@@ -17,17 +17,18 @@ const upload = multer({
 
 exports.createVendorData = [upload, async (req, res) => {
     try {
-        const { vendor_type, vendor_platform, pay_cycle, bank_name, payment_method, primary_field, vendor_name, country_code, mobile, alternate_mobile, email, personal_address, pan_no, gst_no,
-            company_name, company_address, company_city, company_pincode, company_state, threshold_limit,
-            home_address, home_city, home_state, created_by, vendor_category, } = req.body;
+        const { vendor_type, vendor_platform, pay_cycle, bank_name, company_details, payment_method, primary_field, vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address, pan_no, gst_no,
+            threshold_limit, home_address, home_city, home_state, created_by, vendor_category, } = req.body;
         const addVendorData = vendorModel({
             vendor_type,
             vendor_platform,
             pay_cycle,
             bank_name,
+            company_details,
             payment_method,
             primary_field,
             vendor_name,
+            home_pincode,
             country_code,
             mobile,
             alternate_mobile,
@@ -35,11 +36,6 @@ exports.createVendorData = [upload, async (req, res) => {
             personal_address,
             pan_no,
             gst_no,
-            company_name,
-            company_address,
-            company_city,
-            company_pincode,
-            company_state,
             threshold_limit,
             home_address,
             home_city,
@@ -291,11 +287,9 @@ exports.getAllVendorList = async (req, res) => {
 exports.updateVendorData = async (req, res) => {
     try {
         const { vendor_id } = req.params; // Assuming vendor_id is passed as a URL parameter
-        const {
-            vendor_type, vendor_platform, pay_cycle, bank_name, payment_method, primary_field, vendor_name, country_code, mobile, alternate_mobile,
-            email, personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode,
-            company_state, threshold_limit, home_address, home_city, home_state, updated_by, vendor_category
-        } = req.body;
+        const { vendor_type, vendor_platform, pay_cycle, bank_name, company_details, payment_method, primary_field, vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address, pan_no, gst_no,
+            threshold_limit, home_address, home_city, home_state, vendor_category, updated_by } = req.body;
+
         // Find the vendor by ID
         const existingVendor = await vendorModel.findById(vendor_id);
         if (!existingVendor) {
@@ -307,9 +301,11 @@ exports.updateVendorData = async (req, res) => {
         existingVendor.vendor_platform = vendor_platform;
         existingVendor.pay_cycle = pay_cycle;
         existingVendor.bank_name = bank_name;
+        existingVendor.company_details = company_details;
         existingVendor.payment_method = payment_method;
         existingVendor.primary_field = primary_field;
         existingVendor.vendor_name = vendor_name;
+        existingVendor.home_pincode = home_pincode;
         existingVendor.country_code = country_code;
         existingVendor.mobile = mobile;
         existingVendor.alternate_mobile = alternate_mobile;
@@ -317,11 +313,6 @@ exports.updateVendorData = async (req, res) => {
         existingVendor.personal_address = personal_address;
         existingVendor.pan_no = pan_no;
         existingVendor.gst_no = gst_no;
-        existingVendor.company_name = company_name;
-        existingVendor.company_address = company_address;
-        existingVendor.company_city = company_city;
-        existingVendor.company_pincode = company_pincode;
-        existingVendor.company_state = company_state;
         existingVendor.threshold_limit = threshold_limit;
         existingVendor.home_address = home_address;
         existingVendor.home_city = home_city;
