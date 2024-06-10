@@ -103,7 +103,7 @@ exports.getSingleCampaignPlan = async (req, res) => {
         "Single Campaign Plan data Fetched Successfully",
         singlePlanData
     );
-}
+};
 
 exports.updateSingleCampaignPlan = async (req, res) => {
     const id = req.params.id;
@@ -115,7 +115,7 @@ exports.updateSingleCampaignPlan = async (req, res) => {
     }
 
     res.send({ data: result, status: 200 })
-}
+};
 
 exports.deleteCampaignPlanDataByCampaignId = async (req, res) => {
     opCampaignPlanModel.deleteMany({ campaignId: req.params.id }).then(item => {
@@ -158,49 +158,37 @@ exports.getNsendExcelDataInJson = async (req, res) => {
         console.error('Error extracting data from Excel:', error.message);
         res.status(500).json({ error: 'Internal server error' });
     }
-}
-
+};
 
 exports.replacePlanPage = async (req, res, next) => {
-    const { campaignId, p_id, new_pid, old_pid } = req.body;
+    const { campaignId, new_pid, old_pid } = req.body;
 
-    if (!campaignId || !Array.isArray(p_id) || !Array.isArray(new_pid) || !Array.isArray(old_pid) || !phaseName) {
-        return res.status(400).json({ success: false, message: 'CampaignId, p_id, new_pid, old_pid are required' });
+    if (!campaignId || !Array.isArray(new_pid) || !old_pid) {
+        return res.status(400).json({ success: false, message: 'CampaignId, new_pid array, and old_pid are required' });
     }
 
     try {
+
         const planData = await opCampaignPlanModel.findOne({ campaignId }).select({ planName: 1 });
 
         if (!planData) {
             return res.status(404).json({ success: false, message: 'Plan data not found for the given campaignId' });
         }
 
-        const results = await Promise.all(p_id.map(async (pid, index) => {
-            const planExists = await opCampaignPlanModel.findOne({ campaignId, p_id: pid });
+        const deleteResult = await opCampaignPlanModel.deleteOne({ campaignId, p_id: old_pid });
 
-            if (phaseExists && planExists) {
-                await opCampaignPlanModel.deleteOne({ campaignId, p_id: pid });
-
-                const newPlan = await opCampaignPlanModel.create({
-                    planName: planData.planName,
-                    p_id: new_pid[index],
-                    postPerPage: 1,
-                    storyPerPage: 1,
-                    campaignId
-                });
-                return { newPlan };
-            } else {
-                return null;
-            }
+        const results = await Promise.all(new_pid.map(async (pid) => {
+            const newPlan = await opCampaignPlanModel.create({
+                planName: planData.planName,
+                p_id: pid,
+                postPerPage: 1,
+                storyPerPage: 1,
+                campaignId
+            });
+            return newPlan;
         }));
 
-        const validResults = results.filter(result => result !== null);
-
-        if (validResults.length === 0) {
-            return res.status(404).json({ success: false, message: 'No valid plans found for the provided p_id array' });
-        }
-
-        res.status(200).json({ success: true, data: validResults });
+        res.status(200).json({ success: true, data: results });
 
     } catch (error) {
         next(error);
