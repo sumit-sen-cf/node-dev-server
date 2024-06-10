@@ -1896,6 +1896,8 @@ router.post('/change_selected_user_password', adminController.changePassOfSelect
 router.post('/change_all_user_password', adminController.changePassOfUsers);
 router.post('/send_email_to_all_users', adminController.sendPassEmailToUsers);
 
+//------------------------------------------------- New Operations Routes Starts Here----------------------------
+
 //OpCampaign Routes Start Here
 router.post('/opcampaign', opCampaign.addOpCampaign);
 router.get('/opcampaign', opCampaign.getOpCampaigns);
@@ -1903,7 +1905,8 @@ router.get('/opcampaign/:id', opCampaign.getSingleOpCampaign);
 router.delete('/opcampaign/:_id', opCampaign.deleteCampaign);
 router.post('/get_filter_campaigns', opCampaign.filterCampagin);
 router.get('/get_data', opCampaign.getCampaignWithFilterData);
-//OpCampaign Routes End Here
+// router.get('/get_single_sale_booking_data_new_table/:sale_booking_id', opCampaign.getSingleSaleBookingData);
+router.get('/get_single_sale_booking_data_old_table/:sale_booking_id', opCampaign.getSingleSaleBookingData);
 
 //OpCampaign Plan Routes
 router.post('/opcampaignplan', opCampaignPlan.addCampaignPlan);
@@ -1914,7 +1917,6 @@ router.delete('/opcampaignplan/:id', opCampaignPlan.deleteCampaignPlanDataByCamp
 router.delete('/opcampaignplansingle/:_id', opCampaignPlan.deleteCampaignPlan);
 router.post('/get_excel_data_in_json_from_url', opCampaignPlan.getNsendExcelDataInJson);
 router.post('/replace_plan_pages', opCampaignPlan.replacePlanPage);
-// router.put('/replace_plan_pages_all_update', opCampaignPlan.replacePlanPageAllUpdate)
 
 //OpCampaign Phase
 router.post('/opCampaignPhase', opCampaignPhase.addCampaignPhase);
@@ -1933,5 +1935,7 @@ router.put('/opexecution', opExecution.updateOPExecution);
 router.post('/add_new_page', opExecution.addNewPage)
 router.get('/get_phase_commitments/:phaseName', opExecution.getPhaseCommits);
 router.get('/phase_created_campaign', opExecution.phaseCreatedCampaign);
+
+//------------------------------------------------- New Operations Routes End Here----------------------------
 
 module.exports = router;

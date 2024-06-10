@@ -1,5 +1,7 @@
 const response = require("../common/response.js");
 const opCampaignModel = require("../models/opCampaignModel.js");
+const salesBookingModel = require("../models/Sales/salesBookingModel.js");
+const exeSum = require('../models/exeSumModel.js');
 const mongoose = require('mongoose');
 
 exports.addOpCampaign = async (req, res) => {
@@ -462,7 +464,6 @@ exports.getSingleOpCampaign = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 };
-
 
 exports.deleteCampaign = async (req, res) => {
     opCampaignModel.deleteOne({ _id: req.params._id }).then(item => {
@@ -963,5 +964,26 @@ exports.getCampaignWithFilterData = async (req, res) => {
             status: 500,
             sms: "Error in getting campaign data with filter",
         });
+    }
+};
+
+exports.getSingleSaleBookingData = async (req, res) => {
+    try {
+        // const singleSaleBooking = await salesBookingModel.findOne({
+        const singleSaleBooking = await exeSum.findOne({
+            sale_booking_id: parseInt(req.params.sale_booking_id),
+        });
+        if (!singleSaleBooking) {
+            return response.returnFalse(200, req, res, "No Reord Found...", {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Sale Booking Data Fetch Successfully",
+            singleSaleBooking
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
     }
 };

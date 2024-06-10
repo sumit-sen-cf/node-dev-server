@@ -984,7 +984,7 @@ exports.getAllUsers = async (req, res) => {
                 }
             }
         ];
-        const users = await mongoose.model('userModel').aggregate(userDataPipeline).exec();
+        const users = await mongoose.model('userModel').aggregate(userDataPipeline).sort({ user_id: -1 });
         return res.status(200).send({ data: users });
 
     } catch (err) {

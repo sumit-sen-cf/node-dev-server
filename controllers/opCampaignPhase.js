@@ -134,6 +134,7 @@ exports.replacePhasePage = async (req, res, next) => {
     const { campaignId, new_pid, old_pid, phaseName } = req.body;
 
     try {
+
         const planData = await opCampaignPlanModel.findOne({ campaignId }).select({ planName: 1 });
         const phaseData = await opCampaignPhaseModel.findOne({ campaignId, phaseName }).select({ phaseName: 1, description: 1, start_date: 1, end_date: 1 });
 
@@ -141,17 +142,18 @@ exports.replacePhasePage = async (req, res, next) => {
             return res.status(404).json({ success: false, message: 'Plan or Phase data not found for the given campaignId and phaseName' });
         }
 
-        const results = await Promise.all(new_pid.map(async (p_id, index) => {
-            const phaseExists = await opCampaignPhaseModel.findOne({ campaignId, p_id: old_pid });
-            const planExists = await opCampaignPlanModel.findOne({ campaignId, p_id: old_pid });
+        const oldPhaseExists = await opCampaignPhaseModel.findOne({ campaignId, p_id: old_pid });
+        const oldPlanExists = await opCampaignPlanModel.findOne({ campaignId, p_id: old_pid });
 
-            if (phaseExists && planExists) {
-                await opCampaignPhaseModel.deleteOne({ campaignId, p_id: old_pid });
-                await opCampaignPlanModel.deleteOne({ campaignId, p_id: old_pid });
+        if (oldPhaseExists && oldPlanExists) {
 
+            await opCampaignPhaseModel.deleteOne({ campaignId, p_id: old_pid });
+            await opCampaignPlanModel.deleteOne({ campaignId, p_id: old_pid });
+
+            const newResults = await Promise.all(new_pid.map(async (p_id) => {
                 const newPlan = await opCampaignPlanModel.create({
                     planName: planData.planName,
-                    p_id: new_pid[index],
+                    p_id: p_id,
                     postPerPage: 1,
                     storyPerPage: 1,
                     campaignId
@@ -159,7 +161,7 @@ exports.replacePhasePage = async (req, res, next) => {
 
                 const newPhase = await opCampaignPhaseModel.create({
                     phaseName: phaseData.phaseName,
-                    p_id: new_pid[index],
+                    p_id: p_id,
                     description: phaseData.description,
                     postPerPage: 1,
                     storyPerPage: 1,
@@ -169,19 +171,12 @@ exports.replacePhasePage = async (req, res, next) => {
                 });
 
                 return { newPlan, newPhase };
-            } else {
-                return null;
-            }
-        }));
+            }));
 
-        const validResults = results.filter(result => result !== null);
-
-        if (validResults.length === 0) {
-            return res.status(404).json({ success: false, message: 'No valid phases or plans found for the provided p_id array' });
+            return res.status(200).json({ success: true, data: newResults });
+        } else {
+            return res.status(404).json({ success: false, message: 'Old phase or plan data not found for the given old_pid' });
         }
-
-        res.status(200).json({ success: true, data: validResults });
-
     } catch (error) {
         next(error);
     }
