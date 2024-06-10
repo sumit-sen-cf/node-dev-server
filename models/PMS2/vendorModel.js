@@ -34,6 +34,11 @@ const vendorSchema = new Schema({
         required: false,
         ref: "pms2BankNameModel"
     },
+    company_details: {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: "Pms2CompanyDetailsModel"
+    },
     page_count: {
         type: Number,
         required: false,
@@ -74,6 +79,10 @@ const vendorSchema = new Schema({
     },
     pan_image: {
         type: String,
+        required: false
+    },
+    home_pincode: {
+        type: Number,
         required: false
     },
     gst_no: {
