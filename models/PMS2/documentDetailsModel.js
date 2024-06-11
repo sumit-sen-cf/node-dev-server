@@ -3,32 +3,32 @@ const { default: mongoose } = require("mongoose");
 const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
-const companyDetailsSchema = new mongoose.Schema({
-    company_name: {
+const documentDetailsSchema = new mongoose.Schema({
+    vendor_id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "pms2VendorModel"
+    },
+    document_master_id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "accountDocumentMasterModel",
+    },
+    document_name: {
         type: String,
         required: false
     },
-    address: {
+    document_image_upload: {
         type: String,
         required: false
     },
-    city: {
+    document_no: {
         type: String,
         required: false
     },
-    pincode: {
-        type: Number,
+    document_type: {
+        type: String,
         required: false,
-        default: 0
-    },
-    state: {
-        type: String,
-        required: false
-    },
-    threshold_limit: {
-        type: String,
-        required: false,
-        default: ""
     },
     created_by: {
         type: Number,
@@ -49,4 +49,4 @@ const companyDetailsSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model("Pms2CompanyDetailsModel", companyDetailsSchema);
+module.exports = mongoose.model("Pms2DocumentDetailsModel", documentDetailsSchema);

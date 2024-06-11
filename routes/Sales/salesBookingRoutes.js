@@ -16,6 +16,7 @@ router.get("/sales/sales_booking/:id", verifyToken, Sales.getSingleSalesBooking)
 router.get("/sales/sales_booking", verifyToken, Sales.getAllSalesBooking);
 router.delete("/sales/sales_booking/:id", verifyToken, Sales.deleteSalesBooking);
 router.get("/sales/deleted_sale_booking_list", verifyToken, Sales.getDeletedSalesBookingList);
+router.get("/sales/account_sale_booking/:id", verifyToken, Sales.getSalesBookingDetail);
 
 /**
  * sales booking credit approval status Api's

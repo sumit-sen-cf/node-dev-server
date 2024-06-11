@@ -505,3 +505,25 @@ exports.editCreditApprovalStatusChange = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 };
+
+
+exports.getSalesBookingDetail = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const salesBookingDetail = await salesBookingModel.find({
+            account_id: id,
+        });
+        if (!salesBookingDetail) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Sales booking details retrive account id wise successfully!",
+            salesBookingDetail
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+}
