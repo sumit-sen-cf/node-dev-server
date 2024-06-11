@@ -8,8 +8,7 @@ const response = require("../../common/response");
  */
 exports.createExecution = async (req, res) => {
     try {
-        const { sale_booking_id, record_service_id, start_date, end_date, execution_time, execution_date,
-            execution_done_by, execution_remark, commitment, created_by
+        const { sale_booking_id, start_date, end_date, commitment, created_by
         } = req.body;
 
         // Get distinct IDs from the database
@@ -20,27 +19,30 @@ exports.createExecution = async (req, res) => {
             }
         });
 
-        for (let element of recordServiceDetail) {
-            await executionModel.create({
+        let exeDataArray = [];
+        for (const element of recordServiceDetail) {
+            const randomNumber = Math.floor(1000000 + Math.random() * 90000);
+            let exeDataObj = {
                 sale_booking_id: sale_booking_id,
                 record_service_id: element,
                 start_date: start_date,
                 end_date: end_date,
-                execution_time: execution_time,
-                execution_date: execution_date,
-                execution_done_by: execution_done_by,
-                execution_remark: execution_remark,
+                execution_token: randomNumber,
                 commitment: commitment,
-                created_by: created_by,
-            });
+                created_by: created_by
+            }
+            //obj push in array
+            exeDataArray.push(exeDataObj);
         }
-        // Return a success response with the updated record details
+        //data insert into the db
+        const exeDetails = await executionModel.insertMany(exeDataArray);
+        //Return a success response
         return response.returnTrue(
             200,
             req,
             res,
             "Sales booking execution created successfully",
-            {}
+            exeDetails
         );
 
     } catch (error) {
