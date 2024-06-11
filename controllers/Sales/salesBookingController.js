@@ -8,9 +8,17 @@ const recordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
 const { saleBookingStatus } = require("../../helper/status.js");
+const path = require('path');
 
 const upload = multer({
-    storage: multer.memoryStorage()
+    storage: multer.memoryStorage(),
+    fileFilter: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        if (ext !== '.xlsx' && ext !== '.xls') {
+            return cb(new Error('Only Excel files are allowed'), false);
+        }
+        cb(null, true);
+    }
 }).fields([
     { name: "record_service_file", maxCount: 1 },
 ]);
