@@ -29,6 +29,7 @@ const incentivePlanRoutes = require("./Sales/incentivePlanRoutes");
 const badgesMasterRoutes = require("./Sales/badgesMasterRoutes");
 const bankNameRoutes = require("./PMS2/bankNameRoutes");
 const companyDetailsRoutes = require("./PMS2/companyDetailsRoutes");
+const documentDetailsRoutes = require("./PMS2/documentDetailsRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -49,7 +50,8 @@ exports.routeModulesV1 = [
     pageMasterRoutes,
     pageStatesRoutes,
     bankNameRoutes,
-    companyDetailsRoutes
+    companyDetailsRoutes,
+    documentDetailsRoutes
 ];
 
 //used for the http://localhost:8080/api/end-points
