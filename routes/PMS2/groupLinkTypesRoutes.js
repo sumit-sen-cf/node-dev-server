@@ -11,17 +11,14 @@ const {
     updateSingleGroupLinkDetails,
     getGroupLinkDeletedData,
 } = require("../../controllers/PMS2/groupLinkTypeController");
+const { verifyToken } = require("../../middleware/auth");
 const router = express.Router();
 
-router.post("/group_link_type", addGroupLinkTypeValidation, addGroupLink);
-router.get("/group_link_type", getAllGroupLinkDetails);
-router.get("/group_link_type/:id", getSingleGroupLinkDetails);
-router.put(
-    "/group_link_type",
-    updateGrouplinkTypeValidation,
-    updateSingleGroupLinkDetails
-);
-router.delete("/group_link_type/:id", deleteGroupLinkDetails);
-router.get("/group_link_type_deleted", getGroupLinkDeletedData);
+router.post("/group_link_type", verifyToken, addGroupLinkTypeValidation, addGroupLink);
+router.get("/group_link_type", verifyToken, getAllGroupLinkDetails);
+router.get("/group_link_type/:id", verifyToken, getSingleGroupLinkDetails);
+router.put("/group_link_type", verifyToken, updateGrouplinkTypeValidation, updateSingleGroupLinkDetails);
+router.delete("/group_link_type/:id", verifyToken, deleteGroupLinkDetails);
+router.get("/group_link_type_deleted", verifyToken, getGroupLinkDeletedData);
 
 module.exports = router;

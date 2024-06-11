@@ -7,17 +7,15 @@ const {
     deletePagePriceTypeDetails,
     getAllPriceTypeDetailsBasedOnPlateform,
 } = require("../../controllers/PMS2/pagePriceTypeController");
-const {
-    addPagePriceTypeValidation,
-    updatePagePriceTypeValidation,
-} = require("../../helper/validation");
+const { addPagePriceTypeValidation, updatePagePriceTypeValidation } = require("../../helper/validation");
+const { verifyToken } = require("../../middleware/auth");
 const router = express.Router();
 
-router.post("/pagePriceType", addPagePriceTypeValidation, addPagePriceType);
-router.put("/pagePriceType/:id", updatePagePriceTypeValidation, updateSinglePagePriceTypeDetails);
-router.get("/pagePriceType", getAllPagePriceTypeDetails);
-router.get("/pagePriceType/:id", getSinglePagePriceTypeDetails);
-router.get("/pagePriceTypesForPlatformId/:id", getAllPriceTypeDetailsBasedOnPlateform);
-router.delete("/pagePriceType/:id", deletePagePriceTypeDetails);
+router.post("/pagePriceType", verifyToken, addPagePriceTypeValidation, addPagePriceType);
+router.put("/pagePriceType/:id", verifyToken, updatePagePriceTypeValidation, updateSinglePagePriceTypeDetails);
+router.get("/pagePriceType", verifyToken, getAllPagePriceTypeDetails);
+router.get("/pagePriceType/:id", verifyToken, getSinglePagePriceTypeDetails);
+router.get("/pagePriceTypesForPlatformId/:id", verifyToken, getAllPriceTypeDetailsBasedOnPlateform);
+router.delete("/pagePriceType/:id", verifyToken, deletePagePriceTypeDetails);
 
 module.exports = router;

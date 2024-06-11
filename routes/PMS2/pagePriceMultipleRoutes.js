@@ -4,19 +4,17 @@ const {
     updateSinglePagePriceMultipleDetails,
     getAllPagePriceMultipleDetails,
     getSinglePagePriceMultipleDetails,
-    deletePagePriceMultipleDetails,getPagePriceMultipleDetailsBasedOnPageId
+    deletePagePriceMultipleDetails, getPagePriceMultipleDetailsBasedOnPageId
 } = require("../../controllers/PMS2/pagePriceMultipleController");
-const {
-    addPagePriceMultipleValidation,
-    updatePagePriceMultipleValidation
-} = require("../../helper/validation");
+const { addPagePriceMultipleValidation, updatePagePriceMultipleValidation } = require("../../helper/validation");
+const { verifyToken } = require("../../middleware/auth");
 const router = express.Router();
 
-router.post("/pagePriceMultiple", addPagePriceMultipleValidation, addPagePriceMultiple);
-router.put("/pagePriceMultiple/:id", updatePagePriceMultipleValidation, updateSinglePagePriceMultipleDetails);
-router.get("/pagePriceMultiple", getAllPagePriceMultipleDetails);
-router.get("/pagePriceMultiple/:id", getSinglePagePriceMultipleDetails);
-router.get("/pagePriceMultipleByPageId/:id", getPagePriceMultipleDetailsBasedOnPageId);
-router.delete("/pagePriceMultiple/:id", deletePagePriceMultipleDetails);
+router.post("/pagePriceMultiple", verifyToken, addPagePriceMultipleValidation, addPagePriceMultiple);
+router.put("/pagePriceMultiple/:id", verifyToken, updatePagePriceMultipleValidation, updateSinglePagePriceMultipleDetails);
+router.get("/pagePriceMultiple", verifyToken, getAllPagePriceMultipleDetails);
+router.get("/pagePriceMultiple/:id", verifyToken, getSinglePagePriceMultipleDetails);
+router.get("/pagePriceMultipleByPageId/:id", verifyToken, getPagePriceMultipleDetailsBasedOnPageId);
+router.delete("/pagePriceMultiple/:id", verifyToken, deletePagePriceMultipleDetails);
 
 module.exports = router;

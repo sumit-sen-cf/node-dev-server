@@ -4,13 +4,14 @@ const companyDetailsModel = require("../../models/PMS2/companyDetailsModel");
 
 exports.createCompanyDetails = async (req, res) => {
     try {
-        const { company_name, address, city, pincode, state, created_by } = req.body;
+        const { company_name, address, city, pincode, state, threshold_limit, created_by } = req.body;
         const companyDetailAdded = await companyDetailsModel.create({
             company_name,
             address,
             city,
             pincode,
             state,
+            threshold_limit,
             created_by
         });
         return response.returnTrue(
@@ -90,7 +91,7 @@ exports.updateCompanyDetails = async (req, res) => {
     try {
         // Extract the id from request parameters
         const { id } = req.params;
-        const { company_name, address, city, pincode, state, updated_by } = req.body;
+        const { company_name, address, city, pincode, state, threshold_limit, updated_by } = req.body;
 
         const comapnyDetailsUpdated = await companyDetailsModel.findByIdAndUpdate({ _id: id }, {
             $set: {
@@ -99,6 +100,7 @@ exports.updateCompanyDetails = async (req, res) => {
                 city,
                 pincode,
                 state,
+                threshold_limit,
                 updated_by
             },
         }, {
