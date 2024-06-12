@@ -465,6 +465,8 @@ router.put("/exe_campaign/:id", exeCampaign.editExeCampaign);
 router.delete("/exe_campaign/:id", exeCampaign.deleteExeCampaign);
 router.get("/exe_campaign_name_wise", exeCampaign.getExeCampaignsNameWiseData);
 
+router.get("/exe_campaign_wise_list/:id", exeCampaign.getAllExeCampaignList);
+
 
 //ProjectxPageCategory
 router.post(

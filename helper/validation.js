@@ -811,6 +811,7 @@ exports.addPageMasterValidation = async (req, res, next) => {
         next();
     }
 };
+
 exports.updatePageMasterValidation = async (req, res, next) => {
     const body = req.body;
 
@@ -825,6 +826,7 @@ exports.updatePageMasterValidation = async (req, res, next) => {
         vendor_id: Joi.optional(),
         page_name: Joi.optional(),
         page_name_type: Joi.optional(),
+        primary_page: Joi.optional(),
         page_link: Joi.optional(),
         preference_level: Joi.optional(),
         content_creation: Joi.optional(),
@@ -842,6 +844,15 @@ exports.updatePageMasterValidation = async (req, res, next) => {
         // Adding validation for the array of objects
         page_price_multiple: Joi.array().items(page_price_multiple_obj).optional(),
     })
+    const { error, value } = schema.validate(body, {
+        abortEarly: false,
+    });
+    if (error) {
+        const errors = joiValidationErrorConvertor(error.details);
+        return response.returnFalse(400, req, res, errors);
+    } else {
+        next();
+    }
 }
 
 //@2 PMS Page Price_Multiple collection Validations

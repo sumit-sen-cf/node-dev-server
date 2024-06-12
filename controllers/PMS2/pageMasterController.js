@@ -175,12 +175,9 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const { page_profile_type_id, page_category_id, platform_id, vendor_id,
-            page_name, page_name_type, page_link, status, preference_level,
-            content_creation, ownership_type, rate_type, variable_type, description,
-            page_closed_by, followers_count, engagment_rate, tags_page_category,
-            platform_active_on, last_updated_by
-        } = req.body;
+        const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link,
+            status, preference_level, content_creation, ownership_type, rate_type, variable_type, description, page_closed_by,
+            followers_count, engagment_rate, tags_page_category, platform_active_on, last_updated_by } = req.body;
 
         const pageMasterDetails = await pageMasterModel.findOneAndUpdate({
             _id: id
@@ -192,6 +189,7 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
                 vendor_id,
                 page_name,
                 page_name_type,
+                primary_page,
                 page_link,
                 status,
                 preference_level,
