@@ -1905,8 +1905,8 @@ router.get('/opcampaign/:id', opCampaign.getSingleOpCampaign);
 router.delete('/opcampaign/:_id', opCampaign.deleteCampaign);
 router.post('/get_filter_campaigns', opCampaign.filterCampagin);
 router.get('/get_data', opCampaign.getCampaignWithFilterData);
-// router.get('/get_single_sale_booking_data_new_table/:sale_booking_id', opCampaign.getSingleSaleBookingData);
-router.get('/get_single_sale_booking_data_old_table/:sale_booking_id', opCampaign.getSingleSaleBookingData);
+router.get('/get_single_sale_booking_data_new_table/:sale_booking_id', opCampaign.getSingleSaleBookingData);
+// router.get('/get_single_sale_booking_data_old_table/:sale_booking_id', opCampaign.getSingleSaleBookingData);
 
 //OpCampaign Plan Routes
 router.post('/opcampaignplan', opCampaignPlan.addCampaignPlan);

@@ -969,8 +969,8 @@ exports.getCampaignWithFilterData = async (req, res) => {
 
 exports.getSingleSaleBookingData = async (req, res) => {
     try {
-        // const singleSaleBooking = await salesBookingModel.findOne({
-        const singleSaleBooking = await exeSum.findOne({
+        const singleSaleBooking = await salesBookingModel.findOne({
+            // const singleSaleBooking = await exeSum.findOne({
             sale_booking_id: parseInt(req.params.sale_booking_id),
         });
         if (!singleSaleBooking) {
