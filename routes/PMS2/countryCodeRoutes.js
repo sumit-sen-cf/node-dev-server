@@ -11,18 +11,15 @@ const {
     getSingleCountryCodeDetails,
     updateSingleCountryCodeDetails,
 } = require("../../controllers/PMS2/countryCodeController");
+const { verifyToken } = require("../../middleware/auth");
 
 const router = express.Router();
 
-router.post("/country_code", addCountryCodeValidation, addCountryCode);
-router.get("/country_code", getAllCountryCodeDetails);
-router.get("/country_code/:id", getSingleCountryCodeDetails);
-router.put(
-    "/country_code",
-    updateCountryCodeValidation,
-    updateSingleCountryCodeDetails
-);
-router.delete("/country_code/:id", deleteCountryCodeDetails);
-router.get("/country_code_deleted", getAllCountryCodeDeletedData);
+router.post("/country_code", verifyToken, addCountryCodeValidation, addCountryCode);
+router.get("/country_code", verifyToken, getAllCountryCodeDetails);
+router.get("/country_code/:id", verifyToken, getSingleCountryCodeDetails);
+router.put("/country_code", verifyToken, updateCountryCodeValidation, updateSingleCountryCodeDetails);
+router.delete("/country_code/:id", verifyToken, deleteCountryCodeDetails);
+router.get("/country_code_deleted", verifyToken, getAllCountryCodeDeletedData);
 
 module.exports = router;

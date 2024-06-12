@@ -96,7 +96,7 @@ exports.createVendorData = [
                 for (const element of documentDetails) {
                     element.vendor_id = vendorDataSaved._id;
                     element.created_by = created_by;
-                    if (req.files[element.document_image_uplo + ad] && req.files[element.document_image_upload][0]) {
+                    if (req.files[element.document_image_upload] && req.files[element.document_image_upload][0]) {
                         element.document_image = await uploadImage(req.files[element.document_image_upload][0], "PMS2DocumentImage");
                     }
 
@@ -151,83 +151,6 @@ exports.getVendorDetails = async (req, res) => {
 /**
  * Api is get all the vendor model data
  */
-// exports.getAllVendorList = async (req, res) => {
-//     try {
-//         const page = (req.query.page && parseInt(req.query.page)) || 1;
-//         const limit = (req.query.limit && parseInt(req.query.limit)) || 50;
-//         const skip = (page - 1) * limit;
-//         let vendorDataList;
-
-//         let matchQuery = {
-//             status: { $ne: constant.DELETED }
-//         };
-
-//         let addFieldsObj = {
-//             $addFields: {
-//                 pan_image_url: {
-//                     $cond: {
-//                         if: { $ne: ["$pan_image", ""] },
-//                         then: {
-//                             $concat: [
-//                                 constant.GCP_VENDOR_FOLDER_URL,
-//                                 "/",
-//                                 "$pan_image",
-//                             ],
-//                         },
-//                         else: "$pan_image",
-//                     },
-//                 }, gst_image_url: {
-//                     $cond: {
-//                         if: { $ne: ["$gst_image", ""] },
-//                         then: {
-//                             $concat: [
-//                                 constant.GCP_VENDOR_FOLDER_URL,
-//                                 "/",
-//                                 "$gst_image",
-//                             ],
-//                         },
-//                         else: "$gst_image",
-//                     },
-//                 },
-//             },
-//         }
-
-//         if (page && limit) {
-//             const skip = (page - 1) * limit;
-//             vendorDataList = await vendorModel.aggregate([
-//                 { $match: matchQuery },
-//                 { $skip: skip },
-//                 { $limit: limit },
-//                 addFieldsObj
-//             ]);
-//         } else {
-//             vendorDataList = await vendorModel.aggregate([
-//                 { $match: matchQuery },
-//                 addFieldsObj
-//             ]);
-//         }
-//         const vendorDataCount = await vendorModel.countDocuments()
-//         return response.returnTrueWithPagination(
-//             200,
-//             req,
-//             res,
-//             "Vendor data list fetch successfully!",
-//             vendorDataList,
-//             {
-//                 start_record: skip + 1,
-//                 end_record: skip + vendorDataList?.length,
-//                 total_records: vendorDataCount,
-//                 currentPage: page,
-//                 total_page: Math.ceil(vendorDataCount / limit),
-
-//             }
-//         );
-//     } catch (error) {
-//         return response.returnFalse(500, req, res, `${error.message}`, {});
-//     }
-// };
-
-
 exports.getAllVendorList = async (req, res) => {
     try {
         const page = (req.query.page && parseInt(req.query.page)) || null;

@@ -54,22 +54,24 @@ const salesBookingExecution = new Schema({
     //     type: String,
     //     required: false,
     // },
+    execution_token: {
+        type: Number,
+        required: false,
+    },
     created_by: {
         type: Number,
-        required: true,
-        default: 0,
+        required: false,
     },
     updated_by: {
         type: Number,
         required: false,
-        default: 0
     },
     status: {
         type: Number,
         required: false,
         default: constant?.ACTIVE,
     },
-},
-    { timestamps: true },
-);
+}, {
+    timestamps: true
+});
 module.exports = mongoose.model('salesBookingExecutionModel', salesBookingExecution);
