@@ -22,9 +22,9 @@ const salesBookingExecution = new Schema({
     },
     execution_status: {
         type: String,
-        enum: ["Sent_for_execution", "execution_accepted", "execution_completed",
+        enum: ["sent_for_execution", "execution_accepted", "execution_completed",
             "execution_rejected", "execution_paused"],
-        default: "Sent_for_execution"
+        default: "sent_for_execution"
     },
     execution_time: {
         type: String,
