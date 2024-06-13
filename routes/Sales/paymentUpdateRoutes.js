@@ -13,6 +13,6 @@ router.get("/sales/payment_update", verifyToken, paymentUpdateController.payment
 router.delete("/sales/payment_update/:id", verifyToken, paymentUpdateController.deleteBookingPaymentDetails);
 
 router.get("/sales/payment_update_status_list_data", verifyToken, paymentUpdateController.salesBookingPaymentStatusDetailsList);
-router.put("/sales/finance_approval_payment_details", verifyToken, paymentUpdateController.updatePaymentAndSaleData);
+router.put("/sales/finance_approval_payment_update/:id", verifyToken, paymentUpdateController.updatePaymentAndSaleData);
 
 module.exports = router; 
