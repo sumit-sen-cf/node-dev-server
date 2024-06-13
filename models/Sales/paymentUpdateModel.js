@@ -3,6 +3,10 @@ const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
 const salesBookingPayment = new Schema({
+    payment_update_id: {
+        type: Number,
+        required: false
+    },
     payment_date: {
         type: String,
     },
@@ -64,7 +68,46 @@ const salesBookingPayment = new Schema({
         required: false,
         default: constant?.ACTIVE,
     },
+    sale_booking_date: {
+        type: String,
+        required: false
+    },
+    sales_executive_name: {
+        type: String,
+        required: false
+    },
+    account_name: {
+        type: String,
+        required: false
+    },
+    gst_status: {
+        type: String,
+        required: false
+    },
+    campaign_amount_without_gst: {
+        type: Number,
+        required: false
+    },
+    creation_date: {
+        type: String,
+        required: false
+    }
+
 }, {
     timestamps: true
 });
+
+salesBookingPayment.pre('save', async function (next) {
+    if (!this.payment_update_id) {
+        const lastPaymentData = await this.constructor.findOne({}, {}, { sort: { 'payment_update_id': -1 } });
+
+        if (lastPaymentData && lastPaymentData.payment_update_id) {
+            this.payment_update_id = lastPaymentData.payment_update_id + 1;
+        } else {
+            this.payment_update_id = 1;
+        }
+    }
+    next();
+});
+
 module.exports = mongoose.model('salesPaymentUpdateModel', salesBookingPayment);
