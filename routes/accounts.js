@@ -78,6 +78,5 @@ router.put("/accounts/update_document_overview/:id", verifyToken, validation.acc
 router.get("/accounts/get_document_overview/:id", verifyToken, accountDocumentOverview.getDocumentOverviewDetails);
 router.get("/accounts/get_document_overview_list", verifyToken, accountDocumentOverview.getDocumentOverviewList);
 router.delete("/accounts/delete_document_overview_list/:id", verifyToken, accountDocumentOverview.deleteDocumentOverview);
-router.put("/accounts/update_multiple_account_documents/:id", verifyToken, accountDocumentOverview.updateMultipleAccountDocuments);
 
 module.exports = router; 

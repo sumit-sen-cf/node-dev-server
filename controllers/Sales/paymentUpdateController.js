@@ -58,7 +58,6 @@ exports.createPaymentUpdate = [
             await addSalesBookingPayment.save();
 
             //get sale booking data
-
             let saleBookingData = await salesBookingModel.findOne({
                 sale_booking_id: sale_booking_id
             });
@@ -295,6 +294,12 @@ exports.salesBookingPaymentStatusDetailsList = async (req, res) => {
                         "$payment_screenshot",
                     ],
                 },
+                sale_booking_date: 1,
+                sales_executive_name: 1,
+                account_name: 1,
+                gst_status: 1,
+                campaign_amount_without_gst: 1,
+                creation_date: 1,
             }
         }]);
         if (salesBookingPaymentListData.length === 0) {
@@ -316,31 +321,51 @@ exports.salesBookingPaymentStatusDetailsList = async (req, res) => {
 exports.updatePaymentAndSaleData = async (req, res) => {
     try {
         const { id } = req.params;
+        let paymentAmount = req.body?.payment_approval_status;
         const updateData = {
-            payment_amount: req.body.payment_amount,
             payment_approval_status: req.body.payment_approval_status,
-            action_reason: req.body.action_reason,
+            action_reason: (req.body?.action_reason) || "",
         };
+
         // Fetch the old document and update it
-        const editPaymentUpdatedDetail = await paymentUpdateModel.findByIdAndUpdate({ _id: id }, updateData, { new: true });
+        const editPaymentUpdatedDetail = await paymentUpdateModel.findByIdAndUpdate({
+            _id: id
+        }, updateData,
+            {
+                new: true
+            });
+
         if (!editPaymentUpdatedDetail) {
             return response.returnFalse(404, req, res, `Payment updated data not found`, {});
         }
-        const data = await editPaymentUpdatedDetail.save();
-        const saleBookingId = data.sale_booking_id;
-        const findSaleData = await salesBookingModel.findOne({ sale_booking_id: saleBookingId });
-        const totalRequestedAmount = findSaleData.requested_amount + parseInt(req.body.requested_amount);
-        const updatedSaleBooking = await salesBookingModel.findOneAndUpdate(
-            { sale_booking_id: saleBookingId },
-            { requested_amount: totalRequestedAmount },
-            { new: true }
-        );
-        if (!updatedSaleBooking) {
-            return response.returnFalse(404, req, res, `Sale booking not found`, {});
+
+        //get sale booking data
+        let saleBookingData = await salesBookingModel.findOne({
+            sale_booking_id: editPaymentUpdatedDetail.sale_booking_id
+        });
+
+        //approved amount add in previous pending data in sale booking collection.
+        let approvedAmount = saleBookingData.approved_amount + parseInt(paymentAmount);
+
+        let updateObj = {
+            approved_amount: approvedAmount
         }
-        return response.returnTrue(200, req, res, "Payment and sale booking data updated successfully!", {
-            paymentUpdate: editPaymentUpdatedDetail,
-            saleBooking: updatedSaleBooking
+        //status change condition wise and update
+        if (saleBookingData.campaign_amount == approvedAmount) {
+            updateObj["booking_status"] = saleBookingStatus['05'].status;
+        } else {
+            updateObj["booking_status"] = saleBookingStatus['12'].status;
+        }
+
+        //approved amount add in sale booking collection.
+        await salesBookingModel.updateOne({
+            sale_booking_id: editPaymentUpdatedDetail.sale_booking_id
+        }, {
+            $set: updateObj
+        });
+
+        return response.returnTrue(200, req, res, "Payment update approval status and sale booking data updated successfully!", {
+            paymentUpdateDetails: editPaymentUpdatedDetail,
         });
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
