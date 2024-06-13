@@ -3,6 +3,7 @@ const opCampaignModel = require("../models/opCampaignModel.js");
 const salesBookingModel = require("../models/Sales/salesBookingModel.js");
 const exeSum = require('../models/exeSumModel.js');
 const mongoose = require('mongoose');
+const vari = require("../variables.js");
 
 exports.addOpCampaign = async (req, res) => {
     try {
@@ -970,18 +971,25 @@ exports.getCampaignWithFilterData = async (req, res) => {
 exports.getSingleSaleBookingData = async (req, res) => {
     try {
         const singleSaleBooking = await salesBookingModel.findOne({
-            // const singleSaleBooking = await exeSum.findOne({
             sale_booking_id: parseInt(req.params.sale_booking_id),
         });
         if (!singleSaleBooking) {
-            return response.returnFalse(200, req, res, "No Reord Found...", {});
+            return response.returnFalse(200, req, res, "No Record Found...", {});
         }
+
+        const excelUrl = `${vari.IMAGE_URL}SalesBookingFiles/${singleSaleBooking.record_service_file}`;
+
+        const responseData = {
+            ...singleSaleBooking.toObject(),
+            excelUrl,
+        };
+
         return response.returnTrue(
             200,
             req,
             res,
             "Sale Booking Data Fetch Successfully",
-            singleSaleBooking
+            responseData
         );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});

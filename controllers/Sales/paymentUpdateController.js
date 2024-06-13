@@ -23,7 +23,7 @@ exports.createPaymentUpdate = [
     upload, async (req, res) => {
         try {
             const { payment_date, sale_booking_id, account_id, payment_amount, payment_mode, payment_detail_id,
-                payment_ref_no, payment_approval_status, action_reason, remarks, created_by } = req.body;
+                payment_ref_no, payment_approval_status, action_reason, remarks, created_by, sale_booking_date, sales_executive_name, account_name, gst_status, campaign_amount_without_gst, creation_date } = req.body;
 
             //object Prepare for DB collection
             const addSalesBookingPayment = new paymentUpdateModel({
@@ -38,6 +38,12 @@ exports.createPaymentUpdate = [
                 action_reason: action_reason,
                 remarks: remarks,
                 created_by: created_by,
+                sale_booking_date: sale_booking_date,
+                sales_executive_name: sales_executive_name,
+                account_name: account_name,
+                gst_status: gst_status,
+                campaign_amount_without_gst: campaign_amount_without_gst,
+                creation_date: creation_date
             });
 
             // Define the image fields 
@@ -122,6 +128,12 @@ exports.updatePaymentDeatil = [
                 action_reason: req.body.action_reason,
                 remarks: req.body.remarks,
                 updated_by: req.body.updated_by,
+                sale_booking_date: req.body.sale_booking_date,
+                sales_executive_name: req.body.sales_executive_name,
+                account_name: req.body.account_name,
+                gst_status: req.body.gst_status,
+                campaign_amount_without_gst: req.body.campaign_amount_without_gst,
+                creation_date: req.body.creation_date
             };
 
             // Fetch the old document and update it
