@@ -8,6 +8,7 @@ const salesBookingModel = require("../../models/Sales/salesBookingModel.js");
 const { uploadImage, deleteImage } = require("../../common/uploadImage.js");
 const response = require("../../common/response.js");
 const constant = require("../../common/constant.js");
+const { saleBookingStatus } = require("../../helper/status.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -57,16 +58,17 @@ exports.createPaymentUpdate = [
             });
 
             //requested amount add in previous pending data in sale booking collection.
-            let pendingAmount = saleBookingData.pending_amount + parseInt(payment_amount);
+            let requestedAmount = saleBookingData.requested_amount + parseInt(payment_amount);
 
             //pending amount add in sale booking collection.
             await salesBookingModel.updateOne({
                 sale_booking_id: sale_booking_id
             }, {
-                pending_amount: pendingAmount
+                requested_amount: requestedAmount,
+                booking_status: saleBookingStatus['02'].status
             });
             // Return a success response with the updated record details
-            return response.returnTrue(200, req, res, "Sales record service created successfully", addSalesBookingPayment);
+            return response.returnTrue(200, req, res, "payment update request created successfully", addSalesBookingPayment);
         } catch (err) {
             // Return an error response in case of any exceptions
             return response.returnFalse(500, req, res, err.message, {});

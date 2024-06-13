@@ -33,6 +33,16 @@ const salesBooking = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         required: false,
     },
+    approved_amount: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    requested_amount: {
+        type: Number,
+        required: false,
+        default: 0
+    },
     brand_id: {
         type: Schema.Types.ObjectId,
         required: false,
