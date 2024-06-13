@@ -12,7 +12,7 @@ router.get("/sales/payment_update/:id", verifyToken, paymentUpdateController.get
 router.get("/sales/payment_update", verifyToken, paymentUpdateController.paymentUpdateList);
 router.delete("/sales/payment_update/:id", verifyToken, paymentUpdateController.deleteBookingPaymentDetails);
 
-router.get("/sales/getAll_pending_sales_booking_payment_list", verifyToken, paymentUpdateController.salesBookingPaymentPendingDetailsList);
-router.get("/sales/getAll_rejected_sales_booking_payment_list", verifyToken, paymentUpdateController.salesBookingPaymentRejectedDetailsList);
+router.get("/sales/payment_update_status_list_data", verifyToken, paymentUpdateController.salesBookingPaymentStatusDetailsList);
+router.get("/sales/finance_approval_payment_details", verifyToken, paymentUpdateController.updatePaymentAndSaleData);
 
 module.exports = router; 
