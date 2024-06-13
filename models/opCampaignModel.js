@@ -29,12 +29,12 @@ const opCampaignModel = new mongoose.Schema({
   },
   pre_industry_id: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
+    required: false,
     ref: "industrymasters"
   },
   pre_agency_id: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
+    required: false,
     ref: "agencymasters"
   },
   pre_goal_id: {

@@ -17,6 +17,11 @@ const paymentDeatils = new Schema({
         type: Boolean,   //1,0 = check if bank is gst or non gst_amount
         required: false
     },
+    payment_mode_id: {
+        type: mongoose.Types.ObjectId,
+        required: false,
+        ref: "salespaymentmodemodels"
+    },
     created_by: {
         type: Number,
         required: false,
