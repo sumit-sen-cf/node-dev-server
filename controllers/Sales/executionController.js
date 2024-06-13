@@ -173,7 +173,11 @@ exports.getExcutionList = async (req, res) => {
                 payment_credit_status: "$salesbookingmodelsData.payment_credit_status",
                 created_by: "$salesbookingmodelsData.created_by",
                 execution_excel: {
-                    $concat: [imageUrl, "$salesbookingmodelsData.record_service_file"],
+                    $concat: [
+                        constant.GCP_SALES_BOOKING_FOLDER_URL,
+                        "/",
+                        "$salesbookingmodelsData.record_service_file",
+                    ],
                 },
             },
         },
