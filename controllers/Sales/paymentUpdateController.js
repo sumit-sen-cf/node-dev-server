@@ -75,7 +75,7 @@ exports.createPaymentUpdate = [
 
 
 /**
- * Api is to used for the sales_booking_payment data get_by_ID in the DB collection.
+ * Api is to used for the sales_booking_payment data get_by_ID in the DB collectionxda.
  */
 exports.getPaymentUpdateDetail = async (req, res) => {
     try {

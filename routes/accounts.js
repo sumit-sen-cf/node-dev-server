@@ -73,7 +73,7 @@ router.delete("/accounts/delete_document_master/:id", verifyToken, accountDocume
  */
 router.post("/accounts/add_document_overview", verifyToken, validation.accountDocumentOverviewValidation,
     accountDocumentOverview.addDocumentOverview);
-router.put("/accounts/update_document_overview/:id", verifyToken, validation.accountDocumentOverviewValidation,
+router.put("/accounts/update_document_overview", verifyToken, validation.accountDocumentOverviewValidation,
     accountDocumentOverview.updateDocumentOverview);
 router.get("/accounts/get_document_overview/:id", verifyToken, accountDocumentOverview.getDocumentOverviewDetails);
 router.get("/accounts/get_document_overview_list", verifyToken, accountDocumentOverview.getDocumentOverviewList);
