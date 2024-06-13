@@ -124,8 +124,6 @@ exports.updateExecutionDetial = async (req, res) => {
  */
 exports.getExcutionList = async (req, res) => {
     try {
-        const imageUrl = vari.IMAGE_URL;
-
         let matchCondition = {
             status: {
                 $ne: constant.DELETED
@@ -133,7 +131,7 @@ exports.getExcutionList = async (req, res) => {
         }
         if (req.query?.status) {
             matchCondition["execution_status"] = req.query.status
-        }
+        } 
 
         const executionList = await executionModel.aggregate([{
             $match: matchCondition

@@ -6,11 +6,13 @@ const vari = require("../../variables.js");
 const { storage } = require('../../common/uploadFile.js');
 const { uploadImage, deleteImage } = require("../../common/uploadImage.js");
 const imageUrl = vari.IMAGE_URL; // Retrieve the base URL for image storage from configuration
+const constant = require("../../common/constant");
+
 
 const upload = multer({
     storage: multer.memoryStorage()
 }).fields([
-    { name: "document_image_upload", maxCount: 1 },
+    { name: "document_image_upload", maxCount: 5 },
 ]);
 
 /**
@@ -122,38 +124,67 @@ exports.getDocumentOverviewDetails = async (req, res) => {
 exports.updateDocumentOverview = [
     upload, async (req, res) => {
         try {
-            const { id } = req.params;
-            // Fetch the old document and update it
-            const updatedDocumentOverview = await accountDocumentOverviewModel.findByIdAndUpdate(
-                { _id: id },
-                { ...req.body },
-            );
-
-            if (!updatedDocumentOverview) {
-                return response.returnFalse(404, req, res, `Page states not found`, {});
-            }
-
+            const { id } = req.body;
+            let updatedDocumentOverview = {};
             // Define the image fields 
             const imageFields = {
                 document_image_upload: 'DocumentImagesUpload',
             };
 
-            // Remove old images not present in new data and upload new images
-            for (const [fieldName] of Object.entries(imageFields)) {
-                if (req.files && req.files[fieldName] && req.files[fieldName][0]) {
-
-                    // Delete old image if present
-                    if (updatedDocumentOverview[fieldName]) {
-                        await deleteImage(`AccountDocument/${updatedDocumentOverview[fieldName]}`);
+            if (req.body?._id) {
+                // Fetch the old document and update it
+                updatedDocumentOverview = await accountDocumentOverviewModel.findByIdAndUpdate({
+                    _id: id
+                }, {
+                    $set: {
+                        account_id: req.body.account_id,
+                        document_master_id: req.body.document_master_id,
+                        document_no: req.body.document_no,
+                        description: req.body.description,
+                        updated_by: req.body.updated_by
                     }
-                    // Upload new image
-                    updatedDocumentOverview[fieldName] = await uploadImage(req.files[fieldName][0], "AccountDocument");
+                }, {
+                    new: true
+                });
+
+                if (!updatedDocumentOverview) {
+                    return response.returnFalse(404, req, res, `Document overview not found`, {});
                 }
+
+                // Remove old images not present in new data and upload new images
+                for (const [fieldName] of Object.entries(imageFields)) {
+                    if (req.files && req.files[fieldName] && req.files[fieldName][0]) {
+                        // Delete old image if present
+                        if (updatedDocumentOverview[fieldName]) {
+                            await deleteImage(`AccountDocument/${updatedDocumentOverview[fieldName]}`);
+                        }
+                        // Upload new image
+                        updatedDocumentOverview[fieldName] = await uploadImage(req.files[fieldName][0], "AccountDocument");
+                    }
+                }
+
+                // Save the updated document with the new image URLs
+                await updatedDocumentOverview.save();
+
+            } else {
+                // Store data in the database collection
+                const addCustomerDocumentData = new accountDocumentOverviewModel({
+                    account_id: account_id,
+                    document_master_id: document_master_id,
+                    document_no: document_no,
+                    description: description,
+                    created_by: created_by,
+                });
+
+                for (const [field] of Object.entries(imageFields)) {            //itreates 
+                    if (req.files[field] && req.files[field][0]) {
+                        addCustomerDocumentData[field] = await uploadImage(req.files[field][0], "AccountDocument");
+                    }
+                }
+                await addCustomerDocumentData.save();
             }
-
-            // Save the updated document with the new image URLs
-            await updatedDocumentOverview.save();
-
+            
+            //send success response
             return res.status(200).json({
                 status: 200,
                 messgae: "Document overview data update successfully!",
@@ -223,8 +254,12 @@ exports.getDocumentOverviewList = async (req, res) => {
                 updatedAt: 1,
                 document_name: "$documentMaster.document_name",
                 document_image_upload: {
-                    $concat: [imageUrl, "$document_image_upload"],
-                }
+                    $concat: [
+                        constant.GCP_ACCOUNT_FOLDER_URL,
+                        "/",
+                        "$document_image_upload",
+                    ],
+                },
             }
         }, {
             $skip: skip
@@ -236,6 +271,8 @@ exports.getDocumentOverviewList = async (req, res) => {
         ]);
         // Query to get counts of record of account types
         const totalDocumentOverviewMasterListCounts = await accountDocumentOverviewModel.countDocuments(matchQuery);
+
+        console.log("documentOverviewMasterList------------------", documentOverviewMasterList)
         // send account types page and passing data
         return res.status(200).json({
             status: 200,
@@ -289,60 +326,3 @@ exports.deleteDocumentOverview = async (req, res) => {
         });
     }
 };
-
-/**
- * Api is to used for multiple update_account_documents data in the DB collection.
- */
-exports.updateMultipleAccountDocuments = async (req, res) => {
-    try {
-        // Get doc data from body
-        let accountDocumentsDetails = (req.body?.account_documents) || [];
-        const { updated_by } = req.body;
-        const accountId = Number(req.params.id);
-
-        // Get distinct IDs from the database
-        const distinctIds = await accountDocumentOverviewModel.distinct('_id', {
-            account_id: accountId
-        });
-
-        // Create a set of IDs from accountDocumentsDetails
-        const documentIds = new Set(accountDocumentsDetails.map(doc => doc?._id));
-
-        // Delete documents that are not included in accountDocumentsDetails
-        for (let id of distinctIds) {
-            if (!documentIds.has(id.toString())) {
-                await accountDocumentOverviewModel.deleteOne({ _id: id });
-            }
-        }
-
-        // Update or insert documents
-        if (accountDocumentsDetails.length && Array.isArray(accountDocumentsDetails)) {
-            for (let element of accountDocumentsDetails) {
-                if (element?._id) {
-                    // Existing document: update it
-                    element.updated_by = updated_by;
-                    await accountDocumentOverviewModel.updateOne({
-                        _id: element._id
-                    }, {
-                        $set: element
-                    });
-                } else {
-                    // New document: insert it
-                    element.created_by = updated_by;
-                    element.account_id = accountId;
-                    await accountDocumentOverviewModel.create(element);
-                }
-            }
-        }
-        // Send success response
-        return res.status(200).json({
-            status: 200,
-            message: "Account Documents multiple data updated successfully!",
-        })
-    } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
-    }
-}
