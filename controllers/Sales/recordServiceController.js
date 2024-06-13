@@ -240,6 +240,21 @@ exports.updateMultipleRecordService = async (req, res) => {
         const { updated_by } = req.body;
         const saleBookingId = Number(req.params.id);
 
+        // Get distinct IDs from the database
+        const distinctIds = await salesRecordServiceModel.distinct('_id', {
+            sale_booking_id: saleBookingId
+        });
+
+        // Create a set of IDs from recordServiceDetails
+        const documentIds = new Set(recordServiceDetails.map(doc => doc?._id));
+
+        // Delete documents that are not included in accountPocDetails
+        for (let id of distinctIds) {
+            if (!documentIds.has(id.toString())) {
+                await salesRecordServiceModel.deleteOne({ _id: id });
+            }
+        }
+
         //Record service details obj add in array
         if (recordServiceDetails.length && Array.isArray(recordServiceDetails)) {
             for (let element of recordServiceDetails) {

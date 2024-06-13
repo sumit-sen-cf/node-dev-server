@@ -8,26 +8,16 @@ const {
     getAllVendorGroupLinkDeletedData,
     getVendorGroupLinkByVendorId,
 } = require("../../controllers/PMS2/vendorGroupLinkController");
-const {
-    addVendorGroupLinkValidation,
-    updateVendorGrouplinkValidation,
-} = require("../../helper/validation");
+const { addVendorGroupLinkValidation, updateVendorGrouplinkValidation } = require("../../helper/validation");
+const { verifyToken } = require("../../middleware/auth");
 const router = express.Router();
 
-router.post(
-    "/vendor_group_link",
-    addVendorGroupLinkValidation,
-    addVendorGroupLink
-);
-router.get("/vendor_group_link", getAllVendorGroupLinkDetails);
-router.get("/vendor_group_link/:id", getSingleVendorGroupLinkDetails);
-router.put(
-    "/vendor_group_link",
-    updateVendorGrouplinkValidation,
-    updateSingleVendorGroupLinkDetails
-);
-router.delete("/vendor_group_link/:id", deleteVendorGroupLinkDetails);
-router.get("/vendor_group_link_deleted", getAllVendorGroupLinkDeletedData);
-router.get("/vendor_group_link_vendor_id/:id", getVendorGroupLinkByVendorId);
+router.post("/vendor_group_link", verifyToken, addVendorGroupLinkValidation, addVendorGroupLink);
+router.get("/vendor_group_link", verifyToken, getAllVendorGroupLinkDetails);
+router.get("/vendor_group_link/:id", verifyToken, getSingleVendorGroupLinkDetails);
+router.put("/vendor_group_link", verifyToken, updateVendorGrouplinkValidation, updateSingleVendorGroupLinkDetails);
+router.delete("/vendor_group_link/:id", verifyToken, deleteVendorGroupLinkDetails);
+router.get("/vendor_group_link_deleted", verifyToken, getAllVendorGroupLinkDeletedData);
+router.get("/vendor_group_link_vendor_id/:id", verifyToken, getVendorGroupLinkByVendorId);
 
 module.exports = router;

@@ -44,10 +44,7 @@ exports.createBadgesMaster = [
 
         } catch (error) {
             // Return an error response in case of any exceptions
-            return res.status(500).json({
-                error: error.message,
-                message: 'Internal Server Error,Please try again later!'
-            });
+            return response.returnFalse(500, req, res, `${error.message}`, {});
         }
     }];
 
@@ -74,10 +71,7 @@ exports.getBadgesMasterDetails = async (req, res) => {
         );
     } catch (error) {
         // Return an error response in case of any exceptions
-        return res.status(500).json({
-            error: error.message,
-            message: 'Internal Server Error,Please try again later!'
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -131,10 +125,7 @@ exports.updateBadgesMaster = [
             return response.returnTrue(200, req, res, "Badges master data updated successfully!", updatedBadgesMaster);
         } catch (error) {
             // Return an error response in case of any exceptions
-            return res.status(500).json({
-                error: error.message,
-                message: 'Internal Server Error,Please try again later!'
-            });
+            return response.returnFalse(500, req, res, `${error.message}`, {});
         }
     }];
 
@@ -196,10 +187,7 @@ exports.getBadgesMasterList = async (req, res) => {
         );
     } catch (error) {
         // Return an error response in case of any exceptions
-        return res.status(500).json({
-            error: error.message,
-            message: 'Internal Server Error,Please try again later!'
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 
@@ -238,9 +226,6 @@ exports.deleteBadgesMaster = async (req, res) => {
         );
     } catch (error) {
         // Return an error response in case of any exceptions
-        return res.status(500).json({
-            error: error.message,
-            message: 'Internal Server Error,Please try again later!'
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };

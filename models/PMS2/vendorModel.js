@@ -34,6 +34,11 @@ const vendorSchema = new Schema({
         required: false,
         ref: "pms2BankNameModel"
     },
+    company_details: {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: "Pms2CompanyDetailsModel"
+    },
     page_count: {
         type: Number,
         required: false,
@@ -68,48 +73,52 @@ const vendorSchema = new Schema({
         type: String,
         required: false
     },
-    pan_no: {
-        type: String,
-        required: false
-    },
-    pan_image: {
-        type: String,
-        required: false
-    },
-    gst_no: {
-        type: String,
-        required: false
-    },
-    gst_image: {
-        type: String,
-        required: false
-    },
-    company_name: {
-        type: String,
-        required: false
-    },
-    company_address: {
-        type: String,
-        required: false
-    },
-    company_city: {
-        type: String,
-        required: false
-    },
-    company_pincode: {
+    // pan_no: {
+    //     type: String,
+    //     required: false
+    // },
+    // pan_image: {
+    //     type: String,
+    //     required: false
+    // },
+    home_pincode: {
         type: Number,
-        required: false,
-        default: 0
-    },
-    company_state: {
-        type: String,
         required: false
     },
-    threshold_limit: {
-        type: String,
-        required: false,
-        default: ""
-    },
+    // gst_no: {
+    //     type: String,
+    //     required: false
+    // },
+    // gst_image: {
+    //     type: String,
+    //     required: false
+    // },
+    // company_name: {
+    //     type: String,
+    //     required: false
+    // },
+    // company_address: {
+    //     type: String,
+    //     required: false
+    // },
+    // company_city: {
+    //     type: String,
+    //     required: false
+    // },
+    // company_pincode: {
+    //     type: Number,
+    //     required: false,
+    //     default: 0
+    // },
+    // company_state: {
+    //     type: String,
+    //     required: false
+    // },
+    // threshold_limit: {
+    //     type: String,
+    //     required: false,
+    //     default: ""
+    // },
     home_address: {
         type: String,
         required: false

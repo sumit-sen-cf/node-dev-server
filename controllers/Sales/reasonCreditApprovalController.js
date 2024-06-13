@@ -24,10 +24,7 @@ exports.createReasonCreaditApproval = async (req, res) => {
             addReasonCreditApproval
         );
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
 /**
@@ -155,12 +152,3 @@ exports.deleteReasonCreditApproval = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
-
-
-
-
-
-
-
-
-

@@ -3,6 +3,8 @@ const response = require("../common/response.js");
 const { uploadImage, deleteImage } = require("../common/uploadImage.js");
 const exeCampaignSchema = require("../models/executionCampaignModel.js");
 const multer = require("multer");
+const mongoose = require("mongoose");
+
 
 const upload = multer({
   storage: multer.memoryStorage()
@@ -222,5 +224,49 @@ exports.deleteExeCampaign = async (req, res) => {
   } catch (error) {
     // Return an error response in case of any exceptions
     return response.returnFalse(500, req, res, `${error.message}`, {});
+  }
+};
+
+
+exports.getAllExeCampaignList = async (req, res) => {
+  try {
+    const exeCampaignData = await exeCampaignSchema.aggregate([{
+
+      $match: { _id: mongoose.Types.ObjectId(req.params.id) },
+    }, {
+      $lookup: {
+        from: "agencymasters",
+        localField: "agency_id",
+        foreignField: "_id",
+        as: "agencymastersData",
+      }
+    }, {
+      $unwind: {
+        path: "$agencymastersData",
+        preserveNullAndEmptyArrays: true,
+      },
+    }, {
+      $project: {
+        exe_campaign_name: 1,
+        exe_hash_tag: 1,
+        brand_id: 1,
+        user_id: 1,
+        agency_id: 1,
+        created_by: 1,
+        agencymastersData: {
+          agencymastersData: "$agencymastersData.name"
+        }
+      }
+    }
+    ]);
+
+    //if data not found
+    if (!exeCampaignData) {
+      return response.returnFalse(200, req, res, "No Reord Found...", []);
+    }
+    //success response send
+    return response.returnTrue(200, req, res, "Credit approval Exe Campaign Status data fatched", exeCampaignData);
+  } catch (err) {
+    return response.returnFalse(500, req, res, err.message, {});
   }
 };
