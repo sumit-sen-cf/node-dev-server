@@ -24,4 +24,7 @@ router.get("/sales/account_sale_booking/:id", verifyToken, Sales.getSalesBooking
 router.get("/sales/credit_approval_status_for_sales_booking_list", Sales.getAllStatusForCreditApprovalSalesBookingList);
 router.put("/sales/credit_approval_status_status_change/:id", Sales.editCreditApprovalStatusChange);
 
+router.get("/sales/account_wise_status", Sales.saleBookingWiseAccountData);
+
+
 module.exports = router; 

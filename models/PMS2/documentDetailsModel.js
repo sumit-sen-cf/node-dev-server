@@ -11,7 +11,7 @@ const documentDetailsSchema = new mongoose.Schema({
     },
     document_master_id: {
         type: Schema.Types.ObjectId,
-        required: true,
+        required: false,
         ref: "accountDocumentMasterModel",
     },
     document_name: {
