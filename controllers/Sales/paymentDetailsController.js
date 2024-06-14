@@ -7,12 +7,13 @@ const constant = require("../../common/constant");
  */
 exports.createPaymentDetails = async (req, res) => {
     try {
-        const { title, details, gst_bank, created_by } = req.body;
+        const { title, details, gst_bank, created_by, payment_mode_id } = req.body;
         const addPaymentDetails = await paymentDetailsModel.create({
             title: title,
             details: details,
             gst_bank: gst_bank,
             created_by: created_by,
+            payment_mode_id: payment_mode_id
         });
         // Return a success response with the updated record details
         return response.returnTrue(200, req, res, "Payment Details Created Successfully", addPaymentDetails);
@@ -55,7 +56,7 @@ exports.getPaymentDetails = async (req, res) => {
 exports.updatePaymentDetails = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, details, gst_bank, updated_by } = req.body;
+        const { title, details, gst_bank, updated_by, payment_mode_id } = req.body;
 
         const paymentDetailsUpdatedData = await paymentDetailsModel.findByIdAndUpdate({
             _id: id
@@ -64,7 +65,8 @@ exports.updatePaymentDetails = async (req, res) => {
                 title,
                 details,
                 gst_bank,
-                updated_by
+                updated_by,
+                payment_mode_id
             },
         }, {
             new: true

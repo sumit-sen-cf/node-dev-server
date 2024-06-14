@@ -19,7 +19,7 @@ exports.createPaymentmode = async (req, res) => {
             200,
             req,
             res,
-            "Payment Details Created Successfully",
+            "Payment mode Created Successfully",
             addPayementMode
         );
     } catch (error) {

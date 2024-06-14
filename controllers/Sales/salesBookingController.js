@@ -2,7 +2,6 @@ const response = require("../../common/response");
 const vari = require("../../variables");
 const multer = require("multer");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
-const salesBookingStatus = require('../../models/SMS/salesBookingStatus');
 const deleteSalesbookingModel = require("../../models/Sales/deletedSalesBookingModel.js");
 const recordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");

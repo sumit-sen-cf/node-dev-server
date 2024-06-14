@@ -8,6 +8,7 @@ const salesBookingModel = require("../../models/Sales/salesBookingModel.js");
 const { uploadImage, deleteImage } = require("../../common/uploadImage.js");
 const response = require("../../common/response.js");
 const constant = require("../../common/constant.js");
+const { saleBookingStatus } = require("../../helper/status.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -22,7 +23,7 @@ exports.createPaymentUpdate = [
     upload, async (req, res) => {
         try {
             const { payment_date, sale_booking_id, account_id, payment_amount, payment_mode, payment_detail_id,
-                payment_ref_no, payment_approval_status, action_reason, remarks, created_by } = req.body;
+                payment_ref_no, payment_approval_status, action_reason, remarks, created_by, sale_booking_date, sales_executive_name, account_name, gst_status, campaign_amount_without_gst, creation_date } = req.body;
 
             //object Prepare for DB collection
             const addSalesBookingPayment = new paymentUpdateModel({
@@ -37,6 +38,12 @@ exports.createPaymentUpdate = [
                 action_reason: action_reason,
                 remarks: remarks,
                 created_by: created_by,
+                sale_booking_date: sale_booking_date,
+                sales_executive_name: sales_executive_name,
+                account_name: account_name,
+                gst_status: gst_status,
+                campaign_amount_without_gst: campaign_amount_without_gst,
+                creation_date: creation_date
             });
 
             // Define the image fields 
@@ -51,22 +58,22 @@ exports.createPaymentUpdate = [
             await addSalesBookingPayment.save();
 
             //get sale booking data
-
             let saleBookingData = await salesBookingModel.findOne({
                 sale_booking_id: sale_booking_id
             });
 
             //requested amount add in previous pending data in sale booking collection.
-            let pendingAmount = saleBookingData.pending_amount + parseInt(payment_amount);
+            let requestedAmount = saleBookingData.requested_amount + parseInt(payment_amount);
 
             //pending amount add in sale booking collection.
             await salesBookingModel.updateOne({
                 sale_booking_id: sale_booking_id
             }, {
-                pending_amount: pendingAmount
+                requested_amount: requestedAmount,
+                booking_status: saleBookingStatus['02'].status
             });
             // Return a success response with the updated record details
-            return response.returnTrue(200, req, res, "Sales record service created successfully", addSalesBookingPayment);
+            return response.returnTrue(200, req, res, "payment update request created successfully", addSalesBookingPayment);
         } catch (err) {
             // Return an error response in case of any exceptions
             return response.returnFalse(500, req, res, err.message, {});
@@ -75,7 +82,7 @@ exports.createPaymentUpdate = [
 
 
 /**
- * Api is to used for the sales_booking_payment data get_by_ID in the DB collection.
+ * Api is to used for the sales_booking_payment data get_by_ID in the DB collectionxda.
  */
 exports.getPaymentUpdateDetail = async (req, res) => {
     try {
@@ -120,6 +127,12 @@ exports.updatePaymentDeatil = [
                 action_reason: req.body.action_reason,
                 remarks: req.body.remarks,
                 updated_by: req.body.updated_by,
+                sale_booking_date: req.body.sale_booking_date,
+                sales_executive_name: req.body.sales_executive_name,
+                account_name: req.body.account_name,
+                gst_status: req.body.gst_status,
+                campaign_amount_without_gst: req.body.campaign_amount_without_gst,
+                creation_date: req.body.creation_date
             };
 
             // Fetch the old document and update it
@@ -246,237 +259,115 @@ exports.deleteBookingPaymentDetails = async (req, res) => {
     }
 }
 
-
-/**
- * Api is to used for the sales_booking_payment_list pending data from the DB collection.
-*/
-exports.salesBookingPaymentPendingDetailsList = async (req, res) => {
-    try {
-        const imageUrl = vari.IMAGE_URL;
-        const salesBookingPaymentListData = await paymentUpdateModel.aggregate([{
-            $match: {
-                payment_approval_status: "pending"
-            }
-        }, {
-            $lookup: {
-                from: "usermodels",
-                localField: "created_by",
-                foreignField: "user_id",
-                as: "user",
-            }
-        }, {
-            $unwind: {
-                path: "$user",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $lookup: {
-                from: "customermasts",
-                localField: "customer_id",
-                foreignField: "customer_id",
-                as: "customermast_data",
-            }
-        }, {
-            $unwind: {
-                path: "$customermast_data",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $lookup: {
-                from: "salesbookings",
-                localField: "sale_booking_id",
-                foreignField: "sale_booking_id",
-                as: "salesbooking",
-            }
-        }, {
-            $unwind: {
-                path: "$salesbooking",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $project: {
-                payment_date: 1,
-                sale_booking_id: 1,
-                customer_id: 1,
-                customer_name: "$customermast_data.customer_name",
-                payment_amount: 1,
-                payment_mode: 1,
-                payment_detail_id: 1,
-                payment_ref_no: 1,
-                payment_approval_status: 1,
-                sale_booking_data: {
-                    sales_booking_id: "$salesbooking.sale_booking_id",
-                    sale_booking_date: "$salesbooking.sale_booking_date",
-                    campaign_amount: "$salesbooking.campaign_amount",
-                    base_amount: "$salesbooking.base_amount",
-                    created_by: "$salesbooking.created_by",
-                    createdAt: "$salesbooking.creation_date",
-                },
-                action_reason: 1,
-                remarks: 1,
-                createdAt: 1,
-                updatedAt: 1,
-                created_by: 1,
-                created_by_name: "$user.user_name",
-                payment_screenshot: {
-                    $concat: [imageUrl, "$payment_screenshot"],
-                }
-            }
-        }]);
-        if (salesBookingPaymentListData) {
-            return res.status(200).json({
-                status: 200,
-                message: "Sales booking pending payment details list successfully!",
-                data: salesBookingPaymentListData,
-            });
-        }
-        return res.status(404).json({
-            status: 404,
-            message: message.DATA_NOT_FOUND,
-        });
-    } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
-    }
-}
-
 /**
  * Api is to used for the sales_booking_payment_list Rejected data from the DB collection.
  */
-exports.salesBookingPaymentRejectedDetailsList = async (req, res) => {
+exports.salesBookingPaymentStatusDetailsList = async (req, res) => {
     try {
-        const imageUrl = vari.IMAGE_URL;
+        let matchCondition = {
+            status: {
+                $ne: constant.DELETED
+            }
+        }
+        if (req.query?.status) {
+            matchCondition["payment_approval_status"] = req.query.status
+        }
         const salesBookingPaymentListData = await paymentUpdateModel.aggregate([{
-            $match: {
-                payment_approval_status: 'reject'
-            }
-        }, {
-            $lookup: {
-                from: "usermodels",
-                localField: "created_by",
-                foreignField: "user_id",
-                as: "user",
-            }
-        }, {
-            $unwind: {
-                path: "$user",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $lookup: {
-                from: "customermasts",
-                localField: "customer_id",
-                foreignField: "customer_id",
-                as: "customermast_data",
-            }
-        }, {
-            $unwind: {
-                path: "$customermast_data",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $lookup: {
-                from: "salesbookings",
-                localField: "sale_booking_id",
-                foreignField: "sale_booking_id",
-                as: "salesbooking",
-            }
-        }, {
-            $unwind: {
-                path: "$salesbooking",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $lookup: {
-                from: "salespaymentmodes",
-                localField: "payment_mode",
-                foreignField: "_id",
-                as: "salespaymentmodesData",
-            },
-        }, {
-            $unwind: {
-                path: "$salespaymentmodesData",
-                preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $lookup: {
-                from: "paymentdeatils",
-                localField: "payment_detail_id",
-                foreignField: "_id",
-                as: "paymentdeatil",
-            }
-        }, {
-            $unwind: {
-                path: "$paymentdeatil",
-                preserveNullAndEmptyArrays: true,
-            }
+            $match: matchCondition
         }, {
             $project: {
                 payment_date: 1,
                 sale_booking_id: 1,
-                customer_id: 1,
-                customer_name: "$customermast_data.customer_name",
+                account_id: 1,
                 payment_amount: 1,
                 payment_mode: 1,
-                payment_mode_name: "$salespaymentmodesData.payment_mode_name",
                 payment_detail_id: 1,
                 payment_ref_no: 1,
-                payment_screenshot: 1,
                 payment_approval_status: 1,
-                sale_booking_data: {
-                    sales_booking_id: "$salesbooking.sale_booking_id",
-                    sale_booking_date: "$salesbooking.sale_booking_date",
-                    campaign_amount: "$salesbooking.campaign_amount",
-                    base_amount: "$salesbooking.base_amount",
-                    created_by: "$salesbooking.created_by",
-                    createdAt: "$salesbooking.creation_date",
-                },
-                Payment_Deatils: {
-                    _id: "$paymentdeatil._id",
-                    title: "$paymentdeatil.title",
-                    details: "$paymentdeatil.details",
-                    gst_bank: "$paymentdeatil.gst_bank",
-                    payment_type: "$paymentdeatil.payment_type",
-                    managed_by: "$paymentdeatil.managed_by",
-                    created_by: "$paymentdeatil.created_by",
-                    created_by_name: "$user.user_name",
-                },
                 action_reason: 1,
                 remarks: 1,
-                createdAt: 1,
-                updatedAt: 1,
                 created_by: 1,
-                created_by_name: "$user.user_name",
                 payment_screenshot: {
-                    $concat: [imageUrl, "$payment_screenshot"],
-                }
+                    $concat: [
+                        constant.GCP_SALES_PAYMENT_UPDATE_FOLDER_URL,
+                        "/",
+                        "$payment_screenshot",
+                    ],
+                },
+                sale_booking_date: 1,
+                sales_executive_name: 1,
+                account_name: 1,
+                gst_status: 1,
+                campaign_amount_without_gst: 1,
+                creation_date: 1,
             }
-        }, {
-            $group: {
-                _id: "$_id",
-                data: { $first: "$$ROOT" }
-            }
-        }, {
-            $replaceRoot: { newRoot: "$data" }
-
         }]);
-        if (salesBookingPaymentListData) {
-            return res.status(200).json({
-                status: 200,
-                message: "Sales booking Rejected payment details list fetch successfully!",
-                data: salesBookingPaymentListData
-            });
+        if (salesBookingPaymentListData.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
         }
-        return res.status(404).json({
-            status: 404,
-            message: message.DATA_NOT_FOUND,
+        // Return a success response with the list of exectuion and pagination details
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Sales booking payment details list fetch successfully!",
+            salesBookingPaymentListData,
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+}
+
+exports.updatePaymentAndSaleData = async (req, res) => {
+    try {
+        const { id } = req.params;
+        let paymentAmount = req.body?.payment_approval_status;
+        const updateData = {
+            payment_approval_status: req.body.payment_approval_status,
+            action_reason: (req.body?.action_reason) || "",
+        };
+
+        // Fetch the old document and update it
+        const editPaymentUpdatedDetail = await paymentUpdateModel.findByIdAndUpdate({
+            _id: id
+        }, updateData,
+            {
+                new: true
+            });
+
+        if (!editPaymentUpdatedDetail) {
+            return response.returnFalse(404, req, res, `Payment updated data not found`, {});
+        }
+
+        //get sale booking data
+        let saleBookingData = await salesBookingModel.findOne({
+            sale_booking_id: editPaymentUpdatedDetail.sale_booking_id
+        });
+
+        //approved amount add in previous pending data in sale booking collection.
+        let approvedAmount = saleBookingData.approved_amount + parseInt(paymentAmount);
+
+        let updateObj = {
+            approved_amount: approvedAmount
+        }
+        //status change condition wise and update
+        if (saleBookingData.campaign_amount == approvedAmount) {
+            updateObj["booking_status"] = saleBookingStatus['05'].status;
+        } else {
+            updateObj["booking_status"] = saleBookingStatus['12'].status;
+        }
+
+        //approved amount add in sale booking collection.
+        await salesBookingModel.updateOne({
+            sale_booking_id: editPaymentUpdatedDetail.sale_booking_id
+        }, {
+            $set: updateObj
+        });
+
+        return response.returnTrue(200, req, res, "Payment update approval status and sale booking data updated successfully!", {
+            paymentUpdateDetails: editPaymentUpdatedDetail,
         });
     } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
-        });
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 }

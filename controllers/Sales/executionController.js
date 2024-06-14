@@ -124,8 +124,6 @@ exports.updateExecutionDetial = async (req, res) => {
  */
 exports.getExcutionList = async (req, res) => {
     try {
-        const imageUrl = vari.IMAGE_URL;
-
         let matchCondition = {
             status: {
                 $ne: constant.DELETED
@@ -133,7 +131,7 @@ exports.getExcutionList = async (req, res) => {
         }
         if (req.query?.status) {
             matchCondition["execution_status"] = req.query.status
-        }
+        } 
 
         const executionList = await executionModel.aggregate([{
             $match: matchCondition
@@ -173,7 +171,11 @@ exports.getExcutionList = async (req, res) => {
                 payment_credit_status: "$salesbookingmodelsData.payment_credit_status",
                 created_by: "$salesbookingmodelsData.created_by",
                 execution_excel: {
-                    $concat: [imageUrl, "$salesbookingmodelsData.record_service_file"],
+                    $concat: [
+                        constant.GCP_SALES_BOOKING_FOLDER_URL,
+                        "/",
+                        "$salesbookingmodelsData.record_service_file",
+                    ],
                 },
             },
         },
