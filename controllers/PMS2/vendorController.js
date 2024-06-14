@@ -2,21 +2,20 @@ const constant = require("../../common/constant");
 const response = require("../../common/response");
 const { uploadImage, deleteImage } = require('../../common/uploadImage.js');
 const bankDetailsModel = require("../../models/PMS2/bankDetailsModel");
-const documentDetailsModel = require("../../models/PMS2/documentDetailsModel.js");
+// const documentDetailsModel = require("../../models/PMS2/documentDetailsModel.js");
 const vendorGroupLinkModel = require("../../models/PMS2/vendorGroupLinkModel");
 const vendorModel = require("../../models/PMS2/vendorModel");
 const vari = require("../../variables.js");
 const imageUrl = vari.IMAGE_URL;
 const multer = require("multer");
 
-const upload = multer({
-    storage: multer.memoryStorage()
-}).fields([
-    { name: "document_image_upload", maxCount: 5 },
-]);
+// const upload = multer({
+//     storage: multer.memoryStorage()
+// }).fields([
+//     { name: "document_image_upload", maxCount: 5 },
+// ]);
 
-exports.createVendorData = [
-    upload, async (req, res) => {
+exports.createVendorData =  async (req, res) => {
         try {
             const { vendor_type, vendor_platform, pay_cycle, bank_name, company_details, payment_method, primary_field,
                 vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
@@ -45,16 +44,6 @@ exports.createVendorData = [
                 home_state,
                 created_by
             });
-            // Define the image fields 
-            // const imageFields = {
-            //     pan_image: 'PanImages',
-            //     gst_image: 'GstImages',
-            // };
-            // for (const [field] of Object.entries(imageFields)) {            //itreates 
-            //     if (req.files[field] && req.files[field][0]) {
-            //         addVendorData[field] = await uploadImage(req.files[field][0], "PMS2VendorImages");
-            //     }
-            // }
 
             const vendorDataSaved = await addVendorData.save();
             if (!vendorDataSaved) {
@@ -69,10 +58,10 @@ exports.createVendorData = [
 
             let bankDataUpdatedArray = [];
             let vendorlinksUpdatedArray = [];
-            let documentDataUpdatedArray = [];
+            // let documentDataUpdatedArray = [];
             let bankDetails = (req.body?.bank_details && JSON.parse(req.body.bank_details)) || [];
             let vendorLinkDetails = (req.body?.vendorLinks && JSON.parse(req.body?.vendorLinks)) || [];
-            let documentDetails = (req.body?.documentData && JSON.parse(req.body?.documentData)) || [];
+            // let documentDetails = (req.body?.documentData && JSON.parse(req.body?.documentData)) || [];
 
             //bank details obj in add vender id
             if (bankDetails.length) {
@@ -92,22 +81,22 @@ exports.createVendorData = [
                 });
             }
 
-            if (documentDetails.length) {
-                for (const element of documentDetails) {
-                    element.vendor_id = vendorDataSaved._id;
-                    element.created_by = created_by;
-                    if (req.files[element.document_image_upload] && req.files[element.document_image_upload][0]) {
-                        element.document_image = await uploadImage(req.files[element.document_image_upload][0], "PMS2DocumentImage");
-                    }
+            // if (documentDetails.length) {
+            //     for (const element of documentDetails) {
+            //         element.vendor_id = vendorDataSaved._id;
+            //         element.created_by = created_by;
+            //         if (req.files[element.document_image_upload] && req.files[element.document_image_upload][0]) {
+            //             element.document_image = await uploadImage(req.files[element.document_image_upload][0], "PMS2DocumentImage");
+            //         }
 
-                    documentDataUpdatedArray.push(element);
-                }
-            }
+            //         documentDataUpdatedArray.push(element);
+            //     }
+            // }
 
             //add data in db collection
             await bankDetailsModel.insertMany(bankDataUpdatedArray);
             await vendorGroupLinkModel.insertMany(vendorlinksUpdatedArray);
-            await documentDetailsModel.insertMany(documentDataUpdatedArray);
+            // await documentDetailsModel.insertMany(documentDataUpdatedArray);
 
             //send success response
             return response.returnTrue(
@@ -121,7 +110,6 @@ exports.createVendorData = [
             return response.returnFalse(500, req, res, `${error.message}`, {});
         }
     }
-];
 
 /**
  * Api is get the vendor model data BY-Id
