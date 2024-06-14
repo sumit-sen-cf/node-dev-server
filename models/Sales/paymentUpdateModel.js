@@ -69,7 +69,7 @@ const salesBookingPayment = new Schema({
         default: constant?.ACTIVE,
     },
     sale_booking_date: {
-        type: String,
+        type: Date,
         required: false
     },
     sales_executive_name: {
@@ -84,12 +84,16 @@ const salesBookingPayment = new Schema({
         type: String,
         required: false
     },
+    campaign_amount: {
+        type: Number,
+        required: false
+    },
     campaign_amount_without_gst: {
         type: Number,
         required: false
     },
     creation_date: {
-        type: String,
+        type: Date,
         required: false
     }
 
