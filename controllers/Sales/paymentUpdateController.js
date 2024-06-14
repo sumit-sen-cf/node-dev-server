@@ -5,6 +5,8 @@ const { message } = require("../../common/message.js")
 const { storage } = require('../../common/uploadFile.js');
 const paymentUpdateModel = require("../../models/Sales/paymentUpdateModel.js");
 const salesBookingModel = require("../../models/Sales/salesBookingModel.js");
+const accountMasterModel = require("../../models/accounts/accountMasterModel.js");
+const userModel = require("../../models/userModel.js");
 const { uploadImage, deleteImage } = require("../../common/uploadImage.js");
 const response = require("../../common/response.js");
 const constant = require("../../common/constant.js");
@@ -23,7 +25,7 @@ exports.createPaymentUpdate = [
     upload, async (req, res) => {
         try {
             const { payment_date, sale_booking_id, account_id, payment_amount, payment_mode, payment_detail_id,
-                payment_ref_no, payment_approval_status, action_reason, remarks, created_by, sale_booking_date, sales_executive_name, account_name, gst_status, campaign_amount_without_gst, creation_date } = req.body;
+                payment_ref_no, payment_approval_status, action_reason, remarks, created_by } = req.body;
 
             //object Prepare for DB collection
             const addSalesBookingPayment = new paymentUpdateModel({
@@ -38,12 +40,6 @@ exports.createPaymentUpdate = [
                 action_reason: action_reason,
                 remarks: remarks,
                 created_by: created_by,
-                sale_booking_date: sale_booking_date,
-                sales_executive_name: sales_executive_name,
-                account_name: account_name,
-                gst_status: gst_status,
-                campaign_amount_without_gst: campaign_amount_without_gst,
-                creation_date: creation_date
             });
 
             // Define the image fields 
@@ -55,12 +51,37 @@ exports.createPaymentUpdate = [
                     addSalesBookingPayment[field] = await uploadImage(req.files[field][0], "SalesPaymentUpdateFiles");
                 }
             }
-            await addSalesBookingPayment.save();
 
             //get sale booking data
             let saleBookingData = await salesBookingModel.findOne({
                 sale_booking_id: sale_booking_id
             });
+            //temp code start
+            //get sale booking data
+            let accountData = await accountMasterModel.findOne({
+                account_id: account_id
+            }, {
+                account_name: 1
+            });
+
+            //get sale booking data
+            let userData = await userModel.findOne({
+                user_id: saleBookingData.created_by
+            }, {
+                user_id: 1,
+                user_name: 1
+            });
+
+            addSalesBookingPayment["sale_booking_date"] = saleBookingData.sale_booking_date;
+            addSalesBookingPayment["sales_executive_name"] = userData.user_name;
+            addSalesBookingPayment["account_name"] = accountData.account_name;
+            addSalesBookingPayment["gst_status"] = saleBookingData.gst_status;
+            addSalesBookingPayment["campaign_amount"] = saleBookingData.campaign_amount;
+            addSalesBookingPayment["campaign_amount_without_gst"] = saleBookingData.base_amount;
+            addSalesBookingPayment["creation_date"] = new Date();
+            //temp code end
+
+            await addSalesBookingPayment.save();
 
             //requested amount add in previous pending data in sale booking collection.
             let requestedAmount = saleBookingData.requested_amount + parseInt(payment_amount);
@@ -294,10 +315,13 @@ exports.salesBookingPaymentStatusDetailsList = async (req, res) => {
                         "$payment_screenshot",
                     ],
                 },
+                createdAt: 1,
+                updatedAt: 1,
                 sale_booking_date: 1,
                 sales_executive_name: 1,
                 account_name: 1,
                 gst_status: 1,
+                campaign_amount: 1,
                 campaign_amount_without_gst: 1,
                 creation_date: 1,
             }
@@ -321,9 +345,10 @@ exports.salesBookingPaymentStatusDetailsList = async (req, res) => {
 exports.updatePaymentAndSaleData = async (req, res) => {
     try {
         const { id } = req.params;
-        let paymentAmount = req.body?.payment_approval_status;
+        let paymentAmount = req.body?.payment_amount;
+        let paymentApprovalStatus = req.body?.payment_approval_status;
         const updateData = {
-            payment_approval_status: req.body.payment_approval_status,
+            payment_approval_status: paymentApprovalStatus,
             action_reason: (req.body?.action_reason) || "",
         };
 
@@ -344,11 +369,23 @@ exports.updatePaymentAndSaleData = async (req, res) => {
             sale_booking_id: editPaymentUpdatedDetail.sale_booking_id
         });
 
-        //approved amount add in previous pending data in sale booking collection.
-        let approvedAmount = saleBookingData.approved_amount + parseInt(paymentAmount);
+        let approvedAmount = saleBookingData.approved_amount;
+        let requestedAmount = saleBookingData.requested_amount;
+
+        //if status is approval then add data in approval amount
+        if (paymentApprovalStatus == 'approval') {
+            //approved amount add in previous pending data in sale booking collection.
+            approvedAmount = approvedAmount + parseInt(paymentAmount);
+        }
+
+        //if status is reject then sub data in req amount
+        if (paymentApprovalStatus == 'reject') {
+            requestedAmount = requestedAmount - parseInt(paymentAmount);
+        }
 
         let updateObj = {
-            approved_amount: approvedAmount
+            approved_amount: approvedAmount,
+            requested_amount: requestedAmount,
         }
         //status change condition wise and update
         if (saleBookingData.campaign_amount == approvedAmount) {
@@ -364,6 +401,7 @@ exports.updatePaymentAndSaleData = async (req, res) => {
             $set: updateObj
         });
 
+        //send success response
         return response.returnTrue(200, req, res, "Payment update approval status and sale booking data updated successfully!", {
             paymentUpdateDetails: editPaymentUpdatedDetail,
         });
