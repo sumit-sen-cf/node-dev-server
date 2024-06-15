@@ -16,11 +16,11 @@ const salesServiceMaster = new Schema({
         type: String,
         enum: ["calculated", "input"],
     },
-    is_excel_upload: {
-        type: Boolean,
-        required: false,
-        default: false,
-    },
+    // is_excel_upload: {
+    //     type: Boolean,
+    //     required: false,
+    //     default: false,
+    // },
     no_of_hours_status: {
         type: Boolean,
         required: false,

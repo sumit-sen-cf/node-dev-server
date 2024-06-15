@@ -131,7 +131,7 @@ exports.getExcutionList = async (req, res) => {
         }
         if (req.query?.status) {
             matchCondition["execution_status"] = req.query.status
-        } 
+        }
 
         const executionList = await executionModel.aggregate([{
             $match: matchCondition
@@ -235,3 +235,30 @@ exports.deleteExecution = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
+exports.updateStatusExecution = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { execution_status } = req.body;
+        const executionStatusUpdated = await executionModel.findByIdAndUpdate({
+            _id: id
+        }, {
+            $set: {
+                execution_status
+            }
+        }, {
+            new: true
+        });
+        // Return a success response with the updated record details
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Execution status update successfully!",
+            executionStatusUpdated
+        );
+
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+}

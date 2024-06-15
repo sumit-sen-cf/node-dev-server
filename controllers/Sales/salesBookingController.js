@@ -82,7 +82,7 @@ exports.addSalesBooking = [
             }
 
             //draft status check
-            if (req.body?.is_draft_save) {
+            if (req.body?.is_draft_save == true || req.body?.is_draft_save == "true") {
                 createSaleBooking["booking_status"] = saleBookingStatus['04'].status;
             } else {
                 if (req.body.payment_credit_status == "sent_for_payment_approval") {
@@ -537,7 +537,7 @@ exports.getSalesBookingDetail = async (req, res) => {
 
 
 
-exports.saleBookingWiseAccountData = async (req, res) => {
+exports.salesDataOfAccountOutstanding = async (req, res) => {
     try {
         const gstStatus = req.body.gst_status;
         console.log("GST Status:", gstStatus);
@@ -549,36 +549,31 @@ exports.saleBookingWiseAccountData = async (req, res) => {
         const accountWiseSaleBookingData = await salesBookingModel.aggregate([
             {
                 $match: matchStage
-            },
-            {
+            }, {
                 $lookup: {
                     from: "accountmastermodels",
                     localField: "account_id",
                     foreignField: "account_id",
                     as: "accountMasterData",
                 }
-            },
-            {
+            }, {
                 $unwind: {
                     path: "$accountMasterData",
-                    // preserveNullAndEmptyArrays: true,
+                    preserveNullAndEmptyArrays: true,
                 }
-            },
-            {
+            }, {
                 $lookup: {
                     from: "usermodels",
                     localField: "created_by",
                     foreignField: "user_id",
                     as: "user",
                 },
-            },
-            {
+            }, {
                 $unwind: {
                     path: "$user",
-                    // preserveNullAndEmptyArrays: true,
+                    preserveNullAndEmptyArrays: true,
                 },
-            },
-            {
+            }, {
                 $group: {
                     _id: "$account_id",
                     sale_booking_date: { $first: "$sale_booking_date" },
@@ -595,16 +590,14 @@ exports.saleBookingWiseAccountData = async (req, res) => {
                     account_name: { $first: "$accountMasterData.account_name" },
                     registered_by: { $first: "$accountMasterData.created_by" },
                     requested_amount: { $first: "$requested_amount" },
-                    registered_by_name: { $first: "$user.created_by_name" },
+                    registered_by_name: { $first: "$user.user_name" },
                     createdAt: { $first: "$createdAt" },
                     updatedAt: { $first: "$updatedAt" },
                     total_purchase_amount: { $sum: "$campaign_amount" },
                     total_sale_booking: { $sum: 1 },
                     approved_amount: { $sum: "$approved_amount" },
-                    // approved_pending: { $subtract: ["requested_amount", "approved_amount"] }
                 }
-            },
-            {
+            }, {
                 $project: {
                     _id: 1,
                     sale_booking_date: 1,
@@ -630,7 +623,6 @@ exports.saleBookingWiseAccountData = async (req, res) => {
                     approved_pending: { $subtract: ["$requested_amount", "$approved_amount"] }
                 }
             }
-
         ]);
         if (!accountWiseSaleBookingData.length) {
             return response.returnFalse(200, req, res, "No Record Found...", []);
@@ -638,6 +630,104 @@ exports.saleBookingWiseAccountData = async (req, res) => {
         return response.returnTrue(200, req, res,
             "Account Wise Sales Booking Status data retrieved",
             accountWiseSaleBookingData
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
+
+exports.salesDataOfUserOutstanding = async (req, res) => {
+    try {
+        const gstStatus = req.body.gst_status;
+        // Initialize match stage
+        let matchStage = {};
+        if (gstStatus !== undefined) {
+            matchStage = { gst_status: gstStatus };
+        }
+        const userWiseSaleBookingData = await salesBookingModel.aggregate([
+            {
+                $match: matchStage
+            }, {
+                $lookup: {
+                    from: "accountmastermodels",
+                    localField: "account_id",
+                    foreignField: "account_id",
+                    as: "accountMasterData",
+                }
+            }, {
+                $unwind: {
+                    path: "$accountMasterData",
+                    preserveNullAndEmptyArrays: true,
+                }
+            }, {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "created_by",
+                    foreignField: "user_id",
+                    as: "user",
+                },
+            }, {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            }, {
+                $group: {
+                    _id: "$created_by",
+                    sale_booking_date: { $first: "$sale_booking_date" },
+                    campaign_amount: { $first: "$campaign_amount" },
+                    description: { $first: "$description" },
+                    credit_approval_status: { $first: "$credit_approval_status" },
+                    reason_credit_approval: { $first: "$reason_credit_approval" },
+                    gst_status: { $first: "$gst_status" },
+                    balance_payment_ondate: { $first: "$balance_payment_ondate" },
+                    payment_credit_status: { $first: "$payment_credit_status" },
+                    booking_status: { $first: "$booking_status" },
+                    sale_booking_id: { $first: "$sale_booking_id" },
+                    account_id: { $first: "$accountMasterData.account_id" },
+                    account_name: { $first: "$accountMasterData.account_name" },
+                    registered_by: { $first: "$accountMasterData.created_by" },
+                    requested_amount: { $first: "$requested_amount" },
+                    registered_by_name: { $first: "$user.created_by_name" },
+                    createdAt: { $first: "$createdAt" },
+                    updatedAt: { $first: "$updatedAt" },
+                    total_purchase_amount: { $sum: "$campaign_amount" },
+                    total_sale_booking: { $sum: 1 },
+                    approved_amount: { $sum: "$approved_amount" },
+                }
+            }, {
+                $project: {
+                    _id: 1,
+                    sale_booking_date: 1,
+                    campaign_amount: 1,
+                    description: 1,
+                    credit_approval_status: 1,
+                    reason_credit_approval: 1,
+                    gst_status: 1,
+                    balance_payment_ondate: 1,
+                    payment_credit_status: 1,
+                    booking_status: 1,
+                    sale_booking_id: 1,
+                    account_id: 1,
+                    account_name: 1,
+                    registered_by: 1,
+                    registered_by_name: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    total_purchase_amount: 1,
+                    total_sale_booking: 1,
+                    approved_amount: 1,
+                    requested_amount: 1,
+                    approved_pending: { $subtract: ["$requested_amount", "$approved_amount"] }
+                }
+            }
+        ]);
+        if (!userWiseSaleBookingData.length) {
+            return response.returnFalse(200, req, res, "No Record Found...", []);
+        }
+        return response.returnTrue(200, req, res,
+            "User Wise Sales Booking Status data retrieved",
+            userWiseSaleBookingData
         );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
