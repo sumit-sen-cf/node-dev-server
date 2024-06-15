@@ -126,6 +126,7 @@ const nodePhpVendorPaymentMode = require("./controllers/nodePhpVendorPaymentMode
 const razorPay = require("./controllers/razorpay.js");
 const phpVendorPurchasePaymentRequest = require("./controllers/phpVendorPurchasePayment.js");
 
+
 //Routes for Asset Repair and Return Summary Data
 const repairandreturnsumdata = require("./controllers/repairAndReturnSum.js");
 const assetVendorSum = require("./controllers/assetVendorSum.js");
@@ -458,14 +459,13 @@ router.put("/campaign", campagin.editCampaign);
 router.delete("/campaign/:id", campagin.deleteCampaign);
 
 //Execution Campaign routes
-router.post("/exe_campaign", exeCampaign.addExeCampaign);
-router.get("/exe_campaign", exeCampaign.getExeCampaigns);
-router.get("/exe_campaign/:id", exeCampaign.getExeCampaignById);
-router.put("/exe_campaign/:id", exeCampaign.editExeCampaign);
-router.delete("/exe_campaign/:id", exeCampaign.deleteExeCampaign);
-router.get("/exe_campaign_name_wise", exeCampaign.getExeCampaignsNameWiseData);
-
-router.get("/exe_campaign_wise_list/:id", exeCampaign.getAllExeCampaignList);
+router.post("/exe_campaign", verifyToken, exeCampaign.addExeCampaign);
+router.get("/exe_campaign", verifyToken, exeCampaign.getExeCampaigns);
+router.get("/exe_campaign/:id", verifyToken, exeCampaign.getExeCampaignById);
+router.put("/exe_campaign/:id", verifyToken, exeCampaign.editExeCampaign);
+router.delete("/exe_campaign/:id", verifyToken, exeCampaign.deleteExeCampaign);
+router.get("/exe_campaign_name_wise", verifyToken, exeCampaign.getExeCampaignsNameWiseData);
+router.get("/exe_campaign_wise_list/:id", verifyToken, exeCampaign.getAllExeCampaignList);
 
 
 //ProjectxPageCategory
