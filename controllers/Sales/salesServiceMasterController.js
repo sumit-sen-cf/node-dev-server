@@ -9,14 +9,14 @@ const constant = require("../../common/constant");
  */
 exports.createSalesServiceMaster = async (req, res) => {
     try {
-        const { service_name, post_type, amount_status, is_excel_upload, no_of_hours_status, goal_status, day_status,
+        const { service_name, post_type, amount_status, no_of_hours_status, goal_status, day_status,
             quantity_status, brand_name_status, hashtag, indiviual_amount_status, start_end_date_status,
             per_month_amount_status, no_of_creators, deliverables_info, remarks, created_by } = req.body;
         const addSalesServiceMaster = await salesServiceMasterModel.create({
             service_name: service_name,
             post_type: post_type,
             amount_status: amount_status,
-            is_excel_upload: is_excel_upload,
+            // is_excel_upload: is_excel_upload,
             no_of_hours_status: no_of_hours_status,
             goal_status: goal_status,
             day_status: day_status,
@@ -74,7 +74,7 @@ exports.getServiceMasterDetails = async (req, res) => {
 exports.updateSalesServiceMaster = async (req, res) => {
     try {
         const { id } = req.params;
-        const { service_name, post_type, amount_status, is_excel_upload, no_of_hours_status, goal_status, day_status,
+        const { service_name, post_type, amount_status, no_of_hours_status, goal_status, day_status,
             quantity_status, brand_name_status, hashtag, indiviual_amount_status, start_end_date_status,
             per_month_amount_status, no_of_creators, deliverables_info, remarks, updated_by } = req.body;
         const serviceMasterUpdated = await salesServiceMasterModel.findByIdAndUpdate({ _id: id }, {
@@ -82,7 +82,7 @@ exports.updateSalesServiceMaster = async (req, res) => {
                 service_name,
                 post_type,
                 amount_status,
-                is_excel_upload,
+                // is_excel_upload,
                 no_of_hours_status,
                 goal_status,
                 day_status,
