@@ -1,115 +1,88 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
-const { uploadImage, deleteImage } = require('../../common/uploadImage.js');
 const bankDetailsModel = require("../../models/PMS2/bankDetailsModel");
-// const documentDetailsModel = require("../../models/PMS2/documentDetailsModel.js");
 const vendorGroupLinkModel = require("../../models/PMS2/vendorGroupLinkModel");
 const vendorModel = require("../../models/PMS2/vendorModel");
 const vari = require("../../variables.js");
 const imageUrl = vari.IMAGE_URL;
-const multer = require("multer");
 
-// const upload = multer({
-//     storage: multer.memoryStorage()
-// }).fields([
-//     { name: "document_image_upload", maxCount: 5 },
-// ]);
+exports.createVendorData = async (req, res) => {
+    try {
+        const { vendor_type, vendor_platform, pay_cycle, bank_name, company_details, payment_method, primary_field,
+            vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
+            home_address, home_city, home_state, created_by, vendor_category, } = req.body;
+        const addVendorData = new vendorModel({
+            vendor_type,
+            vendor_platform,
+            pay_cycle,
+            bank_name,
+            company_details,
+            payment_method,
+            primary_field,
+            vendor_name,
+            home_pincode,
+            country_code,
+            mobile,
+            alternate_mobile,
+            email,
+            personal_address,
+            home_address,
+            home_city,
+            vendor_category,
+            home_state,
+            created_by
+        });
 
-exports.createVendorData =  async (req, res) => {
-        try {
-            const { vendor_type, vendor_platform, pay_cycle, bank_name, company_details, payment_method, primary_field,
-                vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
-                home_address, home_city, home_state, created_by, vendor_category, } = req.body;
-            const addVendorData = new vendorModel({
-                vendor_type,
-                vendor_platform,
-                pay_cycle,
-                bank_name,
-                company_details,
-                payment_method,
-                primary_field,
-                vendor_name,
-                home_pincode,
-                country_code,
-                mobile,
-                alternate_mobile,
-                email,
-                personal_address,
-                // pan_no,
-                //gst_no,
-                // threshold_limit,
-                home_address,
-                home_city,
-                vendor_category,
-                home_state,
-                created_by
-            });
-
-            const vendorDataSaved = await addVendorData.save();
-            if (!vendorDataSaved) {
-                return response.returnFalse(
-                    500,
-                    req,
-                    res,
-                    `Oop's "Something went wrong while saving vendor data.`,
-                    {}
-                );
-            }
-
-            let bankDataUpdatedArray = [];
-            let vendorlinksUpdatedArray = [];
-            // let documentDataUpdatedArray = [];
-            let bankDetails = (req.body?.bank_details && JSON.parse(req.body.bank_details)) || [];
-            let vendorLinkDetails = (req.body?.vendorLinks && JSON.parse(req.body?.vendorLinks)) || [];
-            // let documentDetails = (req.body?.documentData && JSON.parse(req.body?.documentData)) || [];
-
-            //bank details obj in add vender id
-            if (bankDetails.length) {
-                await bankDetails.forEach(element => {
-                    element.vendor_id = vendorDataSaved._id;
-                    element.created_by = created_by;
-                    bankDataUpdatedArray.push(element);
-                });
-            }
-
-            //vendor links details obj in add vender id
-            if (vendorLinkDetails.length) {
-                await vendorLinkDetails.forEach(element => {
-                    element.vendor_id = vendorDataSaved._id;
-                    element.created_by = created_by;
-                    vendorlinksUpdatedArray.push(element);
-                });
-            }
-
-            // if (documentDetails.length) {
-            //     for (const element of documentDetails) {
-            //         element.vendor_id = vendorDataSaved._id;
-            //         element.created_by = created_by;
-            //         if (req.files[element.document_image_upload] && req.files[element.document_image_upload][0]) {
-            //             element.document_image = await uploadImage(req.files[element.document_image_upload][0], "PMS2DocumentImage");
-            //         }
-
-            //         documentDataUpdatedArray.push(element);
-            //     }
-            // }
-
-            //add data in db collection
-            await bankDetailsModel.insertMany(bankDataUpdatedArray);
-            await vendorGroupLinkModel.insertMany(vendorlinksUpdatedArray);
-            // await documentDetailsModel.insertMany(documentDataUpdatedArray);
-
-            //send success response
-            return response.returnTrue(
-                200,
+        const vendorDataSaved = await addVendorData.save();
+        if (!vendorDataSaved) {
+            return response.returnFalse(
+                500,
                 req,
                 res,
-                "Vendor data added successfully!",
-                vendorDataSaved
+                `Oop's "Something went wrong while saving vendor data.`,
+                {}
             );
-        } catch (error) {
-            return response.returnFalse(500, req, res, `${error.message}`, {});
         }
+
+        let bankDataUpdatedArray = [];
+        let vendorlinksUpdatedArray = [];
+        let bankDetails = (req.body?.bank_details) || [];
+        let vendorLinkDetails = (req.body?.vendorLinks) || [];
+
+        //bank details obj in add vender id
+        if (bankDetails.length) {
+            await bankDetails.forEach(element => {
+                element.vendor_id = vendorDataSaved._id;
+                element.created_by = created_by;
+                bankDataUpdatedArray.push(element);
+            });
+        }
+
+        //vendor links details obj in add vender id
+        if (vendorLinkDetails.length) {
+            await vendorLinkDetails.forEach(element => {
+                element.vendor_id = vendorDataSaved._id;
+                element.created_by = created_by;
+                vendorlinksUpdatedArray.push(element);
+            });
+        }
+
+        //add data in db collection
+        await bankDetailsModel.insertMany(bankDataUpdatedArray);
+        await vendorGroupLinkModel.insertMany(vendorlinksUpdatedArray);
+
+        //send success response
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Vendor data added successfully!",
+            vendorDataSaved
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
     }
+}
 
 /**
  * Api is get the vendor model data BY-Id
