@@ -372,26 +372,27 @@ exports.updatePaymentAndSaleData = async (req, res) => {
         let approvedAmount = saleBookingData.approved_amount;
         let requestedAmount = saleBookingData.requested_amount;
 
-        //if status is approval then add data in approval amount
-        if (paymentApprovalStatus == 'approval') {
-            //approved amount add in previous pending data in sale booking collection.
-            approvedAmount = approvedAmount + parseInt(paymentAmount);
-        }
-
-        //if status is reject then sub data in req amount
-        if (paymentApprovalStatus == 'reject') {
-            requestedAmount = requestedAmount - parseInt(paymentAmount);
-        }
-
         let updateObj = {
             approved_amount: approvedAmount,
             requested_amount: requestedAmount,
         }
+
         //status change condition wise and update
-        if (saleBookingData.campaign_amount == approvedAmount) {
-            updateObj["booking_status"] = saleBookingStatus['05'].status;
-        } else {
+        if (paymentApprovalStatus == 'reject') {
+            //if status is reject then subtract data in req amount and status update
+            updateObj["booking_status"] = saleBookingStatus['13'].status;
+            updateObj["requested_amount"] = requestedAmount - parseInt(paymentAmount);
+
+        } else if (paymentApprovalStatus == 'approval') {
+            //if status is approval then add data in approval amount and status update
+            approvedAmount = approvedAmount + parseInt(paymentAmount)
             updateObj["booking_status"] = saleBookingStatus['12'].status;
+            updateObj["approved_amount"] = approvedAmount;
+
+            //campaign amount equal to approvaed amount then status update 
+            if (saleBookingData.campaign_amount == approvedAmount) {
+                updateObj["booking_status"] = saleBookingStatus['05'].status;
+            }
         }
 
         //approved amount add in sale booking collection.

@@ -82,7 +82,7 @@ exports.addSalesBooking = [
             }
 
             //draft status check
-            if (req.body?.is_draft_save) {
+            if (req.body?.is_draft_save == true || req.body?.is_draft_save == "true") {
                 createSaleBooking["booking_status"] = saleBookingStatus['04'].status;
             } else {
                 if (req.body.payment_credit_status == "sent_for_payment_approval") {
