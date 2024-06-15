@@ -58,7 +58,7 @@ exports.getAgencyById = async (req, res) => {
                 agencyData
             );
         }
-    } catch (err) {
+    } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
