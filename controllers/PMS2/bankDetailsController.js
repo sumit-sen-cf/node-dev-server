@@ -5,9 +5,10 @@ const mongoose = require("mongoose");
 
 exports.createBankDetails = async (req, res) => {
     try {
-        const { vendor_id, bank_name, account_type, registered_number, account_number, ifcs, upi_id, created_by } = req.body;
+        const { vendor_id,payment_method, bank_name, account_type, registered_number, account_number, ifcs, upi_id, created_by } = req.body;
         const addBankDetails = bankDetailsModel({
             vendor_id,
+            payment_method,
             bank_name,
             account_type,
             account_number,
@@ -83,12 +84,13 @@ exports.getAllBankList = async (req, res) => {
 exports.updateBankDetails = async (req, res) => {
     try {
         const { id } = req.params;
-        const { vendor_id, bank_name, account_type, registered_number, account_number, ifcs, upi_id, updated_by } = req.body;
+        const { vendor_id,payment_method, bank_name, account_type, registered_number, account_number, ifcs, upi_id, updated_by } = req.body;
         const updateResult = await bankDetailsModel.updateOne(
             { _id: id },
             {
                 $set: {
                     vendor_id,
+                    payment_method,
                     bank_name,
                     registered_number,
                     account_type,

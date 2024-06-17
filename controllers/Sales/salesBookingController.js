@@ -224,6 +224,7 @@ exports.getAllSalesBooking = async (req, res) => {
         const page = (req.query?.page && parseInt(req.query.page)) || null;
         const limit = (req.query?.limit && parseInt(req.query.limit)) || null;
         const skip = (page && limit) ? (page - 1) * limit : 0;
+        const sort = { createdAt: -1 };
 
         let addFieldsObj = {
             $addFields: {
@@ -248,7 +249,8 @@ exports.getAllSalesBooking = async (req, res) => {
         if (page && limit) {
             pipeline.push(
                 { $skip: skip },
-                { $limit: limit }
+                { $limit: limit },
+                { $sort: sort }
             );
         }
 
