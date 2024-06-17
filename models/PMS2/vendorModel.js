@@ -19,11 +19,11 @@ const vendorSchema = new Schema({
         required: true,
         ref: "pms2paycyclemodels"
     },
-    payment_method: {
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: "pms2paymentmethodmodels"
-    },
+    // payment_method: {
+    //     type: Schema.Types.ObjectId,
+    //     required: true,
+    //     ref: "pms2paymentmethodmodels"
+    // },
     primary_page: {
         type: Schema.Types.ObjectId,
         required: false,

@@ -5,7 +5,7 @@ module.exports = {
             discription: "Sale Booking Only Created.No Other operation start yet."
         },
         '02': {
-            status: "Payment Approval Pending( Finance)",
+            status: "Payment Approval Pending(Finance)",
             discription: "Payment of sale booking is requested.Response is pending from Finance."
         },
         '03': {
@@ -47,6 +47,10 @@ module.exports = {
         '12': {
             status: "Requested Amount Approved.Balance Amount Request Pending.",
             discription: "Requested Amount Approved. Balance Amount (partial payment) Request Pending."
+        },
+        '13': {
+            status: "Payment Approval Request Rejected(Finance)",
+            discription: "Payment of sale booking is requested.Response is Rejected from Finance."
         },
     }
 }

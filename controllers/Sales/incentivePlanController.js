@@ -8,9 +8,9 @@ const mongoose = require("mongoose");
  */
 exports.createIncentivePlan = async (req, res) => {
     try {
-        const { sales_service_id, incentive_type, value, remarks, created_by } = req.body;
+        const { sales_service_master_id, incentive_type, value, remarks, created_by } = req.body;
         const addIncentivePlanDetails = await incentivePlanModel.create({
-            sales_service_id,
+            sales_service_master_id,
             incentive_type,
             value,
             remarks,
@@ -64,13 +64,13 @@ exports.updateIncentivePlan = async (req, res) => {
     try {
         // Extract the id from request parameters
         const { id } = req.params;
-        const { sales_service_id, incentive_type, value, remarks, updated_by } = req.body;
+        const { sales_service_master_id, incentive_type, value, remarks, updated_by } = req.body;
 
         const incentivePlanUpdated = await incentivePlanModel.findByIdAndUpdate({
             _id: id
         }, {
             $set: {
-                sales_service_id,
+                sales_service_master_id,
                 incentive_type,
                 value,
                 remarks,
@@ -102,12 +102,15 @@ exports.getIncentivePlanList = async (req, res) => {
         // Extract page and limit from query parameters, default to null if not provided
         const page = req.query?.page ? parseInt(req.query.page) : null;
         const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+        const sort = { createdAt: -1 };
 
         // Calculate the number of records to skip based on the current page and limit
         const skip = (page && limit) ? (page - 1) * limit : 0;
 
         // Retrieve the list of records with pagination applied
-        const incentivePlanList = await incentivePlanModel.find().skip(skip).limit(limit);
+        const incentivePlanList = await incentivePlanModel.find({
+            status: { $ne: constant.DELETED }
+        }).skip(skip).limit(limit).sort(sort);
 
         // Get the total count of records in the collection
         const incentivePlanCount = await incentivePlanModel.countDocuments();

@@ -138,6 +138,7 @@ exports.getBadgesMasterList = async (req, res) => {
         // Extract page and limit from query parameters, default to null if not provided
         const page = req.query?.page ? parseInt(req.query.page) : null;
         const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+        const sort = { createdAt: -1 };
 
         // Calculate the number of records to skip based on the current page and limit
         const skip = (page && limit) ? (page - 1) * limit : 0;
@@ -164,7 +165,8 @@ exports.getBadgesMasterList = async (req, res) => {
         if (page && limit) {
             pipeline.push(
                 { $skip: skip },
-                { $limit: limit }
+                { $limit: limit },
+                { $sort: sort }
             );
         }
         const badgesMasterList = await badgesMasterModel.aggregate(pipeline);

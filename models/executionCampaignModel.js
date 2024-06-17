@@ -28,15 +28,15 @@ const exeCampaignSchema = new mongoose.Schema({
   },
   brand_id: {
     type: Schema.Types.ObjectId,
-    required: false
+    required: true,
   },
   user_id: {
     type: Number,
-    required: false
+    required: true,
   },
   agency_id: {
     type: Schema.Types.ObjectId,
-    required: false
+    required: true,
   },
   created_by: {
     type: Number,

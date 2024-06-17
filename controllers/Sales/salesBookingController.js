@@ -82,7 +82,7 @@ exports.addSalesBooking = [
             }
 
             //draft status check
-            if (req.body?.is_draft_save) {
+            if (req.body?.is_draft_save == true || req.body?.is_draft_save == "true") {
                 createSaleBooking["booking_status"] = saleBookingStatus['04'].status;
             } else {
                 if (req.body.payment_credit_status == "sent_for_payment_approval") {
@@ -224,6 +224,7 @@ exports.getAllSalesBooking = async (req, res) => {
         const page = (req.query?.page && parseInt(req.query.page)) || null;
         const limit = (req.query?.limit && parseInt(req.query.limit)) || null;
         const skip = (page && limit) ? (page - 1) * limit : 0;
+        const sort = { createdAt: -1 };
 
         let addFieldsObj = {
             $addFields: {
@@ -248,7 +249,8 @@ exports.getAllSalesBooking = async (req, res) => {
         if (page && limit) {
             pipeline.push(
                 { $skip: skip },
-                { $limit: limit }
+                { $limit: limit },
+                { $sort: sort }
             );
         }
 
@@ -540,7 +542,6 @@ exports.getSalesBookingDetail = async (req, res) => {
 exports.salesDataOfAccountOutstanding = async (req, res) => {
     try {
         const gstStatus = req.body.gst_status;
-        console.log("GST Status:", gstStatus);
         // Initialize match stage
         let matchStage = {};
         if (gstStatus !== undefined) {
@@ -688,7 +689,7 @@ exports.salesDataOfUserOutstanding = async (req, res) => {
                     account_name: { $first: "$accountMasterData.account_name" },
                     registered_by: { $first: "$accountMasterData.created_by" },
                     requested_amount: { $first: "$requested_amount" },
-                    registered_by_name: { $first: "$user.created_by_name" },
+                    registered_by_name: { $first: "$user.user_name" },
                     createdAt: { $first: "$createdAt" },
                     updatedAt: { $first: "$updatedAt" },
                     total_purchase_amount: { $sum: "$campaign_amount" },

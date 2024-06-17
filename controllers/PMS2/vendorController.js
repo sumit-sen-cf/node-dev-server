@@ -1,14 +1,13 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
 const bankDetailsModel = require("../../models/PMS2/bankDetailsModel");
+const paymentMethodModel = require("../../models/PMS2/paymentMethodModel");
 const vendorGroupLinkModel = require("../../models/PMS2/vendorGroupLinkModel");
 const vendorModel = require("../../models/PMS2/vendorModel");
-const vari = require("../../variables.js");
-const imageUrl = vari.IMAGE_URL;
 
 exports.createVendorData = async (req, res) => {
     try {
-        const { vendor_type, vendor_platform, pay_cycle, bank_name, company_details, payment_method, primary_field,
+        const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, primary_field,
             vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
             home_address, home_city, home_state, created_by, vendor_category, } = req.body;
         const addVendorData = new vendorModel({
@@ -17,13 +16,14 @@ exports.createVendorData = async (req, res) => {
             pay_cycle,
             bank_name,
             company_details,
-            payment_method,
+           // payment_method,    multiple
             primary_field,
             vendor_name,
             home_pincode,
             country_code,
             mobile,
             alternate_mobile,
+            page_count,
             email,
             personal_address,
             home_address,
@@ -46,8 +46,14 @@ exports.createVendorData = async (req, res) => {
 
         let bankDataUpdatedArray = [];
         let vendorlinksUpdatedArray = [];
+
+        let paymentMethodUpdatedArray = [];
+
         let bankDetails = (req.body?.bank_details) || [];
         let vendorLinkDetails = (req.body?.vendorLinks) || [];
+
+        let paymentMethodDetails = (req.body?.paymentMethod) || [];
+
 
         //bank details obj in add vender id
         if (bankDetails.length) {
@@ -67,9 +73,21 @@ exports.createVendorData = async (req, res) => {
             });
         }
 
+        if (paymentMethodDetails.length) {
+            await paymentMethodDetails.forEach(element => {
+                element.vendor_id = vendorDataSaved._id;
+                element.created_by = created_by;
+                paymentMethodUpdatedArray.push(element);
+            });
+        }
+
+
         //add data in db collection
         await bankDetailsModel.insertMany(bankDataUpdatedArray);
         await vendorGroupLinkModel.insertMany(vendorlinksUpdatedArray);
+
+        await paymentMethodModel.insertMany(paymentMethodUpdatedArray);
+
 
         //send success response
         return response.returnTrue(
@@ -114,70 +132,40 @@ exports.getVendorDetails = async (req, res) => {
  */
 exports.getAllVendorList = async (req, res) => {
     try {
-        const page = (req.query.page && parseInt(req.query.page)) || null;
-        const limit = (req.query.limit && parseInt(req.query.limit)) || null;
+        // Extract page and limit from query parameters, default to null if not provided
+        const page = req.query?.page ? parseInt(req.query.page) : null;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+
+        // Calculate the number of records to skip based on the current page and limit
         const skip = (page && limit) ? (page - 1) * limit : 0;
-        let vendorDataList;
 
-        let matchQuery = {
-            status: { $ne: constant.DELETED }
-        };
+        // Retrieve the list of records with pagination applied
+        const vendorList = await vendorModel.find({
+            status: {
+                $ne: constant.DELETED
+            }
+        }).skip(skip).limit(limit);
 
-        let addFieldsObj = {
-            $addFields: {
-                pan_image_url: {
-                    $cond: {
-                        if: { $ne: ["$pan_image", ""] },
-                        then: {
-                            $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
-                                "/",
-                                "$pan_image",
-                            ],
-                        },
-                        else: "$pan_image",
-                    },
-                },
-                gst_image_url: {
-                    $cond: {
-                        if: { $ne: ["$gst_image", ""] },
-                        then: {
-                            $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
-                                "/",
-                                "$gst_image",
-                            ],
-                        },
-                        else: "$gst_image",
-                    },
-                },
-            },
-        };
+        // Get the total count of records in the collection
+        const vendorsCount = await vendorModel.countDocuments();
 
-        const pipeline = [{ $match: matchQuery }, addFieldsObj];
-
-        if (page && limit) {
-            pipeline.push(
-                { $skip: skip },
-                { $limit: limit }
-            );
+        // If no records are found, return a response indicating no records found
+        if (vendorList.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
         }
-
-        vendorDataList = await vendorModel.aggregate(pipeline);
-        const vendorDataCount = await vendorModel.countDocuments(matchQuery);
-
+        // Return a success response with the list of records and pagination details
         return response.returnTrueWithPagination(
             200,
             req,
             res,
-            "Vendor data list fetched successfully!",
-            vendorDataList,
+            "Vendor list retrieved successfully!",
+            vendorList,
             {
-                start_record: skip + 1,
-                end_record: skip + vendorDataList.length,
-                total_records: vendorDataCount,
+                start_record: page && limit ? skip + 1 : 1,
+                end_record: page && limit ? skip + vendorList.length : vendorList.length,
+                total_records: vendorsCount,
                 current_page: page || 1,
-                total_page: page && limit ? Math.ceil(vendorDataCount / limit) : 1,
+                total_page: page && limit ? Math.ceil(vendorsCount / limit) : 1,
             }
         );
     } catch (error) {
@@ -188,8 +176,10 @@ exports.getAllVendorList = async (req, res) => {
 
 exports.updateVendorData = async (req, res) => {
     try {
-        const { vendor_id } = req.params; // Assuming vendor_id is passed as a URL parameter
-        const { vendor_type, vendor_platform, pay_cycle, bank_name, company_details, payment_method, primary_field, vendor_name,
+        const { vendor_id } = req.params;
+
+        // Assuming vendor_id is passed as a URL parameter
+        const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, payment_method, primary_field, vendor_name,
             home_pincode, country_code, mobile, alternate_mobile, email, personal_address, home_address, home_city, home_state,
             vendor_category, updated_by } = req.body;
 
@@ -206,6 +196,7 @@ exports.updateVendorData = async (req, res) => {
         existingVendor.bank_name = bank_name;
         existingVendor.company_details = company_details;
         existingVendor.payment_method = payment_method;
+        existingVendor.page_count = page_count;
         existingVendor.primary_field = primary_field;
         existingVendor.vendor_name = vendor_name;
         existingVendor.home_pincode = home_pincode;
@@ -214,32 +205,11 @@ exports.updateVendorData = async (req, res) => {
         existingVendor.alternate_mobile = alternate_mobile;
         existingVendor.email = email;
         existingVendor.personal_address = personal_address;
-        // existingVendor.pan_no = pan_no;
-        // existingVendor.gst_no = gst_no;
-        // existingVendor.threshold_limit = threshold_limit;
         existingVendor.home_address = home_address;
         existingVendor.home_city = home_city;
         existingVendor.home_state = home_state;
         existingVendor.updated_by = updated_by;
         existingVendor.vendor_category = vendor_category;
-
-        // const imageFields = {
-        //     pan_image: 'PanImages',
-        //     gst_image: 'GstImages',
-        // };
-
-        // // Remove old images not present in new data and upload new images
-        // for (const [fieldName] of Object.entries(imageFields)) {
-        //     if (req.files && req.files[fieldName] && req.files[fieldName][0]) {
-
-        //         // Delete old image if present
-        //         if (existingVendor[fieldName]) {
-        //             await deleteImage(`PMS2VendorImages/${existingVendor[fieldName]}`);
-        //         }
-        //         // Upload new image
-        //         existingVendor[fieldName] = await uploadImage(req.files[fieldName][0], "PMS2VendorImages");
-        //     }
-        // }
 
         // Save updated vendor data
         const updatedVendorData = await existingVendor.save();
@@ -247,8 +217,10 @@ exports.updateVendorData = async (req, res) => {
             return response.returnFalse(500, req, res, `Oops! Something went wrong while updating vendor data.`, {});
         }
 
-        let bankDetails = (req.body?.bank_details && JSON.parse(req.body.bank_details)) || [];
-        let vendorLinkDetails = (req.body?.vendorLinks && JSON.parse(req.body.vendorLinks)) || [];
+        // let bankDetails = (req.body?.bank_details && JSON.parse(req.body.bank_details)) || [];
+        // let vendorLinkDetails = (req.body?.vendorLinks && JSON.parse(req.body.vendorLinks)) || [];
+        let bankDetails = (req.body?.bank_details) || [];
+        let vendorLinkDetails = (req.body?.vendorLinks) || [];
 
         //update bank details
         if (bankDetails.length && Array.isArray(bankDetails)) {
@@ -299,8 +271,9 @@ exports.updateVendorData = async (req, res) => {
 exports.updateVendorDetails = async (req, res) => {
     try {
         const { id } = req.params;
-        const { vendor_type, vendor_platform, pay_cycle, payment_method, bank_name, vendor_name, country_code, mobile,
-            alternate_mobile, email, personal_address, home_address, home_city, home_state, updated_by, vendor_category } = req.body;
+        const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, payment_method, primary_field,
+            vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
+            home_address, home_city, home_state, vendor_category, } = req.body;
 
         let updateVendordata = {
             vendor_type,
@@ -311,29 +284,19 @@ exports.updateVendorDetails = async (req, res) => {
             payment_method,
             primary_field,
             vendor_name,
+            page_count,
             home_pincode,
             country_code,
             mobile,
             alternate_mobile,
             email,
             personal_address,
-            // pan_no,
-            //gst_no,
-            // threshold_limit,
             home_address,
             home_city,
             vendor_category,
             home_state,
             updated_by
         }
-
-        // if (req.files?.pan_image && req.files.pan_image[0]) {
-        //     updateVendordata.pan_image = await uploadImage(req.files.pan_image[0]);
-        // }
-
-        // if (req.files?.gst_image && req.files.gst_image[0]) {
-        //     updateVendordata.gst_image = await uploadImage(req.files.gst_image[0]);
-        // }
 
         const updateResult = await vendorModel.updateOne({
             _id: id

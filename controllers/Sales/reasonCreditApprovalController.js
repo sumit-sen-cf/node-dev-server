@@ -92,8 +92,10 @@ exports.getReasonCreditApprovalList = async (req, res) => {
         const limit = req.query?.limit ? parseInt(req.query.limit) : null;
         // Calculate the number of records to skip based on the current page and limit
         const skip = (page && limit) ? (page - 1) * limit : 0;
+        const sort = { createdAt: -1 };
+
         // Retrieve the list of records with pagination applied
-        const reasonCreditApprovalList = await saleReasonCreditApprovalModel.find().skip(skip).limit(limit);
+        const reasonCreditApprovalList = await saleReasonCreditApprovalModel.find().skip(skip).limit(limit).sort(sort);
         // Get the total count of records in the collection
         const reasonCreditApprovalCount = await saleReasonCreditApprovalModel.countDocuments();
         // If no records are found, return a response indicating no records found

@@ -9,6 +9,11 @@ const bankDetailsSchema = new mongoose.Schema({
         required: true,
         ref: "pms2VendorModel"
     },
+    payment_method: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "pms2paymentmethodmodels"
+    },
     bank_name: {
         type: String,
         required: false,
