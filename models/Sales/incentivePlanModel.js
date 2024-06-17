@@ -3,10 +3,11 @@ const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
 const salesIncentivePlan = new Schema({
-    sales_service_id: {
+    sales_service_master_id: {
         type: Schema.Types.ObjectId,
-        required: false,
-        ref: "salesServiceMasterModel"
+        required: true,
+        unique: true,
+        ref: "salesServiceMasterModel",
     },
     incentive_type: {
         type: String,

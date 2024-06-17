@@ -540,7 +540,6 @@ exports.getSalesBookingDetail = async (req, res) => {
 exports.salesDataOfAccountOutstanding = async (req, res) => {
     try {
         const gstStatus = req.body.gst_status;
-        console.log("GST Status:", gstStatus);
         // Initialize match stage
         let matchStage = {};
         if (gstStatus !== undefined) {
@@ -688,7 +687,7 @@ exports.salesDataOfUserOutstanding = async (req, res) => {
                     account_name: { $first: "$accountMasterData.account_name" },
                     registered_by: { $first: "$accountMasterData.created_by" },
                     requested_amount: { $first: "$requested_amount" },
-                    registered_by_name: { $first: "$user.created_by_name" },
+                    registered_by_name: { $first: "$user.user_name" },
                     createdAt: { $first: "$createdAt" },
                     updatedAt: { $first: "$updatedAt" },
                     total_purchase_amount: { $sum: "$campaign_amount" },
