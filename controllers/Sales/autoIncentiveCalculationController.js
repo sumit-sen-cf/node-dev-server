@@ -149,12 +149,12 @@ exports.deleteAutoIncentiveCalculation = async (req, res) => {
             {
                 _id: id,
                 status: { $ne: constant.DELETED }
-            },{
-                $set: {
-                    // Update the status to DELETED
-                    status: constant.DELETED,
-                },
+            }, {
+            $set: {
+                // Update the status to DELETED
+                status: constant.DELETED,
             },
+        },
             { new: true }
         );
         // If no record is found or updated, return a response indicating no record found

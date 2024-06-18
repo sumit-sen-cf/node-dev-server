@@ -46,7 +46,7 @@ const autoIncentiveCalculation = new Schema({
         required: false,
         default: constant?.ACTIVE,
     },
-},
-    { timestamps: true },
-);
-module.exports = mongoose.model('salesAutoIncentiveCalculation', autoIncentiveCalculation);
+}, {
+    timestamps: true
+});
+module.exports = mongoose.model('salesAutoIncentiveCalculationModel', autoIncentiveCalculation);

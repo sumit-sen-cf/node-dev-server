@@ -260,6 +260,7 @@ exports.updateMultipleRecordService = async (req, res) => {
         }
 
         let totalIncentiveAmount = 0;
+        let totalRecordServiceAmount = 0;
         //Record service details obj add in array
         if (recordServiceDetails.length && Array.isArray(recordServiceDetails)) {
             for (let element of recordServiceDetails) {
@@ -277,6 +278,7 @@ exports.updateMultipleRecordService = async (req, res) => {
                     //record service wise incentive calculate
                     const incentiveAmount = await getIncentiveAmountRecordServiceWise(updatedData.sales_service_master_id, updatedData.amount);
                     totalIncentiveAmount += incentiveAmount;
+                    totalRecordServiceAmount += updatedData.amount;
                 } else {
                     // New document: insert it
                     element.created_by = updated_by;
@@ -286,6 +288,7 @@ exports.updateMultipleRecordService = async (req, res) => {
                     //record service wise incentive calculate
                     const incentiveAmount = await getIncentiveAmountRecordServiceWise(createdData.sales_service_master_id, createdData.amount);
                     totalIncentiveAmount += incentiveAmount;
+                    totalRecordServiceAmount += createdData.amount;
                 }
             }
         }
@@ -295,7 +298,8 @@ exports.updateMultipleRecordService = async (req, res) => {
             sale_booking_id: saleBookingId
         }, {
             $set: {
-                incentive_amount: totalIncentiveAmount
+                incentive_amount: totalIncentiveAmount,
+                record_service_amount: totalRecordServiceAmount
             }
         })
 
