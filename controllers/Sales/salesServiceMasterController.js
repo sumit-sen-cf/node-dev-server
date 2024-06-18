@@ -121,8 +121,9 @@ exports.getServiceMasterList = async (req, res) => {
         const page = req.query?.page ? parseInt(req.query.page) : null;
         const limit = req.query?.limit ? parseInt(req.query.limit) : null;
         const skip = (page && limit) ? (page - 1) * limit : 0;
+        const sort = { createdAt: -1 };
 
-        const serviceMasterList = await salesServiceMasterModel.find().skip(skip).limit(limit);
+        const serviceMasterList = await salesServiceMasterModel.find().skip(skip).limit(limit).sort(sort);
         const serviceMasterCount = await salesServiceMasterModel.countDocuments();
 
         if (serviceMasterList.length === 0) {

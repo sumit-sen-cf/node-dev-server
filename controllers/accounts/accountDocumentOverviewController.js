@@ -131,7 +131,7 @@ exports.updateDocumentOverview = [
                 document_image_upload: 'DocumentImagesUpload',
             };
 
-            if (req.body?._id) {
+            if (req.body?.id) {
                 // Fetch the old document and update it
                 updatedDocumentOverview = await accountDocumentOverviewModel.findByIdAndUpdate({
                     _id: id
@@ -169,11 +169,11 @@ exports.updateDocumentOverview = [
             } else {
                 // Store data in the database collection
                 const addCustomerDocumentData = new accountDocumentOverviewModel({
-                    account_id: account_id,
-                    document_master_id: document_master_id,
-                    document_no: document_no,
-                    description: description,
-                    created_by: created_by,
+                    account_id: req.body.account_id,
+                    document_master_id: req.body.document_master_id,
+                    document_no: req.body.document_no,
+                    description: req.body.description,
+                    updated_by: req.body.updated_by,
                 });
 
                 for (const [field] of Object.entries(imageFields)) {            //itreates 
@@ -182,8 +182,8 @@ exports.updateDocumentOverview = [
                     }
                 }
                 await addCustomerDocumentData.save();
+                updatedDocumentOverview = addCustomerDocumentData;
             }
-            
             //send success response
             return res.status(200).json({
                 status: 200,

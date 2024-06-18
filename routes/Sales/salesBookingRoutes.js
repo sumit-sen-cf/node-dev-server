@@ -24,8 +24,11 @@ router.get("/sales/account_sale_booking/:id", verifyToken, Sales.getSalesBooking
 router.get("/sales/credit_approval_status_for_sales_booking_list", Sales.getAllStatusForCreditApprovalSalesBookingList);
 router.put("/sales/credit_approval_status_status_change/:id", Sales.editCreditApprovalStatusChange);
 
-router.get("/sales/account_wise_status", verifyToken, Sales.salesDataOfAccountOutstanding);
-router.get("/sales/user_wise_status", verifyToken, Sales.salesDataOfUserOutstanding);
+router.get("/sales/account_outstanding", verifyToken, Sales.salesDataOfAccountOutstanding);
+router.get("/sales/sales_executive_outstanding", verifyToken, Sales.salesDataOfUserOutstanding);
+
+router.get("/sales/sales_executive", verifyToken, Sales.salesBookingIncentiveData);
+
 
 
 module.exports = router; 

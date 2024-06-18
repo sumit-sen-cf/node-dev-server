@@ -7,7 +7,9 @@ const recordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
 const { saleBookingStatus } = require("../../helper/status.js");
+const { getIncentiveAmountRecordServiceWise } = require("../../helper/functions.js");
 const path = require('path');
+const moment = require('moment');
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -62,7 +64,7 @@ exports.addSalesBooking = [
                 sale_booking_type: req.body.sale_booking_type,
                 service_taken_amount: req.body.service_taken_amount,
                 get_incentive_status: req.body.get_incentive_status,
-                incentive_amount: req.body.incentive_amount,
+                // incentive_amount: req.body.incentive_amount,
                 earned_incentive_amount: req.body.earned_incentive_amount,
                 unearned_incentive_amount: req.body.unearned_incentive_amount,
                 payment_type: req.body.payment_type,
@@ -110,6 +112,23 @@ exports.addSalesBooking = [
 
             //add data in db collection
             const recordServicesData = await recordServiceModel.insertMany(recordServicesDataUpdatedArray);
+
+            let totalIncentiveAmount = 0;
+            for (let index = 0; index < recordServicesData.length; index++) {
+                const element = recordServicesData[index];
+                const incentiveAmount = await getIncentiveAmountRecordServiceWise(element.sales_service_master_id, element.amount);
+                //total incentive amount get from record service
+                totalIncentiveAmount += incentiveAmount;
+            }
+
+            //update incentive amount in sale booking collection
+            await salesBookingModel.updateOne({
+                sale_booking_id: saleBookingAdded.sale_booking_id
+            }, {
+                $set: {
+                    incentive_amount: totalIncentiveAmount
+                }
+            })
 
             //success response send
             return response.returnTrue(200, req, res,
@@ -160,7 +179,7 @@ exports.editSalesBooking = [
                 sale_booking_type: req.body.sale_booking_type,
                 service_taken_amount: req.body.service_taken_amount,
                 get_incentive_status: req.body.get_incentive_status,
-                incentive_amount: req.body.incentive_amount,
+                // incentive_amount: req.body.incentive_amount,
                 earned_incentive_amount: req.body.earned_incentive_amount,
                 unearned_incentive_amount: req.body.unearned_incentive_amount,
                 payment_type: req.body.payment_type,
@@ -224,6 +243,7 @@ exports.getAllSalesBooking = async (req, res) => {
         const page = (req.query?.page && parseInt(req.query.page)) || null;
         const limit = (req.query?.limit && parseInt(req.query.limit)) || null;
         const skip = (page && limit) ? (page - 1) * limit : 0;
+        const sort = { createdAt: -1 };
 
         let addFieldsObj = {
             $addFields: {
@@ -248,7 +268,8 @@ exports.getAllSalesBooking = async (req, res) => {
         if (page && limit) {
             pipeline.push(
                 { $skip: skip },
-                { $limit: limit }
+                { $limit: limit },
+                { $sort: sort }
             );
         }
 
@@ -540,7 +561,6 @@ exports.getSalesBookingDetail = async (req, res) => {
 exports.salesDataOfAccountOutstanding = async (req, res) => {
     try {
         const gstStatus = req.body.gst_status;
-        console.log("GST Status:", gstStatus);
         // Initialize match stage
         let matchStage = {};
         if (gstStatus !== undefined) {
@@ -688,7 +708,7 @@ exports.salesDataOfUserOutstanding = async (req, res) => {
                     account_name: { $first: "$accountMasterData.account_name" },
                     registered_by: { $first: "$accountMasterData.created_by" },
                     requested_amount: { $first: "$requested_amount" },
-                    registered_by_name: { $first: "$user.created_by_name" },
+                    registered_by_name: { $first: "$user.user_name" },
                     createdAt: { $first: "$createdAt" },
                     updatedAt: { $first: "$updatedAt" },
                     total_purchase_amount: { $sum: "$campaign_amount" },
@@ -733,3 +753,73 @@ exports.salesDataOfUserOutstanding = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 }
+
+exports.salesBookingIncentiveData = async (req, res) => {
+    try {
+        const salesBookingIncentiveData = await salesBookingModel.aggregate([
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "created_by",
+                    foreignField: "user_id",
+                    as: "user",
+                },
+            },{
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },{
+                $project: {
+                    _id: "_id",
+                    created_by_name: "$user.user_name",
+                    sale_booking_date: 1,
+                    campaign_name: 1,
+                    campaign_amount: 1,
+                    description: 1,
+                    credit_approval_status: 1,
+                    reason_credit_approval: 1,
+                    gst_status: 1,
+                    balance_payment_ondate: 1,
+                    payment_credit_status: 1,
+                    booking_status: 1,
+                    sale_booking_id: 1,
+                    account_id: 1,
+                    account_name: 1,
+                    requested_amount: 1,
+                    registered_by_name: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    created_by: 1,
+                    total_sale_booking_amount: { $sum: "$campaign_amount" },
+                    total_incentive_amount: { $sum: "$incentive_amount" },
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        created_by_name: "$created_by_name",
+                        userName: "$user.user_name",
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    sale_booking: { $push: "$$ROOT" }
+                }
+            },
+        ]);
+
+        if (!salesBookingIncentiveData.length) {
+            return response.returnFalse(200, req, res, "No Record Found...", []);
+        }
+
+        return response.returnTrue(200, req, res,
+            "Sales Booking Status data retrieved",
+            salesBookingIncentiveData
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
+
+
+

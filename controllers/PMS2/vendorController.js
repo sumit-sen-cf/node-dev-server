@@ -1,12 +1,13 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
 const bankDetailsModel = require("../../models/PMS2/bankDetailsModel");
+const paymentMethodModel = require("../../models/PMS2/paymentMethodModel");
 const vendorGroupLinkModel = require("../../models/PMS2/vendorGroupLinkModel");
 const vendorModel = require("../../models/PMS2/vendorModel");
 
 exports.createVendorData = async (req, res) => {
     try {
-        const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, payment_method, primary_field,
+        const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, primary_field,
             vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
             home_address, home_city, home_state, created_by, vendor_category, } = req.body;
         const addVendorData = new vendorModel({
@@ -15,7 +16,6 @@ exports.createVendorData = async (req, res) => {
             pay_cycle,
             bank_name,
             company_details,
-            payment_method,
             primary_field,
             vendor_name,
             home_pincode,
@@ -45,8 +45,12 @@ exports.createVendorData = async (req, res) => {
 
         let bankDataUpdatedArray = [];
         let vendorlinksUpdatedArray = [];
+        let paymentMethodUpdatedArray = [];
+
         let bankDetails = (req.body?.bank_details) || [];
         let vendorLinkDetails = (req.body?.vendorLinks) || [];
+        let paymentMethodDetails = (req.body?.paymentMethod) || [];
+
 
         //bank details obj in add vender id
         if (bankDetails.length) {
@@ -65,10 +69,20 @@ exports.createVendorData = async (req, res) => {
                 vendorlinksUpdatedArray.push(element);
             });
         }
+        
+        //payment method details obj in add vender id
+        if (paymentMethodDetails.length) {
+            await paymentMethodDetails.forEach(element => {
+                element.vendor_id = vendorDataSaved._id;
+                element.created_by = created_by;
+                paymentMethodUpdatedArray.push(element);
+            });
+        }
 
         //add data in db collection
         await bankDetailsModel.insertMany(bankDataUpdatedArray);
         await vendorGroupLinkModel.insertMany(vendorlinksUpdatedArray);
+        await paymentMethodModel.insertMany(paymentMethodUpdatedArray);
 
         //send success response
         return response.returnTrue(
@@ -160,7 +174,7 @@ exports.updateVendorData = async (req, res) => {
         const { vendor_id } = req.params;
 
         // Assuming vendor_id is passed as a URL parameter
-        const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, payment_method, primary_field, vendor_name,
+        const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, primary_field, vendor_name,
             home_pincode, country_code, mobile, alternate_mobile, email, personal_address, home_address, home_city, home_state,
             vendor_category, updated_by } = req.body;
 
@@ -176,7 +190,6 @@ exports.updateVendorData = async (req, res) => {
         existingVendor.pay_cycle = pay_cycle;
         existingVendor.bank_name = bank_name;
         existingVendor.company_details = company_details;
-        existingVendor.payment_method = payment_method;
         existingVendor.page_count = page_count;
         existingVendor.primary_field = primary_field;
         existingVendor.vendor_name = vendor_name;
@@ -202,6 +215,8 @@ exports.updateVendorData = async (req, res) => {
         // let vendorLinkDetails = (req.body?.vendorLinks && JSON.parse(req.body.vendorLinks)) || [];
         let bankDetails = (req.body?.bank_details) || [];
         let vendorLinkDetails = (req.body?.vendorLinks) || [];
+        let paymentMethodDetails = (req.body?.payment_method) || [];
+
 
         //update bank details
         if (bankDetails.length && Array.isArray(bankDetails)) {
@@ -242,6 +257,27 @@ exports.updateVendorData = async (req, res) => {
                 }
             }
         }
+
+        //update payment_method
+        if (paymentMethodDetails.length && Array.isArray(paymentMethodDetails)) {
+            for (const element of paymentMethodDetails) {
+                if (element?._id) {
+                    // Existing document: update it
+                    element.updated_by = updated_by;
+                    await paymentMethodModel.updateOne({
+                        _id: element._id
+                    }, {
+                        $set: element
+                    });
+                } else {
+                    // New document: insert it
+                    element.created_by = updated_by;
+                    element.vendor_id = vendor_id;
+                    await paymentMethodModel.create(element);
+                }
+            }
+        }
+
         // Send success response
         return response.returnTrue(200, req, res, "Vendor data updated successfully!", updatedVendorData);
     } catch (error) {
@@ -252,7 +288,7 @@ exports.updateVendorData = async (req, res) => {
 exports.updateVendorDetails = async (req, res) => {
     try {
         const { id } = req.params;
-        const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, payment_method, primary_field,
+        const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, primary_field,
             vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
             home_address, home_city, home_state, vendor_category, } = req.body;
 
@@ -262,7 +298,6 @@ exports.updateVendorDetails = async (req, res) => {
             pay_cycle,
             bank_name,
             company_details,
-            payment_method,
             primary_field,
             vendor_name,
             page_count,
