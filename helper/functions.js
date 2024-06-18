@@ -1,5 +1,5 @@
 //db models
-const response = require("../common/response");    
+const response = require("../common/response");
 const autoIncentiveCalculationModel = require("../models/Sales/autoIncentiveCalculationModel");
 const incentivePlanModel = require("../models/Sales/incentivePlanModel");
 
@@ -82,8 +82,7 @@ module.exports = {
                         _id: {
                             created_by_name: "$created_by_name",
                             userName: "$user.user_name",
-                            year: { $year: "$createdAt" },
-                            month: { $month: "$createdAt" },
+                            month_year: "$month_year"
                         },
                         auto_incentive_calculation: { $push: "$$ROOT" },
                     },

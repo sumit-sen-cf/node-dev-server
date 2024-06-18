@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const constant = require("../../common/constant");
+const { required } = require("joi");
 
 const autoIncentiveCalculation = new Schema({
     month_year: {
@@ -16,6 +17,10 @@ const autoIncentiveCalculation = new Schema({
         required: false
     },
     paid_amount: {
+        type: Number,
+        required: false
+    },
+    record_service_amount: {
         type: Number,
         required: false
     },
