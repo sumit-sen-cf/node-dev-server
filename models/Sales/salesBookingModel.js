@@ -43,6 +43,11 @@ const salesBooking = new mongoose.Schema({
         required: false,
         default: 0
     },
+    record_service_amount: {
+        type: Number,
+        required: false,
+        default: 0
+    },
     brand_id: {
         type: Schema.Types.ObjectId,
         required: false,
@@ -121,6 +126,11 @@ const salesBooking = new mongoose.Schema({
         type: String,
         enum: ['incentive', 'no-incentive', 'sharing'],//0-2
     },
+    incentive_earning_status: {
+        type: String,
+        enum: ['earned', 'un-earned'],
+        default: 'un-earned'
+    },
     payment_credit_status: {
         type: String,
         enum: ['sent_for_payment_approval', 'sent_for_credit_approval', 'self_credit_used'],//0-1
@@ -165,10 +175,6 @@ const salesBooking = new mongoose.Schema({
         type: Number,
         required: false,
         default: 0
-    },
-    get_incentive_status: {
-        type: Boolean,        //f=no incentive, t=incentive-applicable
-        required: false,
     },
     incentive_amount: {
         type: Number,

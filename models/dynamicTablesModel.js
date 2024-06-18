@@ -4,7 +4,7 @@ const dynamicTablesSchema = new mongoose.Schema({
     table_name: {
         type: String,
         required: false,
-        unique: true,
+        unique: true
     },
     user_id: {
         type: Number,

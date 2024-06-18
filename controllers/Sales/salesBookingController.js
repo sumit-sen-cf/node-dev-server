@@ -63,7 +63,6 @@ exports.addSalesBooking = [
                 old_sale_booking_id: req.body.old_sale_booking_id,
                 sale_booking_type: req.body.sale_booking_type,
                 service_taken_amount: req.body.service_taken_amount,
-                get_incentive_status: req.body.get_incentive_status,
                 // incentive_amount: req.body.incentive_amount,
                 earned_incentive_amount: req.body.earned_incentive_amount,
                 unearned_incentive_amount: req.body.unearned_incentive_amount,
@@ -114,8 +113,10 @@ exports.addSalesBooking = [
             const recordServicesData = await recordServiceModel.insertMany(recordServicesDataUpdatedArray);
 
             let totalIncentiveAmount = 0;
+            let totalRecordServiceAmount = 0;
             for (let index = 0; index < recordServicesData.length; index++) {
                 const element = recordServicesData[index];
+                totalRecordServiceAmount += element?.amount;
                 const incentiveAmount = await getIncentiveAmountRecordServiceWise(element.sales_service_master_id, element.amount);
                 //total incentive amount get from record service
                 totalIncentiveAmount += incentiveAmount;
@@ -126,7 +127,8 @@ exports.addSalesBooking = [
                 sale_booking_id: saleBookingAdded.sale_booking_id
             }, {
                 $set: {
-                    incentive_amount: totalIncentiveAmount
+                    incentive_amount: totalIncentiveAmount,
+                    record_service_amount: totalRecordServiceAmount
                 }
             })
 
@@ -178,7 +180,6 @@ exports.editSalesBooking = [
                 old_sale_booking_id: req.body.old_sale_booking_id,
                 sale_booking_type: req.body.sale_booking_type,
                 service_taken_amount: req.body.service_taken_amount,
-                get_incentive_status: req.body.get_incentive_status,
                 // incentive_amount: req.body.incentive_amount,
                 earned_incentive_amount: req.body.earned_incentive_amount,
                 unearned_incentive_amount: req.body.unearned_incentive_amount,
@@ -764,12 +765,12 @@ exports.salesBookingIncentiveData = async (req, res) => {
                     foreignField: "user_id",
                     as: "user",
                 },
-            },{
+            }, {
                 $unwind: {
                     path: "$user",
                     preserveNullAndEmptyArrays: true,
                 },
-            },{
+            }, {
                 $project: {
                     _id: "_id",
                     created_by_name: "$user.user_name",
