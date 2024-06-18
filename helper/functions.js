@@ -1,5 +1,5 @@
 //db models
-const response = require("../common/response");
+const response = require("../common/response");    
 const autoIncentiveCalculationModel = require("../models/Sales/autoIncentiveCalculationModel");
 const incentivePlanModel = require("../models/Sales/incentivePlanModel");
 
