@@ -7,6 +7,7 @@ const recordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
 const { saleBookingStatus } = require("../../helper/status.js");
+const { getIncentiveAmountRecordServiceWise } = require("../../helper/functions.js");
 const path = require('path');
 
 const upload = multer({
@@ -62,7 +63,7 @@ exports.addSalesBooking = [
                 sale_booking_type: req.body.sale_booking_type,
                 service_taken_amount: req.body.service_taken_amount,
                 get_incentive_status: req.body.get_incentive_status,
-                incentive_amount: req.body.incentive_amount,
+                // incentive_amount: req.body.incentive_amount,
                 earned_incentive_amount: req.body.earned_incentive_amount,
                 unearned_incentive_amount: req.body.unearned_incentive_amount,
                 payment_type: req.body.payment_type,
@@ -110,6 +111,23 @@ exports.addSalesBooking = [
 
             //add data in db collection
             const recordServicesData = await recordServiceModel.insertMany(recordServicesDataUpdatedArray);
+
+            let totalIncentiveAmount = 0;
+            for (let index = 0; index < recordServicesData.length; index++) {
+                const element = recordServicesData[index];
+                const incentiveAmount = await getIncentiveAmountRecordServiceWise(element.sales_service_master_id, element.amount);
+                //total incentive amount get from record service
+                totalIncentiveAmount += incentiveAmount;
+            }
+
+            //update incentive amount in sale booking collection
+            await salesBookingModel.updateOne({
+                sale_booking_id: saleBookingAdded.sale_booking_id
+            }, {
+                $set: {
+                    incentive_amount: totalIncentiveAmount
+                }
+            })
 
             //success response send
             return response.returnTrue(200, req, res,
@@ -160,7 +178,7 @@ exports.editSalesBooking = [
                 sale_booking_type: req.body.sale_booking_type,
                 service_taken_amount: req.body.service_taken_amount,
                 get_incentive_status: req.body.get_incentive_status,
-                incentive_amount: req.body.incentive_amount,
+                // incentive_amount: req.body.incentive_amount,
                 earned_incentive_amount: req.body.earned_incentive_amount,
                 unearned_incentive_amount: req.body.unearned_incentive_amount,
                 payment_type: req.body.payment_type,

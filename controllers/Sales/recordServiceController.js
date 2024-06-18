@@ -1,8 +1,10 @@
 const multer = require("multer");
-const salesRecordServiceModel = require("../../models/Sales/recordServiceModel.js");
-const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage.js");
 const response = require("../../common/response.js");
 const constant = require("../../common/constant.js");
+const salesBookingModel = require("../../models/Sales/salesBookingModel");
+const salesRecordServiceModel = require("../../models/Sales/recordServiceModel.js");
+const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage.js");
+const { getIncentiveAmountRecordServiceWise } = require("../../helper/functions.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -257,25 +259,46 @@ exports.updateMultipleRecordService = async (req, res) => {
             }
         }
 
+        let totalIncentiveAmount = 0;
         //Record service details obj add in array
         if (recordServiceDetails.length && Array.isArray(recordServiceDetails)) {
             for (let element of recordServiceDetails) {
                 if (element?._id) {
                     // Existing document: update it
                     element.updated_by = updated_by;
-                    await salesRecordServiceModel.updateOne({
+                    const updatedData = await salesRecordServiceModel.findByIdAndUpdate({
                         _id: element._id
                     }, {
                         $set: element
+                    }, {
+                        new: true
                     });
+
+                    //record service wise incentive calculate
+                    const incentiveAmount = await getIncentiveAmountRecordServiceWise(updatedData.sales_service_master_id, updatedData.amount);
+                    totalIncentiveAmount += incentiveAmount;
                 } else {
                     // New document: insert it
                     element.created_by = updated_by;
                     element.sale_booking_id = saleBookingId;
-                    await salesRecordServiceModel.create(element);
+                    const createdData = await salesRecordServiceModel.create(element);
+
+                    //record service wise incentive calculate
+                    const incentiveAmount = await getIncentiveAmountRecordServiceWise(createdData.sales_service_master_id, createdData.amount);
+                    totalIncentiveAmount += incentiveAmount;
                 }
             }
         }
+
+        //update incentive amount in sale booking collection
+        await salesBookingModel.updateOne({
+            sale_booking_id: saleBookingId
+        }, {
+            $set: {
+                incentive_amount: totalIncentiveAmount
+            }
+        })
+
         //send success response
         return res.status(200).json({
             status: 200,
