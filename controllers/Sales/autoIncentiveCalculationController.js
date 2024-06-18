@@ -1,5 +1,3 @@
-const { message } = require("../../common/message")
-const mongoose = require("mongoose");
 const autoIncentiveCalculationModel = require("../../models/Sales/autoIncentiveCalculationModel");
 const response = require("../../common/response");
 const constant = require("../../common/constant");
