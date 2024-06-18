@@ -41,7 +41,7 @@ module.exports = {
         })
     },
 
-    async getSalesBookingIncentiveData() {
+    async getAutoIncentiveCalculationData() {
         try {
             const autoIncentiveCalculationDetails = await autoIncentiveCalculationModel.aggregate([
                 {
@@ -62,26 +62,19 @@ module.exports = {
                     $project: {
                         _id: 1,
                         created_by_name: "$user.user_name",
-                        sale_booking_date: 1,
-                        campaign_name: 1,
+                        month_year: 1,
+                        sales_executive_id: 1,
                         campaign_amount: 1,
-                        description: 1,
-                        credit_approval_status: 1,
-                        reason_credit_approval: 1,
-                        gst_status: 1,
-                        balance_payment_ondate: 1,
-                        payment_credit_status: 1,
-                        booking_status: 1,
-                        sale_booking_id: 1,
-                        account_id: 1,
-                        account_name: 1,
-                        requested_amount: 1,
-                        registered_by_name: 1,
+                        paid_amount: 1,
+                        incentive_amount: 1,
+                        earned_incentive: 1,
+                        unearned_incentive: 1,
+                        created_by: 1,
                         createdAt: 1,
                         updatedAt: 1,
                         created_by: 1,
-                        total_sale_booking_amount: { $sum: "$campaign_amount" },
-                        total_incentive_amount: { $sum: "$incentive_amount" },
+                        // total_sale_booking_amount: { $sum: "$campaign_amount" },
+                        // total_incentive_amount: { $sum: "$incentive_amount" },
                     },
                 },
                 {
@@ -92,7 +85,7 @@ module.exports = {
                             year: { $year: "$createdAt" },
                             month: { $month: "$createdAt" },
                         },
-                        sale_booking: { $push: "$$ROOT" },
+                        auto_incentive_calculation: { $push: "$$ROOT" },
                     },
                 },
             ]);
