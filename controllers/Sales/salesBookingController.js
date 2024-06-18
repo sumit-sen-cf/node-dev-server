@@ -9,6 +9,7 @@ const constant = require("../../common/constant.js");
 const { saleBookingStatus } = require("../../helper/status.js");
 const { getIncentiveAmountRecordServiceWise } = require("../../helper/functions.js");
 const path = require('path');
+const moment = require('moment');
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -752,3 +753,73 @@ exports.salesDataOfUserOutstanding = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 }
+
+exports.salesBookingIncentiveData = async (req, res) => {
+    try {
+        const salesBookingIncentiveData = await salesBookingModel.aggregate([
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "created_by",
+                    foreignField: "user_id",
+                    as: "user",
+                },
+            },{
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },{
+                $project: {
+                    _id: "_id",
+                    created_by_name: "$user.user_name",
+                    sale_booking_date: 1,
+                    campaign_name: 1,
+                    campaign_amount: 1,
+                    description: 1,
+                    credit_approval_status: 1,
+                    reason_credit_approval: 1,
+                    gst_status: 1,
+                    balance_payment_ondate: 1,
+                    payment_credit_status: 1,
+                    booking_status: 1,
+                    sale_booking_id: 1,
+                    account_id: 1,
+                    account_name: 1,
+                    requested_amount: 1,
+                    registered_by_name: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    created_by: 1,
+                    total_sale_booking_amount: { $sum: "$campaign_amount" },
+                    total_incentive_amount: { $sum: "$incentive_amount" },
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        created_by_name: "$created_by_name",
+                        userName: "$user.user_name",
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    sale_booking: { $push: "$$ROOT" }
+                }
+            },
+        ]);
+
+        if (!salesBookingIncentiveData.length) {
+            return response.returnFalse(200, req, res, "No Record Found...", []);
+        }
+
+        return response.returnTrue(200, req, res,
+            "Sales Booking Status data retrieved",
+            salesBookingIncentiveData
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
+
+
+

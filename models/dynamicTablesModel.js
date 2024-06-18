@@ -3,7 +3,8 @@ const { default: mongoose } = require("mongoose");
 const dynamicTablesSchema = new mongoose.Schema({
     table_name: {
         type: String,
-        required: false
+        required: false,
+        unique: true,
     },
     user_id: {
         type: Number,

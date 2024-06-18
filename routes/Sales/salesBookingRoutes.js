@@ -27,5 +27,8 @@ router.put("/sales/credit_approval_status_status_change/:id", Sales.editCreditAp
 router.get("/sales/account_outstanding", verifyToken, Sales.salesDataOfAccountOutstanding);
 router.get("/sales/sales_executive_outstanding", verifyToken, Sales.salesDataOfUserOutstanding);
 
+router.get("/sales/sales_executive", verifyToken, Sales.salesBookingIncentiveData);
+
+
 
 module.exports = router; 

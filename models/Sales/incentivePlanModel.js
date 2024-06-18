@@ -11,12 +11,12 @@ const salesIncentivePlan = new Schema({
     },
     incentive_type: {
         type: String,
-        required: false,
+        required: true,
         enum: ["fixed", "varaible"],
     },
     value: {
         type: Number,
-        required: false
+        required: true
     },
     remarks: {
         type: String,
