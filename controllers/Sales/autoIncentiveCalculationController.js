@@ -1,19 +1,21 @@
 const autoIncentiveCalculationModel = require("../../models/Sales/autoIncentiveCalculationModel");
 const response = require("../../common/response");
 const constant = require("../../common/constant");
+const salesBookingModel = require("../../models/Sales/salesBookingModel");
 
 /**
  * Api is to used for the auto_incentive_calculation data add in the DB collection.
  */
 exports.createAutoIncentiveCalculation = async (req, res) => {
     try {
-        const { month_year, sales_executive_id, campaign_amount, paid_amount, incentive_amount, earned_incentive, unearned_incentive,
+        const { month_year, sales_executive_id, campaign_amount, paid_amount, record_service_amount, incentive_amount, earned_incentive, unearned_incentive,
             created_by, } = req.body;
         const addAutoIncentiveCalculation = await autoIncentiveCalculationModel.create({
             month_year,
             sales_executive_id,
             campaign_amount,
             paid_amount,
+            record_service_amount,
             incentive_amount,
             earned_incentive,
             unearned_incentive,
@@ -60,7 +62,7 @@ exports.getAutoIncentiveCalculationDetails = async (req, res) => {
 exports.updateAutoIncentiveCalculation = async (req, res) => {
     try {
         const { id } = req.params;
-        const { month_year, sales_executive_id, campaign_amount, paid_amount, incentive_amount, earned_incentive, unearned_incentive,
+        const { month_year, sales_executive_id, campaign_amount, paid_amount, record_service_amount, incentive_amount, earned_incentive, unearned_incentive,
             updated_by } = req.body;
 
         // Extract the id from request parameters
@@ -70,6 +72,7 @@ exports.updateAutoIncentiveCalculation = async (req, res) => {
                 sales_executive_id,
                 campaign_amount,
                 paid_amount,
+                record_service_amount,
                 incentive_amount,
                 earned_incentive,
                 unearned_incentive,
@@ -189,6 +192,64 @@ exports.autoIncentiveCalculationData = async (req, res) => {
         return response.returnTrue(200, req, res,
             "Auto incentive calculation data retrieved",
             autoIncentiveCalculationDetails
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
+
+exports.getAutoIncentiveCalculationMonthWise = async (req, res) => {
+    try {
+        const autoIncentiveCalculationMonthWise = await salesBookingModel.aggregate([
+            {
+                $match: { created_by: Number(req.params.user_id) },
+            }, {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "created_by",
+                    foreignField: "user_id",
+                    as: "user",
+                },
+            }, {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            }, {
+                $project: {
+                    _id: 1,
+                    created_by_name: "$user.user_name",
+                    month_year: 1,
+                    sales_executive_id: 1,
+                    campaign_amount: 1,
+                    paid_amount: 1,
+                    incentive_amount: 1,
+                    earned_incentive: 1,
+                    unearned_incentive: 1,
+                    created_by: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    created_by: 1,
+                    total_sale_booking_amount: { $sum: "$campaign_amount" },
+                    total_incentive_amount: { $sum: "$incentive_amount" },
+                },
+            }, {
+                $group: {
+                    _id: {
+                        created_by_name: "$created_by_name",
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    auto_incentive_calculation: { $push: "$$ROOT" },
+                },
+            },
+        ]);
+        if (!autoIncentiveCalculationMonthWise) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(200, req, res,
+            "Auto incentive calculation month wise data retrieved",
+            autoIncentiveCalculationMonthWise
         );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
