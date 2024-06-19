@@ -79,7 +79,6 @@ exports.updateInvoiceRequest = [
                 invoice_type_id: req.body.invoice_type_id,
                 invoice_particular_id: req.body.invoice_particular_id,
                 purchase_order_number: req.body.purchase_order_number,
-                invoice_number: req.body.invoice_number,
                 invoice_creation_status: req.body.invoice_creation_status,
                 invoice_action_reason: req.body.invoice_action_reason,
                 status: req.body.status,
@@ -146,24 +145,10 @@ exports.getInvoiceRequestDatas = async (req, res) => {
                         else: "$purchase_order_upload",
                     },
                 },
-                invoice_file_url: {
-                    $cond: {
-                        if: { $ne: ["$invoice_file", ""] },
-                        then: {
-                            $concat: [
-                                constant.GCP_INVOICE_REQUEST_URL,
-                                "/",
-                                "$invoice_file",
-                            ],
-                        },
-                        else: "$invoice_file",
-                    },
-                }
             },
         };
 
         const pipeline = [addFieldsObj];
-
         if (page && limit) {
             pipeline.push(
                 { $skip: skip },
@@ -203,8 +188,7 @@ exports.deleteInvoiceRequest = async (req, res) => {
         const { id } = req.params;
         const invoiceRequestDeleted = await invoiceRequestModel.findOneAndUpdate({
             _id: id, status: { $ne: constant.DELETED }
-        },
-            {
+        },{
                 $set: {
                     status: constant.DELETED,
                 },

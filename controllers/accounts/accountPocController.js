@@ -7,14 +7,6 @@ const mongoose = require("mongoose");
  */
 exports.addAccountPoc = async (req, res) => {
     try {
-        const checkDuplicacy = await accountPocModel.findOne({ contact_no: req.body.contact_no });
-        // if check duplicacy contact_no
-        if (checkDuplicacy) {
-            return res.status(403).json({
-                status: 403,
-                message: "Contact number alredy exist!",
-            });
-        }
         const { account_id, contact_name, contact_no, alternative_contact_no, email, department, designation, description, created_by } = req.body;
         //add account data
         const createAccountPocData = await accountPocModel.create({
@@ -37,7 +29,7 @@ exports.addAccountPoc = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             status: 500,
-            message: error.message ? error.message : message.ERROR_MESSAGE,
+            message: error.message ? error.message : "An error occurred while updating account poc data.",
         });
     }
 }
