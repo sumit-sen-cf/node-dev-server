@@ -9,7 +9,6 @@ const upload = multer({
     storage: multer.memoryStorage()
 }).fields([
     { name: "purchase_order_upload", maxCount: 10 },
-    { name: "invoice_file", maxCount: 10 }
 ]);
 
 exports.createInvoiceRequest = [
@@ -20,10 +19,6 @@ exports.createInvoiceRequest = [
                 invoice_type_id: req.body.invoice_type_id,
                 invoice_particular_id: req.body.invoice_particular_id,
                 purchase_order_number: req.body.purchase_order_number,
-                invoice_number: req.body.invoice_number,
-                invoice_date: req.body.invoice_date,
-                party_name: req.body.party_name,
-                invoice_uploaded_date: req.body.invoice_uploaded_date,
                 invoice_creation_status: req.body.invoice_creation_status,
                 invoice_action_reason: req.body.invoice_action_reason,
                 created_by: req.body.created_by,
@@ -32,7 +27,6 @@ exports.createInvoiceRequest = [
             // Define the image fields 
             const imageFields = {
                 purchase_order_upload: 'purchaseUploadFile',
-                invoice_file: "InvoiceFile"
             };
             for (const [field] of Object.entries(imageFields)) {            //itreates 
                 if (req.files[field] && req.files[field][0]) {
@@ -86,9 +80,6 @@ exports.updateInvoiceRequest = [
                 invoice_particular_id: req.body.invoice_particular_id,
                 purchase_order_number: req.body.purchase_order_number,
                 invoice_number: req.body.invoice_number,
-                invoice_date: req.body.invoice_date,
-                party_name: req.body.party_name,
-                invoice_uploaded_date: req.body.invoice_uploaded_date,
                 invoice_creation_status: req.body.invoice_creation_status,
                 invoice_action_reason: req.body.invoice_action_reason,
                 status: req.body.status,
@@ -105,7 +96,6 @@ exports.updateInvoiceRequest = [
             // Define the image fields 
             const imageFields = {
                 purchase_order_upload: 'purchaseUploadFile',
-                invoice_file: "InvoiceFile"
             };
 
             // Remove old images not present in new data and upload new images
