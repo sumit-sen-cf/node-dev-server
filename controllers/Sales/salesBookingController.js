@@ -755,61 +755,69 @@ exports.salesDataOfUserOutstanding = async (req, res) => {
     }
 }
 
+
 exports.salesBookingIncentiveData = async (req, res) => {
     try {
-        const salesBookingIncentiveData = await salesBookingModel.aggregate([
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
-                },
-            }, {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            }, {
-                $project: {
-                    _id: "_id",
-                    created_by_name: "$user.user_name",
-                    sale_booking_date: 1,
-                    campaign_name: 1,
-                    campaign_amount: 1,
-                    description: 1,
-                    credit_approval_status: 1,
-                    reason_credit_approval: 1,
-                    gst_status: 1,
-                    balance_payment_ondate: 1,
-                    payment_credit_status: 1,
-                    booking_status: 1,
-                    sale_booking_id: 1,
-                    account_id: 1,
-                    account_name: 1,
-                    requested_amount: 1,
-                    registered_by_name: 1,
-                    createdAt: 1,
-                    updatedAt: 1,
-                    created_by: 1,
-                    total_sale_booking_amount: { $sum: "$campaign_amount" },
-                    total_incentive_amount: { $sum: "$incentive_amount" },
-                }
+        const { month, year, user_id } = req.query;
+
+        // Create match conditions based on the provided query parameters
+        const matchConditions = {};
+        if (month && year) {
+            const startDate = moment(`${year}-${month}-01`).startOf('month').toDate();
+
+            const endDate = moment(startDate).endOf('month').toDate();
+            matchConditions.createdAt = {
+                $gte: startDate,
+                $lt: endDate,
+            };
+        }
+        if (user_id) {
+            matchConditions.created_by = Number(user_id); // convert user_id to Number
+        }
+
+        const salesBookingIncentiveData = await salesBookingModel.aggregate([{
+            $match: matchConditions,
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "created_by",
+                foreignField: "user_id",
+                as: "user",
             },
-            {
-                $group: {
-                    _id: {
-                        created_by_name: "$created_by_name",
-                        userName: "$user.user_name",
-                        year: { $year: "$createdAt" },
-                        month: { $month: "$createdAt" }
-                    },
-                    sale_booking: { $push: "$$ROOT" }
-                }
+        }, {
+            $unwind: {
+                path: "$user",
+                preserveNullAndEmptyArrays: true,
             },
+        }, {
+            $project: {
+                _id: 1,
+                created_by_name: "$user.user_name",
+                sale_booking_date: 1,
+                campaign_name: 1,
+                campaign_amount: 1,
+                description: 1,
+                credit_approval_status: 1,
+                reason_credit_approval: 1,
+                gst_status: 1,
+                balance_payment_ondate: 1,
+                payment_credit_status: 1,
+                booking_status: 1,
+                sale_booking_id: 1,
+                account_id: 1,
+                account_name: 1,
+                requested_amount: 1,
+                registered_by_name: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                created_by: 1,
+                total_sale_booking_amount: { $sum: "$campaign_amount" },
+                total_incentive_amount: { $sum: "$incentive_amount" },
+            },
+        },
         ]);
 
-        if (!salesBookingIncentiveData.length) {
+        if (!salesBookingIncentiveData) {
             return response.returnFalse(200, req, res, "No Record Found...", []);
         }
 
@@ -820,7 +828,7 @@ exports.salesBookingIncentiveData = async (req, res) => {
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
-}
+};
 
 
 
