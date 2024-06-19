@@ -31,6 +31,7 @@ const bankNameRoutes = require("./PMS2/bankNameRoutes");
 const companyDetailsRoutes = require("./PMS2/companyDetailsRoutes");
 const documentDetailsRoutes = require("./PMS2/documentDetailsRoutes");
 const autoIncentiveCalculationRoutes = require("./Sales/autoIncentiveCalculationRoutes");
+const invoiceParticularRoutes = require("./Sales/invoiceParticularRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -59,7 +60,6 @@ exports.routeModulesV1 = [
 exports.routeModules = [
     accountRoutes,
     salesRoutes,
-    //new sales booking starts
     salesBookingRoutes,
     paymentDetailsRoutes,
     paymentModeRoutes,
@@ -71,6 +71,7 @@ exports.routeModules = [
     reasonCreditApprovalRoutes,
     incentivePlanRoutes,
     badgesMasterRoutes,
-    autoIncentiveCalculationRoutes
+    autoIncentiveCalculationRoutes,
+    invoiceParticularRoutes
 ];
 

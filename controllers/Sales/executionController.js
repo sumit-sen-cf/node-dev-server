@@ -4,6 +4,8 @@ const constant = require("../../common/constant");
 const response = require("../../common/response");
 const vari = require("../../variables.js");
 const { storage } = require('../../common/uploadFile.js');
+const { saleBookingStatus } = require("../../helper/status.js");
+const salesBookingModel = require("../../models/Sales/salesBookingModel.js");
 
 /**
  * Api is to used for the sales_booking_execution data add in the DB collection.
@@ -239,16 +241,41 @@ exports.deleteExecution = async (req, res) => {
 exports.updateStatusExecution = async (req, res) => {
     try {
         const { id } = req.params;
-        const { execution_status } = req.body;
+        const { execution_status, sale_booking_id } = req.body;
         const executionStatusUpdated = await executionModel.findByIdAndUpdate({
             _id: id
         }, {
             $set: {
-                execution_status
+                execution_status,
+                sale_booking_id
             }
         }, {
             new: true
         });
+        let updateObj = {};
+        // if (execution_status == "execution_in_progress") {
+        //     updateObj["booking_status"] = saleBookingStatus['04'].status;
+        // }
+        if (execution_status == "execution_accepted") {
+            updateObj["booking_status"] = saleBookingStatus['07'].status;
+        }
+        if (execution_status == "execution_completed") {
+            updateObj["booking_status"] = saleBookingStatus['09'].status;
+        }
+        if (execution_status == "execution_rejected") {
+            updateObj["booking_status"] = saleBookingStatus['08'].status;
+        }
+        if (execution_status == "execution_paused") {
+            updateObj["booking_status"] = saleBookingStatus['10'].status;
+        }
+
+        //update incentive amount in sale booking collection
+        await salesBookingModel.updateOne({
+            sale_booking_id: executionStatusUpdated.sale_booking_id
+        }, {
+            $set: updateObj
+        })
+
         // Return a success response with the updated record details
         return response.returnTrue(
             200,

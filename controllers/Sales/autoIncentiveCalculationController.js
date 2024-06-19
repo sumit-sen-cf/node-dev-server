@@ -241,9 +241,22 @@ exports.getAutoIncentiveCalculationMonthWise = async (req, res) => {
                         month: { $month: "$createdAt" }
                     },
                     auto_incentive_calculation: { $push: "$$ROOT" },
+                    total_sale_booking_amount: { $sum: "$campaign_amount" },
+                    total_incentive_amount: { $sum: "$incentive_amount" },
                 },
             },
-        ]);
+            {
+                $project: {
+                    _id: 0,
+                    created_by_name: "$_id.created_by_name",
+                    year: "$_id.year",
+                    month: "$_id.month",
+                    auto_incentive_calculation: 1,
+                    total_sale_booking_amount: 1,
+                    total_incentive_amount: 1,
+                },
+            },
+        ])
         if (!autoIncentiveCalculationMonthWise) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
