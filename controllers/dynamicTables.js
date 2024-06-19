@@ -3,6 +3,14 @@ const dynamicTablesModel = require("../models/dynamicTablesModel.js");
 
 exports.addDynamicTablesData = async (req, res) => {
     try {
+        const check = await dynamicTablesModel.findOne({
+            table_name: req.body.table_name,
+            user_id: req.body.user_id
+        })
+
+        if (check) {
+            return response.returnFalse(400, req, res, 'Data all ready exist for table name and user id', {})
+        }
         const dynamicTableData = new dynamicTablesModel({
             table_name: req.body.table_name,
             user_id: req.body.user_id,

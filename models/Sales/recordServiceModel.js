@@ -13,10 +13,10 @@ const recordServiceMaster = new Schema({
         required: true,
         ref: "salesServiceMasterModel"
     },
-    excel_upload: {
-        type: String,
-        required: false
-    },
+    // excel_upload: {
+    //     type: String,
+    //     required: false
+    // },
     amount: {
         type: Number,
         required: false
