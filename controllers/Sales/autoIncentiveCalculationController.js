@@ -200,50 +200,50 @@ exports.autoIncentiveCalculationData = async (req, res) => {
 
 exports.getAutoIncentiveCalculationMonthWise = async (req, res) => {
     try {
-        const autoIncentiveCalculationMonthWise = await salesBookingModel.aggregate([
-            {
-                $match: { created_by: Number(req.params.user_id) },
-            }, {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "created_by",
-                    foreignField: "user_id",
-                    as: "user",
+        const autoIncentiveCalculationMonthWise = await salesBookingModel.aggregate([{
+            $match: {
+                created_by: Number(req.params.user_id)
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "created_by",
+                foreignField: "user_id",
+                as: "user",
+            }
+        }, {
+            $unwind: {
+                path: "$user",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                _id: 1,
+                created_by_name: "$user.user_name",
+                month_year: 1,
+                sales_executive_id: 1,
+                campaign_amount: 1,
+                paid_amount: 1,
+                incentive_amount: 1,
+                earned_incentive: 1,
+                unearned_incentive: 1,
+                created_by: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                created_by: 1,
+                total_sale_booking_amount: { $sum: "$campaign_amount" },
+                total_incentive_amount: { $sum: "$incentive_amount" },
+            }
+        }, {
+            $group: {
+                _id: {
+                    created_by_name: "$created_by_name",
+                    year: { $year: "$createdAt" },
+                    month: { $month: "$createdAt" }
                 },
-            }, {
-                $unwind: {
-                    path: "$user",
-                    preserveNullAndEmptyArrays: true,
-                },
-            }, {
-                $project: {
-                    _id: 1,
-                    created_by_name: "$user.user_name",
-                    month_year: 1,
-                    sales_executive_id: 1,
-                    campaign_amount: 1,
-                    paid_amount: 1,
-                    incentive_amount: 1,
-                    earned_incentive: 1,
-                    unearned_incentive: 1,
-                    created_by: 1,
-                    createdAt: 1,
-                    updatedAt: 1,
-                    created_by: 1,
-                    total_sale_booking_amount: { $sum: "$campaign_amount" },
-                    total_incentive_amount: { $sum: "$incentive_amount" },
-                },
-            }, {
-                $group: {
-                    _id: {
-                        created_by_name: "$created_by_name",
-                        year: { $year: "$createdAt" },
-                        month: { $month: "$createdAt" }
-                    },
-                    auto_incentive_calculation: { $push: "$$ROOT" },
-                },
-            },
-        ]);
+                auto_incentive_calculation: { $push: "$$ROOT" },
+            }
+        }]);
         if (!autoIncentiveCalculationMonthWise) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
