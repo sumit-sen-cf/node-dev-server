@@ -26,7 +26,7 @@ const upload = multer({
 
 /**
  * Api is to used for the sales booking data add in the DB collection.
- */
+*/
 
 exports.addSalesBooking = [
     upload, async (req, res) => {
