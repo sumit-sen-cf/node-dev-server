@@ -105,6 +105,8 @@ exports.addSalesBooking = [
                 for (let element of recordServicesDetails) {
                     element.sale_booking_id = saleBookingAdded.sale_booking_id;
                     element.created_by = req.body.created_by;
+                    element.sale_executive_id = req.body.created_by;
+                    element.sale_booking_date = req.body.sale_booking_date;
                     recordServicesDataUpdatedArray.push(element);
                 }
             }
