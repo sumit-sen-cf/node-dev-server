@@ -1,7 +1,7 @@
 const multer = require("multer");
 const response = require("../../common/response.js");
 const constant = require("../../common/constant.js");
-const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage.js");
+const { uploadImage, deleteImage } = require("../../common/uploadImage.js");
 const { getIncentiveAmountRecordServiceWise } = require("../../helper/functions.js");
 const invoiceRequestModel = require("../../models/Sales/invoiceRequestModel.js");
 
@@ -22,7 +22,6 @@ exports.createInvoiceRequest = [
                 invoice_creation_status: req.body.invoice_creation_status,
                 invoice_action_reason: req.body.invoice_action_reason,
                 created_by: req.body.created_by,
-                status: req.body.status
             });
             // Define the image fields 
             const imageFields = {
@@ -81,7 +80,6 @@ exports.updateInvoiceRequest = [
                 purchase_order_number: req.body.purchase_order_number,
                 invoice_creation_status: req.body.invoice_creation_status,
                 invoice_action_reason: req.body.invoice_action_reason,
-                status: req.body.status,
                 updated_by: req.body.updated_by,
             };
 
@@ -188,11 +186,11 @@ exports.deleteInvoiceRequest = async (req, res) => {
         const { id } = req.params;
         const invoiceRequestDeleted = await invoiceRequestModel.findOneAndUpdate({
             _id: id, status: { $ne: constant.DELETED }
-        },{
-                $set: {
-                    status: constant.DELETED,
-                },
+        }, {
+            $set: {
+                status: constant.DELETED,
             },
+        },
             { new: true }
         );
         if (!invoiceRequestDeleted) {
