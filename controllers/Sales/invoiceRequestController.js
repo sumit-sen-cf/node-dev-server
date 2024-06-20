@@ -1,7 +1,7 @@
 const multer = require("multer");
 const response = require("../../common/response.js");
 const constant = require("../../common/constant.js");
-const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage.js");
+const { uploadImage, deleteImage } = require("../../common/uploadImage.js");
 const { getIncentiveAmountRecordServiceWise } = require("../../helper/functions.js");
 const invoiceRequestModel = require("../../models/Sales/invoiceRequestModel.js");
 
@@ -9,7 +9,6 @@ const upload = multer({
     storage: multer.memoryStorage()
 }).fields([
     { name: "purchase_order_upload", maxCount: 10 },
-    { name: "invoice_file", maxCount: 10 }
 ]);
 
 exports.createInvoiceRequest = [
@@ -20,19 +19,13 @@ exports.createInvoiceRequest = [
                 invoice_type_id: req.body.invoice_type_id,
                 invoice_particular_id: req.body.invoice_particular_id,
                 purchase_order_number: req.body.purchase_order_number,
-                invoice_number: req.body.invoice_number,
-                invoice_date: req.body.invoice_date,
-                party_name: req.body.party_name,
-                invoice_uploaded_date: req.body.invoice_uploaded_date,
                 invoice_creation_status: req.body.invoice_creation_status,
                 invoice_action_reason: req.body.invoice_action_reason,
                 created_by: req.body.created_by,
-                status: req.body.status
             });
             // Define the image fields 
             const imageFields = {
                 purchase_order_upload: 'purchaseUploadFile',
-                invoice_file: "InvoiceFile"
             };
             for (const [field] of Object.entries(imageFields)) {            //itreates 
                 if (req.files[field] && req.files[field][0]) {
@@ -85,13 +78,8 @@ exports.updateInvoiceRequest = [
                 invoice_type_id: req.body.invoice_type_id,
                 invoice_particular_id: req.body.invoice_particular_id,
                 purchase_order_number: req.body.purchase_order_number,
-                invoice_number: req.body.invoice_number,
-                invoice_date: req.body.invoice_date,
-                party_name: req.body.party_name,
-                invoice_uploaded_date: req.body.invoice_uploaded_date,
                 invoice_creation_status: req.body.invoice_creation_status,
                 invoice_action_reason: req.body.invoice_action_reason,
-                status: req.body.status,
                 updated_by: req.body.updated_by,
             };
 
@@ -105,7 +93,6 @@ exports.updateInvoiceRequest = [
             // Define the image fields 
             const imageFields = {
                 purchase_order_upload: 'purchaseUploadFile',
-                invoice_file: "InvoiceFile"
             };
 
             // Remove old images not present in new data and upload new images
@@ -156,24 +143,10 @@ exports.getInvoiceRequestDatas = async (req, res) => {
                         else: "$purchase_order_upload",
                     },
                 },
-                invoice_file_url: {
-                    $cond: {
-                        if: { $ne: ["$invoice_file", ""] },
-                        then: {
-                            $concat: [
-                                constant.GCP_INVOICE_REQUEST_URL,
-                                "/",
-                                "$invoice_file",
-                            ],
-                        },
-                        else: "$invoice_file",
-                    },
-                }
             },
         };
 
         const pipeline = [addFieldsObj];
-
         if (page && limit) {
             pipeline.push(
                 { $skip: skip },
@@ -213,12 +186,11 @@ exports.deleteInvoiceRequest = async (req, res) => {
         const { id } = req.params;
         const invoiceRequestDeleted = await invoiceRequestModel.findOneAndUpdate({
             _id: id, status: { $ne: constant.DELETED }
-        },
-            {
-                $set: {
-                    status: constant.DELETED,
-                },
+        }, {
+            $set: {
+                status: constant.DELETED,
             },
+        },
             { new: true }
         );
         if (!invoiceRequestDeleted) {

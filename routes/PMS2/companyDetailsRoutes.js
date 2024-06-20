@@ -8,5 +8,6 @@ router.get("/company_name/:id", verifyToken, companyDetailsController.getSingleC
 router.get("/company_name", verifyToken, companyDetailsController.getCompanyDetailsList);
 router.put("/company_name/:id", verifyToken, companyDetailsController.updateCompanyDetails);
 router.delete("/company_name/:id", verifyToken, companyDetailsController.deleteCompanyDetails);
+router.get("/company_name_wise_vendor/:id", verifyToken, companyDetailsController.getCompanyDetailsWiseVendor);
 
 module.exports = router;
