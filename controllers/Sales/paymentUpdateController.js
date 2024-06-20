@@ -395,6 +395,9 @@ exports.updatePaymentAndSaleData = async (req, res) => {
             let campaignPercentageAmount = (saleBookingData.campaign_amount * 90) / 100;
             if (approvedAmount >= campaignPercentageAmount) {
                 updateObj["incentive_earning_status"] = "earned";
+                updateObj["earned_incentive_amount"] = saleBookingData.incentive_amount;
+            } else {
+                updateObj["unearned_incentive_amount"] = saleBookingData.incentive_amount;
             }
 
             //campaign amount equal to approvaed amount then status update 

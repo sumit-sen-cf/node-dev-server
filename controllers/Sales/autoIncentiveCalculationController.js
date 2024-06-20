@@ -257,6 +257,9 @@ exports.getAutoIncentiveCalculationMonthWise = async (req, res) => {
     }
 }
 
+/**
+ * earned and unearned status wise user's perticular month incentive calculate.
+ */
 exports.getIncentiveCalculationStatusWiseData = async (req, res) => {
     try {
         //current year and month get from date Obj
