@@ -181,3 +181,25 @@ exports.getAllCountryCodeDeletedData = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
+exports.getCompanyDetailsWiseVendor = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const companyDetails = await companyDetailsModel.findOne({
+            vendor_id: id,
+            status: { $ne: constant.DELETED },
+        });
+        if (!companyDetails) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Vendor id wise company details retreive successfully!",
+            companyDetails
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};

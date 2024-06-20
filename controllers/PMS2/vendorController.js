@@ -47,9 +47,7 @@ exports.createVendorData = async (req, res) => {
         let bankDataUpdatedArray = [];
         let vendorlinksUpdatedArray = [];
         let paymentMethodUpdatedArray = [];
-
         let companyDetailsUpdatedArray = [];
-
 
         let bankDetails = (req.body?.bank_details) || [];
         let vendorLinkDetails = (req.body?.vendorLinks) || [];
@@ -97,7 +95,6 @@ exports.createVendorData = async (req, res) => {
         await vendorGroupLinkModel.insertMany(vendorlinksUpdatedArray);
         await paymentMethodModel.insertMany(paymentMethodUpdatedArray);
         await companyDetailsModel.insertMany(companyDetailsUpdatedArray);
-
 
         //send success response
         return response.returnTrue(
