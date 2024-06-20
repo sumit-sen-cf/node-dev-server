@@ -95,7 +95,7 @@ exports.addUser = async (req, res) => {
             ctc: req.body.ctc,
             Age: req.body.Age,
             offer_letter_send: req.body.offer_letter_send,
-            user_login_id: req.body.user_login_id,
+            user_login_id: req.body.user_login_id.toLowerCase().trim(),
             user_login_password: encryptedPass,
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
