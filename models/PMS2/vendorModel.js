@@ -34,11 +34,11 @@ const vendorSchema = new Schema({
         required: false,
         ref: "pms2BankNameModel"
     },
-    company_details: {
-        type: Schema.Types.ObjectId,
-        required: false,
-        ref: "Pms2CompanyDetailsModel"
-    },
+    // company_details: {
+    //     type: Schema.Types.ObjectId,
+    //     required: false,
+    //     ref: "Pms2CompanyDetailsModel"
+    // },
     page_count: {
         type: Number,
         required: false,

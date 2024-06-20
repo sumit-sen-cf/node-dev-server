@@ -4,8 +4,9 @@ const companyDetailsModel = require("../../models/PMS2/companyDetailsModel");
 
 exports.createCompanyDetails = async (req, res) => {
     try {
-        const { company_name, address, city, pincode, state, threshold_limit, created_by } = req.body;
+        const { vendor_id, company_name, address, city, pincode, state, threshold_limit, created_by } = req.body;
         const companyDetailAdded = await companyDetailsModel.create({
+            vendor_id,
             company_name,
             address,
             city,

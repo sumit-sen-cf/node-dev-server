@@ -4,6 +4,11 @@ const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
 const companyDetailsSchema = new mongoose.Schema({
+    vendor_id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "pms2VendorModel"
+    },
     company_name: {
         type: String,
         required: false
