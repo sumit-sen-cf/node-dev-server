@@ -6,10 +6,10 @@ const invoiceRequestController = require("../../controllers/Sales/invoiceRequest
 /**
  * invoice request routes
  */
-router.post("/sales/invoicerequest", verifyToken, invoiceRequestController.createInvoiceRequest);
-router.get("/sales/invoicerequest/:id", verifyToken, invoiceRequestController.getInvoiceRequestData);
-router.put("/sales/invoicerequest/:id", verifyToken, invoiceRequestController.updateInvoiceRequest);
-router.get("/sales/invoicerequest", verifyToken, invoiceRequestController.getInvoiceRequestDatas);
-router.delete("/sales/invoicerequest/:id", verifyToken, invoiceRequestController.deleteInvoiceRequest);
+router.post("/sales/invoice_request", verifyToken, invoiceRequestController.createInvoiceRequest);
+router.get("/sales/invoice_request/:id", verifyToken, invoiceRequestController.getInvoiceRequestData);
+router.put("/sales/invoice_request/:id", verifyToken, invoiceRequestController.updateInvoiceRequest);
+router.get("/sales/invoice_request", verifyToken, invoiceRequestController.getInvoiceRequestDatas);
+router.delete("/sales/invoice_request/:id", verifyToken, invoiceRequestController.deleteInvoiceRequest);
 
 module.exports = router; 

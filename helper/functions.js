@@ -41,78 +41,57 @@ module.exports = {
         })
     },
 
-    async getAutoIncentiveCalculationData() {
-        try {
-            const autoIncentiveCalculationDetails = await autoIncentiveCalculationModel.aggregate([
-                {
-                    $lookup: {
-                        from: "usermodels",
-                        localField: "created_by",
-                        foreignField: "user_id",
-                        as: "user",
-                    },
-                },
-                {
-                    $unwind: {
-                        path: "$user",
-                        preserveNullAndEmptyArrays: true,
-                    },
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        created_by_name: "$user.user_name",
-                        month_year: 1,
-                        sales_executive_id: 1,
-                        campaign_amount: 1,
-                        paid_amount: 1,
-                        incentive_amount: 1,
-                        earned_incentive: 1,
-                        unearned_incentive: 1,
-                        created_by: 1,
-                        createdAt: 1,
-                        updatedAt: 1,
-                        created_by: 1,
-                        // total_sale_booking_amount: { $sum: "$campaign_amount" },
-                        // total_incentive_amount: { $sum: "$incentive_amount" },
-                    },
-                },
-                {
-                    $group: {
-                        _id: {
-                            created_by_name: "$created_by_name",
-                            userName: "$user.user_name",
-                            month_year: "$month_year"
-                        },
-                        auto_incentive_calculation: { $push: "$$ROOT" },
-                    },
-                },
-            ]);
+    async autoIncentiveCalculationDetailsUpdate(filterObj, incentiveDetailsObj) {
+        return new Promise(async function (resolve, reject) {
+            try {
+                const month = filterObj.month || 4;
+                const year = filterObj.year || 2024;
+                const userId = filterObj.userId || 712;
 
-            if (!autoIncentiveCalculationDetails.length) {
-                return {
-                    success: false,
-                    statusCode: 200,
-                    message: "No Record Found...",
-                    data: []
-                };
+                const formattedMonth = ("0" + month).slice(-2);
+                const yearMonth = `${year}-${formattedMonth}`;
+
+                const oldAutoIncentiveData = await autoIncentiveCalculationModel.findOne({
+                    month_year: yearMonth
+                });
+
+                let autoIncentiveObj = {
+                    campaign_amount: incentiveDetailsObj.campaign_amount,
+                    paid_amount: incentiveDetailsObj.paid_amount,
+                    record_service_amount: incentiveDetailsObj.record_service_amount,
+                    incentive_amount: incentiveDetailsObj.incentive_amount,
+                    earned_incentive: incentiveDetailsObj.earned_incentive,
+                    unearned_incentive: incentiveDetailsObj.unearned_incentive
+                }
+
+                //if year_month found then add in older data.
+                if (oldAutoIncentiveData && Object.keys(oldAutoIncentiveData)) {
+                    //previous data add in new obj
+                    autoIncentiveObj["campaign_amount"] = oldAutoIncentiveData.campaign_amount + incentiveDetailsObj.campaign_amount;
+                    autoIncentiveObj["paid_amount"] = oldAutoIncentiveData.paid_amount + incentiveDetailsObj.paid_amount;
+                    autoIncentiveObj["record_service_amount"] = oldAutoIncentiveData.record_service_amount + incentiveDetailsObj.record_service_amount;
+                    autoIncentiveObj["incentive_amount"] = oldAutoIncentiveData.incentive_amount + incentiveDetailsObj.incentive_amount;
+                    autoIncentiveObj["earned_incentive"] = oldAutoIncentiveData.earned_incentive + incentiveDetailsObj.earned_incentive;
+                    autoIncentiveObj["unearned_incentive"] = oldAutoIncentiveData.unearned_incentive + incentiveDetailsObj.unearned_incentive;
+
+                    //month_year and user wise data update in db collection.
+                    await autoIncentiveCalculationModel.updateOne({
+                        month_year: yearMonth
+                    }, {
+                        $set: autoIncentiveObj
+                    })
+                } else {
+                    autoIncentiveObj["sales_executive_id"] = userId;
+                    autoIncentiveObj["month_year"] = yearMonth;
+
+                    //month_year and user wise data create in db collection. 
+                    await autoIncentiveCalculationModel.create(autoIncentiveObj)
+                }
+                return resolve(autoIncentiveObj);
+            } catch (err) {
+                console.log('Error While calculate auto incentive calculation', err);
+                return resolve({});
             }
-
-            return {
-                success: true,
-                statusCode: 200,
-                message: "Sales Booking Status data retrieved",
-                data: autoIncentiveCalculationDetails
-            };
-
-        } catch (err) {
-            console.error('Error While getting incentive amount details', err);
-            return {
-                success: false,
-                statusCode: 500,
-                message: err.message,
-                data: {}
-            };
-        }
+        })
     }
 };

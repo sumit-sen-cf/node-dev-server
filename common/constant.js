@@ -21,6 +21,7 @@ module.exports = Object.freeze({
   GCP_SALES_BADGES_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/SalesBadgeImages",
   GCP_ACCOUNT_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/AccountDocument",
   GCP_INVOICE_REQUEST_URL: "https://storage.googleapis.com/jarvis-dev-bucket/InvoiceRequestFiles",
+  GCP_PMS2_Document_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/PMS2DocumentImage",
 
 
   /* JWT  */

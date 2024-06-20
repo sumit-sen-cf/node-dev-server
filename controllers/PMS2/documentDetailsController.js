@@ -225,3 +225,25 @@ exports.deleteDocumentDetails = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
+exports.getDocumentVendorWiseDetails = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const vendorWisedocumentDetails = await documentDetailsModel.findOne({
+            vendor_id: id,
+            status: { $ne: constant.DELETED },
+        });
+        if (!vendorWisedocumentDetails) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Vendor id wise document details data retrieve successfully!",
+            vendorWisedocumentDetails
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+}
