@@ -11,7 +11,7 @@ exports.createVendorData = async (req, res) => {
     try {
         const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, primary_field,
             vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
-            home_address, home_city, home_state, created_by, vendor_category, } = req.body;
+            home_address, home_city, home_state, created_by, vendor_category,closed_by } = req.body;
         const addVendorData = new vendorModel({
             vendor_type,
             vendor_platform,
@@ -30,7 +30,8 @@ exports.createVendorData = async (req, res) => {
             home_city,
             vendor_category,
             home_state,
-            created_by
+            created_by,
+            closed_by
         });
 
         const vendorDataSaved = await addVendorData.save();
@@ -188,7 +189,7 @@ exports.updateVendorData = async (req, res) => {
         // Assuming vendor_id is passed as a URL parameter
         const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, primary_field, vendor_name,
             home_pincode, country_code, mobile, alternate_mobile, email, personal_address, home_address, home_city, home_state,
-            vendor_category, updated_by } = req.body;
+            vendor_category, updated_by, closed_by } = req.body;
 
         // Find the vendor by ID
         const existingVendor = await vendorModel.findById(vendor_id);
@@ -198,6 +199,7 @@ exports.updateVendorData = async (req, res) => {
 
         // Update vendor fields
         existingVendor.vendor_type = vendor_type;
+        existingVendor.closed_by = closed_by;
         existingVendor.vendor_platform = vendor_platform;
         existingVendor.pay_cycle = pay_cycle;
         existingVendor.bank_name = bank_name;
