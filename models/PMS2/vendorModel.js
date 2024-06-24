@@ -44,6 +44,11 @@ const vendorSchema = new Schema({
         required: false,
         default: 0
     },
+    closed_by: {
+        type: Number,
+        required: false,
+        default: 0
+    },
     primary_field: {
         type: String,
         required: false,

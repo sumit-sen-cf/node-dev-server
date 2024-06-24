@@ -6,11 +6,12 @@ const mongoose = require("mongoose");
 
 exports.addVendorGroupLink = async (req, res) => {
     try {
-        const { vendor_id, type, link, created_by } = req.body;
+        const { vendor_id, type, link,purpose, created_by } = req.body;
         const savingObj = vendorGroupLinkModel({
             vendor_id,
             type,
             link,
+            purpose,
             created_by,
         });
         const savedObj = await savingObj.save();

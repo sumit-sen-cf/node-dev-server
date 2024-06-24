@@ -47,9 +47,7 @@ exports.addPageMaster = async (req, res) => {
         }
 
         // Check if primary_page is true
-        const vendor = await vendorModel.findOne({
-            vendor_id: vendor_id
-        });
+        const vendor = await vendorModel.findById(vendor_id);
         // Check if vendor exists
         if (!vendor) {
             return response.returnFalse(
@@ -67,11 +65,11 @@ exports.addPageMaster = async (req, res) => {
             page_count: pageCount
         };
 
-        if (primary_page) {
+        if (primary_page === 'Yes') {
             updatedObj["primary_page"] = savingObj._id;
         }
         // Check if primary_page is true
-        await vendorModel.updateOne({
+        await vendorModel.findByIdAndUpdate(vendor_id,{
             $set: updatedObj
         });
 
