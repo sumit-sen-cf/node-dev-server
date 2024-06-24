@@ -1,8 +1,8 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
 const incentivePlanModel = require("../../models/Sales/incentivePlanModel");
-const mongoose = require("mongoose");
 const recordServiceModel = require("../../models/Sales/recordServiceModel");
+const salesBookingModel = require("../../models/Sales/salesBookingModel");
 
 /**
  * Api is to used for the incentive_plan data add in the DB collection.
@@ -181,30 +181,33 @@ exports.deleteIncentivePlan = async (req, res) => {
     };
 };
 
+/**
+ * earned and unearned status wise user's perticular month incentive calculate.
+ */
 exports.getIncentiveCalculationStatusWiseData = async (req, res) => {
     try {
-        //current year and month get from date Obj
-        const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
-        const currentMonth = currentDate.getMonth() + 1;
-
         //get query and parms data for searching data
-        let year = (req.query && req.query.year) ? Number(req.query.year) : currentYear;
-        let month = (req.query && req.query.month) ? Number(req.query.month) : currentMonth;
-        let userId = req.params?.user_id;
         let incentiveEarningStatus = req.query?.incentive_earning_status; // added this line
 
-        //incentive data
-        const autoIncentiveCalculationMonthWise = await recordServiceModel.aggregate([{
-            $match: {
-                sale_executive_id: Number(userId),
-                $expr: {
-                    $and: [
-                        { $eq: [{ $year: "$sale_booking_date" }, year] },
-                        { $eq: [{ $month: "$sale_booking_date" }, month] }
-                    ]
-                }
+        //create dynamic match condition
+        let matchCondition = {
+            sale_executive_id: Number(req.params.user_id),
+        };
+
+        //query to year and month and create match condition
+        if (req.query?.year && req.query?.month) {
+            let expr = {
+                $and: [
+                    { $eq: [{ $year: "$sale_booking_date" }, Number(req.query.year)] },
+                    { $eq: [{ $month: "$sale_booking_date" }, Number(req.query.month)] }
+                ]
             }
+            matchCondition["$expr"] = expr;
+        }
+
+        //incentive data calculation
+        const autoIncentiveCalculationMonthWise = await recordServiceModel.aggregate([{
+            $match: matchCondition
         }, {
             $lookup: {
                 from: "usermodels",
@@ -397,6 +400,108 @@ exports.getIncentiveCalculationStatusWiseData = async (req, res) => {
         return response.returnTrue(200, req, res,
             "Incentive calculation status wise data retrieved successfully",
             dataObj
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
+
+/**
+ * Month and year wise incentive data calculate user's wise.
+ */
+exports.getIncentiveCalculationMonthWise = async (req, res) => {
+    try {
+        //incentive calculation limit set
+        let monthWiseIncentiveCalculationLimit = 50000;
+
+        //month wise sale booking incentive data calculation
+        const incentiveCalculationMonthWise = await salesBookingModel.aggregate([{
+            $match: {
+                created_by: Number(req.params.user_id)
+            }
+        }, {
+            $group: {
+                _id: {
+                    year: { $year: "$sale_booking_date" },
+                    month: { $month: "$sale_booking_date" }
+                },
+                totalDocuments: { $sum: 1 },
+                campaignAmount: { $sum: "$campaign_amount" },
+                paidAmount: { $sum: "$approved_amount" },
+                recordServiceAmount: { $sum: "$record_service_amount" },
+                incentiveAmount: { $sum: "$incentive_amount" },
+                earnedIncentiveAmount: { $sum: "$earned_incentive_amount" },
+                unEarnedIncentiveAmount: { $sum: "$unearned_incentive_amount" },
+            }
+        }, {
+            $match: {
+                campaignAmount: { $gte: monthWiseIncentiveCalculationLimit }
+            }
+        }, {
+            $addFields: {
+                monthName: {
+                    $switch: {
+                        branches: [
+                            { case: { $eq: ["$_id.month", 1] }, then: "January" },
+                            { case: { $eq: ["$_id.month", 2] }, then: "February" },
+                            { case: { $eq: ["$_id.month", 3] }, then: "March" },
+                            { case: { $eq: ["$_id.month", 4] }, then: "April" },
+                            { case: { $eq: ["$_id.month", 5] }, then: "May" },
+                            { case: { $eq: ["$_id.month", 6] }, then: "June" },
+                            { case: { $eq: ["$_id.month", 7] }, then: "July" },
+                            { case: { $eq: ["$_id.month", 8] }, then: "August" },
+                            { case: { $eq: ["$_id.month", 9] }, then: "September" },
+                            { case: { $eq: ["$_id.month", 10] }, then: "October" },
+                            { case: { $eq: ["$_id.month", 11] }, then: "November" },
+                            { case: { $eq: ["$_id.month", 12] }, then: "December" }
+                        ]
+                    }
+                }
+            }
+        }, {
+            $addFields: {
+                monthYear: { $concat: ["$monthName", " ", { $toString: "$_id.year" }] }
+            }
+        }, {
+            $addFields: {
+                balanceAmount: { $subtract: ["$campaignAmount", "$paidAmount"] }
+            }
+        }, {
+            $project: {
+                _id: 0,
+                monthYear: "$monthYear",
+                totalDocuments: "$totalDocuments",
+                campaignAmount: "$campaignAmount",
+                paidAmount: "$paidAmount",
+                recordServiceAmount: "$recordServiceAmount",
+                incentiveAmount: "$incentiveAmount",
+                earnedIncentiveAmount: "$earnedIncentiveAmount",
+                unEarnedIncentiveAmount: "$unEarnedIncentiveAmount",
+                balanceAmount: "$balanceAmount",
+            }
+        }, {
+            $group: {
+                _id: null,
+                totalCampaignAmount: { $sum: "$campaignAmount" },
+                totalPaidAmount: { $sum: "$paidAmount" },
+                totalRecordServiceAmount: { $sum: "$recordServiceAmount" },
+                totalIncentiveAmount: { $sum: "$incentiveAmount" },
+                totalEarnedIncentiveAmount: { $sum: "$earnedIncentiveAmount" },
+                totalUnEarnedIncentiveAmount: { $sum: "$unEarnedIncentiveAmount" },
+                balanceAmount: { $sum: "$balanceAmount" },
+                monthYearWiseIncentiveCalculation: { $push: "$$ROOT" },
+            }
+        }]);
+
+        //if data not present
+        if (!incentiveCalculationMonthWise) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+
+        //return success response
+        return response.returnTrue(200, req, res,
+            "Incentive calculation month and year wise data retrieved successfully",
+            incentiveCalculationMonthWise
         );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});

@@ -14,5 +14,5 @@ router.delete("/sales/incentive_plan/:id", verifyToken, incentivePlanController.
 
 //incentive calculation api's
 router.get("/sales/incentive_calculation_status_wise_data/:user_id", verifyToken, incentivePlanController.getIncentiveCalculationStatusWiseData);
-
+router.get("/sales/auto_incentive_calculation_month_wise/:user_id", verifyToken, incentivePlanController.getIncentiveCalculationMonthWise);
 module.exports = router; 
