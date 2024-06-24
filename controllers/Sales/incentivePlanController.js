@@ -1,5 +1,6 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
+const { incentiveCalculationUserLimit } = require("../../helper/status");
 const incentivePlanModel = require("../../models/Sales/incentivePlanModel");
 const recordServiceModel = require("../../models/Sales/recordServiceModel");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
@@ -93,7 +94,6 @@ exports.updateIncentivePlan = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     };
 };
-
 
 /**
  * Api is to used for the incentive_plan data get_list in the DB collection.
@@ -412,7 +412,7 @@ exports.getIncentiveCalculationStatusWiseData = async (req, res) => {
 exports.getIncentiveCalculationMonthWise = async (req, res) => {
     try {
         //incentive calculation limit set
-        let monthWiseIncentiveCalculationLimit = 50000;
+        let monthWiseIncentiveCalculationLimit = incentiveCalculationUserLimit || 50000;
 
         //month wise sale booking incentive data calculation
         const incentiveCalculationMonthWise = await salesBookingModel.aggregate([{
@@ -502,6 +502,110 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
         return response.returnTrue(200, req, res,
             "Incentive calculation month and year wise data retrieved successfully",
             incentiveCalculationMonthWise
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
+
+/**
+ * incentive dashboard data calculate user's wise.
+ */
+exports.getIncentiveCalculationDashboard = async (req, res) => {
+    try {
+        //incentive calculation limit set
+        let incentiveCalculationLimit = incentiveCalculationUserLimit || 50000;
+
+        //incentive dashboard data calculation
+        const incentiveCalculationDashboard = await salesBookingModel.aggregate([{
+            $lookup: {
+                from: "usermodels",
+                let: {
+                    created_by: "$created_by"
+                },
+                pipeline: [{
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { $eq: ["$$created_by", "$user_id"] },
+                            ]
+                        }
+                    }
+                }, {
+                    $project: {
+                        user_id: 1,
+                        user_name: 1,
+                    }
+                }],
+                as: "userData"
+            }
+        }, {
+            $unwind: {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $group: {
+                _id: {
+                    created_by: "$created_by",
+                    user_name: "$userData.user_name"
+                },
+                totalDocuments: { $sum: 1 },
+                campaignAmount: { $sum: "$campaign_amount" },
+                paidAmount: { $sum: "$approved_amount" },
+                recordServiceAmount: { $sum: "$record_service_amount" },
+                incentiveAmount: { $sum: "$incentive_amount" },
+                earnedIncentiveAmount: { $sum: "$earned_incentive_amount" },
+                unEarnedIncentiveAmount: { $sum: "$unearned_incentive_amount" },
+                incentiveRequestedAmount: { $sum: 0 },
+                incentiveRequestPendingAmount: { $sum: 0 },
+                incentiveReleasedAmount: { $sum: 0 },
+            }
+        }, {
+            $match: {
+                campaignAmount: { $gte: incentiveCalculationLimit }
+            }
+        }, {
+            $project: {
+                _id: 0,
+                user_id: "$_id.created_by",
+                user_name: "$_id.user_name",
+                totalDocuments: "$totalDocuments",
+                campaignAmount: "$campaignAmount",
+                paidAmount: "$paidAmount",
+                recordServiceAmount: "$recordServiceAmount",
+                incentiveAmount: "$incentiveAmount",
+                earnedIncentiveAmount: "$earnedIncentiveAmount",
+                unEarnedIncentiveAmount: "$unEarnedIncentiveAmount",
+                incentiveRequestedAmount: "$incentiveRequestedAmount",
+                incentiveRequestPendingAmount: "$incentiveRequestPendingAmount",
+                incentiveReleasedAmount: "$incentiveReleasedAmount",
+            }
+        }, {
+            $group: {
+                _id: null,
+                totalCampaignAmount: { $sum: "$campaignAmount" },
+                totalPaidAmount: { $sum: "$paidAmount" },
+                totalRecordServiceAmount: { $sum: "$recordServiceAmount" },
+                totalIncentiveAmount: { $sum: "$incentiveAmount" },
+                totalEarnedIncentiveAmount: { $sum: "$earnedIncentiveAmount" },
+                totalUnEarnedIncentiveAmount: { $sum: "$unEarnedIncentiveAmount" },
+                totalIncentiveRequestedAmount: { $sum: "$incentiveRequestedAmount" },
+                totalIncentiveRequestPendingAmount: { $sum: "$incentiveRequestPendingAmount" },
+                totalIncentiveReleasedAmount: { $sum: "$incentiveReleasedAmount" },
+                userWiseIncentiveCalculation: { $push: "$$ROOT" },
+            }
+        }]);
+
+        //if data not present
+        if (!incentiveCalculationDashboard) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+
+        //return success response
+        return response.returnTrue(200, req, res,
+            "Incentive calculation Dashboard data retrieved successfully",
+            incentiveCalculationDashboard
         );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});

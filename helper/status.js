@@ -52,5 +52,6 @@ module.exports = {
             status: "Payment Approval Request Rejected(Finance)",
             discription: "Payment of sale booking is requested.Response is Rejected from Finance."
         },
-    }
+    },
+    incentiveCalculationUserLimit: 50000,
 }
