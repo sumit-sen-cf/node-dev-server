@@ -15,8 +15,8 @@ exports.addAccountDetails = async (req, res) => {
         const { account_name, account_type_id, company_type_id, category_id, description,
             account_owner_id, website, turn_over, created_by,
             how_many_offices, connected_office, connect_billing_street, connect_billing_city,
-            connect_billing_state, connect_billing_country, head_office, head_billing_street,
-            head_billing_city, head_billing_state, head_billing_country, pin_code, company_email,
+            connect_billing_state, connect_billing_country, connect_billing_pin_code, head_office, head_billing_street,
+            head_billing_city, head_billing_state, head_billing_country, head_billing_pin_code, company_email,
             account_poc, account_documents
         } = req.body;
 
@@ -57,12 +57,13 @@ exports.addAccountDetails = async (req, res) => {
             connect_billing_city: connect_billing_city,
             connect_billing_state: connect_billing_state,
             connect_billing_country: connect_billing_country,
+            connect_billing_pin_code: connect_billing_pin_code,
             head_office: head_office,
             head_billing_street: head_billing_street,
             head_billing_city: head_billing_city,
             head_billing_state: head_billing_state,
             head_billing_country: head_billing_country,
-            pin_code: pin_code,
+            head_billing_pin_code: head_billing_pin_code,
             company_email: company_email,
             created_by: created_by
         })
@@ -128,8 +129,8 @@ exports.editAccountDetails = async (req, res) => {
         const { account_name, account_type_id, company_type_id, category_id, description,
             account_owner_id, website, turn_over, updated_by,
             how_many_offices, connected_office, connect_billing_street, connect_billing_city,
-            connect_billing_state, connect_billing_country, head_office, head_billing_street,
-            head_billing_city, head_billing_state, head_billing_country, pin_code, company_email
+            connect_billing_state, connect_billing_country, head_office, connect_billing_pin_code, head_billing_street,
+            head_billing_city, head_billing_state, head_billing_country, head_billing_pin_code, company_email
         } = req.body;
 
         //check data available
@@ -166,12 +167,13 @@ exports.editAccountDetails = async (req, res) => {
                 connect_billing_city: connect_billing_city,
                 connect_billing_state: connect_billing_state,
                 connect_billing_country: connect_billing_country,
+                connect_billing_pin_code: connect_billing_pin_code,
                 head_office: head_office,
                 head_billing_street: head_billing_street,
                 head_billing_city: head_billing_city,
                 head_billing_state: head_billing_state,
                 head_billing_country: head_billing_country,
-                pin_code: pin_code,
+                head_billing_pin_code: head_billing_pin_code,
                 company_email: company_email,
                 updated_by: updated_by
             }

@@ -35,6 +35,10 @@ const accountBillingSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
+    connect_billing_pin_code: {
+        type: Number,
+        required: false
+    },
     head_office: {
         type: String,
         required: false,
@@ -55,7 +59,7 @@ const accountBillingSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
-    pin_code: {
+    head_billing_pin_code: {
         type: Number,
         required: false
     },
