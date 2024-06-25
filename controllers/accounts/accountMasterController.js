@@ -13,7 +13,7 @@ exports.addAccountDetails = async (req, res) => {
     try {
         //body data get for add in db
         const { account_name, account_type_id, company_type_id, category_id, description,
-            account_owner_id, website, turn_over, created_by,
+            account_owner_id, website, turn_over, brand_id, created_by,
             how_many_offices, connected_office, connect_billing_street, connect_billing_city,
             connect_billing_state, connect_billing_country, connect_billing_pin_code, head_office, head_billing_street,
             head_billing_city, head_billing_state, head_billing_country, head_billing_pin_code, company_email,
@@ -41,6 +41,7 @@ exports.addAccountDetails = async (req, res) => {
             account_type_id: account_type_id,
             company_type_id: company_type_id,
             category_id: category_id,
+            brand_id: brand_id,
             account_owner_id: account_owner_id,
             website: website,
             turn_over: turn_over,
@@ -127,7 +128,7 @@ exports.editAccountDetails = async (req, res) => {
 
         //get data from the body
         const { account_name, account_type_id, company_type_id, category_id, description,
-            account_owner_id, website, turn_over, updated_by,
+            account_owner_id, website, turn_over, brand_id, updated_by,
             how_many_offices, connected_office, connect_billing_street, connect_billing_city,
             connect_billing_state, connect_billing_country, head_office, connect_billing_pin_code, head_billing_street,
             head_billing_city, head_billing_state, head_billing_country, head_billing_pin_code, company_email
@@ -148,6 +149,7 @@ exports.editAccountDetails = async (req, res) => {
                 account_type_id: account_type_id,
                 company_type_id: company_type_id,
                 category_id: category_id,
+                brand_id: brand_id,
                 account_owner_id: account_owner_id,
                 website: website,
                 turn_over: turn_over,

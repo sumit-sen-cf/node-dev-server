@@ -605,7 +605,7 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
         //return success response
         return response.returnTrue(200, req, res,
             "Incentive calculation Dashboard data retrieved successfully",
-            incentiveCalculationDashboard
+            incentiveCalculationDashboard[0]
         );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
