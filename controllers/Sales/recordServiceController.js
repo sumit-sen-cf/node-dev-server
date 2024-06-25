@@ -261,6 +261,7 @@ exports.updateMultipleRecordService = async (req, res) => {
 
         let totalIncentiveAmount = 0;
         let totalRecordServiceAmount = 0;
+        const recordServiceCounts = (recordServiceDetails && recordServiceDetails.length) ? recordServiceDetails.length : 0;
         //Record service details obj add in array
         if (recordServiceDetails.length && Array.isArray(recordServiceDetails)) {
             for (let element of recordServiceDetails) {
@@ -299,7 +300,8 @@ exports.updateMultipleRecordService = async (req, res) => {
         }, {
             $set: {
                 incentive_amount: totalIncentiveAmount,
-                record_service_amount: totalRecordServiceAmount
+                record_service_amount: totalRecordServiceAmount,
+                record_service_counts: recordServiceCounts
             }
         })
 

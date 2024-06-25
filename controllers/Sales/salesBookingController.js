@@ -116,6 +116,7 @@ exports.addSalesBooking = [
 
             let totalIncentiveAmount = 0;
             let totalRecordServiceAmount = 0;
+            const recordServiceCounts = (recordServicesData && recordServicesData.length) ? recordServicesData.length : 0;
             for (let index = 0; index < recordServicesData.length; index++) {
                 const element = recordServicesData[index];
                 totalRecordServiceAmount += element?.amount;
@@ -130,7 +131,8 @@ exports.addSalesBooking = [
             }, {
                 $set: {
                     incentive_amount: totalIncentiveAmount,
-                    record_service_amount: totalRecordServiceAmount
+                    record_service_amount: totalRecordServiceAmount,
+                    record_service_counts: recordServiceCounts
                 }
             })
 
@@ -192,7 +194,7 @@ exports.editSalesBooking = [
             };
 
             //draft status check
-            if (req.body?.is_draft_save) {
+            if (req.body?.is_draft_save == true || req.body?.is_draft_save == "true") {
                 updateData["booking_status"] = saleBookingStatus['04'].status;
             } else {
                 if (req.body.payment_credit_status == "sent_for_payment_approval") {
