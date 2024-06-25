@@ -230,13 +230,14 @@ exports.getSingleAccountDetails = async (req, res) => {
  */
 exports.getAllAccountDetails = async (req, res) => {
     try {
-        //filter for pagination page wise data = page=1 & limit=2 
-        let page = parseInt(req.query?.page) || 1;
-        let limit = 10;
-        let skip = limit * (page - 1);
-        let sort = {
-            createdAt: -1
-        };
+        // Extract page and limit from query parameters, default to null if not provided
+        const page = req.query?.page ? parseInt(req.query.page) : 1;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : 50;
+        const sort = { createdAt: -1 };
+
+        // Calculate the number of records to skip based on the current page and limit
+        const skip = (page && limit) ? (page - 1) * limit : 0;
+
         //for match conditions
         let matchQuery = {
             deleted: false
@@ -256,13 +257,101 @@ exports.getAllAccountDetails = async (req, res) => {
         const accountMasterData = await accountMaster.aggregate([{
             $match: matchQuery
         }, {
+            $lookup: {
+                from: "accounttypemodels",
+                localField: "account_type_id",
+                foreignField: "_id",
+                as: "accountTypeData",
+            }
+        }, {
+            $unwind: {
+                path: "$accountTypeData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "accountcompanytypemodels",
+                localField: "company_type_id",
+                foreignField: "_id",
+                as: "companyTypeData",
+            }
+        }, {
+            $unwind: {
+                path: "$companyTypeData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "account_owner_id",
+                foreignField: "user_id",
+                as: "accountOwnerData",
+            }
+        }, {
+            $unwind: {
+                path: "$accountOwnerData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "salesbookingmodels",
+                localField: "account_id",
+                foreignField: "account_id",
+                as: "saleBookingDetails",
+            }
+        }, {
+            $unwind: {
+                path: "$saleBookingDetails",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $group: {
+                _id: "$account_id",
+                account_id: { $first: "$account_id" },
+                account_name: { $first: "$account_name" },
+                account_type_id: { $first: "$account_type_id" },
+                account_type_name: { $first: "$accountTypeData.account_type_name" },
+                company_type_id: { $first: "$company_type_id" },
+                company_type_name: { $first: "$companyTypeData.company_type_name" },
+                category_id: { $first: "$category_id" },
+                brand_id: { $first: "$brand_id" },
+                account_owner_id: { $first: "$account_owner_id" },
+                account_owner_name: { $first: "$accountOwnerData.user_name" },
+                website: { $first: "$website" },
+                turn_over: { $first: "$turn_over" },
+                description: { $first: "$description" },
+                created_by: { $first: "$created_by" },
+                updated_by: { $first: "$updated_by" },
+                createdAt: { $first: "$createdAt" },
+                updatedAt: { $first: "$updatedAt" },
+                totalSaleBookingCounts: {
+                    $sum: {
+                        $cond: {
+                            if: { $gt: [{ $type: "$saleBookingDetails" }, "missing"] },
+                            then: 1,
+                            else: 0
+                        }
+                    }
+                },
+                campaignAmount: { $sum: { $ifNull: ["$saleBookingDetails.campaign_amount", 0] } },
+                paidAmount: { $sum: { $ifNull: ["$saleBookingDetails.approved_amount", 0] } },
+                recordServiceCounts: { $sum: { $ifNull: ["$saleBookingDetails.record_service_counts", 0] } },
+                recordServiceAmount: { $sum: { $ifNull: ["$saleBookingDetails.record_service_amount", 0] } },
+                lastSaleBookingDate: { $max: { $ifNull: ["$saleBookingDetails.sale_booking_date", null] } },
+            }
+        }, {
             $project: {
+                _id: 1,
                 account_id: 1,
                 account_name: 1,
                 account_type_id: 1,
+                account_type_name: 1,
                 company_type_id: 1,
+                company_type_name: 1,
                 category_id: 1,
+                brand_id: 1,
                 account_owner_id: 1,
+                account_owner_name: 1,
                 website: 1,
                 turn_over: 1,
                 description: 1,
@@ -270,6 +359,20 @@ exports.getAllAccountDetails = async (req, res) => {
                 updated_by: 1,
                 createdAt: 1,
                 updatedAt: 1,
+                totalSaleBookingCounts: 1,
+                campaignAmount: 1,
+                paidAmount: 1,
+                recordServiceCounts: 1,
+                recordServiceAmount: 1,
+                lastSaleBookingDate: 1,
+                totalOutstanding: { $subtract: ["$campaignAmount", "$paidAmount"] },
+                isIdleAccount: {
+                    $cond: {
+                        if: { $eq: ["$totalSaleBookingCounts", 0] },
+                        then: 1,
+                        else: 0
+                    }
+                }
             }
         }, {
             $sort: sort
@@ -281,20 +384,21 @@ exports.getAllAccountDetails = async (req, res) => {
 
         // Query to get counts of record of account types
         const totalAccountMasterCounts = await accountMaster.countDocuments(matchQuery);
-        //send success response
-        return res.status(200).send({
-            succes: true,
-            message: "account Master data list fetched successfully!",
-            data: accountMasterData,
-            start_record: skip + 1,
-            end_record: skip + accountMasterData.length,
-            total_records: totalAccountMasterCounts,
-            pagination: {
-                currentPage: page,
-                totalPage: Math.ceil(totalAccountMasterCounts / limit),
-                url: req.originalUrl
+        // Return a success response with the list of records and pagination details
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "account Master data list fetched successfully!",
+            accountMasterData,
+            {
+                start_record: page && limit ? skip + 1 : 1,
+                end_record: page && limit ? skip + accountMasterData.length : accountMasterData.length,
+                total_records: totalAccountMasterCounts,
+                current_page: page || 1,
+                total_page: page && limit ? Math.ceil(totalAccountMasterCounts / limit) : 1,
             }
-        });
+        );
     } catch (error) {
         return res.status(500).json({
             message: error.message ? error.message : message.ERROR_MESSAGE,
