@@ -335,6 +335,7 @@ exports.getAllAccountDetails = async (req, res) => {
                 },
                 campaignAmount: { $sum: { $ifNull: ["$saleBookingDetails.campaign_amount", 0] } },
                 paidAmount: { $sum: { $ifNull: ["$saleBookingDetails.approved_amount", 0] } },
+                requestedAmount: { $sum: { $ifNull: ["$saleBookingDetails.requested_amount", 0] } },
                 recordServiceCounts: { $sum: { $ifNull: ["$saleBookingDetails.record_service_counts", 0] } },
                 recordServiceAmount: { $sum: { $ifNull: ["$saleBookingDetails.record_service_amount", 0] } },
                 lastSaleBookingDate: { $max: { $ifNull: ["$saleBookingDetails.sale_booking_date", null] } },
@@ -361,18 +362,12 @@ exports.getAllAccountDetails = async (req, res) => {
                 updatedAt: 1,
                 totalSaleBookingCounts: 1,
                 campaignAmount: 1,
+                requestedAmount: 1,
                 paidAmount: 1,
                 recordServiceCounts: 1,
                 recordServiceAmount: 1,
                 lastSaleBookingDate: 1,
                 totalOutstanding: { $subtract: ["$campaignAmount", "$paidAmount"] },
-                isIdleAccount: {
-                    $cond: {
-                        if: { $eq: ["$totalSaleBookingCounts", 0] },
-                        then: 1,
-                        else: 0
-                    }
-                }
             }
         }, {
             $sort: sort
