@@ -556,11 +556,11 @@ exports.getAllPageStatesList = async (req, res) => {
 exports.getStatesHistory = async (req, res) => {
     try {
         const { id } = req.params;
-        const statesHistoryDetails = await pageStatesModel.findOne({
+        const statesHistoryDetails = await pageStatesModel.find({
             page_master_id: id,
             status: { $ne: constant.DELETED },
         });
-        if (!statesHistoryDetails) {
+        if (statesHistoryDetails?.length <= 0) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
         return response.returnTrue(
