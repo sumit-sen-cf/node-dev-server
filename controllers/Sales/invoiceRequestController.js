@@ -118,65 +118,65 @@ exports.updateInvoiceRequest = [
         }
     }];
 
-exports.getInvoiceRequestDatas = async (req, res) => {
-    try {
-        // Extract page and limit from query parameters, default to null if not provided
-        const page = req.query?.page ? parseInt(req.query.page) : null;
-        const limit = req.query?.limit ? parseInt(req.query.limit) : null;
-        const sort = { createdAt: -1 };
+// exports.getInvoiceRequestDatas = async (req, res) => {
+//     try {
+//         // Extract page and limit from query parameters, default to null if not provided
+//         const page = req.query?.page ? parseInt(req.query.page) : null;
+//         const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+//         const sort = { createdAt: -1 };
 
-        // Calculate the number of records to skip based on the current page and limit
-        const skip = (page && limit) ? (page - 1) * limit : 0;
+//         // Calculate the number of records to skip based on the current page and limit
+//         const skip = (page && limit) ? (page - 1) * limit : 0;
 
-        let addFieldsObj = {
-            $addFields: {
-                purchase_order_upload_url: {
-                    $cond: {
-                        if: { $ne: ["$purchase_order_upload", ""] },
-                        then: {
-                            $concat: [
-                                constant.GCP_INVOICE_REQUEST_URL,
-                                "/",
-                                "$purchase_order_upload",
-                            ],
-                        },
-                        else: "$purchase_order_upload",
-                    },
-                },
-            },
-        };
+//         let addFieldsObj = {
+//             $addFields: {
+//                 purchase_order_upload_url: {
+//                     $cond: {
+//                         if: { $ne: ["$purchase_order_upload", ""] },
+//                         then: {
+//                             $concat: [
+//                                 constant.GCP_INVOICE_REQUEST_URL,
+//                                 "/",
+//                                 "$purchase_order_upload",
+//                             ],
+//                         },
+//                         else: "$purchase_order_upload",
+//                     },
+//                 },
+//             },
+//         };
 
-        const pipeline = [addFieldsObj];
-        if (page && limit) {
-            pipeline.push(
-                { $skip: skip },
-                { $limit: limit },
-                { $sort: sort }
-            );
-        }
-        const invoicerequestList = await invoiceRequestModel.aggregate(pipeline);
-        const invoicerequestCount = await invoiceRequestModel.countDocuments(addFieldsObj);
+//         const pipeline = [addFieldsObj];
+//         if (page && limit) {
+//             pipeline.push(
+//                 { $skip: skip },
+//                 { $limit: limit },
+//                 { $sort: sort }
+//             );
+//         }
+//         const invoicerequestList = await invoiceRequestModel.aggregate(pipeline);
+//         const invoicerequestCount = await invoiceRequestModel.countDocuments(addFieldsObj);
 
-        // Return a success response with the list of records and pagination details
-        return response.returnTrueWithPagination(
-            200,
-            req,
-            res,
-            "Invoice Request list retreive successfully!",
-            invoicerequestList,
-            {
-                start_record: skip + 1,
-                end_record: skip + invoicerequestList.length,
-                total_records: invoicerequestCount,
-                current_page: page || 1,
-                total_page: (page && limit) ? Math.ceil(invoicerequestCount / limit) : 1,
-            }
-        );
-    } catch (error) {
-        // Return an error response in case of any exceptions
-        return response.returnFalse(500, req, res, `${error.message}`, {});
-    }
-};
+//         // Return a success response with the list of records and pagination details
+//         return response.returnTrueWithPagination(
+//             200,
+//             req,
+//             res,
+//             "Invoice Request list retreive successfully!",
+//             invoicerequestList,
+//             {
+//                 start_record: skip + 1,
+//                 end_record: skip + invoicerequestList.length,
+//                 total_records: invoicerequestCount,
+//                 current_page: page || 1,
+//                 total_page: (page && limit) ? Math.ceil(invoicerequestCount / limit) : 1,
+//             }
+//         );
+//     } catch (error) {
+//         // Return an error response in case of any exceptions
+//         return response.returnFalse(500, req, res, `${error.message}`, {});
+//     }
+// };
 
 /**
  * Api is to used for the reocrd_service_master data delete in the DB collection.
@@ -209,3 +209,95 @@ exports.deleteInvoiceRequest = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 }
+
+
+exports.getInvoiceRequestDatas = async (req, res) => {
+    try {
+        const invoiceRequestData = await invoiceRequestModel.aggregate([
+            {
+                $lookup: {
+                    from: "salesbookingmodels",
+                    localField: "sale_booking_id",
+                    foreignField: "sale_booking_id",
+                    as: "saleData",
+                }
+            }, {
+                $unwind: {
+                    path: "$saleData",
+                    preserveNullAndEmptyArrays: true,
+                }
+            },
+            {
+                $lookup: {
+                    from: "accountmastermodels",
+                    localField: "account_id",
+                    foreignField: "account_id",
+                    as: "accountData",
+                }
+            }, {
+                $unwind: {
+                    path: "$accountData",
+                    preserveNullAndEmptyArrays: true,
+                }
+            },
+            {
+                $lookup: {
+                    from: "salesinvoiceparticularmodels",
+                    localField: "invoice_particular_id",
+                    foreignField: "_id",
+                    as: "invoiceData",
+                }
+            }, {
+                $unwind: {
+                    path: "$invoiceData",
+                    preserveNullAndEmptyArrays: true,
+                }
+            },
+            {
+                $project: {
+                    sale_booking_id: 1,
+                    invoice_type_id: 1,
+                    invoice_particular_id: 1,
+                    purchase_order_number: 1,
+                    invoice_creation_status: 1,
+                    invoice_action_reason: 1,
+                    created_by: 1,
+                    po_number: 1,
+                    invoice_type_id: 1,
+                    purchase_order_upload_url: {
+                        $cond: {
+                            if: { $ne: ["$purchase_order_upload", ""] },
+                            then: {
+                                $concat: [
+                                    constant.GCP_INVOICE_REQUEST_URL,
+                                    "/",
+                                    "$purchase_order_upload",
+                                ],
+                            },
+                            else: "$purchase_order_upload",
+                        },
+                    },
+                    saleData: {
+                        sale_booking_id: "$saleData.sale_booking_id",
+                        campaign_name: "$saleData.campaign_name",
+                        sale_booking_date: "$saleData.sale_booking_date",
+                        invoice_requested_date: "$saleData.invoice_requested_date",
+                        cust_name: "$accountData.account_name",
+                        invoice_particular_name: "$invoiceData.invoice_particular_name",
+                        base_amount: "$saleData.base_amount",
+                        gst_amount: "$saleData.gst_amount",
+                        net_amount: "$saleData.net_amount"
+                    }
+                }
+            }]);
+        if (!invoiceRequestData) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(200, req, res,
+            "Invoice Request Data Fetched successfully",
+            invoiceRequestData
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};

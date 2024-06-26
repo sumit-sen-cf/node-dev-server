@@ -110,6 +110,34 @@ const pageMasterSchema = new Schema({
         required: false,
         default: constant?.ACTIVE,
     },
+    temp_vendor_id: {
+        type: Number,
+        required: false
+    },
+    story: {
+        type: Number,
+        required: false
+    },
+    post: {
+        type: Number,
+        required: false
+    },
+    both_: {
+        type: Number,
+        required: false
+    },
+    m_post_price: {
+        type: Number,
+        required: false,
+    },
+    m_story_price: {
+        type: Number,
+        required: false,
+    },
+    m_both_price: {
+        type: Number,
+        required: false,
+    }
 }, {
     timestamps: true
 });

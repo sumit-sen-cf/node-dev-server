@@ -20,7 +20,7 @@ const vendorGroupLinkSchema = new Schema(
             trim: true,
             default: "",
         },
-        purpose: {
+        remark: {
             type: String,
             trim: true,
             default: "",
