@@ -69,7 +69,7 @@ exports.addPageMaster = async (req, res) => {
             updatedObj["primary_page"] = savingObj._id;
         }
         // Check if primary_page is true
-        await vendorModel.findByIdAndUpdate(vendor_id,{
+        await vendorModel.findByIdAndUpdate(vendor_id, {
             $set: updatedObj
         });
 
@@ -299,6 +299,27 @@ exports.getPageMasterDataVendorWise = async (req, res) => {
     }
 };
 
+exports.getPageMasterDetailBYPID = async (req, res) => {
+    try {
+        const pageId = parseInt(req.params.p_id);
+        const pageMasterDetail = await pageMasterModel.findOne({
+            p_id: pageId,
+            status: { $ne: constant.DELETED },
+        });
+        if (!pageMasterDetail) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Successfully Fetch page master detail Data",
+            pageMasterDetail
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
 
 // exports.addPageMaster = async (req, res) => {
 //     try {
