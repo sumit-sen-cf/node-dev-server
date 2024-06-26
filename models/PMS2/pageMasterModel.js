@@ -4,6 +4,11 @@ const { required } = require("joi");
 const Schema = mongoose.Schema;
 
 const pageMasterSchema = new Schema({
+    p_id: {
+        type: Number,
+        required: false,
+        unique: true
+    },
     page_profile_type_id: {
         type: Schema.Types.ObjectId,
         required: true,
@@ -141,5 +146,19 @@ const pageMasterSchema = new Schema({
 }, {
     timestamps: true
 });
+
+pageMasterSchema.pre('save', async function (next) {
+    if (!this.p_id) {
+        const lastAgency = await this.constructor.findOne({}, {}, { sort: { 'p_id': -1 } });
+
+        if (lastAgency && lastAgency.p_id) {
+            this.p_id = lastAgency.p_id + 1;
+        } else {
+            this.p_id = 1;
+        }
+    }
+    next();
+});
+
 const pageMasterModel = mongoose.model("Pms2PageMasterModel", pageMasterSchema);
 module.exports = pageMasterModel;

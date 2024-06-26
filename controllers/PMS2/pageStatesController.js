@@ -286,6 +286,9 @@ exports.getPageStatesDetails = async (req, res) => {
                     },
                 },
             },
+            {
+                $sort: { createdAt: -1 }
+            }
         ]);
         if (!pageStatesDetails) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
@@ -296,6 +299,122 @@ exports.getPageStatesDetails = async (req, res) => {
             res,
             "Page states details retrive successfully!",
             pageStatesDetails[0]
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+exports.getPageStatesDetailsByPageMasterId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const pageStatesDetails = await pageStatesModel.aggregate([
+            {
+                $match: {
+                    page_master_id: mongoose.Types.ObjectId(id),
+                    status: { $ne: constant.DELETED },
+                },
+            }, {
+                $addFields: {
+                    reach_image_url: {
+                        $cond: {
+                            if: { $ne: ["$reach_image", ""] },
+                            then: {
+                                $concat: [
+                                    constant.GCP_PAGE_STATES_FOLDER_URL,
+                                    "/",
+                                    "$reach_image",
+                                ],
+                            },
+                            else: "$reach_image",
+                        },
+                    }, impression_image_url: {
+                        $cond: {
+                            if: { $ne: ["$impression_image", ""] },
+                            then: {
+                                $concat: [
+                                    constant.GCP_PAGE_STATES_FOLDER_URL,
+                                    "/",
+                                    "$impression_image",
+                                ],
+                            },
+                            else: "$impression_image",
+                        },
+                    }, engagement_image_url: {
+                        $cond: {
+                            if: { $ne: ["$engagement_image", ""] },
+                            then: {
+                                $concat: [
+                                    constant.GCP_PAGE_STATES_FOLDER_URL,
+                                    "/",
+                                    "$engagement_image",
+                                ],
+                            },
+                            else: "$engagement_image",
+                        },
+                    }, story_view_image_url: {
+                        $cond: {
+                            if: { $ne: ["$story_view_image", ""] },
+                            then: {
+                                $concat: [
+                                    constant.GCP_PAGE_STATES_FOLDER_URL,
+                                    "/",
+                                    "$story_view_image",
+                                ],
+                            },
+                            else: "$story_view_image",
+                        },
+                    }, city_image_url: {
+                        $cond: {
+                            if: { $ne: ["$city_image", ""] },
+                            then: {
+                                $concat: [
+                                    constant.GCP_PAGE_STATES_FOLDER_URL,
+                                    "/",
+                                    "$city_image",
+                                ],
+                            },
+                            else: "$city_image",
+                        },
+                    }, Age_upload_url: {
+                        $cond: {
+                            if: { $ne: ["$Age_upload", ""] },
+                            then: {
+                                $concat: [
+                                    constant.GCP_PAGE_STATES_FOLDER_URL,
+                                    "/",
+                                    "$Age_upload",
+                                ],
+                            },
+                            else: "$Age_upload",
+                        },
+                    }, country_image_url: {
+                        $cond: {
+                            if: { $ne: ["$country_image", ""] },
+                            then: {
+                                $concat: [
+                                    constant.GCP_PAGE_STATES_FOLDER_URL,
+                                    "/",
+                                    "$country_image",
+                                ],
+                            },
+                            else: "$country_image",
+                        },
+                    },
+                },
+            },
+            {
+                $sort: { createdAt: -1 }
+            }
+        ]);
+        if (!pageStatesDetails) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Page states details retrive successfully!",
+            pageStatesDetails
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
@@ -320,7 +439,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$reach_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$reach_image",
                             ],
@@ -332,7 +451,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$impression_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$impression_image",
                             ],
@@ -344,7 +463,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$engagement_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$engagement_image",
                             ],
@@ -356,7 +475,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$story_view_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$story_view_image",
                             ],
@@ -368,7 +487,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$city_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$city_image",
                             ],
@@ -380,7 +499,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$Age_upload", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$Age_upload",
                             ],
@@ -392,7 +511,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$country_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$country_image",
                             ],
@@ -402,7 +521,9 @@ exports.getAllPageStatesList = async (req, res) => {
                 },
             },
         }
-        const pipeline = [{ $match: matchQuery }, addFieldsObj];
+        const pipeline = [{ $match: matchQuery }, addFieldsObj, {
+            $sort: { createdAt: -1 }
+        }];
 
         if (page && limit) {
             pipeline.push(
@@ -435,11 +556,11 @@ exports.getAllPageStatesList = async (req, res) => {
 exports.getStatesHistory = async (req, res) => {
     try {
         const { id } = req.params;
-        const statesHistoryDetails = await pageStatesModel.findOne({
+        const statesHistoryDetails = await pageStatesModel.find({
             page_master_id: id,
             status: { $ne: constant.DELETED },
         });
-        if (!statesHistoryDetails) {
+        if (statesHistoryDetails?.length <= 0) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
         return response.returnTrue(
