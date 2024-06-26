@@ -141,7 +141,7 @@ exports.editAccountDetails = async (req, res) => {
         }
 
         //account master data update in db collection
-        await accountMaster.updateOne({
+        const updatedAccountMasterData = await accountMaster.findByIdAndUpdate({
             _id: id
         }, {
             $set: {
@@ -156,10 +156,12 @@ exports.editAccountDetails = async (req, res) => {
                 description: description,
                 updated_by: updated_by
             }
+        }, {
+            new: true
         });
 
         //account billing collection data update in db collection
-        await accountBilling.updateOne({
+        const updatedAccountBillingData = await accountBilling.findOneAndUpdate({
             account_id: accountMasterData.account_id
         }, {
             $set: {
@@ -179,11 +181,17 @@ exports.editAccountDetails = async (req, res) => {
                 company_email: company_email,
                 updated_by: updated_by
             }
+        }, {
+            new: true
         });
         //send success response
         return res.status(200).json({
             status: 200,
             message: "account master data updated successfully!",
+            data: {
+                accountMaster: updatedAccountMasterData,
+                accountBilling: updatedAccountBillingData
+            }
         });
     } catch (error) {
         return res.status(500).json({
@@ -307,6 +315,7 @@ exports.getAllAccountDetails = async (req, res) => {
         }, {
             $group: {
                 _id: "$account_id",
+                id: { $first: "$_id" },
                 account_id: { $first: "$account_id" },
                 account_name: { $first: "$account_name" },
                 account_type_id: { $first: "$account_type_id" },
@@ -342,7 +351,7 @@ exports.getAllAccountDetails = async (req, res) => {
             }
         }, {
             $project: {
-                _id: 1,
+                _id: "$id",
                 account_id: 1,
                 account_name: 1,
                 account_type_id: 1,
