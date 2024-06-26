@@ -320,7 +320,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$reach_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$reach_image",
                             ],
@@ -332,7 +332,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$impression_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$impression_image",
                             ],
@@ -344,7 +344,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$engagement_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$engagement_image",
                             ],
@@ -356,7 +356,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$story_view_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$story_view_image",
                             ],
@@ -368,7 +368,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$city_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$city_image",
                             ],
@@ -380,7 +380,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$Age_upload", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$Age_upload",
                             ],
@@ -392,7 +392,7 @@ exports.getAllPageStatesList = async (req, res) => {
                         if: { $ne: ["$country_image", ""] },
                         then: {
                             $concat: [
-                                constant.GCP_VENDOR_FOLDER_URL,
+                                constant.GCP_PAGE_STATES_FOLDER_URL,
                                 "/",
                                 "$country_image",
                             ],
