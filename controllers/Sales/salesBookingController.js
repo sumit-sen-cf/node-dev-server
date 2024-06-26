@@ -116,6 +116,7 @@ exports.addSalesBooking = [
 
             let totalIncentiveAmount = 0;
             let totalRecordServiceAmount = 0;
+            const recordServiceCounts = (recordServicesData && recordServicesData.length) ? recordServicesData.length : 0;
             for (let index = 0; index < recordServicesData.length; index++) {
                 const element = recordServicesData[index];
                 totalRecordServiceAmount += element?.amount;
@@ -130,7 +131,8 @@ exports.addSalesBooking = [
             }, {
                 $set: {
                     incentive_amount: totalIncentiveAmount,
-                    record_service_amount: totalRecordServiceAmount
+                    record_service_amount: totalRecordServiceAmount,
+                    record_service_counts: recordServiceCounts
                 }
             })
 
@@ -192,7 +194,7 @@ exports.editSalesBooking = [
             };
 
             //draft status check
-            if (req.body?.is_draft_save) {
+            if (req.body?.is_draft_save == true || req.body?.is_draft_save == "true") {
                 updateData["booking_status"] = saleBookingStatus['04'].status;
             } else {
                 if (req.body.payment_credit_status == "sent_for_payment_approval") {
@@ -310,12 +312,21 @@ exports.getSingleSalesBooking = async (req, res) => {
         if (!salesBookingDetail) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
+
+        const result = { ...salesBookingDetail._doc }; // create a new object with all fields from salesBookingDetail._doc
+
+        if (salesBookingDetail.record_service_file && salesBookingDetail.record_service_file != '') {
+            const recordServiceURl = `${constant.GCP_SALES_BOOKING_FOLDER_URL}/${salesBookingDetail.record_service_file}`;
+            result.recordServiceFileURL = recordServiceURl; // add the new field to the result object
+        }
+
+        //return success response
         return response.returnTrue(
             200,
             req,
             res,
             "Sales booking details retrive successfully!",
-            salesBookingDetail
+            result
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});

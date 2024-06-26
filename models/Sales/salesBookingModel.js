@@ -48,6 +48,11 @@ const salesBooking = new mongoose.Schema({
         required: false,
         default: 0
     },
+    record_service_counts: {
+        type: Number,
+        required: false,
+        default: 0
+    },
     brand_id: {
         type: Schema.Types.ObjectId,
         required: false,

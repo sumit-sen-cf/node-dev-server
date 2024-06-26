@@ -31,6 +31,10 @@ const accountMasterSchema = new mongoose.Schema({
         required: false,
         // ref: ""
     },
+    brand_id: {
+        type: Schema.Types.ObjectId, //update from industry id
+        required: false,
+    },
     account_owner_id: {
         type: Number,   //login user_id
         required: true,
