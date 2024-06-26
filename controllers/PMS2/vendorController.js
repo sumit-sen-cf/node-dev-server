@@ -11,7 +11,7 @@ exports.createVendorData = async (req, res) => {
     try {
         const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, primary_field,
             vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
-            home_address, home_city, home_state, created_by, vendor_category,closed_by } = req.body;
+            home_address, home_city, home_state, created_by, vendor_category, closed_by } = req.body;
         const addVendorData = new vendorModel({
             vendor_type,
             vendor_platform,
@@ -382,6 +382,31 @@ exports.getAllVendorDeleted = async (req, res) => {
         }
 
         return response.returnTrue(200, req, res, 'Vendor retrieved successfully!', vendorData);
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+/**
+ * Api is get the vendor model data BY Vendor-Id
+ */
+exports.getVendorDetailsBYVendorId = async (req, res) => {
+    try {
+        const vendorId = parseInt(req.params.vendor_id);
+
+        const getVenorData = await vendorModel.findOne({
+            vendor_id: vendorId,
+        });
+        if (!getVenorData) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Vendor details retrieve successfully!",
+            getVenorData
+        );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
