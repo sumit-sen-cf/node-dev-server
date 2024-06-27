@@ -139,7 +139,7 @@ exports.addSalesBooking = [
             //success response send
             return response.returnTrue(200, req, res,
                 "Sales Booking Created Successfully",
-                { saleBookingAdded, recordServicesData });
+                saleBookingAdded);
         } catch (err) {
             return response.returnFalse(500, req, res, err.message, {});
         }
@@ -268,13 +268,12 @@ exports.getAllSalesBooking = async (req, res) => {
             },
         };
 
-        const pipeline = [addFieldsObj];
+        const pipeline = [addFieldsObj, { $sort: sort }];
 
         if (page && limit) {
             pipeline.push(
                 { $skip: skip },
                 { $limit: limit },
-                { $sort: sort }
             );
         }
 
