@@ -513,11 +513,32 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
  */
 exports.getIncentiveCalculationDashboard = async (req, res) => {
     try {
+        let matchCondition = {};
+        //create dynamic match condition
+        if (req.body?.user_ids) {
+            matchCondition = {
+                created_by: { $in: req.body.user_ids } // assuming req.body.user_ids is an array of user IDs
+            };
+        }
+
+        //body to year and month get and create match condition
+        if (req.body?.year && req.body?.month) {
+            let expr = {
+                $and: [
+                    { $eq: [{ $year: "$sale_booking_date" }, Number(req.body.year)] },
+                    { $eq: [{ $month: "$sale_booking_date" }, Number(req.body.month)] }
+                ]
+            }
+            matchCondition["$expr"] = expr;
+        }
+
         //incentive calculation limit set
         let incentiveCalculationLimit = incentiveCalculationUserLimit || 50000;
 
         //incentive dashboard data calculation
         const incentiveCalculationDashboard = await salesBookingModel.aggregate([{
+            $match: matchCondition
+        }, {
             $lookup: {
                 from: "usermodels",
                 let: {

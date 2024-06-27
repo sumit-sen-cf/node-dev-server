@@ -936,7 +936,7 @@ router.post("/offer_letter_send_in_mail", upload.single("attachment"), user.send
 
 //---------------------------------------------------------------------------All Routes OF Attendance Module Starts Here ---------------------------------------------------------------------------------------------------//
 
-// router.post("/add_attendance", attendance.addAttendance);
+router.post("/add_attendance", attendance.addAttendance);
 router.post(
   "/get_salary_by_id_month_year",
 
