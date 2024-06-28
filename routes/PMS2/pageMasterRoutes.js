@@ -12,8 +12,8 @@ const { addPageMasterValidation, updatePageMasterValidation } = require("../../h
 const { verifyToken } = require("../../middleware/auth");
 const router = express.Router();
 
-router.post("/pageMaster", verifyToken, addPageMasterValidation, addPageMaster);
-router.put("/pageMaster/:id", verifyToken, updatePageMasterValidation, updateSinglePageMasterDetails);
+router.post("/pageMaster", verifyToken, addPageMaster);
+router.put("/pageMaster/:id", verifyToken, updateSinglePageMasterDetails);
 router.get("/pageMaster", verifyToken, getAllPageMasterDetails);
 router.get("/pageMaster/:id", verifyToken, getSinglePageMasterDetails);
 router.get("/pageMasterDataByPID/:p_id", getPageMasterDetailBYPID);
