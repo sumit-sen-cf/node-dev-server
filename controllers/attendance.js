@@ -81,6 +81,7 @@ function monthNameToNumber(monthName) {
 const getLatestAttendanceId = async () => {
   try {
     const latestAttendance = await attendanceModel.findOne().sort({ attendence_id: -1 });
+    // console.log("latestAttendance", latestAttendance);
     return latestAttendance ? latestAttendance.attendence_id : 0;
   } catch (error) {
     console.error("Error finding latest attendance ID:", error.message);
@@ -94,6 +95,7 @@ const initializeAttendanceIdCounter = async () => {
   try {
     const latestAttendanceId = await getLatestAttendanceId();
     attendanceIdCounter = latestAttendanceId + 1;
+    // console.log("Initialized attendanceIdCounter:", attendanceIdCounter);
   } catch (error) {
     console.error("Error initializing attendanceIdCounter:", error.message);
     throw error;

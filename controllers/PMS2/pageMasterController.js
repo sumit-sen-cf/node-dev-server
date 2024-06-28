@@ -9,7 +9,7 @@ exports.addPageMaster = async (req, res) => {
         //get data from body 
         const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link, status, preference_level,
             content_creation, ownership_type, rate_type, variable_type, description, page_closed_by, followers_count, engagment_rate, tags_page_category,
-            platform_active_on, created_by } = req.body;
+            platform_active_on, created_by, story, post, both_, m_post_price, m_story_price, m_both_price } = req.body;
 
         //save data in Db collection
         const savingObj = await pageMasterModel.create({
@@ -34,6 +34,7 @@ exports.addPageMaster = async (req, res) => {
             tags_page_category,
             platform_active_on,
             created_by,
+            story, post, both_, m_post_price, m_story_price, m_both_price
         });
 
         if (!savingObj) {
@@ -175,7 +176,7 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
 
         const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link,
             status, preference_level, content_creation, ownership_type, rate_type, variable_type, description, page_closed_by,
-            followers_count, engagment_rate, tags_page_category, platform_active_on, last_updated_by } = req.body;
+            followers_count, engagment_rate, tags_page_category, platform_active_on, last_updated_by, story, post, both_, m_post_price, m_story_price, m_both_price } = req.body;
 
         const pageMasterDetails = await pageMasterModel.findOneAndUpdate({
             _id: id
@@ -201,7 +202,8 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
                 engagment_rate,
                 tags_page_category,
                 platform_active_on,
-                last_updated_by
+                last_updated_by,
+                story, post, both_, m_post_price, m_story_price, m_both_price
             }
         }, {
             new: true

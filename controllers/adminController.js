@@ -2,6 +2,8 @@ const nodemailer = require('nodemailer');
 const userModel = require('../models/userModel');
 const helper = require('../helper/helper.js');
 const bcrypt = require("bcrypt");
+const pageMasterModel = require('../models/PMS2/pageMasterModel.js')
+const vendorSchema = require('../models/PMS2/vendorModel.js')
 
 exports.changePassOfSelectedUsers = async (req, res) => {
     try {
@@ -139,5 +141,27 @@ exports.sendPassEmailToUsers = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ error: error.message, message: 'Internal Server Error' });
+    }
+}
+
+exports.changeVendorIdToId = async (req, res) => {
+    try {
+        const pm2pagemasterDocs = await pageMasterModel.find({ temp_vendor_id: { $ne: null } });
+    
+        for (let i = 0; i < pm2pagemasterDocs.length; i++) {
+          const pm2pagemasterDoc = pm2pagemasterDocs[i];
+          
+          const vendorSchemaDoc = await vendorSchema.findOne({ vendor_id: pm2pagemasterDoc.temp_vendor_id });
+          
+          if (vendorSchemaDoc) {
+            pm2pagemasterDoc.vendor_id = vendorSchemaDoc._id;
+            await pm2pagemasterDoc.save();
+          }
+        }
+    
+        res.status(200).json({ message: 'Vendor IDs updated successfully.' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
     }
 }

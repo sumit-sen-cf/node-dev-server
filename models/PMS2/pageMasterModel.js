@@ -26,7 +26,7 @@ const pageMasterSchema = new Schema({
     },
     vendor_id: {
         type: Schema.Types.ObjectId,
-        required: true,
+        required: false,
         ref: "Pms2VendorModel"
     },
     page_name: {
