@@ -1939,5 +1939,6 @@ router.get('/get_phase_commitments/:phaseName', opExecution.getPhaseCommits);
 router.get('/phase_created_campaign', opExecution.phaseCreatedCampaign);
 
 //------------------------------------------------- New Operations Routes End Here----------------------------
+router.get('/change_vendor_id_to_id', adminController.changeVendorIdToId)
 
 module.exports = router;
