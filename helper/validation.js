@@ -789,8 +789,10 @@ exports.addPageMasterValidation = async (req, res, next) => {
         engagment_rate: Joi.optional(),
         tags_page_category: Joi.optional(),
         platform_active_on: Joi.optional(),
-        story: Joi.optional(), post: Joi.optional(), 
-        both_: Joi.optional(), m_post_price: Joi.optional(),
+        story: Joi.optional(),
+         post: Joi.optional(), 
+        both_: Joi.optional(),
+         m_post_price: Joi.optional(),
          m_story_price: Joi.optional(),
          m_both_price: Joi.optional(),
         status: Joi.number().optional(),
@@ -841,6 +843,8 @@ exports.updatePageMasterValidation = async (req, res, next) => {
         last_updated_by: Joi.required(),
         story: Joi.optional(), post: Joi.optional(), 
         both_: Joi.optional(), m_post_price: Joi.optional(),
+        m_story_price: Joi.optional(),
+        m_both_price: Joi.optional(),
         // Adding validation for the array of objects
         page_price_multiple: Joi.array().items(page_price_multiple_obj).optional(),
     })
