@@ -936,7 +936,7 @@ router.post("/offer_letter_send_in_mail", upload.single("attachment"), user.send
 
 //---------------------------------------------------------------------------All Routes OF Attendance Module Starts Here ---------------------------------------------------------------------------------------------------//
 
-router.post("/add_attendance", attendance.addAttendance);
+// router.post("/add_attendance", attendance.addAttendance);
 router.post(
   "/get_salary_by_id_month_year",
 
@@ -1940,5 +1940,7 @@ router.get('/phase_created_campaign', opExecution.phaseCreatedCampaign);
 
 //------------------------------------------------- New Operations Routes End Here----------------------------
 router.get('/change_vendor_id_to_id', adminController.changeVendorIdToId)
+router.get('/change_primarypage_id_to_id', adminController.changePrimaryPageToId)
+router.get('/shift_bank_details', adminController.shiftBankDetails)
 
 module.exports = router;
