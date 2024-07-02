@@ -931,6 +931,7 @@ router.post("/image_to_base64", user.ImagetoBase64);
 router.get("/download_offerletter_in_bucket/:filename", user.downloadOfferLeterInBucket);
 router.post("/send_offer_letter", user.sendOfferLetter);
 router.post("/offer_letter_send_in_mail", upload.single("attachment"), user.sendOfferLetterMail);
+router.put('/change_all_reportL1_by_sub_dept', user.changeAllReportL1BySubDept);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 
