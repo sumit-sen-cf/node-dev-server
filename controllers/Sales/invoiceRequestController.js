@@ -118,66 +118,6 @@ exports.updateInvoiceRequest = [
         }
     }];
 
-// exports.getInvoiceRequestDatas = async (req, res) => {
-//     try {
-//         // Extract page and limit from query parameters, default to null if not provided
-//         const page = req.query?.page ? parseInt(req.query.page) : null;
-//         const limit = req.query?.limit ? parseInt(req.query.limit) : null;
-//         const sort = { createdAt: -1 };
-
-//         // Calculate the number of records to skip based on the current page and limit
-//         const skip = (page && limit) ? (page - 1) * limit : 0;
-
-//         let addFieldsObj = {
-//             $addFields: {
-//                 purchase_order_upload_url: {
-//                     $cond: {
-//                         if: { $ne: ["$purchase_order_upload", ""] },
-//                         then: {
-//                             $concat: [
-//                                 constant.GCP_INVOICE_REQUEST_URL,
-//                                 "/",
-//                                 "$purchase_order_upload",
-//                             ],
-//                         },
-//                         else: "$purchase_order_upload",
-//                     },
-//                 },
-//             },
-//         };
-
-//         const pipeline = [addFieldsObj];
-//         if (page && limit) {
-//             pipeline.push(
-//                 { $skip: skip },
-//                 { $limit: limit },
-//                 { $sort: sort }
-//             );
-//         }
-//         const invoicerequestList = await invoiceRequestModel.aggregate(pipeline);
-//         const invoicerequestCount = await invoiceRequestModel.countDocuments(addFieldsObj);
-
-//         // Return a success response with the list of records and pagination details
-//         return response.returnTrueWithPagination(
-//             200,
-//             req,
-//             res,
-//             "Invoice Request list retreive successfully!",
-//             invoicerequestList,
-//             {
-//                 start_record: skip + 1,
-//                 end_record: skip + invoicerequestList.length,
-//                 total_records: invoicerequestCount,
-//                 current_page: page || 1,
-//                 total_page: (page && limit) ? Math.ceil(invoicerequestCount / limit) : 1,
-//             }
-//         );
-//     } catch (error) {
-//         // Return an error response in case of any exceptions
-//         return response.returnFalse(500, req, res, `${error.message}`, {});
-//     }
-// };
-
 /**
  * Api is to used for the reocrd_service_master data delete in the DB collection.
  */
@@ -211,6 +151,55 @@ exports.deleteInvoiceRequest = async (req, res) => {
 }
 
 
+exports.updateInvoiceUploadedByFinance = [
+    upload, async (req, res) => {
+        try {
+            const { sale_booking_id } = req.body;
+            const updateData = {
+                invoice_type_id: req.body.invoice_type_id,
+                invoice_number: req.body.invoice_number,
+                invoice_date: req.body.invoice_date,
+                party_name: req.body.party_name,
+                invoice_uploaded_date: req.body.invoice_uploaded_date,
+                updated_by: req.body.updated_by,
+            };
+
+            // Fetch the old document and update it
+            const updatedInvoiceRequestData = await invoiceRequestModel.findOneAndUpdate({ sale_booking_id: sale_booking_id }, updateData, { new: true });
+
+            if (!updatedInvoiceRequestData) {
+                return response.returnFalse(404, req, res, `Invoice Request data not found`, {});
+            }
+
+            // Define the image fields 
+            const imageFields = {
+                invoice_file: 'purchaseUploadFile',
+            };
+
+            // Remove old images not present in new data and upload new images
+            for (const [fieldName] of Object.entries(imageFields)) {
+                if (req.files && req.files[fieldName] && req.files[fieldName][0]) {
+
+                    // Delete old image if present
+                    if (updatedInvoiceRequestData[fieldName]) {
+                        await deleteImage(`InvoiceRequestFiles/${updatedInvoiceRequestData[fieldName]}`);
+                    }
+                    // Upload new image
+                    updatedInvoiceRequestData[fieldName] = await uploadImage(req.files[fieldName][0], "InvoiceRequestFiles");
+                }
+            }
+            // Save the updated document with the new image URLs
+            await updatedInvoiceRequestData.save();
+
+            // Return a success response with the updated record details
+            return response.returnTrue(200, req, res, "Invoice Request data updated successfully!", updatedInvoiceRequestData);
+        } catch (error) {
+            // Return an error response in case of any exceptions
+            return response.returnFalse(500, req, res, `${error.message}`, {});
+        }
+    }];
+
+
 exports.getInvoiceRequestDatas = async (req, res) => {
     try {
         const invoiceRequestData = await invoiceRequestModel.aggregate([
@@ -230,7 +219,7 @@ exports.getInvoiceRequestDatas = async (req, res) => {
             {
                 $lookup: {
                     from: "accountmastermodels",
-                    localField: "account_id",
+                    localField: "saleData.account_id",
                     foreignField: "account_id",
                     as: "accountData",
                 }
@@ -264,6 +253,8 @@ exports.getInvoiceRequestDatas = async (req, res) => {
                     created_by: 1,
                     po_number: 1,
                     invoice_type_id: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
                     purchase_order_upload_url: {
                         $cond: {
                             if: { $ne: ["$purchase_order_upload", ""] },
@@ -282,7 +273,7 @@ exports.getInvoiceRequestDatas = async (req, res) => {
                         campaign_name: "$saleData.campaign_name",
                         sale_booking_date: "$saleData.sale_booking_date",
                         invoice_requested_date: "$saleData.invoice_requested_date",
-                        cust_name: "$accountData.account_name",
+                        account_name: "$accountData.account_name",
                         invoice_particular_name: "$invoiceData.invoice_particular_name",
                         base_amount: "$saleData.base_amount",
                         gst_amount: "$saleData.gst_amount",
