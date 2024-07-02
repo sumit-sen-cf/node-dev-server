@@ -79,15 +79,15 @@ exports.addUser = async (req, res) => {
         }
 
 
-        if (req.body.DOB) {
-            var dob = new Date(req.body.DOB);
-            dob.setDate(dob.getDate() + 1);
-        }
+        // if (req.body.DOB) {
+        //     var dob = new Date(req.body.DOB);
+        //     dob.setDate(dob.getDate() + 1);
+        // }
 
-        if (req.body.joining_date) {
-            var doj = new Date(req.body.joining_date);
-            doj.setDate(doj.getDate() + 1);
-        }
+        // if (req.body.joining_date) {
+        //     var doj = new Date(req.body.joining_date);
+        //     doj.setDate(doj.getDate() + 1);
+        // }
 
         const simc = new userModel({
             user_name: req.body.user_name,
@@ -103,7 +103,7 @@ exports.addUser = async (req, res) => {
             sub_dept_id: req.body.sub_dept_id,
             Gender: req.body.Gender,
             job_type: req.body.job_type,
-            DOB: dob,
+            DOB: req.body.DOB,
             user_contact_no: req.body?.user_contact_no,
             PersonalNumber: req.body?.personal_number,
             user_email_id: req.body?.user_email_id,
@@ -112,7 +112,7 @@ exports.addUser = async (req, res) => {
             Report_L2: req.body.report_L2,
             Report_L3: req.body.report_L3,
             user_designation: req.body.user_designation,
-            joining_date: doj,
+            joining_date: req.body.joining_date,
             onboard_status: req.body.onboard_status,
             created_by: req.body.created_by,
             att_status: req.body.att_status,
@@ -121,6 +121,7 @@ exports.addUser = async (req, res) => {
             tds_applicable: req.body?.tds_applicable,
             tds_per: req.body?.tds_per,
             permanent_city: req.body?.permanent_city,
+            user_status: req.body?.user_status,
             emergency_contact_person_name2: req.body.emergency_contact_person_name2
         })
 
@@ -192,15 +193,15 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
     try {
         const encryptedPass = req.body.user_login_password ? await bcrypt.hash(req.body.user_login_password, 10) : null;
 
-        if (req.body.DOB) {
-            var dob = new Date(req.body.DOB);
-            dob.setDate(dob.getDate() + 1);
-        }
+        // if (req.body.DOB) {
+        //     var dob = new Date(req.body.DOB);
+        //     dob.setDate(dob.getDate() + 1);
+        // }
 
-        if (req.body.joining_date) {
-            var doj = new Date(req.body.joining_date);
-            doj.setDate(doj.getDate() + 1);
-        }
+        // if (req.body.joining_date) {
+        //     var doj = new Date(req.body.joining_date);
+        //     doj.setDate(doj.getDate() + 1);
+        // }
 
         const simc = new userModel({
             // Fields omitted for brevity
@@ -209,7 +210,7 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             PersonalNumber: req.body.personal_number,
             alternate_contact: req.body.alternate_contact,
             Gender: req.body.Gender,
-            DOB: dob,
+            DOB: req.body.DOB,
             Age: req.body.Age,
             Nationality: req.body.Nationality,
             MartialStatus: req.body.MartialStatus,
@@ -228,10 +229,12 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             user_login_id: req.body.user_login_id.toLowerCase().trim(),
             user_login_password: encryptedPass,
             user_status: req.body.user_status,
-            joining_date: doj,
+            joining_date: req.body.joining_date,
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
             upi_Id: req.body.upi_Id,
+            ctc: req.body.ctc,
+            salary: req.body.salary,
             // emp_id: empId,
             user_credit_limit: req.body.user_credit_limit,
             created_date_time: req.body.created_date_time,
@@ -346,6 +349,7 @@ exports.updateUserForGeneralInformation = [upload, async (req, res) => {
             upi_Id: req.body.upi_Id,
             user_credit_limit: req.body.user_credit_limit,
             ctc: req.body.ctc,
+            salary: req.body.salary,
             emergency_contact_person_name2: req.body.emergency_contact_person_name2
         }, { new: true });
 
@@ -1137,7 +1141,7 @@ exports.getSingleUser = async (req, res) => {
                     offer_later_reject_reason: "$offer_later_reject_reason",
                     user_id: "$user_id",
                     user_name: "$user_name",
-                    sub_dept_id: "$subDepartment.sub_dept_id",
+                    sub_dept_id: "$subDepartment.id",
                     sub_dept_name: "$subDepartment.sub_dept_name",
                     user_designation: "$user_designation",
                     user_email_id: "$user_email_id",
@@ -4243,3 +4247,25 @@ exports.getAllSalesUsersByDepartment = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 };
+
+exports.changeAllReportL1BySubDept = async (req, res) => {
+    const { sub_dept_id, report_L1 } = req.body;
+
+    if (!sub_dept_id || !report_L1) {
+        return res.status(400).json({ message: 'sub_dept_id and report_L1 are required.' });
+    }
+
+    try {
+        const result = await userModel.updateMany(
+            { sub_dept_id: sub_dept_id },
+            { $set: { Report_L1: parseInt(report_L1) } }
+        );
+
+        res.status(200).send({ success: true, data: result })
+    } catch (err) {
+        return res.status(500).send({
+            error: err.message,
+            message: "Error  in user report_L1",
+        })
+    }
+}

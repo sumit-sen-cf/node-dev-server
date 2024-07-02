@@ -80,8 +80,8 @@ function monthNameToNumber(monthName) {
 // new
 const getLatestAttendanceId = async () => {
   try {
-    const latestAttendance = await attendanceModel.findOne().sort({ attendence_id: -1 });
-    // console.log("latestAttendance", latestAttendance);
+    const latestAttendance = await attendanceModel.findOne().sort({ attendence_id: -1 }).select({ attendence_id: 1 });
+    console.log("latestAttendance", latestAttendance);
     return latestAttendance ? latestAttendance.attendence_id : 0;
   } catch (error) {
     console.error("Error finding latest attendance ID:", error.message);
@@ -148,8 +148,6 @@ exports.addAttendance = async (req, res) => {
         message: "Please Added First Billing Header For This Department",
       });
     }
-
-    // const monthLastValue = getLastDateOfMonth(month, year);
 
     const attendanceData = await userModel.aggregate([
       {
@@ -235,18 +233,20 @@ exports.addAttendance = async (req, res) => {
             const mergeJoining = parseInt(joiningMonth + joiningYear);
             const monthNumber = monthNameToNumber(month);
             const mergeJoining1 = `${monthNumber}` + `${year}`;
+            const lastDateOfMonth = getLastDateOfMonth(month, year);
+            const remainingDays = lastDateOfMonth - extractDate;
+
             if (mergeJoining == mergeJoining1) {
-              if (extractDate < 15) {
+              if (extractDate <= 15) {
                 work_days = 15 - extractDate - absent;
-              } else {
-                work_days = 30 - extractDate - absent;
               }
             } else if (user.status == "Resigned") {
               work_days = (30 - resignExtractDate) - absent;
             }
             else {
-              work_days = 30 - absent;
+              work_days = remainingDays - (15 - extractDate) + 15 - absent
             }
+
             const bodymonth = `${year}` + `${monthNumber}`;
 
             const joiningMonthNumber = convertDate.getUTCMonth() + 1;
@@ -260,7 +260,7 @@ exports.addAttendance = async (req, res) => {
                 req.body.year
               );
               if (!userExistsInAttendance) {
-                const presentDays = work_days;
+                const presentDays = work_days == undefined ? 0 : work_days;
 
                 const perdaysal = user.salary / 30;
 
@@ -276,23 +276,23 @@ exports.addAttendance = async (req, res) => {
                 const salary = user.salary;
                 let invoiceNo = await createNextInvoiceNumber(user.user_id, month, year);
 
-                const attendanceId = await getNextAttendanceId();
+                const attendanceId = getNextAttendanceId();
                 const creators = new attendanceModel({
                   attendence_id: attendanceId,
                   dept: user.dept_id,
                   user_id: user.user_id,
                   invoiceNo: invoiceNo,
                   user_name: user.user_name,
-                  noOfabsent: absent,
-                  present_days: presentDays,
-                  month_salary: totalSalary && totalSalary.toFixed(2),
+                  noOfabsent: Number(absent),
+                  present_days: Number(presentDays),
+                  month_salary: Number(totalSalary) && Number(totalSalary).toFixed(2),
                   month: req.body.month,
                   year: req.body.year,
                   bonus: Bonus,
-                  total_salary: user.salary && user.salary.toFixed(2),
-                  tds_deduction: tdsDeduction && tdsDeduction.toFixed(2),
-                  net_salary: netSalary && netSalary.toFixed(2),
-                  toPay: ToPay && ToPay.toFixed(2),
+                  total_salary: Number(user.salary) && Number(user.salary).toFixed(2),
+                  tds_deduction: Number(tdsDeduction) && Number(tdsDeduction).toFixed(2),
+                  net_salary: Number(netSalary) && Number(netSalary).toFixed(2),
+                  toPay: Number(ToPay) && Number(ToPay).toFixed(2),
                   remark: "",
                   Created_by: req.body.user_id,
                   salary,

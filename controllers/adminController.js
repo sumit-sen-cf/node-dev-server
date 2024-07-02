@@ -4,6 +4,8 @@ const helper = require('../helper/helper.js');
 const bcrypt = require("bcrypt");
 const pageMasterModel = require('../models/PMS2/pageMasterModel.js')
 const vendorSchema = require('../models/PMS2/vendorModel.js')
+const { ObjectId } = require('mongodb');
+const bankDetailsSchema = require('../models/PMS2/bankDetailsModel.js')
 
 exports.changePassOfSelectedUsers = async (req, res) => {
     try {
@@ -165,3 +167,55 @@ exports.changeVendorIdToId = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
+
+exports.changePrimaryPageToId = async (req, res) => {
+    try {
+        const vendors = await vendorSchema.find({}).select({ primary_page: 1 });
+
+        const pm2pagemasterDocs = await pageMasterModel.find({ p_id: { $ne: null } });
+
+        for (let i = 0; i < vendors.length; i++) {
+            const vendor = vendors[i];
+            const pm2pagemasterDoc = pm2pagemasterDocs.find(doc => doc.p_id === vendor.primary_page);
+
+            if (pm2pagemasterDoc) {
+                vendor.primary_page = pm2pagemasterDoc._id; 
+                await vendor.save(); 
+            }
+        }
+
+        res.status(200).json({ message: 'Vendor IDs updated successfully.' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+exports.shiftBankDetails = async (req, res) => {
+    try {
+        const vendormodels = await vendorSchema.find({});
+
+        for (const vendor of vendormodels) {
+            const newVendorBankDetails = {
+                vendor_id: vendor._id,
+                registered_number: vendor.mobile,
+                bank_name: vendor.bank_name || '',
+                account_type: vendor.account_type || '',
+                account_number: vendor.account_number || 0,
+                ifsc: vendor.ifsc || '',
+                upi_id: vendor.payment_details || '',
+                created_by: null,
+                updated_by: null,
+                status: 1,
+                __v: 0,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                created_by: vendor.created_by || 0
+            };
+            await bankDetailsSchema.create(newVendorBankDetails);
+        }
+        res.status(200).json({ message: 'Data inserted from vendor to bank collection' });
+    } catch (err) {
+        res.status(500).json({ error: err.message, message: 'Error while shifting data' });
+    }
+};

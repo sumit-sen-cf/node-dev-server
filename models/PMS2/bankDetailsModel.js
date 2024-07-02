@@ -46,7 +46,7 @@ const bankDetailsSchema = new mongoose.Schema({
     },
     updated_by: {
         type: Number,
-        reqxuired: false,
+        required: false,
         default: 0,
     },
     status: {
