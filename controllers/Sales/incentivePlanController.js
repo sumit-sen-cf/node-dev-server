@@ -438,6 +438,11 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
                 campaignAmount: { $gte: monthWiseIncentiveCalculationLimit }
             }
         }, {
+            $sort: {
+                "_id.year": -1,
+                "_id.month": -1
+            }
+        }, {
             $addFields: {
                 monthName: {
                     $switch: {
@@ -501,7 +506,7 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
         //return success response
         return response.returnTrue(200, req, res,
             "Incentive calculation month and year wise data retrieved successfully",
-            incentiveCalculationMonthWise
+            incentiveCalculationMonthWise[0]
         );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
@@ -513,7 +518,9 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
  */
 exports.getIncentiveCalculationDashboard = async (req, res) => {
     try {
-        let matchCondition = {};
+        let matchCondition = {
+            incentive_status: "incentive"
+        };
         //create dynamic match condition
         if (req.body?.user_ids) {
             matchCondition = {
@@ -522,13 +529,19 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
         }
 
         //body to year and month get and create match condition
-        if (req.body?.year && req.body?.month) {
+        if (req.body?.monthYearArray && (req.body.monthYearArray).length) {
             let expr = {
-                $and: [
-                    { $eq: [{ $year: "$sale_booking_date" }, Number(req.body.year)] },
-                    { $eq: [{ $month: "$sale_booking_date" }, Number(req.body.month)] }
-                ]
-            }
+                $or: []
+            };
+            req.body.monthYearArray.forEach((date) => {
+                let [month, year] = date.split('-');
+                expr.$or.push({
+                    $and: [
+                        { $eq: [{ $year: "$sale_booking_date" }, Number(year)] },
+                        { $eq: [{ $month: "$sale_booking_date" }, Number(month)] }
+                    ]
+                });
+            });
             matchCondition["$expr"] = expr;
         }
 
@@ -569,7 +582,9 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
             $group: {
                 _id: {
                     created_by: "$created_by",
-                    user_name: "$userData.user_name"
+                    user_name: "$userData.user_name",
+                    year: { $year: "$sale_booking_date" },
+                    month: { $month: "$sale_booking_date" }
                 },
                 totalDocuments: { $sum: 1 },
                 campaignAmount: { $sum: "$campaign_amount" },
@@ -585,6 +600,23 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
         }, {
             $match: {
                 campaignAmount: { $gte: incentiveCalculationLimit }
+            }
+        }, {
+            $group: {
+                _id: {
+                    created_by: "$_id.created_by",
+                    user_name: "$_id.user_name",
+                },
+                totalDocuments: { $sum: "$totalDocuments" },
+                campaignAmount: { $sum: "$campaignAmount" },
+                paidAmount: { $sum: "$paidAmount" },
+                recordServiceAmount: { $sum: "$recordServiceAmount" },
+                incentiveAmount: { $sum: "$incentiveAmount" },
+                earnedIncentiveAmount: { $sum: "$earnedIncentiveAmount" },
+                unEarnedIncentiveAmount: { $sum: "$unEarnedIncentiveAmount" },
+                incentiveRequestedAmount: { $sum: "$incentiveRequestedAmount" },
+                incentiveRequestPendingAmount: { $sum: "$incentiveRequestPendingAmount" },
+                incentiveReleasedAmount: { $sum: "$incentiveReleasedAmount" },
             }
         }, {
             $project: {
