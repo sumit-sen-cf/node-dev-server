@@ -411,14 +411,15 @@ exports.getIncentiveCalculationStatusWiseData = async (req, res) => {
  */
 exports.getIncentiveCalculationMonthWise = async (req, res) => {
     try {
+        let matchCondition = {
+            created_by: Number(req.params.user_id)
+        };
         //incentive calculation limit set
         let monthWiseIncentiveCalculationLimit = incentiveCalculationUserLimit || 50000;
 
         //month wise sale booking incentive data calculation
         const incentiveCalculationMonthWise = await salesBookingModel.aggregate([{
-            $match: {
-                created_by: Number(req.params.user_id)
-            }
+            $match: matchCondition
         }, {
             $group: {
                 _id: {
@@ -522,7 +523,7 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
             incentive_status: "incentive"
         };
         //create dynamic match condition
-        if (req.body?.user_ids) {
+        if (req.body?.user_ids && (req.body.user_ids).length) {
             matchCondition = {
                 created_by: { $in: req.body.user_ids } // assuming req.body.user_ids is an array of user IDs
             };
@@ -658,7 +659,7 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
         //return success response
         return response.returnTrue(200, req, res,
             "Incentive calculation Dashboard data retrieved successfully",
-            incentiveCalculationDashboard[0]
+            incentiveCalculationDashboard
         );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
