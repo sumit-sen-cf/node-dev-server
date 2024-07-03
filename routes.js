@@ -1943,5 +1943,6 @@ router.get('/phase_created_campaign', opExecution.phaseCreatedCampaign);
 router.get('/change_vendor_id_to_id', adminController.changeVendorIdToId)
 router.get('/change_primarypage_id_to_id', adminController.changePrimaryPageToId)
 router.get('/shift_bank_details', adminController.shiftBankDetails)
+router.get('/get_vendor_details_with_ids', adminController.getVendorDetailsWithIds)
 
 module.exports = router;
