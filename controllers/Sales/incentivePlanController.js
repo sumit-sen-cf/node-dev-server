@@ -411,8 +411,21 @@ exports.getIncentiveCalculationStatusWiseData = async (req, res) => {
  */
 exports.getIncentiveCalculationMonthWise = async (req, res) => {
     try {
+        //get user id from params
+        let userId = req.params?.user_id;
+        // Get distinct sale booking IDs from the database
+        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', {
+            created_by: Number(userId),
+            incentive_status: "incentive"
+        });
+
+        //match condition obj prepare
         let matchCondition = {
-            created_by: Number(req.params.user_id)
+            // created_by: Number(userId),
+            // incentive_status: "incentive",
+            sale_booking_id: {
+                $in: distinctSaleBookingIds
+            }
         };
         //incentive calculation limit set
         let monthWiseIncentiveCalculationLimit = incentiveCalculationUserLimit || 50000;
@@ -420,6 +433,36 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
         //month wise sale booking incentive data calculation
         const incentiveCalculationMonthWise = await salesBookingModel.aggregate([{
             $match: matchCondition
+        }, {
+            $lookup: {
+                from: "salesrecordservicemodels",
+                localField: "sale_booking_id",
+                foreignField: "sale_booking_id",
+                as: "salesRecordServiceData"
+            }
+        }, {
+            $unwind: "$salesRecordServiceData"
+        }, {
+            $lookup: {
+                from: "salesincentiveplanmodels",
+                localField: "salesRecordServiceData.sales_service_master_id",
+                foreignField: "sales_service_master_id",
+                as: "salesIncentivePlanDetails"
+            }
+        }, {
+            $addFields: {
+                salesIncentivePlan: {
+                    $cond: {
+                        if: { $gt: [{ $size: "$salesIncentivePlanDetails" }, 0] },
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        }, {
+            $match: {
+                salesIncentivePlan: true
+            }
         }, {
             $group: {
                 _id: {
@@ -507,7 +550,7 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
         //return success response
         return response.returnTrue(200, req, res,
             "Incentive calculation month and year wise data retrieved successfully",
-            incentiveCalculationMonthWise[0]
+            incentiveCalculationMonthWise.length ? incentiveCalculationMonthWise[0] : {}
         );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
