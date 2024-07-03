@@ -262,7 +262,7 @@ exports.addAttendance = async (req, res) => {
               if (!userExistsInAttendance) {
                 const presentDays = work_days == undefined ? 0 : work_days;
 
-                const perdaysal = user.salary / 30;
+                const perdaysal = user.salary / lastDateOfMonth;
 
                 const totalSalary = perdaysal * presentDays;
 
