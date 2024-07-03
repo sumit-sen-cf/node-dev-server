@@ -937,7 +937,7 @@ router.put('/change_all_reportL1_by_sub_dept', user.changeAllReportL1BySubDept);
 
 //---------------------------------------------------------------------------All Routes OF Attendance Module Starts Here ---------------------------------------------------------------------------------------------------//
 
-// router.post("/add_attendance", attendance.addAttendance);
+router.post("/add_attendance", attendance.addAttendance);
 router.post(
   "/get_salary_by_id_month_year",
 
