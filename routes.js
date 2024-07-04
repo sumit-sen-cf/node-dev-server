@@ -937,7 +937,7 @@ router.put('/change_all_reportL1_by_sub_dept', user.changeAllReportL1BySubDept);
 
 //---------------------------------------------------------------------------All Routes OF Attendance Module Starts Here ---------------------------------------------------------------------------------------------------//
 
-// router.post("/add_attendance", attendance.addAttendance);
+router.post("/add_attendance", attendance.addAttendance);
 router.post(
   "/get_salary_by_id_month_year",
 
@@ -1943,5 +1943,7 @@ router.get('/phase_created_campaign', opExecution.phaseCreatedCampaign);
 router.get('/change_vendor_id_to_id', adminController.changeVendorIdToId)
 router.get('/change_primarypage_id_to_id', adminController.changePrimaryPageToId)
 router.get('/shift_bank_details', adminController.shiftBankDetails)
+router.get('/get_vendor_details_with_ids', adminController.getVendorDetailsWithIds)
+router.get('/get_vendor_details_with_ids_by_id/:vendor_id', adminController.getVendorDetailsWithIdsById)
 
 module.exports = router;

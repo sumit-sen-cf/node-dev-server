@@ -4,6 +4,7 @@ const helper = require('../helper/helper.js');
 const bcrypt = require("bcrypt");
 const pageMasterModel = require('../models/PMS2/pageMasterModel.js')
 const vendorSchema = require('../models/PMS2/vendorModel.js')
+const vendorPlatformModel = require('../models/PMS2/vendorPlatformModel.js')
 const { ObjectId } = require('mongodb');
 const bankDetailsSchema = require('../models/PMS2/bankDetailsModel.js')
 
@@ -219,3 +220,162 @@ exports.shiftBankDetails = async (req, res) => {
         res.status(500).json({ error: err.message, message: 'Error while shifting data' });
     }
 };
+
+exports.getVendorDetailsWithIds = async(req, res) => {
+    try{
+        const vendorData = await vendorSchema.aggregate([
+            {
+                $lookup: {
+                    from: "pms2vendorplatformmodels",
+                    localField: "vendor_platform",
+                    foreignField: "_id",
+                    as: "vendorPlatformDetail",
+                },
+            }, {
+                $unwind: {
+                    path: "$vendorPlatformDetail",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "pms2vendortypemodels",
+                    localField: "vendor_type",
+                    foreignField: "_id",
+                    as: "vendorTypeDetail",
+                },
+            }, {
+                $unwind: {
+                    path: "$vendorTypeDetail",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "pms2pagemastermodels",
+                    localField: "primary_page",
+                    foreignField: "_id",
+                    as: "vendorPageDetail",
+                },
+            }, {
+                $unwind: {
+                    path: "$vendorPageDetail",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },{
+                $project:{
+                    closed_by: 1,
+                    status: 1,
+                    _id: 1,
+                    vendor_id: 1,
+                    vendor_name: 1,
+                    page_count: 1,
+                    mobile: 1,
+                    alternate_mobile: 1,
+                    vendor_type: 1,
+                    payment_method: 1,
+                    payment_details: 1,
+                    pay_cycle: 1,
+                    created_at: 1,
+                    vendor_platform: 1,
+                    Pincode: 1,
+                    created_by: 1,
+                    updatedAt: 1,
+                    updated_by: 1,
+                    primary_page: 1,
+                    platform_name: "$vendorPlatformDetail.platform_name",
+                    type_name: "$vendorTypeDetail.type_name",
+                    primary_page_name: "$vendorPageDetail.page_name"
+                }
+            } 
+        ]);
+        if (!vendorData) {
+            return res.status(200).json({data:[],message:'No Reord Found...'});
+        }
+        return res.status(200).json({data:vendorData, message:'Data fetched successfully'});
+    }catch(err){
+        res.status(500).json({error:err.message, message:'error while getting data'})
+    }
+}
+
+exports.getVendorDetailsWithIdsById = async(req, res) => {
+    try{
+        const vendorData = await vendorSchema.aggregate([
+            {
+                $match:{
+                    vendor_id: Number(req.params.vendor_id)
+                }
+            },
+            {
+                $lookup: {
+                    from: "pms2vendorplatformmodels",
+                    localField: "vendor_platform",
+                    foreignField: "_id",
+                    as: "vendorPlatformDetail",
+                },
+            }, {
+                $unwind: {
+                    path: "$vendorPlatformDetail",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "pms2vendortypemodels",
+                    localField: "vendor_type",
+                    foreignField: "_id",
+                    as: "vendorTypeDetail",
+                },
+            }, {
+                $unwind: {
+                    path: "$vendorTypeDetail",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "pms2pagemastermodels",
+                    localField: "primary_page",
+                    foreignField: "_id",
+                    as: "vendorPageDetail",
+                },
+            }, {
+                $unwind: {
+                    path: "$vendorPageDetail",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },{
+                $project:{
+                    closed_by: 1,
+                    status: 1,
+                    _id: 1,
+                    vendor_id: 1,
+                    vendor_name: 1,
+                    page_count: 1,
+                    mobile: 1,
+                    alternate_mobile: 1,
+                    vendor_type: 1,
+                    payment_method: 1,
+                    payment_details: 1,
+                    pay_cycle: 1,
+                    created_at: 1,
+                    vendor_platform: 1,
+                    Pincode: 1,
+                    created_by: 1,
+                    updatedAt: 1,
+                    updated_by: 1,
+                    primary_page: 1,
+                    platform_name: "$vendorPlatformDetail.platform_name",
+                    type_name: "$vendorTypeDetail.type_name",
+                    primary_page_name: "$vendorPageDetail.page_name"
+                }
+            } 
+        ]);
+        if (!vendorData) {
+            return res.status(200).json({data:[],message:'No Reord Found...'});
+        }
+        return res.status(200).json({data:vendorData, message:'Data fetched successfully'});
+    }catch(err){
+        res.status(500).json({error:err.message, message:'error while getting data'})
+    }
+}
