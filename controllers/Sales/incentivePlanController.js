@@ -464,18 +464,36 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
                 salesIncentivePlan: true
             }
         }, {
+            $addFields: {
+                year: { $year: "$sale_booking_date" },
+                month: { $month: "$sale_booking_date" }
+            }
+        }, {
+            $group: {
+                _id: "$sale_booking_id",
+                year: { $first: "$year" },
+                month: { $first: "$month" },
+                totalDocuments: { $sum: 1 },
+                campaignAmount: { $first: "$campaign_amount" },
+                paidAmount: { $first: "$approved_amount" },
+                recordServiceAmount: { $sum: "$salesRecordServiceData.amount" },
+                incentiveAmount: { $first: "$incentive_amount" },
+                earnedIncentiveAmount: { $first: "$earned_incentive_amount" },
+                unEarnedIncentiveAmount: { $first: "$unearned_incentive_amount" }
+            }
+        }, {
             $group: {
                 _id: {
-                    year: { $year: "$sale_booking_date" },
-                    month: { $month: "$sale_booking_date" }
+                    year: "$year",
+                    month: "$month"
                 },
-                totalDocuments: { $sum: 1 },
-                campaignAmount: { $sum: "$campaign_amount" },
-                paidAmount: { $sum: "$approved_amount" },
-                recordServiceAmount: { $sum: "$record_service_amount" },
-                incentiveAmount: { $sum: "$incentive_amount" },
-                earnedIncentiveAmount: { $sum: "$earned_incentive_amount" },
-                unEarnedIncentiveAmount: { $sum: "$unearned_incentive_amount" },
+                totalDocuments: { $first: "$totalDocuments" },
+                campaignAmount: { $sum: "$campaignAmount" },
+                paidAmount: { $sum: "$paidAmount" },
+                recordServiceAmount: { $sum: "$recordServiceAmount" },
+                incentiveAmount: { $sum: "$incentiveAmount" },
+                earnedIncentiveAmount: { $sum: "$earnedIncentiveAmount" },
+                unEarnedIncentiveAmount: { $sum: "$unEarnedIncentiveAmount" }
             }
         }, {
             $match: {

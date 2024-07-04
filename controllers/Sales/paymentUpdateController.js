@@ -73,7 +73,7 @@ exports.createPaymentUpdate = [
             });
 
             addSalesBookingPayment["sale_booking_date"] = saleBookingData.sale_booking_date;
-            addSalesBookingPayment["sales_executive_name"] = userData.user_name;
+            addSalesBookingPayment["sales_executive_name"] = userData?.user_name || "";
             addSalesBookingPayment["account_name"] = accountData.account_name;
             addSalesBookingPayment["gst_status"] = saleBookingData.gst_status;
             addSalesBookingPayment["campaign_amount"] = saleBookingData.campaign_amount;
@@ -396,6 +396,7 @@ exports.updatePaymentAndSaleData = async (req, res) => {
             if (approvedAmount >= campaignPercentageAmount) {
                 updateObj["incentive_earning_status"] = "earned";
                 updateObj["earned_incentive_amount"] = saleBookingData.incentive_amount;
+                updateObj["unearned_incentive_amount"] = 0;
             } else {
                 updateObj["unearned_incentive_amount"] = saleBookingData.incentive_amount;
             }
