@@ -3757,7 +3757,7 @@ exports.getUserTimeLine = async (req, res) => {
             return res.status(400).json({ error: "Joining date not found for the user" });
         }
         const probationEndDate = new Date(joiningDate);
-        probationEndDate.setMonth(probationEndDate.getMonth() + 3);
+        probationEndDate.setMonth(probationEndDate.getMonth() + 6);
         const today = new Date();
         const yearsOfWork = today.getFullYear() - joiningDate.getFullYear();
         return res.status(200).json({
@@ -3766,7 +3766,7 @@ exports.getUserTimeLine = async (req, res) => {
             joiningDate: joiningDate,
             DOB: DOB,
             probationEndDate: probationEndDate,
-            probationMonthValue: "3 Months",
+            probationMonthValue: "6 Months",
             workAnniversaryYears: {
                 Date: joiningDate,
                 Work_Anniversary_Years: yearsOfWork <= 1 ? "1 year" : `${yearsOfWork} years`
