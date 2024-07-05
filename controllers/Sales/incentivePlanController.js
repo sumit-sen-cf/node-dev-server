@@ -240,6 +240,20 @@ exports.getIncentiveCalculationStatusWiseData = async (req, res) => {
                 as: "salesIncentivePlanDetails",
             }
         }, {
+            $addFields: {
+                salesIncentivePlan: {
+                    $cond: {
+                        if: { $gt: [{ $size: "$salesIncentivePlanDetails" }, 0] },
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        }, {
+            $match: {
+                salesIncentivePlan: true
+            }
+        }, {
             $unwind: {
                 path: "$salesIncentivePlanDetails",
                 preserveNullAndEmptyArrays: true,
@@ -255,6 +269,7 @@ exports.getIncentiveCalculationStatusWiseData = async (req, res) => {
                         $expr: {
                             $and: [
                                 { $eq: ["$$sale_booking_id", "$sale_booking_id"] },
+                                { $eq: ["$incentive_status", "incentive"] }
                             ]
                         }
                     }
