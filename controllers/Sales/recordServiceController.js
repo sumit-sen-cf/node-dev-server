@@ -301,7 +301,8 @@ exports.updateMultipleRecordService = async (req, res) => {
             $set: {
                 incentive_amount: totalIncentiveAmount,
                 record_service_amount: totalRecordServiceAmount,
-                record_service_counts: recordServiceCounts
+                record_service_counts: recordServiceCounts,
+                unearned_incentive_amount: totalIncentiveAmount
             }
         })
 
