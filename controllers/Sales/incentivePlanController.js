@@ -580,8 +580,16 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
  */
 exports.getIncentiveCalculationDashboard = async (req, res) => {
     try {
+        // Get distinct sale booking IDs from the database
+        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', {
+            incentive_status: "incentive",
+        });
+
+        //match condition obj prepare
         let matchCondition = {
-            incentive_status: "incentive"
+            sale_booking_id: {
+                $in: distinctSaleBookingIds
+            }
         };
         //create dynamic match condition
         if (req.body?.user_ids && (req.body.user_ids).length) {
@@ -641,20 +649,72 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
                 preserveNullAndEmptyArrays: true,
             }
         }, {
+            $lookup: {
+                from: "salesrecordservicemodels",
+                localField: "sale_booking_id",
+                foreignField: "sale_booking_id",
+                as: "salesRecordServiceData"
+            }
+        }, {
+            $unwind: "$salesRecordServiceData",
+        }, {
+            $lookup: {
+                from: "salesincentiveplanmodels",
+                localField: "salesRecordServiceData.sales_service_master_id",
+                foreignField: "sales_service_master_id",
+                as: "salesIncentivePlanDetails"
+            }
+        }, {
+            $addFields: {
+                salesIncentivePlan: {
+                    $cond: {
+                        if: { $gt: [{ $size: "$salesIncentivePlanDetails" }, 0] },
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        }, {
+            $match: {
+                salesIncentivePlan: true
+            }
+        }, {
+            $addFields: {
+                year: { $year: "$sale_booking_date" },
+                month: { $month: "$sale_booking_date" },
+                created_by: "$created_by",
+                user_name: "$userData.user_name",
+            }
+        }, {
+            $group: {
+                _id: "$sale_booking_id",
+                year: { $first: "$year" },
+                month: { $first: "$month" },
+                created_by: { $first: "$created_by" },
+                user_name: { $first: "$user_name" },
+                totalDocuments: { $sum: 1 },
+                campaignAmount: { $first: "$campaign_amount" },
+                paidAmount: { $first: "$approved_amount" },
+                recordServiceAmount: { $sum: "$salesRecordServiceData.amount" },
+                incentiveAmount: { $first: "$incentive_amount" },
+                earnedIncentiveAmount: { $first: "$earned_incentive_amount" },
+                unEarnedIncentiveAmount: { $first: "$unearned_incentive_amount" }
+            }
+        }, {
             $group: {
                 _id: {
                     created_by: "$created_by",
-                    user_name: "$userData.user_name",
-                    year: { $year: "$sale_booking_date" },
-                    month: { $month: "$sale_booking_date" }
+                    user_name: "$user_name",
+                    year: "$year",
+                    month: "$month",
                 },
-                totalDocuments: { $sum: 1 },
-                campaignAmount: { $sum: "$campaign_amount" },
-                paidAmount: { $sum: "$approved_amount" },
-                recordServiceAmount: { $sum: "$record_service_amount" },
-                incentiveAmount: { $sum: "$incentive_amount" },
-                earnedIncentiveAmount: { $sum: "$earned_incentive_amount" },
-                unEarnedIncentiveAmount: { $sum: "$unearned_incentive_amount" },
+                totalDocuments: { $first: "$totalDocuments" },
+                campaignAmount: { $sum: "$campaignAmount" },
+                paidAmount: { $sum: "$paidAmount" },
+                recordServiceAmount: { $sum: "$recordServiceAmount" },
+                incentiveAmount: { $sum: "$incentiveAmount" },
+                earnedIncentiveAmount: { $sum: "$earnedIncentiveAmount" },
+                unEarnedIncentiveAmount: { $sum: "$unEarnedIncentiveAmount" },
                 incentiveRequestedAmount: { $sum: 0 },
                 incentiveRequestPendingAmount: { $sum: 0 },
                 incentiveReleasedAmount: { $sum: 0 },
@@ -669,7 +729,7 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
                     created_by: "$_id.created_by",
                     user_name: "$_id.user_name",
                 },
-                totalDocuments: { $sum: "$totalDocuments" },
+                totalDocuments: { $first: "$totalDocuments" },
                 campaignAmount: { $sum: "$campaignAmount" },
                 paidAmount: { $sum: "$paidAmount" },
                 recordServiceAmount: { $sum: "$recordServiceAmount" },
@@ -679,6 +739,10 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
                 incentiveRequestedAmount: { $sum: "$incentiveRequestedAmount" },
                 incentiveRequestPendingAmount: { $sum: "$incentiveRequestPendingAmount" },
                 incentiveReleasedAmount: { $sum: "$incentiveReleasedAmount" },
+            }
+        }, {
+            $sort: {
+                "_id.created_by": 1,
             }
         }, {
             $project: {
