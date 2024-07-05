@@ -715,9 +715,6 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
                 incentiveAmount: { $sum: "$incentiveAmount" },
                 earnedIncentiveAmount: { $sum: "$earnedIncentiveAmount" },
                 unEarnedIncentiveAmount: { $sum: "$unEarnedIncentiveAmount" },
-                incentiveRequestedAmount: { $sum: 0 },
-                incentiveRequestPendingAmount: { $sum: 0 },
-                incentiveReleasedAmount: { $sum: 0 },
             }
         }, {
             $match: {
@@ -736,13 +733,51 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
                 incentiveAmount: { $sum: "$incentiveAmount" },
                 earnedIncentiveAmount: { $sum: "$earnedIncentiveAmount" },
                 unEarnedIncentiveAmount: { $sum: "$unEarnedIncentiveAmount" },
-                incentiveRequestedAmount: { $sum: "$incentiveRequestedAmount" },
-                incentiveRequestPendingAmount: { $sum: "$incentiveRequestPendingAmount" },
-                incentiveReleasedAmount: { $sum: "$incentiveReleasedAmount" },
             }
         }, {
             $sort: {
                 "_id.created_by": 1,
+            }
+        }, {
+            $lookup: {
+                from: "salesincentiverequestmodels",
+                let: { created_by: "$_id.created_by" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$sales_executive_id", "$$created_by"] },
+                                    { $in: ["$admin_status", ["pending", "approved"]] }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            incentiveRequestedAmount: { $sum: "$user_requested_amount" },
+                            incentiveReleasedAmount: { $sum: "$finance_released_amount" }
+                        }
+                    }
+                ],
+                as: "incentiveRequestData"
+            }
+        }, {
+            $unwind: {
+                path: "$incentiveRequestData",
+                preserveNullAndEmptyArrays: true
+            }
+        }, {
+            $addFields: {
+                incentiveRequestedAmount: { $ifNull: ["$incentiveRequestData.incentiveRequestedAmount", 0] },
+                incentiveRequestPendingAmount: {
+                    $subtract: [
+                        { $ifNull: ["$earnedIncentiveAmount", 0] },
+                        { $ifNull: ["$incentiveRequestData.incentiveRequestedAmount", 0] }
+                    ]
+                },
+                incentiveReleasedAmount: { $ifNull: ["$incentiveRequestData.incentiveReleasedAmount", 0] },
             }
         }, {
             $project: {
