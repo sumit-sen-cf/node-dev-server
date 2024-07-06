@@ -199,9 +199,7 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
         };
         //create dynamic match condition
         if (req.body?.user_ids && (req.body.user_ids).length) {
-            matchCondition = {
-                created_by: { $in: req.body.user_ids } // assuming req.body.user_ids is an array of user IDs
-            };
+            matchCondition["created_by"] = { $in: req.body.user_ids };
         }
 
         //body to year and month get and create match condition
