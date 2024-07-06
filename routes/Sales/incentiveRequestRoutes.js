@@ -15,5 +15,7 @@ router.get("/sales/incentive_request_list_for_admin/", verifyToken, incentiveReq
 router.put("/sales/incentive_request_release_by_finance/:id", verifyToken, incentiveRequestController.incentiveRequestReleaseByFinance);
 router.get("/sales/incentive_request_list_for_finance/", verifyToken, incentiveRequestController.getIncentiveRequestListForFinance);
 
+//incentive calculation user-wise api's
+router.get("/sales/incentive_request_user_status_wise/:id", verifyToken, incentiveRequestController.getIncentiveRequestListUserAndStatusWise);
 
 module.exports = router; 

@@ -312,3 +312,91 @@ exports.getIncentiveRequestListForFinance = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     };
 };
+
+/**
+ * Api is to used for the get incentive Request list status wise. 
+ */
+exports.getIncentiveRequestListUserAndStatusWise = async (req, res) => {
+    try {
+        let userId = req.params?.id
+        //for match conditions
+        let matchQuery = {
+            sales_executive_id: Number(userId),
+            admin_status: {
+                $ne: "rejected",
+            },
+            status: {
+                $ne: constant.DELETED
+            }
+        }
+
+        //if status get in query 
+        if (req.query?.status) {
+            matchQuery["admin_status"] = req.query.status;
+        }
+
+        //data get from the db collection
+        const incentiveRequestList = await incentiveRequestModel.aggregate([{
+            $match: matchQuery
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "sales_executive_id",
+                foreignField: "user_id",
+                as: "userData",
+            }
+        }, {
+            $unwind: {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                sales_executive_id: 1,
+                sales_executive_name: "$userData.user_name",
+                user_requested_amount: 1,
+                admin_approved_amount: 1,
+                finance_released_amount: 1,
+                admin_status: 1,
+                created_by: 1,
+                updated_by: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                balanceReleaseAmount: {
+                    $subtract: [
+                        { $ifNull: ["$admin_approved_amount", 0] },
+                        { $ifNull: ["$finance_released_amount", 0] }
+                    ]
+                },
+                payment_date: 1,
+                payment_ref_no: 1,
+                account_number: 1
+            }
+        }, {
+            $group: {
+                _id: null,
+                totalUserRequestedAmount: { $sum: "$user_requested_amount" },
+                totalAdminApprovedAmount: { $sum: "$admin_approved_amount" },
+                totalFinanceReleasedAmount: { $sum: "$finance_released_amount" },
+                totalBalanceReleaseAmount: { $sum: "$balanceReleaseAmount" },
+                incentiveRequestList: { $push: "$$ROOT" },
+            }
+        }])
+
+        // If no records are found, return a response indicating no records found
+        if (incentiveRequestList.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
+        }
+        // Return a success response 
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Incentive Request list retrieved successfully!",
+            incentiveRequestList
+        );
+    } catch (error) {
+        // Return an error response in case of any exceptions
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+}
