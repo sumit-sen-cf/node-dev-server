@@ -447,12 +447,28 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
 
         //match condition obj prepare
         let matchCondition = {
-            // created_by: Number(userId),
-            // incentive_status: "incentive",
             sale_booking_id: {
                 $in: distinctSaleBookingIds
             }
         };
+
+        //body to year and month get and create match condition
+        if (req.body?.monthYearArray && (req.body.monthYearArray).length) {
+            let expr = {
+                $or: []
+            };
+            req.body.monthYearArray.forEach((date) => {
+                let [month, year] = date.split('-');
+                expr.$or.push({
+                    $and: [
+                        { $eq: [{ $year: "$sale_booking_date" }, Number(year)] },
+                        { $eq: [{ $month: "$sale_booking_date" }, Number(month)] }
+                    ]
+                });
+            });
+            matchCondition["$expr"] = expr;
+        }
+
         //incentive calculation limit set
         let monthWiseIncentiveCalculationLimit = incentiveCalculationUserLimit || 50000;
 
