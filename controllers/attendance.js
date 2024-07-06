@@ -80,7 +80,7 @@ function monthNameToNumber(monthName) {
 // new
 const getLatestAttendanceId = async () => {
   try {
-    const latestAttendance = await attendanceModel.findOne().sort({ attendence_id: -1 }).select({ attendence_id: 1 });
+    const latestAttendance = await attendanceModel?.findOne().sort({ attendence_id: -1 }).select({ attendence_id: 1 });
     console.log("latestAttendance", latestAttendance);
     return latestAttendance ? latestAttendance.attendence_id : 0;
   } catch (error) {
