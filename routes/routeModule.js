@@ -34,6 +34,7 @@ const autoIncentiveCalculationRoutes = require("./Sales/autoIncentiveCalculation
 const invoiceParticularRoutes = require("./Sales/invoiceParticularRoutes");
 const invoiceRequestRoutes = require("./Sales/invoiceRequestRoutes");
 const incentiveRequestRoutes = require("./Sales/incentiveRequestRoutes");
+const financeSalesRoutes = require("./Sales/financeSalesRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -76,6 +77,7 @@ exports.routeModules = [
     autoIncentiveCalculationRoutes,
     invoiceParticularRoutes,
     invoiceRequestRoutes,
-    incentiveRequestRoutes
+    incentiveRequestRoutes,
+    financeSalesRoutes
 ];
 
