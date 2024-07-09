@@ -127,6 +127,19 @@ const salesBooking = new mongoose.Schema({
         type: String,
         required: false,
     },
+    incentive_request_id: {
+        type: Schema.Types.ObjectId,
+        required: false,
+    },
+    incentive_request_status: { //on incentive release request time add
+        type: String,
+        enum: ['pending', 'requested', 'released'],
+        required: false,
+    },
+    settlement_sale_booking_id: { //only add in Non GST booking
+        type: Number,
+        required: false,
+    },
     incentive_status: {
         type: String,
         enum: ['incentive', 'no-incentive', 'sharing'],//0-2

@@ -13,6 +13,7 @@ exports.createIncentiveRequest = async (req, res) => {
             admin_action_reason, account_number, payment_ref_no,
             payment_date, payment_type, partial_payment_reason, remarks
         } = req.body;
+        let sale_booking_ids = req.body.sale_booking_ids;
 
         const addIncentiveRequestDetails = await incentiveRequestModel.create({
             sales_executive_id: sales_executive_id,
@@ -28,6 +29,18 @@ exports.createIncentiveRequest = async (req, res) => {
             // partial_payment_reason: partial_payment_reason,
             // remarks: remarks,
         });
+
+        await salesBookingModel.updateMany({
+            sale_booking_id: {
+                $in: Number(sale_booking_ids)
+            }
+        }, {
+            $set: {
+                incentive_request_id: addIncentiveRequestDetails?._id,
+                incentive_request_status: "requested"
+            }
+        });
+
         // Return a success response with the updated record details
         return response.returnTrue(
             200,
@@ -51,6 +64,7 @@ exports.updateIncentiveRequestByAdmin = async (req, res) => {
         const { id } = req.params;
         const { admin_approved_amount, admin_status, admin_action_reason, updated_by
         } = req.body;
+        let sale_booking_ids = req.body.sale_booking_ids;
 
         //dynamic obj prepared for update data
         let updateObj = {
@@ -70,6 +84,18 @@ exports.updateIncentiveRequestByAdmin = async (req, res) => {
             $set: updateObj
         }, {
             new: true
+        });
+
+        //update sale booking ids in Sale booking collection
+        await salesBookingModel.updateMany({
+            sale_booking_id: {
+                $in: Number(sale_booking_ids)
+            }
+        }, {
+            $set: {
+                incentive_request_id: incentiveRequestUpdated?._id,
+                incentive_request_status: "requested"
+            }
         });
 
         // Return a success response with the updated record details
@@ -211,6 +237,14 @@ exports.incentiveRequestReleaseByFinance = async (req, res) => {
             new: true
         });
 
+        //update sale bboking ids in Sale booking collection
+        await salesBookingModel.updateMany({
+            incentive_request_id: id
+        }, {
+            $set: {
+                incentive_request_status: "released"
+            }
+        });
         // Return a success response with the updated record details
         return response.returnTrue(
             200,
