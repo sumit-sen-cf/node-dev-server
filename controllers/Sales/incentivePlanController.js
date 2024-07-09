@@ -854,3 +854,254 @@ exports.getIncentiveCalculationStatusWiseData = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 }
+
+/**
+ * incentive Released button data calculate user's wise.
+ */
+exports.getIncentiveReleasedButtonData = async (req, res) => {
+    try {
+        //get user id from params
+        let userId = req.params?.user_id;
+        // Get distinct sale booking IDs from the database
+        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', {
+            created_by: Number(userId),
+            incentive_status: "incentive"
+        });
+
+        //match condition obj prepare
+        let matchCondition = {
+            sale_booking_id: {
+                $in: distinctSaleBookingIds
+            }
+        };
+
+        //incentive calculation limit set
+        let incentiveCalculationLimit = incentiveCalculationUserLimit || 50000;
+
+        //incentive dashboard data calculation
+        // const incentiveCalculationDashboard = await salesBookingModel.aggregate([{
+        //     $match: matchCondition
+        // }, {
+        //     $lookup: {
+        //         from: "usermodels",
+        //         let: {
+        //             created_by: "$created_by"
+        //         },
+        //         pipeline: [{
+        //             $match: {
+        //                 $expr: {
+        //                     $and: [
+        //                         { $eq: ["$$created_by", "$user_id"] },
+        //                     ]
+        //                 }
+        //             }
+        //         }, {
+        //             $project: {
+        //                 user_id: 1,
+        //                 user_name: 1,
+        //             }
+        //         }],
+        //         as: "userData"
+        //     }
+        // }, {
+        //     $unwind: {
+        //         path: "$userData",
+        //         preserveNullAndEmptyArrays: true,
+        //     }
+        // }, {
+        //     $lookup: {
+        //         from: "salesrecordservicemodels",
+        //         localField: "sale_booking_id",
+        //         foreignField: "sale_booking_id",
+        //         as: "salesRecordServiceData"
+        //     }
+        // }, {
+        //     $unwind: "$salesRecordServiceData",
+        // }, {
+        //     $lookup: {
+        //         from: "salesincentiveplanmodels",
+        //         localField: "salesRecordServiceData.sales_service_master_id",
+        //         foreignField: "sales_service_master_id",
+        //         as: "salesIncentivePlanDetails"
+        //     }
+        // }, {
+        //     $addFields: {
+        //         salesIncentivePlan: {
+        //             $cond: {
+        //                 if: { $gt: [{ $size: "$salesIncentivePlanDetails" }, 0] },
+        //                 then: true,
+        //                 else: false
+        //             }
+        //         }
+        //     }
+        // }, {
+        //     $match: {
+        //         salesIncentivePlan: true
+        //     }
+        // }, {
+        //     $addFields: {
+        //         year: { $year: "$sale_booking_date" },
+        //         month: { $month: "$sale_booking_date" },
+        //         // created_by: "$created_by",
+        //         // user_name: "$userData.user_name",
+        //     }
+        // }, {
+        //     $group: {
+        //         _id: "$sale_booking_id",
+        //         year: { $first: "$year" },
+        //         month: { $first: "$month" },
+        //         // created_by: { $first: "$created_by" },
+        //         // user_name: { $first: "$user_name" },
+        //         totalDocuments: { $sum: 1 },
+        //         campaignAmount: { $first: "$campaign_amount" },
+        //         paidAmount: { $first: "$approved_amount" },
+        //         recordServiceAmount: { $sum: "$salesRecordServiceData.amount" },
+        //         incentiveAmount: { $first: "$incentive_amount" },
+        //         earnedIncentiveAmount: { $first: "$earned_incentive_amount" },
+        //         unEarnedIncentiveAmount: { $first: "$unearned_incentive_amount" }
+        //     }
+        // }, {
+        //     $group: {
+        //         _id: {
+        //             // created_by: "$created_by",
+        //             // user_name: "$user_name",
+        //             year: "$year",
+        //             month: "$month",
+        //         },
+        //         totalDocuments: { $first: "$totalDocuments" },
+        //         campaignAmount: { $sum: "$campaignAmount" },
+        //         paidAmount: { $sum: "$paidAmount" },
+        //         recordServiceAmount: { $sum: "$recordServiceAmount" },
+        //         incentiveAmount: { $sum: "$incentiveAmount" },
+        //         earnedIncentiveAmount: { $sum: "$earnedIncentiveAmount" },
+        //         unEarnedIncentiveAmount: { $sum: "$unEarnedIncentiveAmount" },
+        //     }
+        //     }, {
+        //         $match: {
+        //             campaignAmount: { $gte: incentiveCalculationLimit }
+        //         }
+        // }, {
+        //     $project: {
+        //         // _id: 0,
+        //         user_id: "$_id.created_by",
+        //         user_name: "$_id.user_name",
+        //         totalDocuments: "$totalDocuments",
+        //         campaignAmount: "$campaignAmount",
+        //         paidAmount: "$paidAmount",
+        //         recordServiceAmount: "$recordServiceAmount",
+        //         incentiveAmount: "$incentiveAmount",
+        //         earnedIncentiveAmount: "$earnedIncentiveAmount",
+        //         unEarnedIncentiveAmount: "$unEarnedIncentiveAmount",
+        //     }
+        // }]);
+
+        const incentiveCalculationDashboard = await salesBookingModel.aggregate([
+            {
+                $match: matchCondition
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    let: {
+                        created_by: "$created_by"
+                    },
+                    pipeline: [{
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$$created_by", "$user_id"] },
+                                ]
+                            }
+                        }
+                    }, {
+                        $project: {
+                            user_id: 1,
+                            user_name: 1,
+                        }
+                    }],
+                    as: "userData"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userData",
+                    preserveNullAndEmptyArrays: true,
+                }
+            },
+            {
+                $lookup: {
+                    from: "salesrecordservicemodels",
+                    localField: "sale_booking_id",
+                    foreignField: "sale_booking_id",
+                    as: "salesRecordServiceData"
+                }
+            },
+            {
+                $unwind: "$salesRecordServiceData",
+            },
+            {
+                $lookup: {
+                    from: "salesincentiveplanmodels",
+                    localField: "salesRecordServiceData.sales_service_master_id",
+                    foreignField: "sales_service_master_id",
+                    as: "salesIncentivePlanDetails"
+                }
+            },
+            {
+                $addFields: {
+                    salesIncentivePlan: {
+                        $cond: {
+                            if: { $gt: [{ $size: "$salesIncentivePlanDetails" }, 0] },
+                            then: true,
+                            else: false
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    salesIncentivePlan: true
+                }
+            },
+            {
+                $addFields: {
+                    year: { $year: "$sale_booking_date" },
+                    month: { $month: "$sale_booking_date" },
+                    sale_booking_date: "$sale_booking_date"
+                }
+            }, {
+                $project: {
+                    sale_booking_id: 1,
+                    year: 1,
+                    month: 1,
+                    sale_booking_date: 1,
+                    campaign_amount: 1,
+                    approved_amount: 1,
+                    requested_amount: 1,
+                    record_service_amount: 1,
+                    base_amount: 1,
+                    incentive_amount: 1,
+                    gst_status: 1,
+                    recordServiceAmount: "$salesRecordServiceData.amount",
+                }
+                // }, {
+                //     $match: {
+                //         campaignAmount: { $gte: incentiveCalculationLimit }
+                //     }
+            }
+        ]);
+
+        //if data not present
+        if (!incentiveCalculationDashboard) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
+        }
+
+        //return success response
+        return response.returnTrue(200, req, res,
+            "Incentive Released button data retrieved successfully",
+            incentiveCalculationDashboard
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
