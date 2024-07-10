@@ -54,6 +54,7 @@ const leadtype = require("./controllers/lead.js");
 const leadmast = require("./controllers/lead.js");
 const { verifyToken } = require("./middleware/auth.js");
 const demoApi = require("./controllers/demoApi.js");
+const expenseApi = require("./controllers/expenseController.js");
 
 const assetCategory = require("./controllers/assestsCategory.js");
 const assetSubCategory = require("./controllers/assetsSubCategory.js");
@@ -1945,5 +1946,12 @@ router.get('/change_primarypage_id_to_id', adminController.changePrimaryPageToId
 router.get('/shift_bank_details', adminController.shiftBankDetails)
 router.get('/get_vendor_details_with_ids', adminController.getVendorDetailsWithIds)
 router.get('/get_vendor_details_with_ids_by_id/:vendor_id', adminController.getVendorDetailsWithIdsById)
+
+/* expense api */
+router.post("/add_expense", upload1.single("upload_bill"), expenseApi.addExpense);
+router.get("/get_all_expense", expenseApi.getAllExpenses);
+router.get("/get_single_expense/:_id", expenseApi.getSingleExpense);
+router.put("/update_expense", upload1.single("upload_bill"), expenseApi.editExpense);
+router.delete("/delete_expense/:_id", expenseApi.deleteExpense);
 
 module.exports = router;
