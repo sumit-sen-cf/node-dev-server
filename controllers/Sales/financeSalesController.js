@@ -151,3 +151,72 @@ exports.getAllphpFinanceDataById = async (req, res) => {
         res.status(500).send({ error: error.message, sms: "error getting php finance data" })
     }
 }
+
+exports.saleBookingsForTDS = async (req, res) => {
+    try{
+        const SalesBookingTdsData = await salesBookingModel.aggregate([
+        // {
+        //     $match: {
+        //         tds_status: req.body.tds_status,
+        //     }
+        // }, 
+        {
+            $lookup: {
+                from: "phppaymentballistmodels",
+                localField: "sale_booking_id",
+                foreignField: "sale_booking_id",
+                as: "accountMasterData",
+            }
+        }, {
+            $unwind: {
+                path: "$accountMasterData",
+                // preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                sale_booking_id: 1,
+                account_id: 1,
+                cust_name: "$accountMasterData.cust_name",
+                sales_exe_name: "$accountMasterData.username",
+                sale_booking_date: 1,
+                campaign_amount: 1,
+                base_amount: 1,
+                tds_verified_amount: 1,
+                gst_amount: 1,
+                net_amount: {$add:["$base_amount", "$gst_amount"]},
+                paid_amount: "$accountMasterData.paid_amount",
+                balance_refund_amount: "$accountMasterData.balance_refund_amount",
+                booking_created_date: "$accountMasterData.booking_created_date",
+                tds_status: 1,
+                created_by: 1
+            }
+        }]);
+
+        if (!SalesBookingTdsData) {
+            return response.returnFalse(200, req, res, "No Record Found...", []);
+        }
+        
+        return response.returnTrue(200, req, res, "Sales Booking data fatched", SalesBookingTdsData);
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
+
+exports.verifyTDS = async (req, res) => {
+    try{
+        const updateData = await salesBookingPayment.findOneAndUpdate(
+            { sale_booking_id: req.body.sale_booking_id },
+            { 
+                tds_verified_amount: req.body.tds_verified_amount,
+                tds_verified_remark: tds_verified_remark
+            }
+        );
+
+        if (!updateData) {
+            return response.returnFalse(200, req, res, "No Record Found with given id...", []);
+        }
+        return response.returnTrue(200, req, res, 'Record Updated successfully', updateData)
+    }catch(err){
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
