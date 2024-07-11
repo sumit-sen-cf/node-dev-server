@@ -670,7 +670,7 @@ exports.addAttendance = async (req, res) => {
 //   }
 // };
 
-
+//new
 exports.getSalaryByDeptIdMonthYear = async (req, res) => {
   try {
     const imageUrl = vari.IMAGE_URL;
@@ -725,16 +725,6 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
             path: "$user",
             preserveNullAndEmptyArrays: true,
           },
-        },
-        {
-          $addFields: {
-            joining_day: { $dayOfMonth: "$user.joining_date" }
-          }
-        },
-        {
-          $match: {
-            joining_day: { $lte: 15 }
-          }
         },
         {
           $lookup: {
