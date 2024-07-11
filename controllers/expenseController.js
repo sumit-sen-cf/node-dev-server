@@ -80,6 +80,20 @@ exports.getAllExpenses = async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: 'usermodels',
+                    localField: 'user_id',
+                    foreignField: 'assigned_to',
+                    as: 'userData'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userData",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
                 $project: {
                     _id: 1,
                     account_details: 1,
@@ -96,10 +110,11 @@ exports.getAllExpenses = async (req, res) => {
                     upload_bill: 1,
                     account_name: "$accountData.account_name",
                     category_name: "$expenseCategory.category_name",
+                    assigned_to_name: "$userData.user_name",
                     upload_bill_url: { $concat: [expenseImagesBaseUrl, "$upload_bill"] }
                 }
             }
-        ]);
+        ]).sort({ creation_date: -1 });
 
         if (!expenses) {
             res.status(500).send({ success: false })
@@ -148,6 +163,20 @@ exports.getSingleExpense = async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: 'usermodels',
+                    localField: 'user_id',
+                    foreignField: 'assigned_to',
+                    as: 'userData'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userData",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
                 $project: {
                     _id: 1,
                     account_details: 1,
@@ -164,6 +193,7 @@ exports.getSingleExpense = async (req, res) => {
                     upload_bill: 1,
                     account_name: "$accountData.account_name",
                     category_name: "$expenseCategory.category_name",
+                    assigned_to_name: "$userData.user_name",
                     upload_bill_url: { $concat: [expenseImagesBaseUrl, "$upload_bill"] }
                 }
             }
