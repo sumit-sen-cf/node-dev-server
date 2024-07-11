@@ -7,7 +7,8 @@ const mongoose = require('mongoose');
 
 exports.addCampaignPhase = async (req, res) => {
 
-    const { pages, campaignId, phaseName, start_date, end_date, description, postPerPage, storyPerPage } = req.body;
+    const { pages, campaignId, start_date, end_date, description, postPerPage, storyPerPage } = req.body;
+    const phaseName = req.body.phaseName.trim();
 
     for (const page of pages) {
         if (!page.postPerPage || !page.storyPerPage) {

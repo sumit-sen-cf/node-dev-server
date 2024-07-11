@@ -3,8 +3,11 @@ const mongoose = require('mongoose');
 const expenseModel = new mongoose.Schema({
     account_details: {
         type: mongoose.Types.ObjectId,
-        required: true,
-        ref: ''
+        required: false,
+        ref: 'expenseAccountModel'
+    },
+    transaction_date: {
+        type: Date,
     },
     amount: {
         type: Number,
@@ -20,8 +23,8 @@ const expenseModel = new mongoose.Schema({
     },
     expense_category: {
         type: mongoose.Types.ObjectId,
-        ref: '',
-        required: true
+        ref: 'expenseCategoryModel',
+        required: false
     },
     assigned_to: {
         type: Number,
@@ -34,17 +37,17 @@ const expenseModel = new mongoose.Schema({
         default: 0
     },
     last_updated_by: {
-        type: String,
+        type: Number,
         required: false,
-        default: ""
+        default: 0
     },
     creation_date: {
-        type: String,
-        default: ""
+        type: Date,
+        default: Date.now
     },
     updated_date: {
-        type: String,
-        default: ""
+        type: Date,
+        default: Date.now
     },
     minor_status: {
         type: String,

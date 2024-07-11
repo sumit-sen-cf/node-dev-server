@@ -19,6 +19,10 @@ const pageMasterSchema = new Schema({
         required: true,
         ref: "Pms2PageCategoryModel"
     },
+    temp_page_category_id: {
+        type: Number,
+        required: false,
+    },
     platform_id: {
         type: Schema.Types.ObjectId,
         required: true,

@@ -365,14 +365,13 @@ exports.setUtrData = async (req, res) => {
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber > 1) {
         if (rowNumber > 1) {
-          const attendence_id = row.getCell('K').value;
-          const utr = row.getCell('L').value;
+          const attendence_id = row.getCell('I').value;
+          const utr = row.getCell('J').value;
           utrData.push({ attendence_id, utr });
         }
       }
     });
     for (const data of utrData) {
-      console.log("vvvvvvvvvvvvv", data)
       const { attendence_id, utr } = data;
       await financeModel.updateOne({ attendence_id }, { utr });
       await attendanceModel.findOneAndUpdate(
@@ -380,7 +379,7 @@ exports.setUtrData = async (req, res) => {
         { attendence_status_flow: 'Payment Released' },
         { new: true }
       );
-      if (utr === '') {
+      if (utr === '' || utr === null) {
         await attendanceModel.findOneAndUpdate(
           { attendence_id: attendence_id },
           { attendence_status_flow: 'Payment Failed' },
