@@ -9,6 +9,7 @@ const upload = multer({
     storage: multer.memoryStorage()
 }).fields([
     { name: "purchase_order_upload", maxCount: 10 },
+    { name: "invoice_file", maxCount: 10 },
 ]);
 
 exports.createInvoiceRequest = [

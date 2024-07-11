@@ -103,6 +103,7 @@ exports.addUser = async (req, res) => {
             sub_dept_id: req.body.sub_dept_id,
             Gender: req.body.Gender,
             job_type: req.body.job_type,
+            invoice_template_no: latestInvoiceNo,
             DOB: req.body.DOB,
             user_contact_no: req.body?.user_contact_no,
             PersonalNumber: req.body?.personal_number,
@@ -121,6 +122,7 @@ exports.addUser = async (req, res) => {
             tds_applicable: req.body?.tds_applicable,
             tds_per: req.body?.tds_per,
             permanent_city: req.body?.permanent_city,
+            permanent_address: req.body?.permanent_address,
             user_status: req.body?.user_status,
             emergency_contact_person_name2: req.body.emergency_contact_person_name2
         })

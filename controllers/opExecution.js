@@ -120,7 +120,9 @@ exports.getAllPhasesByCampId = async (req, res) => {
 
 exports.getAllPhasesByPhaseName = async (req, res) => {
     try {
-        const name = req.params.phaseName;
+        let name = req.params.phaseName;
+
+        name = name.trim();
 
         const result = await opCampaignPhaseModel.find({ phaseName: name });
 
@@ -279,10 +281,11 @@ exports.addNewPage = async (req, res) => {
 }
 
 exports.getPhaseCommits = async (req, res) => {
-    const id = req.params.phaseName;
+    let name = req.params.phaseName;
+    name = name.trim();
     const result = await opExecutionModel.aggregate([
         {
-            $match: { phaseName: req.params.phaseName }
+            $match: { phaseName: name }
         },
         {
             $group: {

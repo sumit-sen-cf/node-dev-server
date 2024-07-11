@@ -55,6 +55,8 @@ const leadmast = require("./controllers/lead.js");
 const { verifyToken } = require("./middleware/auth.js");
 const demoApi = require("./controllers/demoApi.js");
 const expenseApi = require("./controllers/expenseController.js");
+const expenseAccountApi = require("./controllers/expenseAccountController.js");
+const expenseCategoryApi = require("./controllers/expenseCategory.js");
 
 const assetCategory = require("./controllers/assestsCategory.js");
 const assetSubCategory = require("./controllers/assetsSubCategory.js");
@@ -1948,10 +1950,24 @@ router.get('/get_vendor_details_with_ids', adminController.getVendorDetailsWithI
 router.get('/get_vendor_details_with_ids_by_id/:vendor_id', adminController.getVendorDetailsWithIdsById)
 
 /* expense api */
-router.post("/add_expense", upload1.single("upload_bill"), expenseApi.addExpense);
+router.post("/add_expense", expenseApi.addExpense);
 router.get("/get_all_expense", expenseApi.getAllExpenses);
 router.get("/get_single_expense/:_id", expenseApi.getSingleExpense);
-router.put("/update_expense", upload1.single("upload_bill"), expenseApi.editExpense);
+router.put("/update_expense", expenseApi.editExpense);
 router.delete("/delete_expense/:_id", expenseApi.deleteExpense);
+
+/* expense account api */
+router.post("/add_expense_account", expenseAccountApi.addExpenseAccount);
+router.get("/get_all_expense_accounts", expenseAccountApi.getExpenseAccounts);
+router.get("/get_single_expense_account/:_id", expenseAccountApi.getSingleExpenseAccount);
+router.put("/update_expense_account", expenseAccountApi.editExpenseData);
+router.delete("/delete_expense_account/:_id", expenseAccountApi.deleteExpenseData);
+
+/* expense Category api */
+router.post("/add_expense_category", expenseCategoryApi.addExpenseCategory);
+router.get("/get_all_expense_categories", expenseCategoryApi.getExpenseCategories);
+router.get("/get_single_expense_category/:_id", expenseCategoryApi.getSingleExpenseCategory);
+router.put("/update_expense_category", expenseCategoryApi.editExpenseCategory);
+router.delete("/delete_expense_category/:_id", expenseCategoryApi.deleteExpenseData);
 
 module.exports = router;

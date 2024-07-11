@@ -36,7 +36,7 @@ const financeModel = new mongoose.Schema({
         required: true
     },
     reference_no: {
-        type: Number,
+        type: String,
         required: false,
         default: 0
     },
