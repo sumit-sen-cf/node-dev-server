@@ -251,7 +251,20 @@ exports.getAllSalesBooking = async (req, res) => {
         const skip = (page && limit) ? (page - 1) * limit : 0;
         const sort = { createdAt: -1 };
 
-        let addFieldsObj = {
+        //condition creation for get data
+        const pipeline = [{
+            $lookup: {
+                from: "accountmastermodels",
+                localField: "account_id",
+                foreignField: "account_id",
+                as: "accountData",
+            }
+        }, {
+            $unwind: {
+                path: "$accountData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
             $addFields: {
                 record_service_file_url: {
                     $cond: {
@@ -264,12 +277,53 @@ exports.getAllSalesBooking = async (req, res) => {
                             ],
                         },
                         else: "$record_service_file",
-                    },
-                },
-            },
-        };
-
-        const pipeline = [addFieldsObj, { $sort: sort }];
+                    }
+                }
+            }
+        }, {
+            $project: {
+                account_id: 1,
+                account_name: "$accountData.account_name",
+                is_draft_save: 1,
+                sale_booking_date: 1,
+                campaign_amount: 1,
+                campaign_name: 1,
+                campaign_id: 1,
+                approved_amount: 1,
+                requested_amount: 1,
+                record_service_amount: 1,
+                record_service_counts: 1,
+                brand_id: 1,
+                base_amount: 1,
+                gst_amount: 1,
+                credit_approval_status: 1,
+                reason_credit_approval: 1,
+                reason_credit_approval_own_reason: 1,
+                balance_payment_ondate: 1,
+                gst_status: 1,
+                tds_status: 1,
+                tds_verified_amount: 1,
+                incentive_status: 1,
+                incentive_earning_status: 1,
+                payment_credit_status: 1,
+                incentive_sharing_percent: 1,
+                bad_debt: 1,
+                sale_booking_type: 1,
+                service_taken_amount: 1,
+                incentive_amount: 1,
+                earned_incentive_amount: 1,
+                unearned_incentive_amount: 1,
+                created_by: 1,
+                record_service_file: 1,
+                booking_status: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                sale_booking_id: 1,
+                record_service_file_url: 1
+            }
+        }, {
+            $sort: sort
+        }];
 
         if (page && limit) {
             pipeline.push(
@@ -279,7 +333,7 @@ exports.getAllSalesBooking = async (req, res) => {
         }
 
         const saleBookingList = await salesBookingModel.aggregate(pipeline);
-        const salesBookingCount = await salesBookingModel.countDocuments(addFieldsObj);
+        const salesBookingCount = await salesBookingModel.countDocuments();
 
         return response.returnTrueWithPagination(
             200,
