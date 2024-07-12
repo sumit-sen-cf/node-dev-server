@@ -1,0 +1,31 @@
+name: Deploy Node to GCP
+
+on:
+  push:
+    branches:
+      - master  # Replace with your branch name where you want to trigger the deployment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Specify the operating system for the runner
+
+    steps:
+      # Step 1: Checkout the repository so we have access to the code
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Install gcloud CLI for interacting with Google Cloud Platform
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_DEV_NODE_SEC }}  # Replace with your GCP service account key stored in GitHub Secrets
+
+      # Step 3: Deploy your Node.js project to the Google Cloud VM
+      - name: Deploy to GCP VM
+        run: |
+          gcloud compute scp --recurse nodedevserver node-dev-server: --zone us-central1-b
+
+      # Step 4: SSH into your instance and restart your Node.js application (e.g., using PM2)
+      - name: Restart Node.js application
+        run: |
+          gcloud compute ssh node-dev-server --zone "us-central1-b" --command="cd /home/reset/nodedevserver && pm2 restart all"
