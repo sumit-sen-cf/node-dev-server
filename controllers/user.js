@@ -3733,18 +3733,32 @@ exports.getAllWithDigitalSignatureImageUsers = async (req, res) => {
 
 exports.rejoinUser = async (req, res) => {
     try {
-        const userData = await userModel.findOneAndUpdate({ user_id: req.body.user_id }, {
-            user_status: "Active",
-            joining_date: req.body.joining_date
-        }, { new: true })
-        if (!userData) {
-            res.status(200).send({ success: false })
+        const user = await userModel.findOne({ user_id: req.body.user_id }).select({ job_type: 1 });
+
+        if (!user) {
+            return res.status(404).send({ success: false, message: "User not found" });
         }
-        res.status(200).send({ success: true, data: userData })
+
+        const jobType = user.job_type;
+        const userData = await userModel.findOneAndUpdate(
+            { user_id: req.body.user_id },
+            {
+                user_status: "Active",
+                joining_date: req.body.joining_date,
+                att_status: jobType === 'WFHD' ? "onboarded" : ""
+            },
+            { new: true }
+        );
+
+        if (!userData) {
+            return res.status(404).send({ success: false, message: "User update failed" });
+        }
+
+        res.status(200).send({ success: true, data: userData });
     } catch (err) {
         return res.status(500).send({
             error: err.message,
-            message: "Error  in user rejoin",
+            message: "Error in user rejoin",
         });
     }
 };

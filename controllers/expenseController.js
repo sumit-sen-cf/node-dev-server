@@ -82,8 +82,8 @@ exports.getAllExpenses = async (req, res) => {
             {
                 $lookup: {
                     from: 'usermodels',
-                    localField: 'user_id',
-                    foreignField: 'assigned_to',
+                    localField: 'assigned_to',
+                    foreignField: 'user_id',
                     as: 'userData'
                 }
             },
@@ -165,15 +165,15 @@ exports.getSingleExpense = async (req, res) => {
             {
                 $lookup: {
                     from: 'usermodels',
-                    localField: 'user_id',
-                    foreignField: 'assigned_to',
+                    localField: 'assigned_to',
+                    foreignField: 'user_id',
                     as: 'userData'
                 }
             },
             {
                 $unwind: {
                     path: "$userData",
-                    preserveNullAndEmptyArrays: true
+                    // preserveNullAndEmptyArrays: true
                 }
             },
             {
@@ -255,4 +255,30 @@ exports.deleteExpense = async (req, res) => {
     }).catch(err => {
         return res.status(400).json({ success: false, message: err })
     })
+};
+
+exports.addMultipleExpense = async (req, res) => {
+    try {
+        const expenses = req.body.map(expense => ({
+            account_details: expense.account_details,
+            amount: expense.amount,
+            description: expense.description,
+            transaction_date: expense.transaction_date,
+            reference_number: expense.reference_number,
+            expense_category: expense.expense_category,
+            created_by: expense.created_by,
+            assigned_to: expense.assigned_to,
+            creation_date: expense.creation_date,
+            minor_status: expense.minor_status,
+            major_status: expense.major_status,
+        }));
+
+        const insertedExpenses = await expenseModel.insertMany(expenses);
+
+        res.send({ insertedExpenses, status: 200 });
+    } catch (err) {
+        res
+            .status(500)
+            .send({ error: err.message, sms: "These expenses cannot be created" });
+    }
 };
