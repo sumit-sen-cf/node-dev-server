@@ -51,6 +51,10 @@ const accountMasterSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
+    company_email: {
+        type: String,
+        required: false
+    },
     created_by: {
         type: Number,
         required: true,

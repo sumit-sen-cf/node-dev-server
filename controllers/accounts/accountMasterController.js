@@ -46,6 +46,7 @@ exports.addAccountDetails = async (req, res) => {
             website: website,
             turn_over: turn_over,
             description: description,
+            company_email: company_email,
             created_by: created_by
         })
 
@@ -65,7 +66,6 @@ exports.addAccountDetails = async (req, res) => {
             head_billing_state: head_billing_state,
             head_billing_country: head_billing_country,
             head_billing_pin_code: head_billing_pin_code,
-            company_email: company_email,
             created_by: created_by
         })
 
@@ -154,6 +154,7 @@ exports.editAccountDetails = async (req, res) => {
                 website: website,
                 turn_over: turn_over,
                 description: description,
+                company_email: company_email,
                 updated_by: updated_by
             }
         }, {
@@ -178,7 +179,6 @@ exports.editAccountDetails = async (req, res) => {
                 head_billing_state: head_billing_state,
                 head_billing_country: head_billing_country,
                 head_billing_pin_code: head_billing_pin_code,
-                company_email: company_email,
                 updated_by: updated_by
             }
         }, {
