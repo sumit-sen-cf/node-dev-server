@@ -16,13 +16,13 @@ jobs:
 
       # Step 2: Authenticate with Google Cloud
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_DEV_NODE_SEC }}  # Replace with your GCP service account key stored in GitHub Secrets
 
       # Step 3: Setup gcloud CLI for interacting with Google Cloud Platform
       - name: Setup gcloud CLI
-        uses: google-github-actions/setup-gcloud@v1
+        uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: 'noble-return-426210-t3'  # Replace with your GCP project ID
           install_components: 'gcloud'
