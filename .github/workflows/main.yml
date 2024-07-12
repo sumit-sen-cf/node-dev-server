@@ -16,7 +16,7 @@ jobs:
 
       # Step 2: Install gcloud CLI for interacting with Google Cloud Platform
       - name: Setup gcloud CLI
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v1
         with:
           service_account_key: ${{ secrets.GCP_DEV_NODE_SEC }}  # Replace with your GCP service account key stored in GitHub Secrets
 
