@@ -355,10 +355,10 @@ exports.deleteSalesBooking = [upload, async (req, res) => {
         // Insert the data into the deletedSalesBookingModel
         const addNewDeletedData = await deleteSalesbookingModel.create(salesBookingCopy);
 
-        if (salesBookingData && salesBookingData.record_service_file) {
-            // Move the uploaded file to the 'DeletedSalesRecordService' directory
-            await moveImage("SalesBookingFiles", "DeletedSalesBookingService", salesBookingData.record_service_file);
-        }
+        // if (salesBookingData && salesBookingData.record_service_file) {
+        //     // Move the uploaded file to the 'DeletedSalesRecordService' directory
+        //     await moveImage("SalesBookingFiles", "DeletedSalesBookingService", salesBookingData.record_service_file);
+        // }
 
         // Delete the sales booking record
         await salesBookingModel.deleteOne({ _id: req.params.id });
@@ -367,7 +367,7 @@ exports.deleteSalesBooking = [upload, async (req, res) => {
             200,
             req,
             res,
-            "Page states deleted successfully!",
+            "Sale Booking deleted successfully!",
             addNewDeletedData,
         )
     } catch (error) {

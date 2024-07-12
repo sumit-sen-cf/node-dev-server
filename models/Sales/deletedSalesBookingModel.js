@@ -11,6 +11,11 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
         required: false,
         ref: "accountMasterModel"
     },
+    is_draft_save: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
     sale_booking_date: {
         type: Date,
         default: Date.now,
@@ -21,6 +26,26 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     },
     campaign_name: {
         type: String,
+        required: false,
+    },
+    campaign_id: {
+        type: Schema.Types.ObjectId,
+        required: false,
+    },
+    approved_amount: {
+        type: Number,
+        required: false,
+    },
+    requested_amount: {
+        type: Number,
+        required: false,
+    },
+    record_service_amount: {
+        type: Number,
+        required: false,
+    },
+    record_service_counts: {
+        type: Number,
         required: false,
     },
     brand_id: {
@@ -87,18 +112,36 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
         type: String,
         required: false,
     },
+    incentive_request_id: {
+        type: Schema.Types.ObjectId,
+        required: false,
+    },
+    incentive_request_status: { //on incentive release request time add
+        type: String,
+        enum: ['pending', 'requested', 'released'],
+        required: false,
+    },
+    settlement_sale_booking_id: { //only add in Non GST booking
+        type: Number,
+        required: false,
+    },
     incentive_status: {
         type: String,
         enum: ['incentive', 'no-incentive', 'sharing'],//0-2
     },
+    incentive_earning_status: {
+        type: String,
+        enum: ['earned', 'un-earned'],
+        default: 'un-earned'
+    },
     payment_credit_status: {
         type: String,
-        enum: ['sent_for_payment_approval', 'sent_for_credit_approval'],//0-1
+        enum: ['sent_for_payment_approval', 'sent_for_credit_approval', 'self_credit_used']//0-1
     },
     booking_status: {
-        type: Number,//refers to the sales booking status model
+        type: String,  //refers to the sales booking status model
         required: false,
-        ref: "salesBookingStatus"
+        // ref: "salesBookingStatus"
     },
     incentive_sharing_user_id: {
         type: Number,
@@ -130,10 +173,6 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     },
     service_taken_amount: {
         type: Number,
-        required: false,
-    },
-    get_incentive_status: {
-        type: Boolean,        //f=no incentive, t=incentive-applicable
         required: false,
     },
     incentive_amount: {
