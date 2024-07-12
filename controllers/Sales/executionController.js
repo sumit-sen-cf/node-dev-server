@@ -149,6 +149,10 @@ exports.updateExecutionDetial = async (req, res) => {
                 story_view: Number(story_view),
                 updated_by,
                 execution_status: req.body.status,
+                story_view,
+                impression, 
+                engagement, 
+                reach
             }
         }, {
             new: true
