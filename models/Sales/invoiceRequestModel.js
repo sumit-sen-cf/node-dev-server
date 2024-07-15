@@ -5,7 +5,7 @@ const constant = require("../../common/constant");
 const salesBookingInvoiceRequest = new Schema({
     sale_booking_id: {
         type: Number,
-        required: false,
+        required: true,
     },
     invoice_type_id: {
         type: String,
@@ -33,10 +33,10 @@ const salesBookingInvoiceRequest = new Schema({
         type: Number,
         required: false,
     },
-    invoice_date: { //finance uploded
-        type: Date,
-        required: false,
-    },
+    // invoice_date: { //finance uploded
+    //     type: Date,
+    //     required: false,
+    // },
     party_name: { //finance uploded
         type: String,
         required: false,

@@ -242,11 +242,25 @@ exports.getInvoiceRequestData = async (req, res) => {
                 invoice_type_id: 1,
                 invoice_particular_id: 1,
                 purchase_order_number: 1,
+                invoice_file_url: {
+                    $cond: {
+                        if: { $ne: ["$invoice_file", ""] },
+                        then: {
+                            $concat: [
+                                constant.GCP_INVOICE_REQUEST_URL,
+                                "/",
+                                "$invoice_file",
+                            ],
+                        },
+                        else: "$invoice_file",
+                    },
+                },
+                invoice_number: 1,
+                party_name: 1,
+                invoice_uploaded_date: 1,
                 invoice_creation_status: 1,
                 invoice_action_reason: 1,
                 created_by: 1,
-                po_number: 1,
-                invoice_type_id: 1,
                 createdAt: 1,
                 updatedAt: 1,
                 purchase_order_upload_url: {
@@ -269,9 +283,9 @@ exports.getInvoiceRequestData = async (req, res) => {
                     invoice_requested_date: "$saleData.invoice_requested_date",
                     account_name: "$accountData.account_name",
                     invoice_particular_name: "$invoiceData.invoice_particular_name",
+                    campaign_amount: "$saleData.campaign_amount",
                     base_amount: "$saleData.base_amount",
                     gst_amount: "$saleData.gst_amount",
-                    net_amount: "$saleData.net_amount"
                 }
             }
         }]);
