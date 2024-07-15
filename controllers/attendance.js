@@ -242,7 +242,7 @@ exports.addAttendance = async (req, res) => {
               if (extractDate <= 15) {
                 work_days = 15 - (extractDate - 1) - absent;
               }
-            } else if (user.status == "Resigned") {
+            } else if (user.user_status == "Resigned") {
               work_days = (30 - resignExtractDate) - absent;
             } else if (previous <= mergeJoining1) {
               if (extractDate <= 15) {
@@ -310,7 +310,7 @@ exports.addAttendance = async (req, res) => {
                   salary_deduction: req.body.salary_deduction
                 });
 
-                if (user.status == "Resigned" && resignMonthYear < bodymonth) {
+                if (user.user_status === "Resigned" && resignMonthYear < bodymonth) {
                   console.log("User Exist ");
                 } else {
                   const instav = await creators.save();
@@ -438,7 +438,7 @@ exports.addAttendance = async (req, res) => {
               work_days = 15 - (extractDate - 1) - absent;
             }
             // work_days = monthLastValue - extractDate - absent;
-          } else if (findSeparationData?.status == "Resigned") {
+          } else if (findSeparationData?.user_status == "Resigned") {
             work_days = (30 - resignExtractDate) - absent;
           }
           else {
