@@ -47,7 +47,7 @@ const salesBookingInvoiceRequest = new Schema({
     },
     invoice_creation_status: {
         type: String,
-        enum: ["pending", "reject", "upload"],
+        enum: ["pending", "rejected", "uploaded"],
         default: "pending"
     },
     invoice_action_reason: {
