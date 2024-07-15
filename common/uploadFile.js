@@ -10,7 +10,7 @@ exports.upload = multer({
 const storage = new Storage({
   projectId: "noble-return-426210-t3",
   // projectId: "react-migration-project",
-  keyFilename: path.join(__dirname, "../jarvis-dev-backend-cr.json"),
+  keyFilename: path.join(__dirname, "../jarvis-dev-back-project-d2580576b574.json"),
   // keyFilename: path.join(__dirname, "../react-migration-project-bb8a3ffdd3d0.json"),
 });
 exports.storage = storage;
@@ -28,7 +28,13 @@ const uploadToGCP = (req, obj, fieldName) => {
     if (req.file) {
       const bucketName = vari.BUCKET_NAME;
       const bucket = storage.bucket(bucketName);
-      const blob = bucket.file(req.file.originalname);
+
+      // const blob = bucket.file(req.file.originalname);
+      // obj[fieldName] = blob.name;
+
+      const timestamp = new Date().toISOString().replace(/[:.-]/g, '');
+      const newFilename = `${timestamp}__${req.file.originalname}`;
+      const blob = bucket.file(newFilename);
 
       obj[fieldName] = blob.name;
 

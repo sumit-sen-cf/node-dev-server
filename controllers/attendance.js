@@ -232,19 +232,27 @@ exports.addAttendance = async (req, res) => {
             const joiningYear = String(convertDate.getUTCFullYear());
             const mergeJoining = parseInt(joiningMonth + joiningYear);
             const monthNumber = monthNameToNumber(month);
+            const previousMonthNumber = monthNumber - 1;
             const mergeJoining1 = `${monthNumber}` + `${year}`;
             const lastDateOfMonth = getLastDateOfMonth(month, year);
             const remainingDays = lastDateOfMonth - extractDate;
+            const previous = `${previousMonthNumber}` + `${year}`;
 
             if (mergeJoining == mergeJoining1) {
               if (extractDate <= 15) {
                 work_days = 15 - (extractDate - 1) - absent;
               }
-            } else if (user.status == "Resigned") {
+            } else if (user.user_status == "Resigned") {
               work_days = (30 - resignExtractDate) - absent;
+            } else if (previous <= mergeJoining1) {
+              if (extractDate <= 15) {
+                work_days = lastDateOfMonth - absent;
+              } else {
+                work_days = (lastDateOfMonth - extractDate) + 15 - absent
+              }
             }
             else {
-              work_days = remainingDays - (15 - extractDate) + 15 - absent
+              work_days = remainingDays + 15 - absent
             }
 
             const bodymonth = `${year}` + `${monthNumber}`;
@@ -302,7 +310,7 @@ exports.addAttendance = async (req, res) => {
                   salary_deduction: req.body.salary_deduction
                 });
 
-                if (user.status == "Resigned" && resignMonthYear < bodymonth) {
+                if (user.user_status === "Resigned" && resignMonthYear < bodymonth) {
                   console.log("User Exist ");
                 } else {
                   const instav = await creators.save();
@@ -430,7 +438,7 @@ exports.addAttendance = async (req, res) => {
               work_days = 15 - (extractDate - 1) - absent;
             }
             // work_days = monthLastValue - extractDate - absent;
-          } else if (findSeparationData?.status == "Resigned") {
+          } else if (findSeparationData?.user_status == "Resigned") {
             work_days = (30 - resignExtractDate) - absent;
           }
           else {
@@ -671,179 +679,371 @@ exports.addAttendance = async (req, res) => {
 // };
 
 //new
+// exports.getSalaryByDeptIdMonthYear = async (req, res) => {
+//   try {
+//     const imageUrl = vari.IMAGE_URL;
+
+//     const getcreators = await attendanceModel
+//       .aggregate([
+//         {
+//           $match: {
+//             dept: parseInt(req.body.dept_id),
+//             month: req.body.month,
+//             year: parseInt(req.body.year),
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "departmentmodels",
+//             localField: "dept",
+//             foreignField: "dept_id",
+//             as: "department",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$department",
+//             preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "billingheadermodels",
+//             localField: "department.dept_id",
+//             foreignField: "dept_id",
+//             as: "billingheadermodels",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$billingheadermodels",
+//             preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "usermodels",
+//             localField: "user_id",
+//             foreignField: "user_id",
+//             as: "user",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$user",
+//             preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "designationmodels",
+//             localField: "user.user_designation",
+//             foreignField: "desi_id",
+//             as: "designation",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$designation",
+//             preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "financemodels",
+//             localField: "attendence_id",
+//             foreignField: "attendence_id",
+//             as: "finance",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$finance",
+//             preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $project: {
+//             attendence_id: 1,
+//             dept: 1,
+//             user_id: 1,
+//             noOfabsent: 1,
+//             present_days: 1,
+//             month_salary: 1,
+//             year: 1,
+//             remark: 1,
+//             Creation_date: 1,
+//             Created_by: 1,
+//             Last_updated_by: 1,
+//             Last_updated_date: 1,
+//             month: 1,
+//             bonus: 1,
+//             total_salary: 1,
+//             net_salary: 1,
+//             tds_deduction: 1,
+//             attendence_status_flow: 1,
+//             user_name: "$user.user_name",
+//             user_email_id: "$user.user_email_id",
+//             user_contact_no: "$user.user_contact_no",
+//             permanent_address: "$user.permanent_address",
+//             permanent_city: "$user.permanent_city",
+//             permanent_state: "$user.permanent_state",
+//             permanent_pin_code: "$user.permanent_pin_code",
+//             bank_name: "$user.bank_name",
+//             ifsc_code: "$user.ifsc_code",
+//             account_no: "$user.account_no",
+//             billing_header_name: {
+//               $cond: {
+//                 if: {
+//                   $and: [
+//                     {
+//                       $eq: [
+//                         { $type: "$billingheadermodels.billing_header_name" },
+//                         "missing",
+//                       ],
+//                     },
+//                   ],
+//                 },
+//                 then: "",
+//                 else: "$billingheadermodels.billing_header_name",
+//               },
+//             },
+//             toPay: 1,
+//             sendToFinance: 1,
+//             attendence_generated: 1,
+//             invoiceNo: 1,
+//             attendence_status: 1,
+//             salary_status: 1,
+//             salary_deduction: 1,
+//             salary: 1,
+//             dept_name: "$department.dept_name",
+//             pan_no: "$user.pan_no",
+//             current_address: "$user.current_address",
+//             invoice_template_no: "$user.invoice_template_no",
+//             joining_date: "$user.joining_date",
+//             designation_name: "$designation.desi_name",
+//             status_: "$finance.status_",
+//             reference_no: "$finance.reference_no",
+//             amount: "$finance.amount",
+//             pay_date: "$finance.pay_date",
+//             screenshot: {
+//               $concat: [imageUrl, "$finance.screenshot"],
+//             },
+//             digital_signature_image: "$user.digital_signature_image",
+//           },
+//         },
+//         {
+//           $group: {
+//             _id: "$attendence_id",
+//             data: { $first: "$$ROOT" },
+//           },
+//         },
+//         {
+//           $replaceRoot: { newRoot: "$data" },
+//         },
+//       ])
+//       .exec();
+//     if (getcreators?.length === 0) {
+//       return res.status(500).send({ success: false });
+//     }
+//     return res.status(200).send({ data: getcreators });
+//   } catch (err) {
+//     return res.status(500).send({ error: err.message, sms: "Error getting salary" });
+//   }
+// };
+
+
 exports.getSalaryByDeptIdMonthYear = async (req, res) => {
   try {
     const imageUrl = vari.IMAGE_URL;
 
-    const getcreators = await attendanceModel
-      .aggregate([
-        {
-          $match: {
-            dept: parseInt(req.body.dept_id),
-            month: req.body.month,
-            year: parseInt(req.body.year),
-          },
+    // Map month name to numeric value
+    const monthMap = {
+      "January": 1, "February": 2, "March": 3, "April": 4,
+      "May": 5, "June": 6, "July": 7, "August": 8,
+      "September": 9, "October": 10, "November": 11, "December": 12
+    };
+    const monthNumeric = monthMap[req.body.month];
+
+    if (!monthNumeric) {
+      return res.status(400).send({ error: "Invalid month name" });
+    }
+
+    const getcreators = await attendanceModel.aggregate([
+      {
+        $match: {
+          dept: parseInt(req.body.dept_id),
+          month: req.body.month,
+          year: parseInt(req.body.year),
         },
-        {
-          $lookup: {
-            from: "departmentmodels",
-            localField: "dept",
-            foreignField: "dept_id",
-            as: "department",
-          },
+      },
+      {
+        $lookup: {
+          from: "departmentmodels",
+          localField: "dept",
+          foreignField: "dept_id",
+          as: "department",
         },
-        {
-          $unwind: {
-            path: "$department",
-            preserveNullAndEmptyArrays: true,
-          },
+      },
+      {
+        $unwind: {
+          path: "$department",
+          preserveNullAndEmptyArrays: true,
         },
-        {
-          $lookup: {
-            from: "billingheadermodels",
-            localField: "department.dept_id",
-            foreignField: "dept_id",
-            as: "billingheadermodels",
-          },
+      },
+      {
+        $lookup: {
+          from: "billingheadermodels",
+          localField: "department.dept_id",
+          foreignField: "dept_id",
+          as: "billingheadermodels",
         },
-        {
-          $unwind: {
-            path: "$billingheadermodels",
-            preserveNullAndEmptyArrays: true,
-          },
+      },
+      {
+        $unwind: {
+          path: "$billingheadermodels",
+          preserveNullAndEmptyArrays: true,
         },
-        {
-          $lookup: {
-            from: "usermodels",
-            localField: "user_id",
-            foreignField: "user_id",
-            as: "user",
-          },
+      },
+      {
+        $lookup: {
+          from: "usermodels",
+          localField: "user_id",
+          foreignField: "user_id",
+          as: "user",
         },
-        {
-          $unwind: {
-            path: "$user",
-            preserveNullAndEmptyArrays: true,
-          },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
         },
-        {
-          $lookup: {
-            from: "designationmodels",
-            localField: "user.user_designation",
-            foreignField: "desi_id",
-            as: "designation",
-          },
+      },
+      {
+        $lookup: {
+          from: "designationmodels",
+          localField: "user.user_designation",
+          foreignField: "desi_id",
+          as: "designation",
         },
-        {
-          $unwind: {
-            path: "$designation",
-            preserveNullAndEmptyArrays: true,
-          },
+      },
+      {
+        $unwind: {
+          path: "$designation",
+          preserveNullAndEmptyArrays: true,
         },
-        {
-          $lookup: {
-            from: "financemodels",
-            localField: "attendence_id",
-            foreignField: "attendence_id",
-            as: "finance",
-          },
+      },
+      {
+        $lookup: {
+          from: "financemodels",
+          localField: "attendence_id",
+          foreignField: "attendence_id",
+          as: "finance",
         },
-        {
-          $unwind: {
-            path: "$finance",
-            preserveNullAndEmptyArrays: true,
-          },
+      },
+      {
+        $unwind: {
+          path: "$finance",
+          preserveNullAndEmptyArrays: true,
         },
-        {
-          $project: {
-            attendence_id: 1,
-            dept: 1,
-            user_id: 1,
-            noOfabsent: 1,
-            present_days: 1,
-            month_salary: 1,
-            year: 1,
-            remark: 1,
-            Creation_date: 1,
-            Created_by: 1,
-            Last_updated_by: 1,
-            Last_updated_date: 1,
-            month: 1,
-            bonus: 1,
-            total_salary: 1,
-            net_salary: 1,
-            tds_deduction: 1,
-            attendence_status_flow: 1,
-            user_name: "$user.user_name",
-            user_email_id: "$user.user_email_id",
-            user_contact_no: "$user.user_contact_no",
-            permanent_address: "$user.permanent_address",
-            permanent_city: "$user.permanent_city",
-            permanent_state: "$user.permanent_state",
-            permanent_pin_code: "$user.permanent_pin_code",
-            bank_name: "$user.bank_name",
-            ifsc_code: "$user.ifsc_code",
-            account_no: "$user.account_no",
-            billing_header_name: {
-              $cond: {
-                if: {
-                  $and: [
-                    {
-                      $eq: [
-                        { $type: "$billingheadermodels.billing_header_name" },
-                        "missing",
-                      ],
-                    },
-                  ],
-                },
-                then: "",
-                else: "$billingheadermodels.billing_header_name",
+      },
+      {
+        $project: {
+          attendence_id: 1,
+          dept: 1,
+          user_id: 1,
+          noOfabsent: 1,
+          present_days: 1,
+          month_salary: 1,
+          year: 1,
+          remark: 1,
+          Creation_date: 1,
+          Created_by: 1,
+          Last_updated_by: 1,
+          Last_updated_date: 1,
+          month: 1,
+          bonus: 1,
+          total_salary: 1,
+          net_salary: 1,
+          tds_deduction: 1,
+          attendence_status_flow: 1,
+          user_name: "$user.user_name",
+          user_email_id: "$user.user_email_id",
+          user_contact_no: "$user.user_contact_no",
+          permanent_address: "$user.permanent_address",
+          permanent_city: "$user.permanent_city",
+          permanent_state: "$user.permanent_state",
+          permanent_pin_code: "$user.permanent_pin_code",
+          bank_name: "$user.bank_name",
+          ifsc_code: "$user.ifsc_code",
+          account_no: "$user.account_no",
+          billing_header_name: {
+            $cond: {
+              if: {
+                $and: [
+                  {
+                    $eq: [
+                      { $type: "$billingheadermodels.billing_header_name" },
+                      "missing",
+                    ],
+                  },
+                ],
               },
+              then: "",
+              else: "$billingheadermodels.billing_header_name",
             },
-            toPay: 1,
-            sendToFinance: 1,
-            attendence_generated: 1,
-            invoiceNo: 1,
-            attendence_status: 1,
-            salary_status: 1,
-            salary_deduction: 1,
-            salary: 1,
-            dept_name: "$department.dept_name",
-            pan_no: "$user.pan_no",
-            current_address: "$user.current_address",
-            invoice_template_no: "$user.invoice_template_no",
-            joining_date: "$user.joining_date",
-            designation_name: "$designation.desi_name",
-            status_: "$finance.status_",
-            reference_no: "$finance.reference_no",
-            amount: "$finance.amount",
-            pay_date: "$finance.pay_date",
-            screenshot: {
-              $concat: [imageUrl, "$finance.screenshot"],
-            },
-            digital_signature_image: "$user.digital_signature_image",
+          },
+          toPay: 1,
+          sendToFinance: 1,
+          attendence_generated: 1,
+          invoiceNo: 1,
+          attendence_status: 1,
+          salary_status: 1,
+          salary_deduction: 1,
+          salary: 1,
+          dept_name: "$department.dept_name",
+          pan_no: "$user.pan_no",
+          current_address: "$user.current_address",
+          invoice_template_no: "$user.invoice_template_no",
+          joining_date: "$user.joining_date",
+          designation_name: "$designation.desi_name",
+          status_: "$finance.status_",
+          reference_no: "$finance.reference_no",
+          amount: "$finance.amount",
+          pay_date: "$finance.pay_date",
+          screenshot: {
+            $concat: [imageUrl, "$finance.screenshot"],
+          },
+          digital_signature_image: "$user.digital_signature_image",
+        },
+      },
+      {
+        $match: {
+          joining_date: {
+            $lte: new Date(req.body.year, monthNumeric - 1, 15), // Month is zero-based in JavaScript Date object
           },
         },
-        {
-          $group: {
-            _id: "$attendence_id",
-            data: { $first: "$$ROOT" },
-          },
+      },
+      {
+        $group: {
+          _id: "$attendence_id",
+          data: { $first: "$$ROOT" },
         },
-        {
-          $replaceRoot: { newRoot: "$data" },
-        },
-      ])
-      .exec();
+      },
+      {
+        $replaceRoot: { newRoot: "$data" },
+      },
+    ]).exec();
+
     if (getcreators?.length === 0) {
       return res.status(500).send({ success: false });
     }
+
     return res.status(200).send({ data: getcreators });
   } catch (err) {
     return res.status(500).send({ error: err.message, sms: "Error getting salary" });
   }
 };
-
 
 exports.getSalaryByMonthYear = async (req, res) => {
   try {
@@ -1273,8 +1473,9 @@ exports.totalSalary = async (req, res) => {
         },
         {
           $group: {
-            _id: 0,
-            totalsalary: { $sum: "$total_salary" },
+            _id: "$year",
+            totalsalary: { $sum: "$salary" },
+            netSalary: { $sum: "$net_salary" },
             totalBonus: { $sum: "$bonus" },
             totaltdsdeduction: { $sum: "$tds_deduction" },
             totalsalarydeduction: { $sum: "$salary_deduction" },
@@ -1324,7 +1525,8 @@ exports.currentMonthAllDeptTotalSalary = async (req, res) => {
     }, {
       $group: {
         _id: null,
-        totalSalary: { $sum: "$total_salary" },
+        totalSalary: { $sum: "$salary" },
+        netSalary: { $sum: "$net_salary" },
         totalBonus: { $sum: "$bonus" },
         totalTdsDeduction: { $sum: "$tds_deduction" },
         totalSalaryDeduction: { $sum: "$salary_deduction" }

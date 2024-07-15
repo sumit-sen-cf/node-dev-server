@@ -1951,6 +1951,7 @@ router.get('/get_vendor_details_with_ids_by_id/:vendor_id', adminController.getV
 
 /* expense api */
 router.post("/add_expense", expenseApi.addExpense);
+router.post("/add_multiple_expense", expenseApi.addMultipleExpense);
 router.get("/get_all_expense", expenseApi.getAllExpenses);
 router.get("/get_single_expense/:_id", expenseApi.getSingleExpense);
 router.put("/update_expense", expenseApi.editExpense);
