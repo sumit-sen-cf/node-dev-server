@@ -419,10 +419,14 @@ exports.addAttendance = async (req, res) => {
 
           var work_days;
           const absent = noOfabsent == undefined ? 0 : req.body.noOfabsent;
+          console.log("absent", absent);
           const salaryDeduction = salary_deduction == undefined ? 0 : req.body.salary_deduction;
+          console.log("salaryDeduction", salaryDeduction);
           const joining = results4[0].joining_date;
+          console.log("joining", joining);
           const convertDate = new Date(joining);
           const extractDate = convertDate.getDate() - 1;
+          console.log("extractDate", extractDate);
           const joiningMonth = String(convertDate.getUTCMonth() + 1).padStart(
             2,
             "0"
@@ -431,22 +435,44 @@ exports.addAttendance = async (req, res) => {
           const mergeJoining = parseInt(joiningMonth + joiningYear);
           const monthNumber = monthNameToNumber(month);
           const mergeJoining1 = `${monthNumber}` + `${year}`;
+          const previousMonthNumber = monthNumber - 1;
           const lastDateOfMonth = getLastDateOfMonth(month, year);
           const remainingDays = lastDateOfMonth - extractDate;
+          const previous = `${previousMonthNumber}` + `${year}`;
+
           if (mergeJoining == mergeJoining1) {
             if (extractDate <= 15) {
               work_days = 15 - (extractDate - 1) - absent;
             }
-            // work_days = monthLastValue - extractDate - absent;
-          } else if (findSeparationData?.user_status == "Resigned") {
+          } else if (user.user_status == "Resigned") {
             work_days = (30 - resignExtractDate) - absent;
+          } else if (previous <= mergeJoining1) {
+            if (extractDate <= 15) {
+              work_days = lastDateOfMonth - absent;
+            } else {
+              work_days = (lastDateOfMonth - extractDate) + 15 - absent
+            }
           }
           else {
-            work_days = remainingDays - (15 - extractDate) + 15 - absent
+            work_days = remainingDays + 15 - absent
           }
 
+          console.log("work_days", work_days);
+
+          // if (mergeJoining == mergeJoining1) {
+          //   if (extractDate <= 15) {
+          //     work_days = 15 - (extractDate - 1) - absent;
+          //   }
+          //   // work_days = monthLastValue - extractDate - absent;
+          // } else if (findSeparationData?.user_status == "Resigned") {
+          //   work_days = (30 - resignExtractDate) - absent;
+          // }
+          // else {
+          //   work_days = remainingDays - (15 - extractDate) + 15 - absent
+          // }
+
           const present_days = work_days;
-          const perdaysal = results4[0].salary / 30;
+          const perdaysal = results4[0].salary / lastDateOfMonth;
           const totalSalary = perdaysal * present_days;
           const Bonus = bonus == undefined ? 0 : req.body.bonus;
           const netSalary = (totalSalary + parseInt(Bonus)) - salaryDeduction;

@@ -37,7 +37,6 @@ exports.addExpense = [upload, async (req, res) => {
         }
 
         const simv = await simc.save();
-
         res.send({ simv, status: 200 });
     } catch (err) {
         res
@@ -62,7 +61,7 @@ exports.getAllExpenses = async (req, res) => {
             {
                 $unwind: {
                     path: "$accountData",
-                    // preserveNullAndEmptyArrays: true
+                    preserveNullAndEmptyArrays: true
                 }
             },
             {
@@ -76,7 +75,7 @@ exports.getAllExpenses = async (req, res) => {
             {
                 $unwind: {
                     path: "$expenseCategory",
-                    // preserveNullAndEmptyArrays: true
+                    preserveNullAndEmptyArrays: true
                 }
             },
             {
