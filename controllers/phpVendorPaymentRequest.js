@@ -232,10 +232,10 @@ exports.getSinglePhpVendorPaymentRequest = async (req, res) => {
 exports.updatePhpVendorPaymentRequest = async (req, res) => {
     try {
         const updatedData = await phpVendorPaymentRequestModel.findOneAndUpdate(
-            { _id: req.body._id },
+            { request_amount: req.body.request_id },
             {
                 status: 1,
-                // evidence: req.files?.evidence,
+                evidence: req.files?.evidence,
                 payment_date: req.body.payment_date,
                 payment_mode: req.body.payment_mode,
                 payment_amount: req.body.payment_amount,
@@ -252,7 +252,9 @@ exports.updatePhpVendorPaymentRequest = async (req, res) => {
                 gst_status: req.body.gst_status,
                 gst_date: req.body.gst_date,
                 gst_remark: req.body.gst_remark,
-                gst_hold_amount: req.body.gst_hold_amount
+                gst_hold_amount: req.body.gst_hold_amount,
+                name: req.body.name,
+                remark_audit: req.body.remark_audit
             },
             { new: true }
         );
@@ -267,12 +269,13 @@ exports.updatePhpVendorPaymentRequest = async (req, res) => {
                 // res.status(200).send("Success") 
             });
             blobStream.end(req.file.buffer);
-        } else {
-            await updatedData.save();
-            return response.returnTrue(
-                200, req, res, "phpVendor Payment Request data updated", updatedData
-            );
         }
+        // else {
+        await updatedData.save();
+        return response.returnTrue(
+            200, req, res, "phpVendor Payment Request data updated", updatedData
+        );
+        // }
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
