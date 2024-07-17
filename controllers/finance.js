@@ -318,7 +318,7 @@ exports.editFinanceUtr = async (req, res) => {
 
     await attendanceModel.findOneAndUpdate(
       { attendence_id: req.body.attendence_id },
-      { attendence_status_flow: 'Payment Released' },
+      { attendence_status_flow: 'Proceeded to bank' },
       { new: true }
     );
     if (!editsim) {
@@ -376,7 +376,7 @@ exports.setUtrData = async (req, res) => {
       await financeModel.updateOne({ attendence_id }, { utr });
       await attendanceModel.findOneAndUpdate(
         { attendence_id: attendence_id },
-        { attendence_status_flow: 'Payment Released' },
+        { attendence_status_flow: 'Proceeded to bank' },
         { new: true }
       );
       if (utr === '' || utr === null) {
