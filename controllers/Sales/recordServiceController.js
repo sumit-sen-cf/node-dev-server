@@ -150,35 +150,104 @@ exports.getRecordServiceMasterList = async (req, res) => {
         // Calculate the number of records to skip based on the current page and limit
         const skip = (page && limit) ? (page - 1) * limit : 0;
 
-        let addFieldsObj = {
-            $addFields: {
-                excel_upload_url: {
-                    $cond: {
-                        if: { $ne: ["$excel_upload", ""] },
-                        then: {
-                            $concat: [
-                                constant.GCP_SALES_RECORD_SERVICE_FOLDER_URL,
-                                "/",
-                                "$excel_upload",
-                            ],
-                        },
-                        else: "$excel_upload",
-                    },
-                },
-            },
-        };
+        //for match conditions
+        let matchQuery = {};
+        if (req.query?.userId) {
+            matchQuery["created_by"] = Number(req.query.userId);
+        }
 
-        const pipeline = [addFieldsObj];
+        const pipeline = [{
+            $match: matchQuery
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "sale_executive_id",
+                foreignField: "user_id",
+                as: "userData",
+            }
+        }, {
+            $unwind: {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "salesbookingmodels",
+                localField: "sale_booking_id",
+                foreignField: "sale_booking_id",
+                as: "salesBookingData",
+            }
+        }, {
+            $unwind: {
+                path: "$salesBookingData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "accountmastermodels",
+                localField: "salesBookingData.account_id",
+                foreignField: "account_id",
+                as: "accountData",
+            }
+        }, {
+            $unwind: {
+                path: "$accountData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "salesservicemastermodels",
+                localField: "sales_service_master_id",
+                foreignField: "_id",
+                as: "salesServiceMasterData",
+            }
+        }, {
+            $unwind: {
+                path: "$salesServiceMasterData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                sale_booking_id: 1,
+                account_id: 1,
+                account_name: "$accountData.account_name",
+                sale_executive_id: 1,
+                sale_executive_name: "$userData.user_name",
+                sales_service_master_id: 1,
+                sales_service_master_name: "$salesServiceMasterData.service_name",
+                campaign_name: "$salesBookingData.campaign_name",
+                campaign_amount: "$salesBookingData.campaign_amount",
+                amount: 1,
+                no_of_hours: 1,
+                goal: 1,
+                day: 1,
+                quantity: 1,
+                brand_name: 1,
+                hashtag: 1,
+                individual_amount: 1,
+                start_date: 1,
+                end_date: 1,
+                per_month_amount: 1,
+                no_of_creators: 1,
+                deliverables_info: 1,
+                remarks: 1,
+                created_by: 1,
+                updated_by: 1,
+                createdAt: 1,
+                updatedAt: 1,
+            }
+        }, {
+            $sort: sort
+        }];
 
         if (page && limit) {
             pipeline.push(
                 { $skip: skip },
                 { $limit: limit },
-                { $sort: sort }
             );
         }
         const recordServiceList = await salesRecordServiceModel.aggregate(pipeline);
-        const recordServiceCount = await salesRecordServiceModel.countDocuments(addFieldsObj);
+        const recordServiceCount = await salesRecordServiceModel.countDocuments(matchQuery);
 
         // Return a success response with the list of records and pagination details
         return response.returnTrueWithPagination(

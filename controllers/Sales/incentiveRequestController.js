@@ -442,10 +442,16 @@ exports.getIncentiveRequestListUserAndStatusWise = async (req, res) => {
  */
 exports.getIncentiveSettlementCalculationDashboard = async (req, res) => {
     try {
-        // Get distinct sale booking IDs from the database
-        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', {
+        //for match conditions
+        let matchQuery = {
             incentive_status: "incentive",
-        });
+        };
+        if (req.query?.userId) {
+            matchQuery["created_by"] = Number(req.query.userId);
+        }
+
+        // Get distinct sale booking IDs from the database
+        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', matchQuery);
 
         //match condition obj prepare
         let matchCondition = {

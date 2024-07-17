@@ -195,6 +195,14 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
         type: String,
         required: false,
     },
+    created_by: {
+        type: Number,
+        required: false,
+    },
+    updated_by: {
+        type: Number,
+        required: false,
+    },
     deleted_by: {
         type: Number,
         required: false,

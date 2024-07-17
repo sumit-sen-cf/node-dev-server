@@ -250,6 +250,9 @@ exports.getAllAccountDetails = async (req, res) => {
         let matchQuery = {
             deleted: false
         };
+        if (req.query?.userId) {
+            matchQuery["created_by"] = Number(req.query.userId);
+        }
         //Search by filter
         if (req.query.search) {
             //Regex Condition for search 

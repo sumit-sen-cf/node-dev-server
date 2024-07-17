@@ -1,6 +1,7 @@
 const response = require("../../common/response");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
-const {storage, uploadToGCP} = require('../../common/uploadFile.js')
+const { storage, uploadToGCP } = require('../../common/uploadFile.js')
+const constant = require("../../common/constant.js");
 const salesBookingPayment = require('../../models/Sales/paymentUpdateModel.js')
 const { saleBookingStatus } = require("../../helper/status.js");
 const phpFinanceModel = require("../../models/phpFinanceModel.js");
@@ -47,6 +48,10 @@ exports.getSalesBookingOutStandingListForFinanace = async (req, res) => {
                 as: "salesInvoiceRequestData",
             }
         }, {
+            $addFields: {
+                url: constant.GCP_INVOICE_REQUEST_URL
+            },
+        }, {
             $project: {
                 sale_booking_id: 1,
                 account_id: 1,
@@ -60,6 +65,7 @@ exports.getSalesBookingOutStandingListForFinanace = async (req, res) => {
                 paid_amount: "$approved_amount",
                 gst_status: 1,
                 salesInvoiceRequestData: 1,
+                url: 1,
                 createdAt: 1,
                 updatedAt: 1,
             }
@@ -77,10 +83,10 @@ exports.getSalesBookingOutStandingListForFinanace = async (req, res) => {
 };
 
 exports.salesBalanceUpdate = async (req, res) => {
-    try{
+    try {
         const updateData = await salesBookingPayment.create(
             // { sale_booking_id: req.body.sale_booking_id },
-            { 
+            {
                 payment_ref_no: req.body.paymentRefNo,
                 payment_detail_id: req.body.paymentDetails,
                 payment_screenshot: req.file?.paymentRefImg,
@@ -138,7 +144,7 @@ exports.salesBalanceUpdate = async (req, res) => {
             }
         }
         return response.returnTrue(200, req, res, 'Record Updated successfully', updateData)
-    }catch(err){
+    } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
 }
@@ -146,56 +152,56 @@ exports.salesBalanceUpdate = async (req, res) => {
 exports.getAllphpFinanceDataById = async (req, res) => {
     try {
         const getData = await phpFinanceModel.find({ cust_id: Number(req.params.cust_id) });
-        res.status(200).send({ data: getData, message:'data fetched successfully' })
+        res.status(200).send({ data: getData, message: 'data fetched successfully' })
     } catch (error) {
         res.status(500).send({ error: error.message, sms: "error getting php finance data" })
     }
 }
 
 exports.saleBookingsForTDS = async (req, res) => {
-    try{
+    try {
         const SalesBookingTdsData = await salesBookingModel.aggregate([
-        // {
-        //     $match: {
-        //         tds_status: req.body.tds_status,
-        //     }
-        // }, 
-        {
-            $lookup: {
-                from: "phppaymentballistmodels",
-                localField: "sale_booking_id",
-                foreignField: "sale_booking_id",
-                as: "accountMasterData",
-            }
-        }, {
-            $unwind: {
-                path: "$accountMasterData",
-                // preserveNullAndEmptyArrays: true,
-            }
-        }, {
-            $project: {
-                sale_booking_id: 1,
-                account_id: 1,
-                cust_name: "$accountMasterData.cust_name",
-                sales_exe_name: "$accountMasterData.username",
-                sale_booking_date: 1,
-                campaign_amount: 1,
-                base_amount: 1,
-                tds_verified_amount: 1,
-                gst_amount: 1,
-                net_amount: {$add:["$base_amount", "$gst_amount"]},
-                paid_amount: "$accountMasterData.paid_amount",
-                balance_refund_amount: "$accountMasterData.balance_refund_amount",
-                booking_created_date: "$accountMasterData.booking_created_date",
-                tds_status: 1,
-                created_by: 1
-            }
-        }]);
+            // {
+            //     $match: {
+            //         tds_status: req.body.tds_status,
+            //     }
+            // }, 
+            {
+                $lookup: {
+                    from: "phppaymentballistmodels",
+                    localField: "sale_booking_id",
+                    foreignField: "sale_booking_id",
+                    as: "accountMasterData",
+                }
+            }, {
+                $unwind: {
+                    path: "$accountMasterData",
+                    // preserveNullAndEmptyArrays: true,
+                }
+            }, {
+                $project: {
+                    sale_booking_id: 1,
+                    account_id: 1,
+                    cust_name: "$accountMasterData.cust_name",
+                    sales_exe_name: "$accountMasterData.username",
+                    sale_booking_date: 1,
+                    campaign_amount: 1,
+                    base_amount: 1,
+                    tds_verified_amount: 1,
+                    gst_amount: 1,
+                    net_amount: { $add: ["$base_amount", "$gst_amount"] },
+                    paid_amount: "$accountMasterData.paid_amount",
+                    balance_refund_amount: "$accountMasterData.balance_refund_amount",
+                    booking_created_date: "$accountMasterData.booking_created_date",
+                    tds_status: 1,
+                    created_by: 1
+                }
+            }]);
 
         if (!SalesBookingTdsData) {
             return response.returnFalse(200, req, res, "No Record Found...", []);
         }
-        
+
         return response.returnTrue(200, req, res, "Sales Booking data fatched", SalesBookingTdsData);
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
@@ -203,10 +209,10 @@ exports.saleBookingsForTDS = async (req, res) => {
 }
 
 exports.verifyTDS = async (req, res) => {
-    try{
+    try {
         const updateData = await salesBookingPayment.findOneAndUpdate(
             { sale_booking_id: req.body.sale_booking_id },
-            { 
+            {
                 tds_verified_amount: req.body.tds_verified_amount,
                 tds_verified_remark: tds_verified_remark
             }
@@ -216,7 +222,7 @@ exports.verifyTDS = async (req, res) => {
             return response.returnFalse(200, req, res, "No Record Found with given id...", []);
         }
         return response.returnTrue(200, req, res, 'Record Updated successfully', updateData)
-    }catch(err){
+    } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
 }
