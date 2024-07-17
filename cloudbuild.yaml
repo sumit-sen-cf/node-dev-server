@@ -7,7 +7,7 @@ steps:
       - |
         npm install
 
-  # Deploy to VM instance
+  # Deploy to GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
