@@ -1,11 +1,22 @@
 steps:
   # Install Node.js and npm dependencies
-  - name: 'node:18'  
+  - name: 'node:18'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
         npm install
+        echo "Contents of the directory after npm install:"
+        ls -al
+
+  # Verify contents before copying
+  - name: 'node:18'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Contents of the directory before copying:"
+        ls -al
 
   # Deploy to GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -13,7 +24,18 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute scp --recurse $(pwd) reset@node-dev-server:/home/reset/nodedevserver --zone=us-central1-b
+        echo "Copying files to VM..."
+        gcloud compute scp --recurse . reset@node-dev-server:/home/reset/nodedevserver --zone=us-central1-b
+        echo "Files copied successfully."
+
+  # Verify contents after copying
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Checking contents of the target directory on VM:"
+        gcloud compute ssh reset@node-dev-server --zone=us-central1-b --command="pwd; ls -al /home/reset/nodedevserver"
 
 options:
   logging: CLOUD_LOGGING_ONLY
