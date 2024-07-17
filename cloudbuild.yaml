@@ -14,3 +14,8 @@ steps:
       - '-c'
       - |
         gcloud compute scp --recurse ./ reset@node-dev-server:/home/reset/nodedevserver --zone=us-central1-b
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  serviceAccount: jarvis-dev-service@noble-return-426210-t3.iam.gserviceaccount.com
+  logsBucket: jarvis-dev-bucket
