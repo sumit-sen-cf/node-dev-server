@@ -298,8 +298,7 @@ exports.paymentUpdateList = async (req, res) => {
                 payment_amount: 1,
                 payment_mode: 1,
                 payment_mode_name: "$paymentModeData.payment_mode_name",
-                payment_detail_id: 1,
-                payment_detail_name: "$paymentDetailsData.title",
+                payment_detail: "$paymentDetailsData",
                 payment_ref_no: 1,
                 payment_approval_status: 1,
                 action_reason: 1,
@@ -464,7 +463,7 @@ exports.updatePaymentAndSaleData = async (req, res) => {
 
         //get sale booking data
         let saleBookingData = await salesBookingModel.findOne({
-            sale_booking_id: editPaymentUpdatedDetail.sale_booking_id
+            sale_booking_id: editPaymentUpdatedDetail?.sale_booking_id
         });
 
         let approvedAmount = saleBookingData.approved_amount;
@@ -505,7 +504,7 @@ exports.updatePaymentAndSaleData = async (req, res) => {
 
         //approved amount add in sale booking collection.
         await salesBookingModel.updateOne({
-            sale_booking_id: editPaymentUpdatedDetail.sale_booking_id
+            sale_booking_id: editPaymentUpdatedDetail?.sale_booking_id
         }, {
             $set: updateObj
         });
