@@ -200,7 +200,79 @@ exports.paymentUpdateList = async (req, res) => {
         const skip = (page && limit) ? (page - 1) * limit : 0;
         const sort = { createdAt: -1 };
 
-        let addFieldsObj = {
+        //for match conditions
+        let matchQuery = {
+            status: {
+                $ne: constant.DELETED
+            }
+        };
+        if (req.query?.userId) {
+            matchQuery["created_by"] = Number(req.query.userId);
+        }
+
+        const pipeline = [{
+            $match: matchQuery
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "created_by",
+                foreignField: "user_id",
+                as: "userData",
+            }
+        }, {
+            $unwind: {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "salespaymentmodemodels",
+                localField: "payment_mode",
+                foreignField: "_id",
+                as: "paymentModeData",
+            }
+        }, {
+            $unwind: {
+                path: "$paymentModeData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "salespaymentdetailsmodels",
+                localField: "payment_detail_id",
+                foreignField: "_id",
+                as: "paymentDetailsData",
+            }
+        }, {
+            $unwind: {
+                path: "$paymentDetailsData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "salesbookingmodels",
+                localField: "sale_booking_id",
+                foreignField: "sale_booking_id",
+                as: "salesBookingData",
+            }
+        }, {
+            $unwind: {
+                path: "$salesBookingData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "accountmastermodels",
+                localField: "account_id",
+                foreignField: "account_id",
+                as: "accountData",
+            }
+        }, {
+            $unwind: {
+                path: "$accountData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
             $addFields: {
                 payment_screenshot_url: {
                     $cond: {
@@ -213,22 +285,46 @@ exports.paymentUpdateList = async (req, res) => {
                             ],
                         },
                         else: "$payment_screenshot",
-                    },
-                },
-            },
-        };
-        const pipeline = [addFieldsObj];
+                    }
+                }
+            }
+        }, {
+            $project: {
+                payment_date: 1,
+                sale_booking_id: 1,
+                campaign_amount: "$salesBookingData.campaign_amount",
+                account_id: 1,
+                account_name: "$accountData.account_name",
+                payment_amount: 1,
+                payment_mode: 1,
+                payment_mode_name: "$paymentModeData.payment_mode_name",
+                payment_detail_id: 1,
+                payment_detail_name: "$paymentDetailsData.title",
+                payment_ref_no: 1,
+                payment_approval_status: 1,
+                action_reason: 1,
+                remarks: 1,
+                payment_screenshot: 1,
+                payment_screenshot_url: 1,
+                created_by: 1,
+                created_by_name: "$userData.user_name",
+                updated_by: 1,
+                createdAt: 1,
+                updatedAt: 1,
+            }
+        }, {
+            $sort: sort
+        }];
 
         if (page && limit) {
             pipeline.push(
                 { $skip: skip },
                 { $limit: limit },
-                { $sort: sort }
             );
         }
 
-        paymentUpdateList = await paymentUpdateModel.aggregate(pipeline);
-        const paymentUpdateCount = await paymentUpdateModel.countDocuments(addFieldsObj);
+        const paymentUpdateList = await paymentUpdateModel.aggregate(pipeline);
+        const paymentUpdateCount = await paymentUpdateModel.countDocuments(matchQuery);
 
         return response.returnTrueWithPagination(
             200,

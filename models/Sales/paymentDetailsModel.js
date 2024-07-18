@@ -40,4 +40,4 @@ const paymentDeatils = new Schema({
 }, {
     timestamps: true
 });
-module.exports = mongoose.model('salesPaymentDeatilsModel', paymentDeatils);
+module.exports = mongoose.model('salesPaymentDetailsModel', paymentDeatils);
