@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "noble-return-426210-t3",
+  "private_key_id": "e7ce20a8dc768dc8f54fd12c6d32353f99e98b84",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC9WjvZwkjb0sCO\nKQZZcLRFsVPZybDE6geNlJjAcT4n4Hq/tWYHihu9CUcdQetl38fIVhJ3MyJHBbuA\nCnHJ/G2LkgrqO+1uVesnFuQ8A0YiZBzn08T/2QJ3UUXuoxeeShA+fu75bHLqp1ic\nKwaKT7jAqef11+IL8gOrBPKY64bLOyQKujFcJc9edRK8loQdyZ051ginsNvfjuNY\nDuB9fUd/3kil2krZoupf9nx5LioSVvPku/FZ5XIup2w+Tck427hZ02ZXkH3awTxe\nJ3VA3VDMaD7WC1IYUb1AMJn4BItWsGW3BVp3NqhRsvQEGk32tV6FMtNEosdLsWJD\nQ4NPGTiTAgMBAAECggEABQb8R8/Mt2llC2EzdfR0FNWccE/WjaPZB31GgPWAvPZM\nzAI470JPcjlo1fIGGfJTD5KZcui8pD4WuFOOqdo13lrGR2nH6AIH+EW3UZCUsB0Q\nV2db957/XcOeo7NY0S8ON1qPZbfnZSuEQsExr0JmmVbpfbF5ou+OAWBkQIMgVQz1\nLPtyoBVoSsmLh49Q/gkl//nAkK6t4Wsul9YIOF3+i81H7TArjeQleW3tFm7taqAG\nGEGHWgwiy2DH9pW+QTRMv7bExPpjtd7+o0rU8XTjAWRd2eb8b62IrdiviWMuLugl\nAShrL4kk7D1uSezfuSsdSSHd2gsS9YVjztZawWd4IQKBgQDynWJX6dKF9xD92ybW\n5wzQjCNSAvWHVHcN3Zzlqm5pNuV/PP4SnrJe4yxtTWC9kt5YwyPMn9CwXoYMhuRY\nq2JT/2yf0+qrV75uYhrOT5X/WLDlAMOFDNineKQ4nhorgYLHMFKn5aRhdPqx2Ekg\nbAj9MScOWJekGnrFN6btSBjBNwKBgQDHzJbgk92HwcAi15n3wU9VC+U+0ZHB/bIF\nSq8tFTvBLxpfHYRsTdDb4YMReOT8dBPdl1nRz1e5DpMNaz5a7spRhNhJMyVtQByf\nvqDrwVcjzULwKCL4M8o/EOkpI1+M1zCTJyaVJmow4kIvbweql8qfFcoBjShqUFpR\nGD2aLrFhhQKBgQDtta6pnHucrpqDX7oKTY+MtgHVVPjkg6myeDRGAlrz08nAhS4b\naEo0FjltTqc+lywro+brkpqSc8q7c19AUYuh6V2wq53+C5aV6KGDCw9YhLmtZrYr\nIo8UZ2vf3Wiev+I27+3Me4A3zLnkjpn3nmKgUQyHTd4l95vap9ByJHW8uQKBgB7q\nlIopt0TTgUSi8gs5WWpCjfWbfh9zf0F8XgDu4TEydbU0HxKXM/NiQOLKPzylRZGr\nYtWpbNyQ2cZgyuRNQPc+RC2HgYoXOpapa8MvRqmekHYS795SPUBnAH1CIP3tKnIK\nw9ieeh4YVL98QcZu+IaHW5vD2PYieudDhfy+run1AoGBAMRaX12ooR0xtErONs+l\nF5poyAUEqb+0GSnCmVLrWhwX2J2FpOGrE46ddIWRY1L1o0RQ28kLBQRXlohLBVBF\n6RQhIYK2NqDeCslQs2xVcvo6IaApUh/5AfkDOSvxllcanrpCUYsKvmviyBqh1LVb\nJaszR641HqsrOebVtXFjiz70\n-----END PRIVATE KEY-----\n",
+  "client_email": "jarvis-dev-service@noble-return-426210-t3.iam.gserviceaccount.com",
+  "client_id": "115910276500861936497",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/jarvis-dev-service%40noble-return-426210-t3.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
