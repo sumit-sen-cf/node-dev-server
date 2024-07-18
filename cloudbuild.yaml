@@ -1,5 +1,5 @@
 steps:
-  # Install Node.js and npm dependencies
+  # Install Node.js and npm dependencies in Cloud Build environment
   - name: 'node:18'
     entrypoint: 'bash'
     args:
@@ -7,29 +7,29 @@ steps:
       - |
         npm install
 
-  # Compress files into a tar archive for transfer, excluding the tar file itself
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        tar --exclude='./project.tar.gz' -czf /workspace/project.tar.gz -C $(pwd) .
+  # Delete the existing nodedevserver folder on the GCP VM instance
+  # - name: 'gcr.io/cloud-builders/gcloud'
+  #   entrypoint: 'bash'
+  #   args:
+  #     - '-c'
+  #     - |
+  #       gcloud compute ssh reset@node-dev-server --zone=us-central1-b --command="rm -rf /home/reset/nodedevserver"
 
-  # Copy the tar archive to the GCP VM instance
+  # Copy the repository files to the GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        gcloud compute scp /workspace/project.tar.gz reset@node-dev-server:/home/reset/project.tar.gz --zone=us-central1-b
+        gcloud compute scp --recurse $(pwd) reset@node-dev-server:/home/reset/nodedevserver1 --zone=us-central1-b
 
-  # Extract the tar archive on the GCP VM instance and overwrite files
+  # Install Node.js dependencies and start the application using pm2 on the GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        gcloud compute ssh reset@node-dev-server --zone=us-central1-b --command="tar -xzf /home/reset/project.tar.gz -C /home/reset/nodedevserver && rm /home/reset/project.tar.gz"
+        gcloud compute ssh reset@node-dev-server --zone=us-central1-b --command="cd /home/reset/nodedevserver1 && npm install"
 
 options:
   logging: CLOUD_LOGGING_ONLY
