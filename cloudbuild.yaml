@@ -13,7 +13,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute ssh reset@node-dev-server --zone=us-central1-b --command="rm -rf /home/reset/nodedevserver1"
+        gcloud compute ssh reset@node-dev-server --zone=us-central1-b --command="rm -rf /home/reset/nodedevserver"
 
   # Copy the repository files to the GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -21,15 +21,15 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute scp --recurse $(pwd) reset@node-dev-server:/home/reset/nodedevserver1 --zone=us-central1-b
+        gcloud compute scp --recurse $(pwd) reset@node-dev-server:/home/reset/nodedevserver --zone=us-central1-b
 
-  # Install Node.js dependencies and start the application using pm2 on the GCP VM instance
+  # Install App dependencies and start the application using pm2 on the GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        gcloud compute ssh reset@node-dev-server --zone=us-central1-b --command="cd /home/reset/nodedevserver1 && npm install"
+        gcloud compute ssh reset@node-dev-server --zone=us-central1-b --command="cd /home/reset/nodedevserver && npm install --f && pm2 start app.js"
 
 options:
   logging: CLOUD_LOGGING_ONLY
