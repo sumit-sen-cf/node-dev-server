@@ -13,7 +13,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute scp --recurse . reset@node-dev-server:/home/reset/nodedevserver1 --zone=us-central1-b
+        gcloud compute scp --recurse $(pwd) reset@node-dev-server:/home/reset/nodedevserver1 --zone=us-central1-b
 
 options:
   logging: CLOUD_LOGGING_ONLY
