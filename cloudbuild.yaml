@@ -1,19 +1,35 @@
 steps:
-  # Install Node.js and npm dependencies
-  - name: 'node:18'  
+  # Install Node.js and npm dependencies in Cloud Build environment
+  - name: 'node:18'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
         npm install
 
-  # Deploy to GCP VM instance
+  # Delete the existing nodedevserver folder on the GCP VM instance
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh reset@node-dev-server --zone=us-central1-b --command="rm -rf /home/reset/nodedevserver"
+
+  # Copy the repository files to the GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
         gcloud compute scp --recurse $(pwd) reset@node-dev-server:/home/reset/nodedevserver --zone=us-central1-b
+
+  # Install App dependencies and start the application using pm2 on the GCP VM instance
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh reset@node-dev-server --zone=us-central1-b --command="cd /home/reset/nodedevserver && npm install --f && pm2 restart all"
 
 options:
   logging: CLOUD_LOGGING_ONLY

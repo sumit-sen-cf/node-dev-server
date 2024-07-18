@@ -41,7 +41,7 @@ exports.getAllDemo = async (req, res) => {
         if(!simc){
             res.status(500).send({success:false})
         }
-        res.status(200).send({data:simc})
+        res.status(200).send({data:simc, message:'demo data fetched successfully'})
     } catch(err){
         res.status(500).send({error:err.message,sms:'Error getting all demo datas'})
     }
