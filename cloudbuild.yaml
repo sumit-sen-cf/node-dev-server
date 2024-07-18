@@ -7,13 +7,13 @@ steps:
       - |
         npm install
 
-  # Compress files into a tar archive for transfer
+  # Compress files into a tar archive for transfer, excluding the tar file itself
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        tar -czf /workspace/project.tar.gz -C $(pwd) .
+        tar --exclude='./project.tar.gz' -czf /workspace/project.tar.gz -C $(pwd) .
 
   # Copy the tar archive to the GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
