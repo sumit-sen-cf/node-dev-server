@@ -41,7 +41,7 @@ exports.addAccountType = async (req, res) => {
 exports.getAccountTypeData = async (req, res) => {
     try {
         const accountTypeData = await accountTypesModel.findOne({
-            $match: { _id: mongoose.Types.ObjectId(req.params.id) }
+            _id: mongoose.Types.ObjectId(req.params.id)
         })
 
         if (!accountTypeData) {

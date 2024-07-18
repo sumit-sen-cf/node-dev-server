@@ -32,7 +32,7 @@ const salesBookingPayment = new Schema({
     payment_detail_id: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: "salesPaymentDeatilsModel"
+        ref: "salesPaymentDetailsModel"
     },
     payment_screenshot: {
         type: String,

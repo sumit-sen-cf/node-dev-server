@@ -13,11 +13,11 @@ const accountDocumentOverviewSchema = new mongoose.Schema({
     },
     document_image_upload: {
         type: String,
-        require: true,
+        require: false,
     },
     document_no: {
         type: String,
-        required: false,
+        required: true,
     },
     description: {
         type: String,

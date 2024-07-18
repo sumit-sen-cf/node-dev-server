@@ -51,6 +51,10 @@ const accountMasterSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
+    company_email: {
+        type: String,
+        required: false
+    },
     created_by: {
         type: Number,
         required: true,
@@ -73,7 +77,7 @@ accountMasterSchema.pre('save', async function (next) {
         if (lastAgency && lastAgency.account_id) {
             this.account_id = lastAgency.account_id + 1;
         } else {
-            this.account_id = 1;
+            this.account_id = 2000;
         }
     }
     next();

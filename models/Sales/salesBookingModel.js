@@ -236,7 +236,7 @@ salesBooking.pre('save', async function (next) {
         if (salesBookingData && salesBookingData.sale_booking_id) {
             this.sale_booking_id = salesBookingData.sale_booking_id + 1;
         } else {
-            this.sale_booking_id = 1;
+            this.sale_booking_id = 2000;
         }
     }
     next();

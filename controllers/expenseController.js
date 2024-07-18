@@ -3,8 +3,7 @@ const vari = require("../variables.js");
 const multer = require("multer");
 // const { storage } = require('../common/uploadFile.js');
 const { uploadImage, deleteImage } = require("../common/uploadImage.js");
-const mongoose = require('mongoose');
-
+const mongoose = require("mongoose");
 const upload = multer({
     storage: multer.memoryStorage()
 }).fields([

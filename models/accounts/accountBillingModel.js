@@ -63,10 +63,6 @@ const accountBillingSchema = new mongoose.Schema({
         type: Number,
         required: false
     },
-    company_email: {
-        type: String,
-        required: false
-    },
     created_by: {
         type: Number,
         required: true,

@@ -46,6 +46,7 @@ exports.addAccountDetails = async (req, res) => {
             website: website,
             turn_over: turn_over,
             description: description,
+            company_email: company_email,
             created_by: created_by
         })
 
@@ -65,7 +66,6 @@ exports.addAccountDetails = async (req, res) => {
             head_billing_state: head_billing_state,
             head_billing_country: head_billing_country,
             head_billing_pin_code: head_billing_pin_code,
-            company_email: company_email,
             created_by: created_by
         })
 
@@ -154,6 +154,7 @@ exports.editAccountDetails = async (req, res) => {
                 website: website,
                 turn_over: turn_over,
                 description: description,
+                company_email: company_email,
                 updated_by: updated_by
             }
         }, {
@@ -178,7 +179,6 @@ exports.editAccountDetails = async (req, res) => {
                 head_billing_state: head_billing_state,
                 head_billing_country: head_billing_country,
                 head_billing_pin_code: head_billing_pin_code,
-                company_email: company_email,
                 updated_by: updated_by
             }
         }, {
@@ -240,7 +240,7 @@ exports.getAllAccountDetails = async (req, res) => {
     try {
         // Extract page and limit from query parameters, default to null if not provided
         const page = req.query?.page ? parseInt(req.query.page) : 1;
-        const limit = req.query?.limit ? parseInt(req.query.limit) : 50;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : Number.MAX_SAFE_INTEGER;
         const sort = { createdAt: -1 };
 
         // Calculate the number of records to skip based on the current page and limit
@@ -250,6 +250,9 @@ exports.getAllAccountDetails = async (req, res) => {
         let matchQuery = {
             deleted: false
         };
+        if (req.query?.userId) {
+            matchQuery["created_by"] = Number(req.query.userId);
+        }
         //Search by filter
         if (req.query.search) {
             //Regex Condition for search 
@@ -313,6 +316,18 @@ exports.getAllAccountDetails = async (req, res) => {
                 preserveNullAndEmptyArrays: true,
             }
         }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "created_by",
+                foreignField: "user_id",
+                as: "userData",
+            }
+        }, {
+            $unwind: {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
             $group: {
                 _id: "$account_id",
                 id: { $first: "$_id" },
@@ -330,6 +345,7 @@ exports.getAllAccountDetails = async (req, res) => {
                 turn_over: { $first: "$turn_over" },
                 description: { $first: "$description" },
                 created_by: { $first: "$created_by" },
+                created_by_name: { $first: "$userData.user_name" },
                 updated_by: { $first: "$updated_by" },
                 createdAt: { $first: "$createdAt" },
                 updatedAt: { $first: "$updatedAt" },
@@ -366,6 +382,7 @@ exports.getAllAccountDetails = async (req, res) => {
                 turn_over: 1,
                 description: 1,
                 created_by: 1,
+                created_by_name: 1,
                 updated_by: 1,
                 createdAt: 1,
                 updatedAt: 1,
