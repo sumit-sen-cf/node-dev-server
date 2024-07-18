@@ -1,11 +1,19 @@
 steps:
   # Install Node.js and npm dependencies
-  - name: 'node:18'  
+  - name: 'node:18'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
         npm install
+
+  # Set permissions on the destination directory
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh reset@node-dev-server --zone=us-central1-b --command="chmod -R 777 /home/reset/nodedevserver"
 
   # Deploy to GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -13,7 +21,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute scp --recurse $(pwd) reset@node-dev-server:/home/reset/nodedevserver1 --zone=us-central1-b
+        gcloud compute scp --recurse --compress --zone=us-central1-b $(pwd) reset@node-dev-server:/home/reset/nodedevserver --force-key-file-overwrite
 
 options:
   logging: CLOUD_LOGGING_ONLY
