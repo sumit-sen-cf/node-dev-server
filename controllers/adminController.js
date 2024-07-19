@@ -6,7 +6,8 @@ const pageMasterModel = require('../models/PMS2/pageMasterModel.js')
 const vendorSchema = require('../models/PMS2/vendorModel.js')
 const vendorPlatformModel = require('../models/PMS2/vendorPlatformModel.js')
 const { ObjectId } = require('mongodb');
-const bankDetailsSchema = require('../models/PMS2/bankDetailsModel.js')
+const bankDetailsSchema = require('../models/PMS2/bankDetailsModel.js');
+const axios = require("axios");
 
 exports.changePassOfSelectedUsers = async (req, res) => {
     try {
@@ -150,18 +151,18 @@ exports.sendPassEmailToUsers = async (req, res) => {
 exports.changeVendorIdToId = async (req, res) => {
     try {
         const pm2pagemasterDocs = await pageMasterModel.find({ temp_vendor_id: { $ne: null } });
-    
+
         for (let i = 0; i < pm2pagemasterDocs.length; i++) {
-          const pm2pagemasterDoc = pm2pagemasterDocs[i];
-          
-          const vendorSchemaDoc = await vendorSchema.findOne({ vendor_id: pm2pagemasterDoc.temp_vendor_id });
-          
-          if (vendorSchemaDoc) {
-            pm2pagemasterDoc.vendor_id = vendorSchemaDoc._id;
-            await pm2pagemasterDoc.save();
-          }
+            const pm2pagemasterDoc = pm2pagemasterDocs[i];
+
+            const vendorSchemaDoc = await vendorSchema.findOne({ vendor_id: pm2pagemasterDoc.temp_vendor_id });
+
+            if (vendorSchemaDoc) {
+                pm2pagemasterDoc.vendor_id = vendorSchemaDoc._id;
+                await pm2pagemasterDoc.save();
+            }
         }
-    
+
         res.status(200).json({ message: 'Vendor IDs updated successfully.' });
     } catch (err) {
         console.error(err);
@@ -180,8 +181,8 @@ exports.changePrimaryPageToId = async (req, res) => {
             const pm2pagemasterDoc = pm2pagemasterDocs.find(doc => doc.p_id === vendor.primary_page);
 
             if (pm2pagemasterDoc) {
-                vendor.primary_page = pm2pagemasterDoc._id; 
-                await vendor.save(); 
+                vendor.primary_page = pm2pagemasterDoc._id;
+                await vendor.save();
             }
         }
 
@@ -221,8 +222,8 @@ exports.shiftBankDetails = async (req, res) => {
     }
 };
 
-exports.getVendorDetailsWithIds = async(req, res) => {
-    try{
+exports.getVendorDetailsWithIds = async (req, res) => {
+    try {
         const vendorData = await vendorSchema.aggregate([
             {
                 $lookup: {
@@ -262,8 +263,8 @@ exports.getVendorDetailsWithIds = async(req, res) => {
                     path: "$vendorPageDetail",
                     preserveNullAndEmptyArrays: true,
                 },
-            },{
-                $project:{
+            }, {
+                $project: {
                     closed_by: 1,
                     status: 1,
                     _id: 1,
@@ -287,22 +288,22 @@ exports.getVendorDetailsWithIds = async(req, res) => {
                     type_name: "$vendorTypeDetail.type_name",
                     primary_page_name: "$vendorPageDetail.page_name"
                 }
-            } 
+            }
         ]);
         if (!vendorData) {
-            return res.status(200).json({data:[],message:'No Reord Found...'});
+            return res.status(200).json({ data: [], message: 'No Reord Found...' });
         }
-        return res.status(200).json({data:vendorData, message:'Data fetched successfully'});
-    }catch(err){
-        res.status(500).json({error:err.message, message:'error while getting data'})
+        return res.status(200).json({ data: vendorData, message: 'Data fetched successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message, message: 'error while getting data' })
     }
 }
 
-exports.getVendorDetailsWithIdsById = async(req, res) => {
-    try{
+exports.getVendorDetailsWithIdsById = async (req, res) => {
+    try {
         const vendorData = await vendorSchema.aggregate([
             {
-                $match:{
+                $match: {
                     vendor_id: Number(req.params.vendor_id)
                 }
             },
@@ -344,8 +345,8 @@ exports.getVendorDetailsWithIdsById = async(req, res) => {
                     path: "$vendorPageDetail",
                     preserveNullAndEmptyArrays: true,
                 },
-            },{
-                $project:{
+            }, {
+                $project: {
                     closed_by: 1,
                     status: 1,
                     _id: 1,
@@ -369,13 +370,44 @@ exports.getVendorDetailsWithIdsById = async(req, res) => {
                     type_name: "$vendorTypeDetail.type_name",
                     primary_page_name: "$vendorPageDetail.page_name"
                 }
-            } 
+            }
         ]);
         if (!vendorData) {
-            return res.status(200).json({data:[],message:'No Reord Found...'});
+            return res.status(200).json({ data: [], message: 'No Reord Found...' });
         }
-        return res.status(200).json({data:vendorData, message:'Data fetched successfully'});
-    }catch(err){
-        res.status(500).json({error:err.message, message:'error while getting data'})
+        return res.status(200).json({ data: vendorData, message: 'Data fetched successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message, message: 'error while getting data' })
     }
 }
+
+const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjY0NmNhOTExZWY5ZTcwNWM3ODc1Nzk0NyIsIm5hbWUiOiJjcmVhdGl2ZWZ1ZWwiLCJleHAiOjE3NTI5MjI3NzAsInJvbGUiOiJDTElFTlQiLCJwZXJtaXNzaW9ucyI6W10sInNlc3Npb24iOiJiNzdlNDczMC00MzQwLTQ4ZDAtYTE0My00ODVlNTVmZjcyZDYifQ.O5LfDYm-KnwlFMumxejNSksSEGSFUUUBJWQ1e7DxiFY"
+
+exports.trackCreatorGet = async (req, res) => {
+    try {
+        console.log(req.body);
+        const trackCreatorParams = {
+            connector: "instagram",
+            handle: req.body.handle,
+            cron_expression: "30 1 1 1 *",
+            tracking_expiry_at: "2023-12-10 12:12:1.0",
+            stories_cron_expression: req.body.stories_cron_expression,
+            stories_tracking_expiry_at: "2025-12-10 12:12:1.0"
+        };
+        // console.log("reach backend")
+        const response = await axios.post(
+            "https://app.ylytic.com/ylytic/api/v1/rt_tracking/creators",
+            trackCreatorParams,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        res.status(response.status).json(response.data);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: err, sms: "These creators cant be sent" });
+    }
+};  
