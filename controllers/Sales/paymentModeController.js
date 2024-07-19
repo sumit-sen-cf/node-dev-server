@@ -9,9 +9,12 @@ const constant = require("../../common/constant");
  */
 exports.createPaymentmode = async (req, res) => {
     try {
-        const { payment_mode_name, created_by } = req.body;
+        const { payment_mode_name, title, detail, gst_bank, created_by } = req.body;
         const addPayementMode = await salesPaymentModeModel.create({
             payment_mode_name: payment_mode_name,
+            title: title,
+            detail: detail,
+            gst_bank: gst_bank,
             created_by: created_by,
         });
         // Return a success response with the updated record details
@@ -62,12 +65,15 @@ exports.updatePaymentMode = async (req, res) => {
     try {
         // Extract the id from request parameters
         const { id } = req.params;
-        const { payment_mode_name, updated_by } = req.body;
+        const { payment_mode_name, title, detail, gst_bank, updated_by } = req.body;
 
         const paymentModeUpdated = await paymentModeModels.findByIdAndUpdate({ _id: id }, {
             $set: {
                 payment_mode_name,
-                updated_by
+                updated_by,
+                title,
+                detail,
+                gst_bank
             },
         }, { new: true }
         );
