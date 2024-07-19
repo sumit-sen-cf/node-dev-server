@@ -1901,6 +1901,7 @@ router.put("/edit_dynamic_table_data", dynamicTablesModel.editDynamicTablesData)
 router.post('/change_selected_user_password', adminController.changePassOfSelectedUsers);
 router.post('/change_all_user_password', adminController.changePassOfUsers);
 router.post('/send_email_to_all_users', adminController.sendPassEmailToUsers);
+router.post('/get_story_data', adminController.trackCreatorGet);
 
 //------------------------------------------------- New Operations Routes Starts Here----------------------------
 
