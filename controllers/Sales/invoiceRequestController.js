@@ -186,7 +186,7 @@ exports.invoiceRejectedStatusUpdate = async (req, res) => {
 };
 
 
-exports.getInvoiceRequestData = async (req, res) => {
+exports.getInvoiceRequestDataList = async (req, res) => {
     try {
         let matchCondition = {};
         //check if the status is available.
@@ -198,6 +198,10 @@ exports.getInvoiceRequestData = async (req, res) => {
         //check if the invoice type id is available.
         if (req.query?.invoice_type_id) {
             matchCondition["invoice_type_id"] = req.query.invoice_type_id;
+        }
+
+        if (req.query?.userId) {
+            matchQuery["created_by"] = Number(req.query.userId);
         }
 
         const invoiceRequestData = await invoiceRequestModel.aggregate([{

@@ -8,7 +8,7 @@ const invoiceRequestController = require("../../controllers/Sales/invoiceRequest
  */
 router.post("/sales/invoice_request", verifyToken, invoiceRequestController.createInvoiceRequest);
 router.get("/sales/invoice_request/:id", verifyToken, invoiceRequestController.getInvoiceRequestData);
-router.get("/sales/invoice_request", verifyToken, invoiceRequestController.getInvoiceRequestData);
+router.get("/sales/invoice_request", verifyToken, invoiceRequestController.getInvoiceRequestDataList);
 router.put("/sales/invoice_request/:id", verifyToken, invoiceRequestController.updateInvoiceUploadedByFinance);
 router.put("/sales/invoice_request_rejected/:id", verifyToken, invoiceRequestController.invoiceRejectedStatusUpdate);
 router.delete("/sales/invoice_request/:id", verifyToken, invoiceRequestController.deleteInvoiceRequest);
