@@ -15,10 +15,10 @@ const accountBillingSchema = new mongoose.Schema({
         type: Number,
         required: false,
     },
-    connected_office: {
-        type: String,
-        required: false,
-    },
+    // connected_office: {
+    //     type: String,
+    //     required: false,
+    // },
     connect_billing_street: {
         type: String,
         required: false,
@@ -39,10 +39,10 @@ const accountBillingSchema = new mongoose.Schema({
         type: Number,
         required: false
     },
-    head_office: {
-        type: String,
-        required: false,
-    },
+    // head_office: {
+    //     type: String,
+    //     required: false,
+    // },
     head_billing_street: {
         type: String,
         required: false,
