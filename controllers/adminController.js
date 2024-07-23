@@ -7,6 +7,11 @@ const vendorSchema = require('../models/PMS2/vendorModel.js')
 const vendorPlatformModel = require('../models/PMS2/vendorPlatformModel.js')
 const { ObjectId } = require('mongodb');
 const bankDetailsSchema = require('../models/PMS2/bankDetailsModel.js')
+// const fs = require('fs');
+// const path = require('path');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const { v4: uuidv4 } = require('uuid');
 
 exports.changePassOfSelectedUsers = async (req, res) => {
     try {
@@ -150,18 +155,18 @@ exports.sendPassEmailToUsers = async (req, res) => {
 exports.changeVendorIdToId = async (req, res) => {
     try {
         const pm2pagemasterDocs = await pageMasterModel.find({ temp_vendor_id: { $ne: null } });
-    
+
         for (let i = 0; i < pm2pagemasterDocs.length; i++) {
-          const pm2pagemasterDoc = pm2pagemasterDocs[i];
-          
-          const vendorSchemaDoc = await vendorSchema.findOne({ vendor_id: pm2pagemasterDoc.temp_vendor_id });
-          
-          if (vendorSchemaDoc) {
-            pm2pagemasterDoc.vendor_id = vendorSchemaDoc._id;
-            await pm2pagemasterDoc.save();
-          }
+            const pm2pagemasterDoc = pm2pagemasterDocs[i];
+
+            const vendorSchemaDoc = await vendorSchema.findOne({ vendor_id: pm2pagemasterDoc.temp_vendor_id });
+
+            if (vendorSchemaDoc) {
+                pm2pagemasterDoc.vendor_id = vendorSchemaDoc._id;
+                await pm2pagemasterDoc.save();
+            }
         }
-    
+
         res.status(200).json({ message: 'Vendor IDs updated successfully.' });
     } catch (err) {
         console.error(err);
@@ -180,8 +185,8 @@ exports.changePrimaryPageToId = async (req, res) => {
             const pm2pagemasterDoc = pm2pagemasterDocs.find(doc => doc.p_id === vendor.primary_page);
 
             if (pm2pagemasterDoc) {
-                vendor.primary_page = pm2pagemasterDoc._id; 
-                await vendor.save(); 
+                vendor.primary_page = pm2pagemasterDoc._id;
+                await vendor.save();
             }
         }
 
@@ -221,8 +226,8 @@ exports.shiftBankDetails = async (req, res) => {
     }
 };
 
-exports.getVendorDetailsWithIds = async(req, res) => {
-    try{
+exports.getVendorDetailsWithIds = async (req, res) => {
+    try {
         const vendorData = await vendorSchema.aggregate([
             {
                 $lookup: {
@@ -262,8 +267,8 @@ exports.getVendorDetailsWithIds = async(req, res) => {
                     path: "$vendorPageDetail",
                     preserveNullAndEmptyArrays: true,
                 },
-            },{
-                $project:{
+            }, {
+                $project: {
                     closed_by: 1,
                     status: 1,
                     _id: 1,
@@ -287,22 +292,22 @@ exports.getVendorDetailsWithIds = async(req, res) => {
                     type_name: "$vendorTypeDetail.type_name",
                     primary_page_name: "$vendorPageDetail.page_name"
                 }
-            } 
+            }
         ]);
         if (!vendorData) {
-            return res.status(200).json({data:[],message:'No Reord Found...'});
+            return res.status(200).json({ data: [], message: 'No Reord Found...' });
         }
-        return res.status(200).json({data:vendorData, message:'Data fetched successfully'});
-    }catch(err){
-        res.status(500).json({error:err.message, message:'error while getting data'})
+        return res.status(200).json({ data: vendorData, message: 'Data fetched successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message, message: 'error while getting data' })
     }
 }
 
-exports.getVendorDetailsWithIdsById = async(req, res) => {
-    try{
+exports.getVendorDetailsWithIdsById = async (req, res) => {
+    try {
         const vendorData = await vendorSchema.aggregate([
             {
-                $match:{
+                $match: {
                     vendor_id: Number(req.params.vendor_id)
                 }
             },
@@ -344,8 +349,8 @@ exports.getVendorDetailsWithIdsById = async(req, res) => {
                     path: "$vendorPageDetail",
                     preserveNullAndEmptyArrays: true,
                 },
-            },{
-                $project:{
+            }, {
+                $project: {
                     closed_by: 1,
                     status: 1,
                     _id: 1,
@@ -369,13 +374,92 @@ exports.getVendorDetailsWithIdsById = async(req, res) => {
                     type_name: "$vendorTypeDetail.type_name",
                     primary_page_name: "$vendorPageDetail.page_name"
                 }
-            } 
+            }
         ]);
         if (!vendorData) {
-            return res.status(200).json({data:[],message:'No Reord Found...'});
+            return res.status(200).json({ data: [], message: 'No Reord Found...' });
         }
-        return res.status(200).json({data:vendorData, message:'Data fetched successfully'});
-    }catch(err){
-        res.status(500).json({error:err.message, message:'error while getting data'})
+        return res.status(200).json({ data: vendorData, message: 'Data fetched successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message, message: 'error while getting data' })
+    }
+}
+
+const dataEncryption = (data, secretKey) => {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(secretKey, 'base64'), iv);
+    let encryptedData = cipher.update(data, 'utf8', 'base64');
+    encryptedData += cipher.final('base64');
+    const combinedData = Buffer.concat([iv, Buffer.from(encryptedData, 'base64')]);
+    const encodedData = combinedData.toString('base64');
+    return encodedData;
+};
+
+exports.createJWTForPluralPayment = async (req, res) => {
+    try {
+        const secretKey = '8rNJVtbsSDjSFS1DK7bgGeTwEu9gRMPb6OyU5CpKDFQ=';
+
+        const privateKey = `-----BEGIN RSA PRIVATE KEY-----
+                            MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCurMdlSquva9EJ
+                            +fAfF3zASK4ghVBQ7bnoSnVP4ZF8J612WvV3iqsSGfMaAwhMPnnmalrFMmKtjwY9
+                            MmIdCvqM9jhqqBPg32oV/JJRUuhZbVN4TN8Ixj4qRJ163exH4bstQwXeTjF8b04Y
+                            jNpEltr3M6lrsf1d+RpqnODeylVGgP8ikkP5stsa/svvFdHjD1fTLqJdpKJek6gl
+                            MYOFi4jJRoL+xYdc5UO8KpCxjcJI1gzu1ujWnQzgMoQlsJhO7SM2ja1jz8+3hXM2
+                            OUJ+ePtYz1elHpk9uXzJAwedGhp3ZYimMFTUHHVRKyNiiUFwc8do0HfdQpLwdMyZ
+                            kvP1BkwJAgMBAAECggEAB6tO7ePe1Urkj42SmIZNeMBcvfXuw/W5yUsnCtusziQe
+                            sLtVEf23NIpA2MT0LAcX6nyDypixKZYzbez9zvE0LB3yPwf/TAGw4CNlU3529I9X
+                            +W0Ndde8HLZoO6kSLCSh7BVj0pIGCHvAS3jKj/WFXMksv2RQWPMMY0zK3QZu53yg
+                            ahwqPhcXXqfr47XvhjiBensB8rWkfRR/CEXvAJIxOHcQA4xD9TORzRw+DdTxbJoh
+                            NIntXD3SVhanhttHJen/PgOa9FyyxzDEyU6NP2qo4m3HfFJOaWXblhKsAq+wCPUM
+                            N6iXa1TlKSIDxL4LRpFDGF0yy7BxvZnuJO4uqGHJiQKBgQDcy8vOLDfamTGd+v/K
+                            8Z+3PFePz293fHnO8pkGnp9FjHHvBR9yX5LdgAKrU56mv6j5YuynCTM6z+yz3ept
+                            o2/nUOncSQB50kxE3PjCRoFofoaHqtW8pRbPdNWkV8/T4PiIF1Z8w7B+kzQfqQoN
+                            /sWhCtn1MxjnYESaqaPwUnoIYwKBgQDKhnYnaVyFbDuHKGo72ka0Bg7hi+FNuEzH
+                            dm5BGImGvoVhB+9ikQai4FYu2SFGj4uT7pG0U+eSA62cPUFMZa/eU6gNTRHb0LmG
+                            ucCkZLazn46fPU8ZuygXxDqfuXv1Iw1Le5ZV5cpnhqYtMVdXbz409zduLIFkj/0f
+                            3RgadlrHowKBgQChNUMm024scvGhMSQWHvjIJoyf+YqfKQkeqk5EYQhVFUgShiEB
+                            tvpaMx6/zJvnj8Rl4W58PuFirXFbmkmRp2UK9S7qoXpxd7QsC1KtNiFCFC9RWtAX
+                            nknbSqi6B0s8neOYKcIB8jcpE31ZKGio8z2EaZHdz2L9fHJaokWKMA3dlQKBgQCw
+                            5dn2etVRxUQJvodsWDBBtrjw0VmupTiLUSrkuSYHCAtAwcma8so1Inak3Qtvsppc
+                            UJn8RP2UUJooSmjq7jc7nx6+336l3h7vSvi1nzLmmovdE5QwCYXvnHsIYN+hM0i9
+                            kemyhdDRtI8aEmsT+BsB8J3+IemziQGz/066bn7EuQKBgQCEhOqdQ0M3EOLsSWrM
+                            p2cRCf2Wfd21peZHHiVY2ehIA9JhEPrpWCFAXAbvYjH3r12/j0GmsVPnAdukgc9p
+                            /rZypJUnAUOFXfd7AqsNVZ07V1DLw49gbLKPIbhi7z5E8exhpUdKaH8y3oKsek7i
+                            buBDe+JCDb5YyVyOyfha4T5fZQ==
+                            -----END RSA PRIVATE KEY-----`;
+
+        const map = {
+            mid: '19181',
+            iss: 'Akshit',
+            agr: 'PLURAL',
+        };
+
+        const claims = {
+            srv: 'Payout',
+            data: '',
+        };
+
+        const data = JSON.stringify(map);
+        const now = new Date();
+        const encodedData = dataEncryption(data, secretKey);
+        claims.data = encodedData;
+        const tokenTimeOut = 30;
+        const jwtToken = jwt.sign(
+            {
+                ...claims,
+                sub: Buffer.from('usr-a1e6864c1e61458087ae734f24b0524c').toString('base64'),
+                aud: 'Plural',
+                jti: uuidv4(),
+                iat: Math.floor(now.getTime() / 1000),
+                exp: Math.floor(now.getTime() / 1000) + tokenTimeOut * 60,
+            },
+            privateKey,
+            {
+                algorithm: 'RS256',
+            }
+        );
+        return res.status(200).json({ data: jwtToken, message: 'Token for Plural Payment Gateway generated successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message, message: 'Error while generating JWT token' });
     }
 }
