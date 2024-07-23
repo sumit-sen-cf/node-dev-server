@@ -17,7 +17,7 @@ exports.addAccountDetails = async (req, res) => {
             how_many_offices, connect_billing_street, connect_billing_city,
             connect_billing_state, connect_billing_country, connect_billing_pin_code, head_billing_street,
             head_billing_city, head_billing_state, head_billing_country, head_billing_pin_code, company_email,
-            account_poc, account_documents
+            account_poc, account_documents, social_platform
         } = req.body;
 
         // Check for duplicate contact_no in accountPoc
@@ -64,6 +64,7 @@ exports.addAccountDetails = async (req, res) => {
             head_billing_state: head_billing_state,
             head_billing_country: head_billing_country,
             head_billing_pin_code: head_billing_pin_code,
+            social_platforms: social_platform || [],
             created_by: created_by
         })
 
@@ -129,7 +130,8 @@ exports.editAccountDetails = async (req, res) => {
             account_owner_id, website, turn_over, brand_id, updated_by,
             how_many_offices, connect_billing_street, connect_billing_city,
             connect_billing_state, connect_billing_country, connect_billing_pin_code, head_billing_street,
-            head_billing_city, head_billing_state, head_billing_country, head_billing_pin_code, company_email
+            head_billing_city, head_billing_state, head_billing_country, head_billing_pin_code, company_email,
+            social_platform
         } = req.body;
 
         //check data available
@@ -175,6 +177,7 @@ exports.editAccountDetails = async (req, res) => {
                 head_billing_state: head_billing_state,
                 head_billing_country: head_billing_country,
                 head_billing_pin_code: head_billing_pin_code,
+                social_platforms: social_platform || [],
                 updated_by: updated_by
             }
         }, {

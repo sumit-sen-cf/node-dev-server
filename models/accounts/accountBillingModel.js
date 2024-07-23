@@ -63,6 +63,10 @@ const accountBillingSchema = new mongoose.Schema({
         type: Number,
         required: false
     },
+    social_platforms: {
+        type: Array,
+        required: false,
+    },
     created_by: {
         type: Number,
         required: true,
