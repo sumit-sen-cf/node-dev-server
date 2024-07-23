@@ -400,33 +400,33 @@ exports.createJWTForPluralPayment = async (req, res) => {
         const secretKey = '8rNJVtbsSDjSFS1DK7bgGeTwEu9gRMPb6OyU5CpKDFQ=';
 
         const privateKey = `-----BEGIN RSA PRIVATE KEY-----
-                            MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCurMdlSquva9EJ
-                            +fAfF3zASK4ghVBQ7bnoSnVP4ZF8J612WvV3iqsSGfMaAwhMPnnmalrFMmKtjwY9
-                            MmIdCvqM9jhqqBPg32oV/JJRUuhZbVN4TN8Ixj4qRJ163exH4bstQwXeTjF8b04Y
-                            jNpEltr3M6lrsf1d+RpqnODeylVGgP8ikkP5stsa/svvFdHjD1fTLqJdpKJek6gl
-                            MYOFi4jJRoL+xYdc5UO8KpCxjcJI1gzu1ujWnQzgMoQlsJhO7SM2ja1jz8+3hXM2
-                            OUJ+ePtYz1elHpk9uXzJAwedGhp3ZYimMFTUHHVRKyNiiUFwc8do0HfdQpLwdMyZ
-                            kvP1BkwJAgMBAAECggEAB6tO7ePe1Urkj42SmIZNeMBcvfXuw/W5yUsnCtusziQe
-                            sLtVEf23NIpA2MT0LAcX6nyDypixKZYzbez9zvE0LB3yPwf/TAGw4CNlU3529I9X
-                            +W0Ndde8HLZoO6kSLCSh7BVj0pIGCHvAS3jKj/WFXMksv2RQWPMMY0zK3QZu53yg
-                            ahwqPhcXXqfr47XvhjiBensB8rWkfRR/CEXvAJIxOHcQA4xD9TORzRw+DdTxbJoh
-                            NIntXD3SVhanhttHJen/PgOa9FyyxzDEyU6NP2qo4m3HfFJOaWXblhKsAq+wCPUM
-                            N6iXa1TlKSIDxL4LRpFDGF0yy7BxvZnuJO4uqGHJiQKBgQDcy8vOLDfamTGd+v/K
-                            8Z+3PFePz293fHnO8pkGnp9FjHHvBR9yX5LdgAKrU56mv6j5YuynCTM6z+yz3ept
-                            o2/nUOncSQB50kxE3PjCRoFofoaHqtW8pRbPdNWkV8/T4PiIF1Z8w7B+kzQfqQoN
-                            /sWhCtn1MxjnYESaqaPwUnoIYwKBgQDKhnYnaVyFbDuHKGo72ka0Bg7hi+FNuEzH
-                            dm5BGImGvoVhB+9ikQai4FYu2SFGj4uT7pG0U+eSA62cPUFMZa/eU6gNTRHb0LmG
-                            ucCkZLazn46fPU8ZuygXxDqfuXv1Iw1Le5ZV5cpnhqYtMVdXbz409zduLIFkj/0f
-                            3RgadlrHowKBgQChNUMm024scvGhMSQWHvjIJoyf+YqfKQkeqk5EYQhVFUgShiEB
-                            tvpaMx6/zJvnj8Rl4W58PuFirXFbmkmRp2UK9S7qoXpxd7QsC1KtNiFCFC9RWtAX
-                            nknbSqi6B0s8neOYKcIB8jcpE31ZKGio8z2EaZHdz2L9fHJaokWKMA3dlQKBgQCw
-                            5dn2etVRxUQJvodsWDBBtrjw0VmupTiLUSrkuSYHCAtAwcma8so1Inak3Qtvsppc
-                            UJn8RP2UUJooSmjq7jc7nx6+336l3h7vSvi1nzLmmovdE5QwCYXvnHsIYN+hM0i9
-                            kemyhdDRtI8aEmsT+BsB8J3+IemziQGz/066bn7EuQKBgQCEhOqdQ0M3EOLsSWrM
-                            p2cRCf2Wfd21peZHHiVY2ehIA9JhEPrpWCFAXAbvYjH3r12/j0GmsVPnAdukgc9p
-                            /rZypJUnAUOFXfd7AqsNVZ07V1DLw49gbLKPIbhi7z5E8exhpUdKaH8y3oKsek7i
-                            buBDe+JCDb5YyVyOyfha4T5fZQ==
-                            -----END RSA PRIVATE KEY-----`;
+MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCurMdlSquva9EJ
++fAfF3zASK4ghVBQ7bnoSnVP4ZF8J612WvV3iqsSGfMaAwhMPnnmalrFMmKtjwY9
+MmIdCvqM9jhqqBPg32oV/JJRUuhZbVN4TN8Ixj4qRJ163exH4bstQwXeTjF8b04Y
+jNpEltr3M6lrsf1d+RpqnODeylVGgP8ikkP5stsa/svvFdHjD1fTLqJdpKJek6gl
+MYOFi4jJRoL+xYdc5UO8KpCxjcJI1gzu1ujWnQzgMoQlsJhO7SM2ja1jz8+3hXM2
+OUJ+ePtYz1elHpk9uXzJAwedGhp3ZYimMFTUHHVRKyNiiUFwc8do0HfdQpLwdMyZ
+kvP1BkwJAgMBAAECggEAB6tO7ePe1Urkj42SmIZNeMBcvfXuw/W5yUsnCtusziQe
+sLtVEf23NIpA2MT0LAcX6nyDypixKZYzbez9zvE0LB3yPwf/TAGw4CNlU3529I9X
++W0Ndde8HLZoO6kSLCSh7BVj0pIGCHvAS3jKj/WFXMksv2RQWPMMY0zK3QZu53yg
+ahwqPhcXXqfr47XvhjiBensB8rWkfRR/CEXvAJIxOHcQA4xD9TORzRw+DdTxbJoh
+NIntXD3SVhanhttHJen/PgOa9FyyxzDEyU6NP2qo4m3HfFJOaWXblhKsAq+wCPUM
+N6iXa1TlKSIDxL4LRpFDGF0yy7BxvZnuJO4uqGHJiQKBgQDcy8vOLDfamTGd+v/K
+8Z+3PFePz293fHnO8pkGnp9FjHHvBR9yX5LdgAKrU56mv6j5YuynCTM6z+yz3ept
+o2/nUOncSQB50kxE3PjCRoFofoaHqtW8pRbPdNWkV8/T4PiIF1Z8w7B+kzQfqQoN
+/sWhCtn1MxjnYESaqaPwUnoIYwKBgQDKhnYnaVyFbDuHKGo72ka0Bg7hi+FNuEzH
+dm5BGImGvoVhB+9ikQai4FYu2SFGj4uT7pG0U+eSA62cPUFMZa/eU6gNTRHb0LmG
+ucCkZLazn46fPU8ZuygXxDqfuXv1Iw1Le5ZV5cpnhqYtMVdXbz409zduLIFkj/0f
+3RgadlrHowKBgQChNUMm024scvGhMSQWHvjIJoyf+YqfKQkeqk5EYQhVFUgShiEB
+tvpaMx6/zJvnj8Rl4W58PuFirXFbmkmRp2UK9S7qoXpxd7QsC1KtNiFCFC9RWtAX
+nknbSqi6B0s8neOYKcIB8jcpE31ZKGio8z2EaZHdz2L9fHJaokWKMA3dlQKBgQCw
+5dn2etVRxUQJvodsWDBBtrjw0VmupTiLUSrkuSYHCAtAwcma8so1Inak3Qtvsppc
+UJn8RP2UUJooSmjq7jc7nx6+336l3h7vSvi1nzLmmovdE5QwCYXvnHsIYN+hM0i9
+kemyhdDRtI8aEmsT+BsB8J3+IemziQGz/066bn7EuQKBgQCEhOqdQ0M3EOLsSWrM
+p2cRCf2Wfd21peZHHiVY2ehIA9JhEPrpWCFAXAbvYjH3r12/j0GmsVPnAdukgc9p
+/rZypJUnAUOFXfd7AqsNVZ07V1DLw49gbLKPIbhi7z5E8exhpUdKaH8y3oKsek7i
+buBDe+JCDb5YyVyOyfha4T5fZQ==
+-----END RSA PRIVATE KEY-----`;
 
         const map = {
             mid: '19181',
