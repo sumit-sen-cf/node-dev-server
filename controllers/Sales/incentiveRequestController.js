@@ -56,6 +56,100 @@ exports.createIncentiveRequest = async (req, res) => {
 };
 
 /**
+ * Api is to used for the get all incentive Request data
+ */
+exports.getAllIncentiveRequestList = async (req, res) => {
+    try {
+        // Extract page and limit from query parameters, default to null if not provided
+        const page = req.query?.page ? parseInt(req.query.page) : 1;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : Number.MAX_SAFE_INTEGER;
+        const sort = { createdAt: -1 };
+
+        // Calculate the number of records to skip based on the current page and limit
+        const skip = (page && limit) ? (page - 1) * limit : 0;
+
+        //for match conditions
+        let matchQuery = {
+            status: {
+                $ne: constant.DELETED
+            }
+        }
+
+        //if userId get in query 
+        if (req.query?.userId) {
+            matchQuery["sales_executive_id"] = req.query.userId;
+        }
+
+        //data get from the db collection
+        const incentiveRequestList = await incentiveRequestModel.aggregate([{
+            $match: matchQuery
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "sales_executive_id",
+                foreignField: "user_id",
+                as: "userData",
+            }
+        }, {
+            $unwind: {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                sales_executive_id: 1,
+                sales_executive_name: "$userData.user_name",
+                user_requested_amount: 1,
+                admin_approved_amount: 1,
+                finance_released_amount: 1,
+                admin_status: 1,
+                admin_action_reason: 1,
+                account_number: 1,
+                payment_ref_no: 1,
+                payment_date: 1,
+                remarks: 1,
+                created_by: 1,
+                updated_by: 1,
+                createdAt: 1,
+                updatedAt: 1,
+            }
+        }, {
+            $sort: sort
+        }, {
+            $skip: skip
+        }, {
+            $limit: limit
+        }])
+
+        // Get the total count of records in the collection
+        const incentiveRequestCount = await incentiveRequestModel.countDocuments();
+
+        // If no records are found, return a response indicating no records found
+        if (incentiveRequestList.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
+        }
+        // Return a success response with the list of records and pagination details
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Incentive Request list retrieved successfully!",
+            incentiveRequestList,
+            {
+                start_record: page && limit ? skip + 1 : 1,
+                end_record: page && limit ? skip + incentiveRequestList.length : incentiveRequestList.length,
+                total_records: incentiveRequestCount,
+                current_page: page || 1,
+                total_page: page && limit ? Math.ceil(incentiveRequestCount / limit) : 1,
+            }
+        );
+    } catch (error) {
+        // Return an error response in case of any exceptions
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    };
+};
+
+/**
  * Api is to used for the incentive Request approve by admin.
  */
 exports.updateIncentiveRequestByAdmin = async (req, res) => {
