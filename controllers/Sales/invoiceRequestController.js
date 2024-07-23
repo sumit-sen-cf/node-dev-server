@@ -200,6 +200,11 @@ exports.getInvoiceRequestDataList = async (req, res) => {
             matchCondition["invoice_type_id"] = req.query.invoice_type_id;
         }
 
+        //check if the invoice type id is available.
+        if (req.query?.sale_booking_id) {
+            matchCondition["sale_booking_id"] = Number(req.query.sale_booking_id);
+        }
+
         if (req.query?.userId) {
             matchQuery["created_by"] = Number(req.query.userId);
         }

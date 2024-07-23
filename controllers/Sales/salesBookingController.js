@@ -272,6 +272,13 @@ exports.getAllSalesBooking = async (req, res) => {
                 preserveNullAndEmptyArrays: true,
             }
         }, {
+            $lookup: {
+                from: "salesinvoicerequestmodels",
+                localField: "sale_booking_id",
+                foreignField: "sale_booking_id",
+                as: "salesInvoiceRequestData",
+            }
+        }, {
             $addFields: {
                 record_service_file_url: {
                     $cond: {
@@ -285,12 +292,14 @@ exports.getAllSalesBooking = async (req, res) => {
                         },
                         else: "$record_service_file",
                     }
-                }
+                },
+                url: constant.GCP_INVOICE_REQUEST_URL,
             }
         }, {
             $project: {
                 account_id: 1,
                 account_name: "$accountData.account_name",
+                salesInvoiceRequestData: 1,
                 is_draft_save: 1,
                 sale_booking_date: 1,
                 campaign_amount: 1,
@@ -326,7 +335,8 @@ exports.getAllSalesBooking = async (req, res) => {
                 createdAt: 1,
                 updatedAt: 1,
                 sale_booking_id: 1,
-                record_service_file_url: 1
+                record_service_file_url: 1,
+                url: 1
             }
         }, {
             $sort: sort
