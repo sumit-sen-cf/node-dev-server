@@ -329,7 +329,7 @@ exports.paymentUpdateList = async (req, res) => {
             200,
             req,
             res,
-            "Sales booking list retreive successfully!",
+            "Payment update list retreive successfully!",
             paymentUpdateList,
             {
                 start_record: skip + 1,

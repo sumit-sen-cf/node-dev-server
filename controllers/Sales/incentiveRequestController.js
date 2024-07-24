@@ -13,10 +13,10 @@ exports.createIncentiveRequest = async (req, res) => {
             admin_action_reason, account_number, payment_ref_no,
             payment_date, payment_type, partial_payment_reason, remarks
         } = req.body;
-        let sale_booking_ids = req.body.sale_booking_ids;
+        const sale_booking_ids = req.body?.sale_booking_ids.map(id => Number(id)); // Convert each ID to Number
 
         const addIncentiveRequestDetails = await incentiveRequestModel.create({
-            sales_executive_id: sales_executive_id,
+            sales_executive_id: Number(sales_executive_id),
             user_requested_amount: user_requested_amount,
             admin_approved_amount: user_requested_amount,
             admin_status: "pending",
@@ -32,7 +32,7 @@ exports.createIncentiveRequest = async (req, res) => {
 
         await salesBookingModel.updateMany({
             sale_booking_id: {
-                $in: Number(sale_booking_ids)
+                $in: sale_booking_ids
             }
         }, {
             $set: {
@@ -158,7 +158,8 @@ exports.updateIncentiveRequestByAdmin = async (req, res) => {
         const { id } = req.params;
         const { admin_approved_amount, admin_status, admin_action_reason, updated_by
         } = req.body;
-        let sale_booking_ids = req.body.sale_booking_ids;
+        const sale_booking_ids = req.body?.sale_booking_ids.map(id => Number(id)); // Convert each ID to Number
+
 
         //dynamic obj prepared for update data
         let updateObj = {
@@ -183,11 +184,11 @@ exports.updateIncentiveRequestByAdmin = async (req, res) => {
         //update sale booking ids in Sale booking collection
         await salesBookingModel.updateMany({
             sale_booking_id: {
-                $in: Number(sale_booking_ids)
+                $in: sale_booking_ids
             }
         }, {
             $set: {
-                incentive_request_id: incentiveRequestUpdated?._id,
+                incentive_request_id: incentiveRequestUpdated._id,
                 incentive_request_status: "requested"
             }
         });
@@ -331,7 +332,7 @@ exports.incentiveRequestReleaseByFinance = async (req, res) => {
             new: true
         });
 
-        //update sale bboking ids in Sale booking collection
+        //update sale booking ids in Sale booking collection
         await salesBookingModel.updateMany({
             incentive_request_id: id
         }, {

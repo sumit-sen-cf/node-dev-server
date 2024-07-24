@@ -153,7 +153,7 @@ exports.salesBalanceUpdate = [
             }
 
             await salesBookingModel.updateOne({
-                sale_booking_id: editPaymentUpdatedDetail.sale_booking_id
+                sale_booking_id: req.body.sale_booking_id
             }, {
                 $set: updateObj
             });
@@ -167,14 +167,6 @@ exports.salesBalanceUpdate = [
                     []
                 );
             }
-            // if (req.file) {
-            //     try {
-            //         const message = await uploadToGCP(req, updateData, 'payment_screenshot');
-            //         res.status(200).send(message);
-            //     } catch (error) {
-            //         return res.status(500).send(error.message);
-            //     }
-            // }
             //send success response
             return response.returnTrue(
                 200,
