@@ -24,7 +24,8 @@ const accountPocSchema = new mongoose.Schema({
         required: false,
     },
     department: {
-        type: Schema.Types.ObjectId,
+        // type: Schema.Types.ObjectId,
+        type: String,
         required: false,
         ref: "accountdepartmentmodels"
     },
