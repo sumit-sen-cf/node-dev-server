@@ -186,10 +186,16 @@ exports.deleteIncentivePlan = async (req, res) => {
  */
 exports.getIncentiveCalculationDashboard = async (req, res) => {
     try {
+        //match condition obj prepare
+        let searchQuery = {
+            incentive_status: "incentive"
+        };
+        //get user id from query
+        if (req.query?.userId) {
+            searchQuery["created_by"] = req.query.userId;
+        }
         // Get distinct sale booking IDs from the database
-        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', {
-            incentive_status: "incentive",
-        });
+        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', searchQuery);
 
         //match condition obj prepare
         let matchCondition = {
@@ -865,7 +871,10 @@ exports.getIncentiveReleasedButtonData = async (req, res) => {
         // Get distinct sale booking IDs from the database
         const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', {
             created_by: Number(userId),
-            incentive_status: "incentive"
+            incentive_status: "incentive",
+            incentive_request_status: {
+                $nin: ['requested', 'released']
+            }
         });
 
         //match condition obj prepare

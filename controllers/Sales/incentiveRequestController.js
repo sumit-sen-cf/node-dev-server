@@ -150,6 +150,31 @@ exports.getAllIncentiveRequestList = async (req, res) => {
 };
 
 /**
+ * Api is to used for the incentive request released button condition check.
+ */
+exports.incentiveButtonShowingCheckCondition = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const addIncentiveRequestDetails = await incentiveRequestModel.findOne({
+            sales_executive_id: Number(id),
+            finance_status: "pending",
+        });
+
+        // Return a success response with the updated record details
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Incentive Request Button Showing Condition User Wise get Successfully!",
+            addIncentiveRequestDetails ? addIncentiveRequestDetails : {}
+        );
+    } catch (error) {
+        // Return an error response in case of any exceptions
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+/**
  * Api is to used for the incentive Request approve by admin.
  */
 exports.updateIncentiveRequestByAdmin = async (req, res) => {
