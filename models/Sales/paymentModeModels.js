@@ -20,21 +20,6 @@ const salesPaymentMode = new Schema({
         type: Number,
         required: false,
         default: constant?.ACTIVE,
-    },
-    title: {
-        type: String,
-        required: false,
-        default: ''
-    },
-    detail: {
-        type: String,
-        required: false,
-        default: ''
-    },
-    gst_bank: {
-        type: String,
-        required: false,
-        default: ''
     }
 }, {
     timestamps: true

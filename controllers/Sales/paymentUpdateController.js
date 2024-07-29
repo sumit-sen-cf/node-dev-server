@@ -209,6 +209,12 @@ exports.paymentUpdateList = async (req, res) => {
         if (req.query?.userId) {
             matchQuery["created_by"] = Number(req.query.userId);
         }
+        if (req.query?.status) {
+            matchQuery["payment_approval_status"] = req.query.status;
+        }
+        if (req.query?.sale_booking_id) {
+            matchQuery["sale_booking_id"] = Number(req.query.sale_booking_id);
+        }
 
         const pipeline = [{
             $match: matchQuery

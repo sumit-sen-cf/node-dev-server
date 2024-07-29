@@ -9,37 +9,28 @@ const { incentiveCalculationUserLimit } = require("../../helper/status");
  */
 exports.createIncentiveRequest = async (req, res) => {
     try {
-        const { sales_executive_id, user_requested_amount, created_by,
-            admin_action_reason, account_number, payment_ref_no,
-            payment_date, payment_type, partial_payment_reason, remarks
-        } = req.body;
-        const sale_booking_ids = req.body?.sale_booking_ids.map(id => Number(id)); // Convert each ID to Number
+        const { sales_executive_id, user_requested_amount, created_by } = req.body;
+        // const sale_booking_ids = req.body?.sale_booking_ids.map(id => Number(id)); // Convert each ID to Number
 
         const addIncentiveRequestDetails = await incentiveRequestModel.create({
             sales_executive_id: Number(sales_executive_id),
+            finance_status: "pending",
             user_requested_amount: user_requested_amount,
             admin_approved_amount: user_requested_amount,
-            admin_status: "pending",
+            admin_status: "approved",
             created_by: created_by,
-            // admin_action_reason: admin_action_reason,
-            // account_number: account_number,
-            // payment_ref_no: payment_ref_no,
-            // payment_date: payment_date,
-            // payment_type: payment_type,
-            // partial_payment_reason: partial_payment_reason,
-            // remarks: remarks,
         });
 
-        await salesBookingModel.updateMany({
-            sale_booking_id: {
-                $in: sale_booking_ids
-            }
-        }, {
-            $set: {
-                incentive_request_id: addIncentiveRequestDetails?._id,
-                incentive_request_status: "requested"
-            }
-        });
+        // await salesBookingModel.updateMany({
+        //     sale_booking_id: {
+        //         $in: sale_booking_ids
+        //     }
+        // }, {
+        //     $set: {
+        //         incentive_request_id: addIncentiveRequestDetails?._id,
+        //         incentive_request_status: "requested"
+        //     }
+        // });
 
         // Return a success response with the updated record details
         return response.returnTrue(
@@ -99,6 +90,7 @@ exports.getAllIncentiveRequestList = async (req, res) => {
             $project: {
                 sales_executive_id: 1,
                 sales_executive_name: "$userData.user_name",
+                finance_status: 1,
                 user_requested_amount: 1,
                 admin_approved_amount: 1,
                 finance_released_amount: 1,
@@ -122,7 +114,7 @@ exports.getAllIncentiveRequestList = async (req, res) => {
         }])
 
         // Get the total count of records in the collection
-        const incentiveRequestCount = await incentiveRequestModel.countDocuments();
+        const incentiveRequestCount = await incentiveRequestModel.countDocuments(matchQuery);
 
         // If no records are found, return a response indicating no records found
         if (incentiveRequestList.length === 0) {
@@ -193,7 +185,7 @@ exports.updateIncentiveRequestByAdmin = async (req, res) => {
             updated_by: updated_by,
         }
 
-        //if status is approved so amoubt add in obj
+        //if status is approved so amount add in obj
         if (admin_status == "approved") {
             updateObj["admin_approved_amount"] = admin_approved_amount;
         }
@@ -285,6 +277,7 @@ exports.getIncentiveRequestListForAdmin = async (req, res) => {
                 admin_approved_amount: 1,
                 finance_released_amount: 1,
                 admin_status: 1,
+                finance_status: 1,
                 created_by: 1,
                 updated_by: 1,
                 createdAt: 1,
@@ -299,7 +292,7 @@ exports.getIncentiveRequestListForAdmin = async (req, res) => {
         }])
 
         // Get the total count of records in the collection
-        const incentiveRequestCount = await incentiveRequestModel.countDocuments();
+        const incentiveRequestCount = await incentiveRequestModel.countDocuments(matchQuery);
 
         // If no records are found, return a response indicating no records found
         if (incentiveRequestList.length === 0) {
@@ -337,10 +330,12 @@ exports.incentiveRequestReleaseByFinance = async (req, res) => {
         const { finance_released_amount, account_number, payment_ref_no,
             payment_date, remarks, updated_by
         } = req.body;
+        const sale_booking_ids = req.body?.sale_booking_ids.map(id => Number(id)); // Convert each ID to Number
 
         //dynamic obj prepared for update data
         let updateObj = {
             finance_released_amount: finance_released_amount,
+            finance_status: "approved",
             account_number: account_number,
             payment_ref_no: payment_ref_no,
             payment_date: payment_date,
@@ -359,12 +354,24 @@ exports.incentiveRequestReleaseByFinance = async (req, res) => {
 
         //update sale booking ids in Sale booking collection
         await salesBookingModel.updateMany({
-            incentive_request_id: id
+            sale_booking_id: {
+                $in: sale_booking_ids
+            }
         }, {
             $set: {
+                incentive_request_id: incentiveRequestUpdated._id,
                 incentive_request_status: "released"
             }
         });
+
+        // // update sale booking ids in Sale booking collection
+        // await salesBookingModel.updateMany({
+        //     incentive_request_id: id
+        // }, {
+        //     $set: {
+        //         incentive_request_status: "released"
+        //     }
+        // });
         // Return a success response with the updated record details
         return response.returnTrue(
             200,
@@ -386,7 +393,7 @@ exports.getIncentiveRequestListForFinance = async (req, res) => {
     try {
         // Extract page and limit from query parameters, default to null if not provided
         const page = req.query?.page ? parseInt(req.query.page) : 1;
-        const limit = req.query?.limit ? parseInt(req.query.limit) : 50;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : Number.MAX_SAFE_INTEGER;
         const sort = { createdAt: -1 };
 
         // Calculate the number of records to skip based on the current page and limit
@@ -427,6 +434,7 @@ exports.getIncentiveRequestListForFinance = async (req, res) => {
                 user_requested_amount: 1,
                 admin_approved_amount: 1,
                 finance_released_amount: 1,
+                finance_status: 1,
                 admin_status: 1,
                 created_by: 1,
                 updated_by: 1,
@@ -442,7 +450,7 @@ exports.getIncentiveRequestListForFinance = async (req, res) => {
         }])
 
         // Get the total count of records in the collection
-        const incentiveRequestCount = await incentiveRequestModel.countDocuments();
+        const incentiveRequestCount = await incentiveRequestModel.countDocuments(matchQuery);
 
         // If no records are found, return a response indicating no records found
         if (incentiveRequestList.length === 0) {
@@ -514,6 +522,7 @@ exports.getIncentiveRequestListUserAndStatusWise = async (req, res) => {
                 admin_approved_amount: 1,
                 finance_released_amount: 1,
                 admin_status: 1,
+                finance_status: 1,
                 created_by: 1,
                 updated_by: 1,
                 createdAt: 1,
