@@ -6,6 +6,7 @@ const salesPaymentMode = new Schema({
     payment_mode_name: {
         type: String,
         required: true,
+        unique: true,
         trim: true
     },
     created_by: {
