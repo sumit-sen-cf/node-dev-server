@@ -25,6 +25,12 @@ const salesIncentiveRequest = new Schema({
         type: String,
         required: false
     },
+    finance_status: {
+        type: String,
+        required: false,
+        enum: ["pending", "approved"],
+        default: "pending"
+    },
     finance_released_amount: { //finance uploded
         type: Number,
         required: true,
@@ -42,15 +48,6 @@ const salesIncentiveRequest = new Schema({
         type: Date,
         required: false
     },
-    // payment_type: { //finance uploded
-    //     type: String,
-    //     required: false,
-    //     enum: ["full", "partial"],
-    // },
-    // partial_payment_reason: { //finance uploded
-    //     type: String,
-    //     required: false
-    // },
     remarks: { //finance uploded
         type: String,
         required: false,

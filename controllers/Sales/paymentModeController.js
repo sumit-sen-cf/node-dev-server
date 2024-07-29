@@ -9,12 +9,9 @@ const constant = require("../../common/constant");
  */
 exports.createPaymentmode = async (req, res) => {
     try {
-        const { payment_mode_name, title, detail, gst_bank, created_by } = req.body;
+        const { payment_mode_name, created_by } = req.body;
         const addPayementMode = await salesPaymentModeModel.create({
             payment_mode_name: payment_mode_name,
-            title: title,
-            detail: detail,
-            gst_bank: gst_bank,
             created_by: created_by,
         });
         // Return a success response with the updated record details
@@ -65,18 +62,16 @@ exports.updatePaymentMode = async (req, res) => {
     try {
         // Extract the id from request parameters
         const { id } = req.params;
-        const { payment_mode_name, title, detail, gst_bank, updated_by } = req.body;
+        const { payment_mode_name, updated_by } = req.body;
 
         const paymentModeUpdated = await paymentModeModels.findByIdAndUpdate({ _id: id }, {
             $set: {
                 payment_mode_name,
-                updated_by,
-                title,
-                detail,
-                gst_bank
+                updated_by
             },
-        }, { new: true }
-        );
+        }, {
+            new: true
+        });
         // Return a success response with the updated record details
         return response.returnTrue(
             200,
@@ -105,7 +100,11 @@ exports.getPaymentModeList = async (req, res) => {
         const skip = (page && limit) ? (page - 1) * limit : 0;
 
         // Retrieve the list of records with pagination applied
-        const paymentModeList = await salesPaymentModeModel.find().skip(skip).limit(limit).sort(sort);
+        const paymentModeList = await salesPaymentModeModel.find({
+            status: {
+                $ne: constant.DELETED
+            }
+        }).skip(skip).limit(limit).sort(sort);
 
         // Get the total count of records in the collection
         const paymentModeCount = await salesPaymentModeModel.countDocuments();
@@ -144,19 +143,19 @@ exports.deletePaymentMode = async (req, res) => {
         const { id } = req.params;
 
         // Attempt to find and update the record with the given id and status not equal to DELETED
-        const paymentModeDeleted = await salesPaymentModeModel.findOneAndUpdate(
-            {
-                _id: id,
-                status: { $ne: constant.DELETED }
-            },
-            {
-                $set: {
-                    // Update the status to DELETED
-                    status: constant.DELETED,
-                },
-            },
-            { new: true }
-        );
+        const paymentModeDeleted = await salesPaymentModeModel.findOneAndUpdate({
+            _id: id,
+            status: {
+                $ne: constant.DELETED
+            }
+        }, {
+            $set: {
+                // Update the status to DELETED
+                status: constant.DELETED,
+            }
+        }, {
+            new: true
+        });
         // If no record is found or updated, return a response indicating no record found
         if (!paymentModeDeleted) {
             return response.returnFalse(200, req, res, `No Record Found`, {});

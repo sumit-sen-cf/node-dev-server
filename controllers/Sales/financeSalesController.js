@@ -92,7 +92,7 @@ exports.getSalesBookingOutStandingListForFinanace = async (req, res) => {
 exports.salesBalanceUpdate = [
     upload, async (req, res) => {
         try {
-            const updateData = await salesBookingPayment.create({
+            const updateData = new salesBookingPayment({
                 payment_date: req.body.payment_date,
                 sale_booking_id: req.body.sale_booking_id,
                 account_id: req.body.account_id,
@@ -109,36 +109,61 @@ exports.salesBalanceUpdate = [
                 payment_screenshot: 'PaymentScreenshots',
             };
             for (const [field] of Object.entries(imageFields)) {  //itreates 
-                if (req.files[field] && req.files[field][0]) {
+                if (req.files && req.files[field] && req.files[field][0]) {
                     updateData[field] = await uploadImage(req.files[field][0], "SalesPaymentUpdateFiles");
                 }
             }
-
-            //if finance is to auto approval req so in this case all the pending 
-            //req of the sale-booking wise is to reject
-            const updateStatus = await salesBookingPayment.updateMany({
-                sale_booking_id: req.body.sale_booking_id
-            }, {
-                payment_approval_status: 'reject'
-            });
+            //save image and data in DB collection data
+            await updateData.save();
 
             //sale booking data get from DB
-            let saleBookingData = await salesBookingModel.findOne({
-                sale_booking_id: req.body.sale_booking_id
+            const saleBookingData = await salesBookingModel.findOne({
+                sale_booking_id: Number(req.body.sale_booking_id)
             });
 
-            let approvedAmount = saleBookingData.approved_amount;
-            let requestedAmount = saleBookingData.requested_amount;
+            let approvedAmount = saleBookingData.approved_amount + Number(req.body.payment_amount);
+            let requestedAmount = saleBookingData.requested_amount + Number(req.body.payment_amount);
 
             let updateObj = {
                 approved_amount: approvedAmount,
                 requested_amount: requestedAmount
             };
 
-            approvedAmount = approvedAmount + parseInt(req.body.payment_amount)
+            // Find the documents with the given sale_booking_id and 'pending' payment_approval_status
+            const updateStatusData = await salesBookingPayment.find({
+                sale_booking_id: req.body.sale_booking_id,
+                payment_approval_status: 'pending'
+            });
+
+            if (!updateStatusData) {
+                return response.returnFalse(
+                    200,
+                    req,
+                    res,
+                    "No Record Found with given id...",
+                    []
+                );
+            }
+            //if finance is to auto approval req so in this case all the pending 
+            //req of the sale-booking wise is to reject
+            for (let salesData of updateStatusData) {
+                //if request is reject then amount subtract in requested amount
+                requestedAmount = requestedAmount - Number(salesData.payment_amount);
+                // Update the document in the same collection
+                await salesBookingPayment.updateOne({
+                    _id: salesData._id
+                }, {
+                    $set: {
+                        payment_approval_status: 'reject'
+                    }
+                });
+            }
+
             updateObj["booking_status"] = saleBookingStatus['12'].status;
             updateObj["approved_amount"] = approvedAmount;
+            updateObj["requested_amount"] = requestedAmount;
 
+            //if 90% payment received check condition
             let campaignPercentageAmount = (saleBookingData.campaign_amount * 90) / 100;
             if (approvedAmount >= campaignPercentageAmount) {
                 updateObj["incentive_earning_status"] = "earned";
@@ -152,8 +177,9 @@ exports.salesBalanceUpdate = [
                 updateObj["booking_status"] = saleBookingStatus['05'].status;
             }
 
+            //sales booking data updatein db collection
             await salesBookingModel.updateOne({
-                sale_booking_id: editPaymentUpdatedDetail.sale_booking_id
+                sale_booking_id: req.body.sale_booking_id
             }, {
                 $set: updateObj
             });
@@ -167,14 +193,6 @@ exports.salesBalanceUpdate = [
                     []
                 );
             }
-            // if (req.file) {
-            //     try {
-            //         const message = await uploadToGCP(req, updateData, 'payment_screenshot');
-            //         res.status(200).send(message);
-            //     } catch (error) {
-            //         return res.status(500).send(error.message);
-            //     }
-            // }
             //send success response
             return response.returnTrue(
                 200,
