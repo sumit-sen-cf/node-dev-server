@@ -12,6 +12,7 @@ const bankDetailsSchema = require('../models/PMS2/bankDetailsModel.js')
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const vendorGroupLinkModel = require('../models/PMS2/vendorGroupLinkModel.js')
 
 exports.changePassOfSelectedUsers = async (req, res) => {
     try {
@@ -463,3 +464,47 @@ buBDe+JCDb5YyVyOyfha4T5fZQ==
         res.status(500).json({ error: err.message, message: 'Error while generating JWT token' });
     }
 }
+
+exports.updatepagevendorids = async(req, res) => {
+    try {
+      const pageMasters = await pageMasterModel.find();
+
+      for (let i = 0; i < pageMasters.length; i++) {
+        const pageMaster = pageMasters[i];
+  
+        const vendor = await vendorSchema.findOne({ vendor_id: pageMaster.temp_vendor_id });
+  
+        if (vendor) {
+          await pageMasterModel.updateOne(
+            { _id: pageMaster._id },
+            { $set: { vendor_id: vendor._id } }
+          );
+        }
+      }
+      return res.status(200).json({ message: 'Vendor IDs updated successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+exports.updateVendoridinGroupLink = async(req, res) => {
+    try {
+      const groupLinks = await vendorGroupLinkModel.find();
+
+      for (let i = 0; i < groupLinks.length; i++) {
+        const groupLink = groupLinks[i];
+  
+        const vendor = await vendorSchema.findOne({ vendor_id: groupLink.temp_vendor_id });
+  
+        if (vendor) {
+          await vendorGroupLinkModel.updateMany(
+            { temp_vendor_id: groupLink.temp_vendor_id },
+            { $set: { vendor_id: vendor._id } }
+          );
+        }
+      }
+      return res.status(200).json({ message: 'Vendor IDs updated successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
