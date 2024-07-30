@@ -68,6 +68,7 @@ exports.getAccountPocDetails = async (req, res) => {
                 department: 1,
                 department_name: "$departmentData.department_name",
                 designation: 1,
+                social_platforms: 1,
                 created_by: 1,
                 updated_by: 1,
                 createdAt: 1,
@@ -111,6 +112,7 @@ exports.updateAccountPoc = async (req, res) => {
             department,
             designation,
             description,
+            social_platforms,
             updated_by
         } = req.body;
 
@@ -127,6 +129,7 @@ exports.updateAccountPoc = async (req, res) => {
                     department,
                     designation,
                     description,
+                    social_platforms,
                     updated_by
                 }
             },
@@ -190,6 +193,7 @@ exports.getAccountPocList = async (req, res) => {
                 email: 1,
                 department: 1,
                 designation: 1,
+                social_platforms: 1,
                 created_by: 1,
                 updated_by: 1,
                 createdAt: 1,
