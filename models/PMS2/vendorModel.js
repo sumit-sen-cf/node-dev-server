@@ -106,12 +106,12 @@ const vendorSchema = new Schema({
     },
     created_by: {
         type: Number,
-        required: true,
+        required: false,
         default: 0,
     },
     updated_by: {
         type: Number,
-        reqxuired: false,
+        required: false,
         default: 0,
     },
     status: {

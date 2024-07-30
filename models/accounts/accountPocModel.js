@@ -24,8 +24,10 @@ const accountPocSchema = new mongoose.Schema({
         required: false,
     },
     department: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        // type: String,
         required: false,
+        ref: "accountdepartmentmodels"
     },
     designation: {
         type: String,

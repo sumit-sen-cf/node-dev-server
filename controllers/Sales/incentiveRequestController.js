@@ -9,37 +9,28 @@ const { incentiveCalculationUserLimit } = require("../../helper/status");
  */
 exports.createIncentiveRequest = async (req, res) => {
     try {
-        const { sales_executive_id, user_requested_amount, created_by,
-            admin_action_reason, account_number, payment_ref_no,
-            payment_date, payment_type, partial_payment_reason, remarks
-        } = req.body;
-        let sale_booking_ids = req.body.sale_booking_ids;
+        const { sales_executive_id, user_requested_amount, created_by } = req.body;
+        // const sale_booking_ids = req.body?.sale_booking_ids.map(id => Number(id)); // Convert each ID to Number
 
         const addIncentiveRequestDetails = await incentiveRequestModel.create({
-            sales_executive_id: sales_executive_id,
+            sales_executive_id: Number(sales_executive_id),
+            finance_status: "pending",
             user_requested_amount: user_requested_amount,
             admin_approved_amount: user_requested_amount,
-            admin_status: "pending",
+            admin_status: "approved",
             created_by: created_by,
-            // admin_action_reason: admin_action_reason,
-            // account_number: account_number,
-            // payment_ref_no: payment_ref_no,
-            // payment_date: payment_date,
-            // payment_type: payment_type,
-            // partial_payment_reason: partial_payment_reason,
-            // remarks: remarks,
         });
 
-        await salesBookingModel.updateMany({
-            sale_booking_id: {
-                $in: Number(sale_booking_ids)
-            }
-        }, {
-            $set: {
-                incentive_request_id: addIncentiveRequestDetails?._id,
-                incentive_request_status: "requested"
-            }
-        });
+        // await salesBookingModel.updateMany({
+        //     sale_booking_id: {
+        //         $in: sale_booking_ids
+        //     }
+        // }, {
+        //     $set: {
+        //         incentive_request_id: addIncentiveRequestDetails?._id,
+        //         incentive_request_status: "requested"
+        //     }
+        // });
 
         // Return a success response with the updated record details
         return response.returnTrue(
@@ -56,6 +47,126 @@ exports.createIncentiveRequest = async (req, res) => {
 };
 
 /**
+ * Api is to used for the get all incentive Request data
+ */
+exports.getAllIncentiveRequestList = async (req, res) => {
+    try {
+        // Extract page and limit from query parameters, default to null if not provided
+        const page = req.query?.page ? parseInt(req.query.page) : 1;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : Number.MAX_SAFE_INTEGER;
+        const sort = { createdAt: -1 };
+
+        // Calculate the number of records to skip based on the current page and limit
+        const skip = (page && limit) ? (page - 1) * limit : 0;
+
+        //for match conditions
+        let matchQuery = {
+            status: {
+                $ne: constant.DELETED
+            }
+        }
+
+        //if userId get in query 
+        if (req.query?.userId) {
+            matchQuery["sales_executive_id"] = req.query.userId;
+        }
+
+        //data get from the db collection
+        const incentiveRequestList = await incentiveRequestModel.aggregate([{
+            $match: matchQuery
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "sales_executive_id",
+                foreignField: "user_id",
+                as: "userData",
+            }
+        }, {
+            $unwind: {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                sales_executive_id: 1,
+                sales_executive_name: "$userData.user_name",
+                finance_status: 1,
+                user_requested_amount: 1,
+                admin_approved_amount: 1,
+                finance_released_amount: 1,
+                admin_status: 1,
+                admin_action_reason: 1,
+                account_number: 1,
+                payment_ref_no: 1,
+                payment_date: 1,
+                remarks: 1,
+                created_by: 1,
+                updated_by: 1,
+                createdAt: 1,
+                updatedAt: 1,
+            }
+        }, {
+            $sort: sort
+        }, {
+            $skip: skip
+        }, {
+            $limit: limit
+        }])
+
+        // Get the total count of records in the collection
+        const incentiveRequestCount = await incentiveRequestModel.countDocuments(matchQuery);
+
+        // If no records are found, return a response indicating no records found
+        if (incentiveRequestList.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
+        }
+        // Return a success response with the list of records and pagination details
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Incentive Request list retrieved successfully!",
+            incentiveRequestList,
+            {
+                start_record: page && limit ? skip + 1 : 1,
+                end_record: page && limit ? skip + incentiveRequestList.length : incentiveRequestList.length,
+                total_records: incentiveRequestCount,
+                current_page: page || 1,
+                total_page: page && limit ? Math.ceil(incentiveRequestCount / limit) : 1,
+            }
+        );
+    } catch (error) {
+        // Return an error response in case of any exceptions
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    };
+};
+
+/**
+ * Api is to used for the incentive request released button condition check.
+ */
+exports.incentiveButtonShowingCheckCondition = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const addIncentiveRequestDetails = await incentiveRequestModel.findOne({
+            sales_executive_id: Number(id),
+            finance_status: "pending",
+        });
+
+        // Return a success response with the updated record details
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Incentive Request Button Showing Condition User Wise get Successfully!",
+            addIncentiveRequestDetails ? addIncentiveRequestDetails : {}
+        );
+    } catch (error) {
+        // Return an error response in case of any exceptions
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+/**
  * Api is to used for the incentive Request approve by admin.
  */
 exports.updateIncentiveRequestByAdmin = async (req, res) => {
@@ -64,7 +175,8 @@ exports.updateIncentiveRequestByAdmin = async (req, res) => {
         const { id } = req.params;
         const { admin_approved_amount, admin_status, admin_action_reason, updated_by
         } = req.body;
-        let sale_booking_ids = req.body.sale_booking_ids;
+        const sale_booking_ids = req.body?.sale_booking_ids.map(id => Number(id)); // Convert each ID to Number
+
 
         //dynamic obj prepared for update data
         let updateObj = {
@@ -73,7 +185,7 @@ exports.updateIncentiveRequestByAdmin = async (req, res) => {
             updated_by: updated_by,
         }
 
-        //if status is approved so amoubt add in obj
+        //if status is approved so amount add in obj
         if (admin_status == "approved") {
             updateObj["admin_approved_amount"] = admin_approved_amount;
         }
@@ -89,11 +201,11 @@ exports.updateIncentiveRequestByAdmin = async (req, res) => {
         //update sale booking ids in Sale booking collection
         await salesBookingModel.updateMany({
             sale_booking_id: {
-                $in: Number(sale_booking_ids)
+                $in: sale_booking_ids
             }
         }, {
             $set: {
-                incentive_request_id: incentiveRequestUpdated?._id,
+                incentive_request_id: incentiveRequestUpdated._id,
                 incentive_request_status: "requested"
             }
         });
@@ -165,6 +277,7 @@ exports.getIncentiveRequestListForAdmin = async (req, res) => {
                 admin_approved_amount: 1,
                 finance_released_amount: 1,
                 admin_status: 1,
+                finance_status: 1,
                 created_by: 1,
                 updated_by: 1,
                 createdAt: 1,
@@ -179,7 +292,7 @@ exports.getIncentiveRequestListForAdmin = async (req, res) => {
         }])
 
         // Get the total count of records in the collection
-        const incentiveRequestCount = await incentiveRequestModel.countDocuments();
+        const incentiveRequestCount = await incentiveRequestModel.countDocuments(matchQuery);
 
         // If no records are found, return a response indicating no records found
         if (incentiveRequestList.length === 0) {
@@ -217,10 +330,12 @@ exports.incentiveRequestReleaseByFinance = async (req, res) => {
         const { finance_released_amount, account_number, payment_ref_no,
             payment_date, remarks, updated_by
         } = req.body;
+        const sale_booking_ids = req.body?.sale_booking_ids.map(id => Number(id)); // Convert each ID to Number
 
         //dynamic obj prepared for update data
         let updateObj = {
             finance_released_amount: finance_released_amount,
+            finance_status: "approved",
             account_number: account_number,
             payment_ref_no: payment_ref_no,
             payment_date: payment_date,
@@ -237,14 +352,26 @@ exports.incentiveRequestReleaseByFinance = async (req, res) => {
             new: true
         });
 
-        //update sale bboking ids in Sale booking collection
+        //update sale booking ids in Sale booking collection
         await salesBookingModel.updateMany({
-            incentive_request_id: id
+            sale_booking_id: {
+                $in: sale_booking_ids
+            }
         }, {
             $set: {
+                incentive_request_id: incentiveRequestUpdated._id,
                 incentive_request_status: "released"
             }
         });
+
+        // // update sale booking ids in Sale booking collection
+        // await salesBookingModel.updateMany({
+        //     incentive_request_id: id
+        // }, {
+        //     $set: {
+        //         incentive_request_status: "released"
+        //     }
+        // });
         // Return a success response with the updated record details
         return response.returnTrue(
             200,
@@ -266,7 +393,7 @@ exports.getIncentiveRequestListForFinance = async (req, res) => {
     try {
         // Extract page and limit from query parameters, default to null if not provided
         const page = req.query?.page ? parseInt(req.query.page) : 1;
-        const limit = req.query?.limit ? parseInt(req.query.limit) : 50;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : Number.MAX_SAFE_INTEGER;
         const sort = { createdAt: -1 };
 
         // Calculate the number of records to skip based on the current page and limit
@@ -307,6 +434,7 @@ exports.getIncentiveRequestListForFinance = async (req, res) => {
                 user_requested_amount: 1,
                 admin_approved_amount: 1,
                 finance_released_amount: 1,
+                finance_status: 1,
                 admin_status: 1,
                 created_by: 1,
                 updated_by: 1,
@@ -322,7 +450,7 @@ exports.getIncentiveRequestListForFinance = async (req, res) => {
         }])
 
         // Get the total count of records in the collection
-        const incentiveRequestCount = await incentiveRequestModel.countDocuments();
+        const incentiveRequestCount = await incentiveRequestModel.countDocuments(matchQuery);
 
         // If no records are found, return a response indicating no records found
         if (incentiveRequestList.length === 0) {
@@ -394,6 +522,7 @@ exports.getIncentiveRequestListUserAndStatusWise = async (req, res) => {
                 admin_approved_amount: 1,
                 finance_released_amount: 1,
                 admin_status: 1,
+                finance_status: 1,
                 created_by: 1,
                 updated_by: 1,
                 createdAt: 1,

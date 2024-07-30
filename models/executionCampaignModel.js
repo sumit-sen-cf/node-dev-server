@@ -36,7 +36,7 @@ const exeCampaignSchema = new mongoose.Schema({
   },
   agency_id: {
     type: Schema.Types.ObjectId,
-    required: true,
+    required: false,
   },
   created_by: {
     type: Number,

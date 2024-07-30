@@ -1,17 +1,15 @@
-const mongoose = require("mongoose");
-const salesPaymentModeModel = require("../../models/Sales/paymentModeModels");
 const response = require("../../common/response");
-const paymentModeModels = require("../../models/Sales/paymentModeModels");
 const constant = require("../../common/constant");
+const accountDepartmentModel = require("../../models/accounts/accountDepartmentModel");
 
 /**
- * Api is to used for the sales_payment_mode data add in the DB collection.
+ * Api is to used for the department data add in the DB collection.
  */
-exports.createPaymentmode = async (req, res) => {
+exports.createDepartmentDetails = async (req, res) => {
     try {
-        const { payment_mode_name, created_by } = req.body;
-        const addPayementMode = await salesPaymentModeModel.create({
-            payment_mode_name: payment_mode_name,
+        const { department_name, created_by } = req.body;
+        const addDepartmentData = await accountDepartmentModel.create({
+            department_name: department_name,
             created_by: created_by,
         });
         // Return a success response with the updated record details
@@ -19,8 +17,8 @@ exports.createPaymentmode = async (req, res) => {
             200,
             req,
             res,
-            "Payment mode Created Successfully",
-            addPayementMode
+            "Department Details Created Successfully",
+            addDepartmentData
         );
     } catch (error) {
         // Return an error response in case of any exceptions
@@ -29,16 +27,18 @@ exports.createPaymentmode = async (req, res) => {
 };
 
 /**
- * Api is to used for the sales_payment_mode data get_ByID in the DB collection.
+ * Api is to used for the Department data get_ByID in the DB collection.
  */
-exports.getPaymentModeDetails = async (req, res) => {
+exports.getDepartmentDetails = async (req, res) => {
     try {
         const { id } = req.params;
-        const paymentModeDetails = await salesPaymentModeModel.findOne({
+        const departmentDetails = await accountDepartmentModel.findOne({
             _id: id,
-            status: { $ne: constant.DELETED }
+            status: {
+                $ne: constant.DELETED
+            }
         });
-        if (!paymentModeDetails) {
+        if (!departmentDetails) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
         // Return a success response with the updated record details
@@ -46,8 +46,8 @@ exports.getPaymentModeDetails = async (req, res) => {
             200,
             req,
             res,
-            "Payment mode details retrive successfully!",
-            paymentModeDetails
+            "Department Details retrive successfully!",
+            departmentDetails
         );
     } catch (error) {
         // Return an error response in case of any exceptions
@@ -56,19 +56,21 @@ exports.getPaymentModeDetails = async (req, res) => {
 };
 
 /**
- * Api is to used for the sales_payment_mode data update in the DB collection.
+ * Api is to used for the Department data update in the DB collection.
  */
-exports.updatePaymentMode = async (req, res) => {
+exports.updateDepartmentDetails = async (req, res) => {
     try {
         // Extract the id from request parameters
         const { id } = req.params;
-        const { payment_mode_name, updated_by } = req.body;
+        const { department_name, updated_by } = req.body;
 
-        const paymentModeUpdated = await paymentModeModels.findByIdAndUpdate({ _id: id }, {
+        const departmentUpdated = await accountDepartmentModel.findByIdAndUpdate({
+            _id: id
+        }, {
             $set: {
-                payment_mode_name,
-                updated_by
-            },
+                department_name: department_name,
+                updated_by: updated_by,
+            }
         }, {
             new: true
         });
@@ -77,8 +79,8 @@ exports.updatePaymentMode = async (req, res) => {
             200,
             req,
             res,
-            "Payment mode update successfully!",
-            paymentModeUpdated
+            "Department Details update successfully!",
+            departmentUpdated
         );
     } catch (error) {
         // Return an error response in case of any exceptions
@@ -87,30 +89,30 @@ exports.updatePaymentMode = async (req, res) => {
 };
 
 /**
- * Api is to used for the sales_payment_mode data get_list in the DB collection.
+ * Api is to used for the Department data get_list fetch from the DB collection.
  */
-exports.getPaymentModeList = async (req, res) => {
+exports.getDepartmentList = async (req, res) => {
     try {
         // Extract page and limit from query parameters, default to null if not provided
-        const page = req.query?.page ? parseInt(req.query.page) : null;
-        const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+        const page = req.query?.page ? parseInt(req.query.page) : 1;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : Number.MAX_SAFE_INTEGER;;
         const sort = { createdAt: -1 };
 
         // Calculate the number of records to skip based on the current page and limit
         const skip = (page && limit) ? (page - 1) * limit : 0;
-
-        // Retrieve the list of records with pagination applied
-        const paymentModeList = await salesPaymentModeModel.find({
+        let matchCondition = {
             status: {
                 $ne: constant.DELETED
             }
-        }).skip(skip).limit(limit).sort(sort);
+        }
+        // Retrieve the list of records with pagination applied
+        const departmentList = await accountDepartmentModel.find(matchCondition).skip(skip).limit(limit).sort(sort);
 
         // Get the total count of records in the collection
-        const paymentModeCount = await salesPaymentModeModel.countDocuments();
+        const departmentCount = await accountDepartmentModel.countDocuments();
 
         // If no records are found, return a response indicating no records found
-        if (paymentModeList.length === 0) {
+        if (departmentList.length === 0) {
             return response.returnFalse(200, req, res, `No Record Found`, []);
         }
         // Return a success response with the list of records and pagination details
@@ -118,14 +120,14 @@ exports.getPaymentModeList = async (req, res) => {
             200,
             req,
             res,
-            "Payment mode list retrieved successfully!",
-            paymentModeList,
+            "Department Details list retrieved successfully!",
+            departmentList,
             {
                 start_record: page && limit ? skip + 1 : 1,
-                end_record: page && limit ? skip + paymentModeList.length : paymentModeList.length,
-                total_records: paymentModeCount,
+                end_record: page && limit ? skip + departmentList.length : departmentList.length,
+                total_records: departmentCount,
                 current_page: page || 1,
-                total_page: page && limit ? Math.ceil(paymentModeCount / limit) : 1,
+                total_page: page && limit ? Math.ceil(departmentCount / limit) : 1,
             }
         );
     } catch (error) {
@@ -135,15 +137,15 @@ exports.getPaymentModeList = async (req, res) => {
 };
 
 /**
- * Api is to used for the sales_payment_mode data delete in the DB collection.
+ * Api is to used for the Department data delete in the DB collection.
  */
-exports.deletePaymentMode = async (req, res) => {
+exports.deleteDepartment = async (req, res) => {
     try {
         // Extract the id from request parameters
         const { id } = req.params;
 
         // Attempt to find and update the record with the given id and status not equal to DELETED
-        const paymentModeDeleted = await salesPaymentModeModel.findOneAndUpdate({
+        const departmentDeleted = await accountDepartmentModel.findOneAndUpdate({
             _id: id,
             status: {
                 $ne: constant.DELETED
@@ -157,7 +159,7 @@ exports.deletePaymentMode = async (req, res) => {
             new: true
         });
         // If no record is found or updated, return a response indicating no record found
-        if (!paymentModeDeleted) {
+        if (!departmentDeleted) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
         // Return a success response with the updated record details
@@ -165,8 +167,8 @@ exports.deletePaymentMode = async (req, res) => {
             200,
             req,
             res,
-            `Payment mode deleted succesfully! for id ${id}`,
-            paymentModeDeleted
+            `Department Details deleted succesfully! for id ${id}`,
+            departmentDeleted
         );
     } catch (error) {
         // Return an error response in case of any exceptions

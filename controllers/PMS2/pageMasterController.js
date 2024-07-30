@@ -3,6 +3,7 @@ const response = require("../../common/response");
 const pageMasterModel = require("../../models/PMS2/pageMasterModel");
 const pagePriceMultipleModel = require("../../models/PMS2/pagePriceMultipleModel");
 const vendorModel = require("../../models/PMS2/vendorModel");
+const { ObjectId } = require('mongodb');
 
 exports.addPageMaster = async (req, res) => {
     try {
@@ -65,6 +66,10 @@ exports.addPageMaster = async (req, res) => {
         let updatedObj = {
             page_count: pageCount
         };
+
+        if (pageCount >= 2) {
+            updatedObj.vendor_type = new ObjectId('666856424366007df1dfacc2');
+        }
 
         if (primary_page === 'Yes') {
             updatedObj["primary_page"] = savingObj._id;

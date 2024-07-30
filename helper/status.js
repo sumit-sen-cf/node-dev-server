@@ -22,7 +22,7 @@ module.exports = {
         },
         '06': {
             status: "Pending for Execution Approval",
-            discription: "After Record service is sent to Execution.Pendinf for response from Execution team."
+            discription: "After Record service is sent to Execution.Pending for response from Execution team."
         },
         '07': {
             status: "Execution Accepted",
