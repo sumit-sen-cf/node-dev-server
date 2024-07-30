@@ -267,13 +267,12 @@ exports.saleBookingsForTDS = async (req, res) => {
 
 exports.verifyTDS = async (req, res) => {
     try {
-        const updateData = await salesBookingPayment.findOneAndUpdate(
-            { sale_booking_id: req.body.sale_booking_id },
-            {
+        const updateData = await salesBookingPayment.findOneAndUpdate({
+            sale_booking_id: req.body.sale_booking_id
+        }, {
                 tds_verified_amount: req.body.tds_verified_amount,
-                tds_verified_remark: tds_verified_remark
-            }
-        );
+            tds_verified_remark: req.body.tds_verified_remark
+        });
 
         if (!updateData) {
             return response.returnFalse(200, req, res, "No Record Found with given id...", []);

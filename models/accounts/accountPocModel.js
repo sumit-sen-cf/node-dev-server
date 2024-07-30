@@ -37,6 +37,10 @@ const accountPocSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
+    social_platforms: {
+        type: Array,
+        required: false,
+    },
     created_by: {
         type: Number,
         required: false,

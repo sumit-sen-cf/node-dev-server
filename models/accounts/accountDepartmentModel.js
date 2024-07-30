@@ -6,7 +6,8 @@ const accountDepartmentSchema = new mongoose.Schema({
     department_name: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true
     },
     created_by: {
         type: Number,
