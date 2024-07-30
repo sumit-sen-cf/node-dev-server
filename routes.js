@@ -918,7 +918,8 @@ router.get("/get_all_filled_users", user.getAllFilledUsers);
 router.get("/get_all_percentage", user.getFilledPercentage);
 // router.post("/get_users_by_departments",user.getUsersByDepartment);
 // router.get("/get_first_time_login_users", user.getAllFirstLoginUsers)
-router.post("/get_user_graph_data", user.getUserGraphData)
+router.post("/get_user_graph_data", user.getUserGraphData);
+router.post("/get_user_graph_data_of_wfhd", user.getUserGraphDataOfWFHD);
 router.get("/get_users_with_status", user.getUsersWithStatus);
 router.get("/get_all_sales_users", user.getAllSalesUsers);
 router.get("/get_all_sales_users_list", user.getAllSalesUsersByDepartment);
@@ -935,6 +936,11 @@ router.get("/download_offerletter_in_bucket/:filename", user.downloadOfferLeterI
 router.post("/send_offer_letter", user.sendOfferLetter);
 router.post("/offer_letter_send_in_mail", upload.single("attachment"), user.sendOfferLetterMail);
 router.put('/change_all_reportL1_by_sub_dept', user.changeAllReportL1BySubDept);
+router.get("/get_wfh_users_with_dept", user.getAllWfhUsersWithDept);
+router.get("/get_work_anniversary", user.getWorkAnniversarysForWFHDUsers);
+router.get("/get_birth_days", user.getBirthDaysForWFHDUsers);
+router.get("/get_newjoinee_of_wfhd_users", user.getNewJoineeOfWFHDUsers);
+router.get("/get_all_exit_users_of_wfhd", user.getAllExitUsersOfWFHD);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 
@@ -1006,6 +1012,9 @@ router.put("/update_attendance", attendance.updateAttendance);
 // router.get("/get_all_disputes/:user_id", attendance.getUserAttendanceDisputeDatas);
 
 router.delete("/delete_all_attendance", attendance.deleteAttecndenceData);
+router.get("/get_salary_by_month_wise", attendance.getSalaryByMonthWise);
+router.get("/get_salary_by_LPA", attendance.getSalaryWithLPAOfWFHD);
+router.get("/get_all_wfhd_users_with_bonus", attendance.getAllWFHDUsersWithBonus);
 
 
 /* commitement */
@@ -1429,6 +1438,7 @@ router.put(
 );
 // router.post("/get_user_doc/:id", userDocManagement.getUserDoc);
 router.post("/get_user_doc", userDocManagement.getUserDoc);
+router.post("/get_wfhd_user_doc", userDocManagement.getWFHDUserDoc);
 router.delete("/delete_user_doc/:id", userDocManagement.deleteDoc);
 router.get("/get_doc_by_userid/:user_id", userDocManagement.getDocsByUserID);
 router.put("/update_doc_user", userDocManagement.updateUserDoc);
@@ -1901,6 +1911,8 @@ router.put("/edit_dynamic_table_data", dynamicTablesModel.editDynamicTablesData)
 router.post('/change_selected_user_password', adminController.changePassOfSelectedUsers);
 router.post('/change_all_user_password', adminController.changePassOfUsers);
 router.post('/send_email_to_all_users', adminController.sendPassEmailToUsers);
+// router.post('/get_story_data', adminController.trackCreatorGet);
+// router.put('/update_vendorid_pagemaster', adminController.updatepagevendorids);
 
 //------------------------------------------------- New Operations Routes Starts Here----------------------------
 
