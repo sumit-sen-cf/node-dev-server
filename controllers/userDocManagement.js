@@ -1,4 +1,5 @@
 const userDocManagmentModel = require("../models/userDocManagementModel.js");
+const userModel = require("../models/userModel.js");
 const response = require("../common/response.js");
 const constant = require("../common/constant.js");
 const { default: mongoose } = require("mongoose");
@@ -212,6 +213,112 @@ exports.getUserDoc = async (req, res) => {
   }
 };
 
+exports.getWFHDUserDoc = async (req, res) => {
+  const financeImagesBaseUrl = vari.IMAGE_URL;
+  try {
+    const userDocId = req.body?._id;
+    const user_id = req.body?.user_id;
+    const matchCondition = {};
+
+    const userData = await userModel.findOne({ user_id: user_id });
+    const jobData = userData?.job_type;
+
+    if (user_id) {
+      matchCondition.user_id = parseInt(user_id);
+    }
+    if (userDocId) {
+      matchCondition._id = mongoose.Types.ObjectId(userDocId);
+    }
+
+    if (jobData === "WFHD") {
+      const requiredDocs = ["Aadhar Card", "Pan Card", "10th", "12th", "Bank Passbook"];
+      const docs = await userDocManagmentModel.aggregate([
+        {
+          $match: {
+            ...matchCondition,
+          }
+        },
+        {
+          $lookup: {
+            from: "documentmodels",
+            localField: "doc_id",
+            foreignField: "_id",
+            as: "document",
+          },
+        },
+        {
+          $unwind: "$document",
+        },
+        {
+          $match: {
+            "document.doc_name": { $in: requiredDocs }
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            reject_reason: 1,
+            status: 1,
+            timer: 1,
+            doc_id: 1,
+            user_id: 1,
+            upload_date: 1,
+            approval_date: 1,
+            approval_by: 1,
+            doc_image: 1,
+            doc_image_url: { $concat: [financeImagesBaseUrl, "$doc_image"] },
+            document: {
+              _id: "$document._id",
+              doc_name: "$document.doc_name",
+              doc_type: "$document.doc_type",
+              description: "$document.description",
+              priority: "$document.priority",
+              period: "$document.period",
+              isRequired: "$document.isRequired",
+              is_doc_number: "$document.is_doc_number",
+              doc_number: "$document.doc_number",
+              is_document_expired: "$document.is_document_expired",
+              expired_date: "$document.expired_date",
+              job_type: "$document.job_type",
+              order_number: "$document.order_number"
+            }
+          }
+        },
+        {
+          $group: {
+            _id: "$doc_id",
+            data: { $first: "$$ROOT" }
+          }
+        },
+        {
+          $replaceRoot: { newRoot: "$data" }
+        },
+        {
+          $sort: { "document.order_number": 1 }
+        }
+      ]);
+
+
+      return response.returnTrue(
+        200,
+        req,
+        res,
+        "Data Fetch Successfully",
+        docs
+      );
+    }
+    return response.returnFalse(
+      400,
+      req,
+      res,
+      "Required documents not found",
+      {}
+    );
+  } catch (err) {
+    return response.returnFalse(500, req, res, err.message, {});
+  }
+};
+
 
 exports.editDoc = async (req, res) => {
   try {
@@ -403,7 +510,8 @@ exports.getDocsByUserID = async (req, res) => {
 exports.updateUserDoc = async (req, res) => {
   try {
     const editsim = await userDocManagmentModel.findByIdAndUpdate(req.body._id, {
-      status: "Verification Pending",
+      status: "",
+      doc_image: req.body.doc_image
     }, { new: true })
     res.status(200).send({ success: true, data: editsim })
   } catch (err) {

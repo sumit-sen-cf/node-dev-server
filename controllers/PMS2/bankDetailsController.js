@@ -5,7 +5,11 @@ const mongoose = require("mongoose");
 
 exports.createBankDetails = async (req, res) => {
     try {
-        const { vendor_id,payment_method, bank_name, account_type, registered_number, account_number, ifcs, upi_id, created_by } = req.body;
+        const accountNumber = await bankDetailsModel.findOne({ account_number: req.body.account_number })
+        if (accountNumber) {
+            return response.returnFalse(409, req, res, "Account Number is already exist", {});
+        }
+        const { vendor_id, payment_method, bank_name, account_type, registered_number, account_number, ifcs, upi_id, created_by } = req.body;
         const addBankDetails = bankDetailsModel({
             vendor_id,
             payment_method,
@@ -84,7 +88,7 @@ exports.getAllBankList = async (req, res) => {
 exports.updateBankDetails = async (req, res) => {
     try {
         const { id } = req.params;
-        const { vendor_id,payment_method, bank_name, account_type, registered_number, account_number, ifcs, upi_id, updated_by } = req.body;
+        const { vendor_id, payment_method, bank_name, account_type, registered_number, account_number, ifcs, upi_id, updated_by } = req.body;
         const updateResult = await bankDetailsModel.updateOne(
             { _id: id },
             {
