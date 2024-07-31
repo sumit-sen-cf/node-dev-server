@@ -50,6 +50,26 @@ const salesBookingExecution = new Schema({
         type: String,
         required: false,
     },
+    reach: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    impression: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    engagement: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    story_view: {
+        type: Number,
+        required: false,
+        default: 0
+    },
     // execution_sent_date: {
     //     type: String,
     //     required: false,

@@ -498,14 +498,15 @@ exports.updatePaymentAndSaleData = async (req, res) => {
                 updateObj["incentive_earning_status"] = "earned";
                 updateObj["earned_incentive_amount"] = saleBookingData.incentive_amount;
                 updateObj["unearned_incentive_amount"] = 0;
+                updateObj["booking_status"] = saleBookingStatus['05'].status;
             } else {
                 updateObj["unearned_incentive_amount"] = saleBookingData.incentive_amount;
             }
 
-            //campaign amount equal to approvaed amount then status update 
-            if (saleBookingData.campaign_amount == approvedAmount) {
-                updateObj["booking_status"] = saleBookingStatus['05'].status;
-            }
+            // //campaign amount equal to approvaed amount then status update 
+            // if (saleBookingData.campaign_amount == approvedAmount) {
+            //     updateObj["booking_status"] = saleBookingStatus['05'].status;
+            // }
         }
 
         //approved amount add in sale booking collection.
