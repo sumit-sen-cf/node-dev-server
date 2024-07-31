@@ -106,6 +106,16 @@ const salesBooking = new mongoose.Schema({
         type: Date,
         required: false,
     },
+    tds_percentage: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    tds_amount: {
+        type: Number,
+        required: false,
+        default: 0
+    },
     tds_verified_amount: {
         type: Number,
         required: false,
