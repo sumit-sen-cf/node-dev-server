@@ -199,11 +199,6 @@ const salesBooking = new mongoose.Schema({
         enum: ['normal_booking', 'renewed_booking'],   //0=normal booking, 1=renewed_booking
         default: 'normal_booking'
     },
-    service_taken_amount: {
-        type: Number,
-        required: false,
-        default: 0
-    },
     incentive_amount: {
         type: Number,
         required: false,
