@@ -29,11 +29,12 @@ const accountMasterSchema = new mongoose.Schema({
     category_id: {
         type: Schema.Types.ObjectId, //update from industry id
         required: false,
-        // ref: ""
+        ref: "accountBrandCategoryModel"
     },
     brand_id: {
         type: Schema.Types.ObjectId, //update from industry id
         required: false,
+        ref: "accountBrandModel"
     },
     account_owner_id: {
         type: Number,   //login user_id
@@ -52,6 +53,10 @@ const accountMasterSchema = new mongoose.Schema({
         required: false,
     },
     company_email: {
+        type: String,
+        required: false
+    },
+    account_image: {
         type: String,
         required: false
     },
