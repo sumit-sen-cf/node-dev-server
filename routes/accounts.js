@@ -9,6 +9,8 @@ const accountPoc = require("../controllers/accounts/accountPocController")
 const accountDocumentMaster = require("../controllers/accounts/accountDocumentMasterController");
 const accountDocumentOverview = require("../controllers/accounts/accountDocumentOverviewController");
 const accountDepartmentController = require("../controllers/accounts/accountDepartmentController");
+const brandCategoryController = require("../controllers/accounts/brandCategoryController");
+const brandController = require("../controllers/accounts/brandController");
 
 router.get("/accounts", (req, res) => {
     res.send({ message: "Welcome to Account module." });
@@ -88,5 +90,23 @@ router.put("/accounts/department/:id", verifyToken, accountDepartmentController.
 router.get("/accounts/department/:id", verifyToken, accountDepartmentController.getDepartmentDetails);
 router.get("/accounts/department", verifyToken, accountDepartmentController.getDepartmentList);
 router.delete("/accounts/department/:id", verifyToken, accountDepartmentController.deleteDepartment);
+
+/**
+ * account brand category routes
+ */
+router.post("/accounts/brand_category", verifyToken, brandCategoryController.createBrandCategory);
+router.put("/accounts/brand_category/:id", verifyToken, brandCategoryController.updateBrandCategory);
+router.get("/accounts/brand_category/:id", verifyToken, brandCategoryController.getBrandCategoryDetails);
+router.get("/accounts/brand_category", verifyToken, brandCategoryController.getBrandCategoryList);
+router.delete("/accounts/brand_category/:id", verifyToken, brandCategoryController.deleteBrandCategory);
+
+/**
+ * account brand routes
+ */
+router.post("/accounts/brand", verifyToken, brandController.createBrandDetails);
+router.put("/accounts/brand/:id", verifyToken, brandController.updateBrandDeatil);
+router.get("/accounts/brand/:id", verifyToken, brandController.getBrandDetail);
+router.get("/accounts/brand", verifyToken, brandController.getBrandList);
+router.delete("/accounts/brand/:id", verifyToken, brandController.deleteBrandDetails);
 
 module.exports = router; 

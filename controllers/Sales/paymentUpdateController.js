@@ -195,8 +195,8 @@ exports.updatePaymentDeatil = [
 */
 exports.paymentUpdateList = async (req, res) => {
     try {
-        const page = (req.query?.page && parseInt(req.query.page)) || null;
-        const limit = (req.query?.limit && parseInt(req.query.limit)) || null;
+        const page = (req.query?.page && parseInt(req.query.page)) || 1;
+        const limit = (req.query?.limit && parseInt(req.query.limit)) || Number.MAX_SAFE_INTEGER;
         const skip = (page && limit) ? (page - 1) * limit : 0;
         const sort = { createdAt: -1 };
 
@@ -298,7 +298,11 @@ exports.paymentUpdateList = async (req, res) => {
             $project: {
                 payment_date: 1,
                 sale_booking_id: 1,
+                sale_booking_date: "$salesBookingData.sale_booking_date",
                 campaign_amount: "$salesBookingData.campaign_amount",
+                base_amount: "$salesBookingData.base_amount",
+                gst_status: "$salesBookingData.gst_status",
+                balance_payment_ondate: "$salesBookingData.balance_payment_ondate",
                 account_id: 1,
                 account_name: "$accountData.account_name",
                 payment_amount: 1,
