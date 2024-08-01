@@ -231,7 +231,7 @@ exports.getWFHDUserDoc = async (req, res) => {
     }
 
     if (jobData === "WFHD") {
-      const requiredDocs = ["Aadhar Card", "Pan Card", "10th", "12th", "Bank Passbook"];
+      const requiredDocs = ["Aadhar Card", "Pan Card", "10th", "12th", "Bank Passbook/Cancel Cheque"];
       const docs = await userDocManagmentModel.aggregate([
         {
           $match: {

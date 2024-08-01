@@ -4490,65 +4490,6 @@ exports.getAllWfhUsersWithDept = async (req, res) => {
     }
 };
 
-// exports.getWorkAnniversarysForWFHDUsers = async (req, res) => {
-//     try {
-//         const currentMonth = new Date().getMonth() + 1;
-//         const users = await userModel.aggregate([
-//             {
-//                 $match: { job_type: "WFHD", user_status: "Active", att_status: "onboarded" }
-//             },
-//             {
-//                 $lookup: {
-//                     from: 'departmentmodels',
-//                     localField: 'dept_id',
-//                     foreignField: 'dept_id',
-//                     as: 'department'
-//                 }
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$department",
-//                     preserveNullAndEmptyArrays: true
-//                 }
-//             },
-//             {
-//                 $addFields: {
-//                     joiningMonth: { $month: "$joining_date" }
-//                 }
-//             },
-//             {
-//                 $match: {
-//                     joiningMonth: currentMonth
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     _id: 0,
-//                     user_name: 1,
-//                     joining_date: 1,
-//                     dept_name: "$department.dept_name"
-//                 }
-//             }
-//         ]);
-
-//         users.forEach(user => {
-//             user.joining_date = formatDate(user.joining_date);
-//         });
-
-//         // Send the response
-//         res.status(200).json({
-//             success: true,
-//             data: users
-//         });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({
-//             success: false,
-//             message: 'Server Error'
-//         });
-//     }
-// }
-
 exports.getWorkAnniversarysForWFHDUsers = async (req, res) => {
     try {
         const currentMonth = new Date().getMonth() + 1;
