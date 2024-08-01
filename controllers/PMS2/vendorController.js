@@ -204,7 +204,7 @@ exports.updateVendorData = async (req, res) => {
         existingVendor.pay_cycle = pay_cycle;
         existingVendor.bank_name = bank_name;
         existingVendor.company_details = company_details;
-        existingVendor.page_count = page_count;
+        // existingVendor.page_count = page_count;
         existingVendor.primary_field = primary_field;
         existingVendor.vendor_name = vendor_name;
         existingVendor.home_pincode = home_pincode;
