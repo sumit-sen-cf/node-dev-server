@@ -13,17 +13,15 @@ module.exports = Object.freeze({
   SWAGGER_DEVELOPER: 2,
 
   // GCP Image URL
-  GCP_VENDOR_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/InVendorDocs",
-  GCP_PAGE_STATES_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/PMS2Docs",
-  GCP_SALES_BOOKING_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/SalesBookingFiles",
-  GCP_SALES_RECORD_SERVICE_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/SalesRecordServiceFiles",
-  GCP_SALES_PAYMENT_UPDATE_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/SalesPaymentUpdateFiles",
-  GCP_ACCOUNT_BRANDS_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/AccountBrandFiles",
-  GCP_SALES_BADGES_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/SalesBadgeImages",
-  GCP_ACCOUNT_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/AccountDocument",
-  GCP_ACCOUNT_MASTER_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/AccountMasterImages",
-  GCP_INVOICE_REQUEST_URL: "https://storage.googleapis.com/jarvis-dev-bucket/InvoiceRequestFiles",
-  GCP_PMS2_Document_FOLDER_URL: "https://storage.googleapis.com/jarvis-dev-bucket/PMS2DocumentImage",
+  GCP_VENDOR_FOLDER_URL: `${vari.IMAGE_URL}InVendorDocs`,
+  GCP_PAGE_STATES_FOLDER_URL: `${vari.IMAGE_URL}PMS2Docs`,
+  GCP_SALES_BOOKING_FOLDER_URL: `${vari.IMAGE_URL}SalesBookingFiles`,
+  GCP_SALES_RECORD_SERVICE_FOLDER_URL: `${vari.IMAGE_URL}SalesRecordServiceFiles`,
+  GCP_SALES_PAYMENT_UPDATE_FOLDER_URL: `${vari.IMAGE_URL}SalesPaymentUpdateFiles`,
+  GCP_SALES_BADGES_FOLDER_URL: `${vari.IMAGE_URL}SalesBadgeImages`,
+  GCP_ACCOUNT_FOLDER_URL: `${vari.IMAGE_URL}AccountDocument`,
+  GCP_INVOICE_REQUEST_URL: `${vari.IMAGE_URL}InvoiceRequestFiles`,
+  GCP_PMS2_Document_FOLDER_URL: `${vari.IMAGE_URL}PMS2DocumentImage`,
 
 
   /* JWT  */

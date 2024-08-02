@@ -41,6 +41,7 @@ const guardianModel = require('../models/guardianModel.js');
 const orderReqModel = require('../models/orderReqModel.js');
 const simAlloModel = require('../models/simAlloModel.js');
 const objectModel = require("../models/objModel.js");
+const userHistoryModel = require("../models/userHistoryModel.js");
 
 
 const upload = multer({
@@ -764,6 +765,52 @@ exports.updateUser = [upload, async (req, res) => {
         } else {
             editsim.joining_extend_document = '';
         }
+
+        const historyData = new userHistoryModel({
+            user_id: editsim.user_id,
+            user_name: editsim.user_name,
+            user_designation: editsim.user_designation,
+            user_email_id: editsim.user_email_id,
+            user_login_id: editsim.user_login_id,
+            user_login_password: editsim.user_login_password,
+            user_contact_no: editsim.user_contact_no,
+            dept_id: editsim.dept_id,
+            role_id: editsim.role_id,
+            job_type: editsim.job_type,
+            PersonalNumber: editsim.PersonalNumber,
+            Report_L1: editsim.Report_L1,
+            PersonalEmail: editsim.PersonalEmail,
+            joining_date: editsim.joining_date,
+            releaving_date: editsim.releaving_date,
+            salary: editsim.salary,
+            DOB: editsim.DOB,
+            Age: editsim.Age,
+            MartialStatus: editsim.MartialStatus,
+            tds_applicable: editsim.tds_applicable,
+            tds_per: editsim.tds_per,
+            user_status: editsim.user_status,
+            sub_dept_id: editsim.sub_dept_id,
+            pan_no: editsim.pan_no,
+            uid_no: editsim.uid_no,
+            current_address: editsim.current_address,
+            current_city: editsim.current_city,
+            current_state: editsim.current_state,
+            current_pin_code: editsim.current_pin_code,
+            permanent_address: editsim.permanent_address,
+            permanent_city: editsim.permanent_city,
+            permanent_state: editsim.permanent_state,
+            permanent_pin_code: editsim.permanent_pin_code,
+            invoice_template_no: editsim.invoice_template_no,
+            ctc: editsim.ctc,
+            nick_name: editsim.nick_name,
+            emp_id: editsim.user_id,
+            alternate_contact: editsim.alternate_contact,
+            emergency_contact_person_name2: editsim.emergency_contact_person_name2,
+            att_status: editsim.att_status,
+            year_salary: editsim.year_salary
+        })
+
+        await historyData.save();
 
         return res.status(200).send({ success: true, data: editsim })
     } catch (err) {

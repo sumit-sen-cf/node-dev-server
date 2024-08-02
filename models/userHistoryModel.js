@@ -31,11 +31,6 @@ const userHistoryModel = new mongoose.Schema({
         unique: false,
         default: ""
     },
-    user_report_to_id: {
-        type: Number,
-        required: false,
-        default: 0
-    },
     user_contact_no: {
         type: Number,
         required: false,
@@ -46,22 +41,7 @@ const userHistoryModel = new mongoose.Schema({
         required: false,
         default: 0
     },
-    location_id: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    created_by: {
-        type: Number,
-        required: false,
-        default: 0
-    },
     role_id: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    sitting_id: {
         type: Number,
         required: false,
         default: 0
@@ -103,7 +83,6 @@ const userHistoryModel = new mongoose.Schema({
     },
     DOB: {
         type: Date,
-        default: Date.now,
         required: false
     },
     Age: {
@@ -126,43 +105,9 @@ const userHistoryModel = new mongoose.Schema({
         required: false,
         default: 0
     },
-    onboard_status: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    image_remark: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    image_validate: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    uid_remark: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    upi_Id: {
-        type: String,
-        required: false,
-        default: ""
-    },
     user_status: {
         type: String,
-        required: false,
-        default: "Active"
-    },
-    lastupdated: {
-        type: Date,
-        default: Date.now
-    },
-    created_At: {
-        type: Date,
-        default: Date.now
+        required: false
     },
     sub_dept_id: {
         type: Number,
@@ -219,26 +164,6 @@ const userHistoryModel = new mongoose.Schema({
         required: false,
         default: null
     },
-    joining_date_extend: {
-        type: Date,
-        required: false,
-        default: ""
-    },
-    joining_date_extend_status: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    joining_date_extend_reason: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    joining_date_reject_reason: {
-        type: String,
-        required: false,
-        default: ""
-    },
     invoice_template_no: {
         type: Number,
         required: false,
@@ -248,76 +173,6 @@ const userHistoryModel = new mongoose.Schema({
         type: String,
         required: false,
         default: ""
-    },
-    UID: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    pan: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    highest_upload: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    other_upload: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    tenth_marksheet: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    twelveth_marksheet: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    UG_Marksheet: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    passport: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    pre_off_letter: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    pre_expe_letter: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    pre_relieving_letter: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    bankPassBook_Cheque: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    joining_extend_document: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    userSalaryStatus: {
-        type: Number,
-        required: false,
-        default: 0
     },
     digital_signature_image: {
         type: String,
@@ -354,79 +209,10 @@ const userHistoryModel = new mongoose.Schema({
         required: false,
         default: 0
     },
-    offer_letter_send: {
-        type: Boolean,
-        required: false,
-        default: false
-    },
-    annexure_pdf: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    profileflag: {
-        type: Number,
-        required: false,
-        default: 0
-    },
     nick_name: {
         type: String,
         required: false,
         default: ""
-    },
-    offer_later_date: {
-        type: Date,
-        required: false,
-        default: ""
-    },
-    offer_later_acceptance_date: {
-        type: Date,
-        required: false,
-        default: ""
-    },
-    offer_later_status: {
-        type: Boolean,
-        required: false,
-        default: false
-    },
-    offer_later_reject_reason: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    offer_later_pdf_url: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    first_login_flag: {
-        type: Number,
-        required: false,
-        default: false
-    },
-    sms_time: {
-        type: Date,
-        required: false,
-        default: ""
-    },
-    showOnboardingModal: {
-        type: Boolean,
-        default: true
-    },
-    latitude: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    longitude: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    coc_flag: {
-        type: Boolean,
-        default: false,
-        required: false
     },
     beneficiary: {
         type: String,
@@ -448,54 +234,10 @@ const userHistoryModel = new mongoose.Schema({
         required: false,
         default: ""
     },
-    emergency_contact_person_name1: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    emergency_contact_relation1: {
-        type: String,
-        required: false,
-        default: "false"
-    },
     emergency_contact_person_name2: { //This is use for check the user's salary in PF,PF&ESIC,Inhand
         type: String,
         required: false,
         default: ""
-    },
-    emergency_contact_relation2: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    document_percentage_mandatory: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    document_percentage_non_mandatory: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    document_percentage: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    show_rocket: {
-        type: Boolean,
-        required: true,
-        default: true
-    },
-    bank_type: {
-        type: String,
-        required: false,
-        default: ''
-    },
-    bank_proof_image: {
-        type: [String],
-        required: false,
     },
     att_status: {
         type: String
@@ -505,15 +247,10 @@ const userHistoryModel = new mongoose.Schema({
         required: false,
         default: 0
     },
-    user_credit_limit: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    created_date_time: {
+    created_at: {
         type: Date,
-        default: Date.now,
-    },
+        default: Date.now
+    }
 });
 
 module.exports = mongoose.model('userHistoryModel', userHistoryModel);

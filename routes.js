@@ -176,6 +176,7 @@ const opCampaign = require("./controllers/opCampaign.js");
 const opCampaignPlan = require("./controllers/opCampaignPlan.js");
 const opCampaignPhase = require("./controllers/opCampaignPhase.js");
 const opExecution = require("./controllers/opExecution.js");
+const userHistoryController = require("./controllers/userHistroryController.js");
 
 router.get("/", (req, res) => {
   res.send({ message: "Welcome to my application." });
@@ -1985,5 +1986,8 @@ router.get("/get_all_expense_categories", expenseCategoryApi.getExpenseCategorie
 router.get("/get_single_expense_category/:_id", expenseCategoryApi.getSingleExpenseCategory);
 router.put("/update_expense_category", expenseCategoryApi.editExpenseCategory);
 router.delete("/delete_expense_category/:_id", expenseCategoryApi.deleteExpenseData);
+
+/* user history routes */
+router.get("/get_all_history_data", userHistoryController.getAllUserHistorys);
 
 module.exports = router;
