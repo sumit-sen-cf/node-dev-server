@@ -1838,6 +1838,111 @@ exports.getMonthYearData = async (req, res) => {
 //   }
 // }
 
+// const getMonthYearDataCurrentFy = async function () {
+//   try {
+//     const currentDate = new Date();
+//     const currentYear = currentDate.getFullYear();
+//     const currentMonthIndex = currentDate.getMonth() + 1;
+//     const months = [
+//       "April",
+//       "May",
+//       "June",
+//       "July",
+//       "August",
+//       "September",
+//       "October",
+//       "November",
+//       "December",
+//       "January",
+//       "February",
+//       "March",
+//     ];
+
+//     let startYear = currentYear;
+//     if (currentMonthIndex >= 1 && currentMonthIndex <= 3) {
+//       startYear--;
+//     }
+
+//     const monthYearArray = months.map((month, index) => {
+//       const loopMonthIndex = ((4 + index - 1) % 12) + 1;
+//       const loopYear =
+//         startYear + Math.floor((4 + index - 1) / 12);
+//       return {
+//         month,
+//         year: loopYear,
+//       };
+//     });
+
+//     const aggregationPipeline = [
+//       {
+//         $group: {
+//           _id: {
+//             month: "$month",
+//             year: "$year",
+//             dept: "$dept",
+//           },
+//           totalAmount: { $sum: "$salary" },
+//           totalSalary: { $sum: "$toPay" },
+//           totalBonus: { $sum: "$bonus" }
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             month: "$_id.month",
+//             year: "$_id.year"
+//           },
+//           totalAmount: { $sum: "$totalAmount" },
+//           totalSalary: { $sum: "$totalSalary" },
+//           totalBonus: { $sum: "$totalBonus" },
+//           deptCount: { $sum: 1 },
+//         }
+//       }
+//     ];
+
+//     const dbResult = await attendanceModel.aggregate(aggregationPipeline);
+
+//     const dbSet = new Set(
+//       dbResult.map((item) => `${item._id.month}-${item._id.year}`)
+//     );
+
+//     const actualExistingResult = monthYearArray.map((item) => {
+//       const dateStr = `${item.month}-${item.year}`;
+//       const existingData = dbSet.has(dateStr);
+//       const dbEntry = dbResult.find(entry => entry._id.month === item.month && entry._id.year === item.year);
+//       const deptCount = dbEntry ? dbEntry.deptCount : 0;
+//       const totalAmount = dbEntry ? dbEntry.totalAmount : 0;
+//       const totalSalary = dbEntry ? dbEntry.totalSalary : 0;
+//       const totalBonus = dbEntry ? dbEntry.totalBonus : 0;
+//       item.deptCount = deptCount;
+//       item.atdGenerated = existingData ? 1 : 0;
+//       item.totalAmount = totalAmount;
+//       item.totalSalary = totalSalary;
+//       item.totalBonus = totalBonus;
+//       return item;
+//     });
+//     // const shiftedResult = actualExistingResult.map((item, index, array) => {
+//     //   const nextIndex = (index + 1) % array.length;
+//     //   const nextItem = array[nextIndex];
+//     //   return {
+//     //     month: item.month,
+//     //     year: item.year,
+//     //     deptCount: nextItem.deptCount,
+//     //     atdGenerated: nextItem.atdGenerated,
+//     //     totalAmount: nextItem.totalAmount,
+//     //     totalSalary: nextItem.totalSalary,
+//     //     totalBonus: nextItem.totalBonus
+//     //   };
+//     // });
+
+//     // const response = { data: shiftedResult };
+//     return actualExistingResult;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
+
+// new
 const getMonthYearDataCurrentFy = async function () {
   try {
     const currentDate = new Date();
@@ -1865,8 +1970,7 @@ const getMonthYearDataCurrentFy = async function () {
 
     const monthYearArray = months.map((month, index) => {
       const loopMonthIndex = ((4 + index - 1) % 12) + 1;
-      const loopYear =
-        startYear + Math.floor((4 + index - 1) / 12);
+      const loopYear = startYear + Math.floor((4 + index - 1) / 12);
       return {
         month,
         year: loopYear,
@@ -1883,21 +1987,31 @@ const getMonthYearDataCurrentFy = async function () {
           },
           totalAmount: { $sum: "$salary" },
           totalSalary: { $sum: "$toPay" },
-          totalBonus: { $sum: "$bonus" }
+          totalBonus: { $sum: "$bonus" },
+          card_status: {
+            $max: {
+              $cond: [
+                { $eq: ["$attendence_status_flow", "Pending From Finance"] },
+                1,
+                0,
+              ],
+            },
+          },
         },
       },
       {
         $group: {
           _id: {
             month: "$_id.month",
-            year: "$_id.year"
+            year: "$_id.year",
           },
           totalAmount: { $sum: "$totalAmount" },
           totalSalary: { $sum: "$totalSalary" },
           totalBonus: { $sum: "$totalBonus" },
           deptCount: { $sum: 1 },
-        }
-      }
+          card_status: { $max: "$card_status" },
+        },
+      },
     ];
 
     const dbResult = await attendanceModel.aggregate(aggregationPipeline);
@@ -1914,28 +2028,16 @@ const getMonthYearDataCurrentFy = async function () {
       const totalAmount = dbEntry ? dbEntry.totalAmount : 0;
       const totalSalary = dbEntry ? dbEntry.totalSalary : 0;
       const totalBonus = dbEntry ? dbEntry.totalBonus : 0;
+      const cardStatus = dbEntry ? dbEntry.card_status : 0;
       item.deptCount = deptCount;
       item.atdGenerated = existingData ? 1 : 0;
       item.totalAmount = totalAmount;
       item.totalSalary = totalSalary;
       item.totalBonus = totalBonus;
+      item.card_status = cardStatus;
       return item;
     });
-    // const shiftedResult = actualExistingResult.map((item, index, array) => {
-    //   const nextIndex = (index + 1) % array.length;
-    //   const nextItem = array[nextIndex];
-    //   return {
-    //     month: item.month,
-    //     year: item.year,
-    //     deptCount: nextItem.deptCount,
-    //     atdGenerated: nextItem.atdGenerated,
-    //     totalAmount: nextItem.totalAmount,
-    //     totalSalary: nextItem.totalSalary,
-    //     totalBonus: nextItem.totalBonus
-    //   };
-    // });
 
-    // const response = { data: shiftedResult };
     return actualExistingResult;
   } catch (error) {
     console.log(error);
@@ -3070,13 +3172,6 @@ exports.getAllWFHDUsersWithBonus = async (req, res) => {
           preserveNullAndEmptyArrays: true
         }
       },
-      // {
-      //   $group: {
-      //     _id: { dept: "$dept", month: "$month", year: "$year" },
-      //     users: { $push: "$$ROOT" },
-      //     totalBonus: { $sum: "$bonus" }
-      //   }
-      // },
       {
         $project: {
           _id: 0,
@@ -3109,3 +3204,15 @@ exports.getAllWFHDUsersWithBonus = async (req, res) => {
     });
   }
 };
+
+exports.getAllStatusOfAttendance = async (req, res) => {
+  try {
+    const data = await attendanceModel.find({}).select({ attendance_status_flow: 1 })
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+}
