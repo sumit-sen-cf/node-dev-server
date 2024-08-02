@@ -3951,6 +3951,41 @@ exports.rejoinUser = async (req, res) => {
     }
 };
 
+// exports.getUserTimeLine = async (req, res) => {
+//     try {
+//         const userId = parseInt(req.params.id);
+//         const userData = await userModel.findOne({ user_id: userId });
+//         if (!userData) {
+//             return res.status(404).json({ error: "User not found!" });
+//         }
+//         const joiningDate = userData.joining_date;
+//         const joiningDate1 = userData.joining_date;
+//         const DOB = userData.DOB;
+//         if (!joiningDate) {
+//             return res.status(400).json({ error: "Joining date not found for the user" });
+//         }
+//         const probationEndDate = new Date(joiningDate);
+//         probationEndDate.setMonth(probationEndDate.getMonth() + 6);
+//         const today = new Date();
+//         const yearsOfWork = today.getFullYear() - joiningDate.getFullYear();
+//         return res.status(200).json({
+//             status: 200,
+//             message: "User timeline data fetched successfully!",
+//             joiningDate: joiningDate,
+//             DOB: DOB,
+//             probationEndDate: probationEndDate,
+//             probationMonthValue: "6 Months",
+//             workAnniversaryYears: {
+//                 Date: joiningDate,
+//                 Work_Anniversary_Years: yearsOfWork <= 1 ? "1 year" : `${yearsOfWork} years`
+//             }
+//         });
+//     } catch (err) {
+//         console.error("Error:", err.message);
+//         res.status(500).json({ error: "Internal Server Error" });
+//     }
+// };
+
 exports.getUserTimeLine = async (req, res) => {
     try {
         const userId = parseInt(req.params.id);
@@ -3958,15 +3993,24 @@ exports.getUserTimeLine = async (req, res) => {
         if (!userData) {
             return res.status(404).json({ error: "User not found!" });
         }
-        const joiningDate = userData.joining_date;
+
+        const joiningDate = new Date(userData.joining_date);
         const DOB = userData.DOB;
         if (!joiningDate) {
             return res.status(400).json({ error: "Joining date not found for the user" });
         }
+
         const probationEndDate = new Date(joiningDate);
         probationEndDate.setMonth(probationEndDate.getMonth() + 6);
+
         const today = new Date();
         const yearsOfWork = today.getFullYear() - joiningDate.getFullYear();
+
+        const Date1 = new Date(joiningDate.getFullYear() + 1, joiningDate.getMonth(), joiningDate.getDate());
+
+        // const isAnniversaryToday = (today.getDate() === joiningDate.getDate()) && (today.getMonth() === joiningDate.getMonth());
+        // const nextAnniversaryDate = new Date(today.getFullYear() + 1, joiningDate.getMonth(), joiningDate.getDate());
+
         return res.status(200).json({
             status: 200,
             message: "User timeline data fetched successfully!",
@@ -3975,7 +4019,7 @@ exports.getUserTimeLine = async (req, res) => {
             probationEndDate: probationEndDate,
             probationMonthValue: "6 Months",
             workAnniversaryYears: {
-                Date: joiningDate,
+                Date: Date1,
                 Work_Anniversary_Years: yearsOfWork <= 1 ? "1 year" : `${yearsOfWork} years`
             }
         });
