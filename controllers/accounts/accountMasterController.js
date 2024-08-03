@@ -253,7 +253,6 @@ exports.editAccountDetails = [
  */
 exports.getSingleAccountDetails = async (req, res) => {
     try {
-
         //get id wise data from DB collection
         const accountMasterData = await accountMaster.findOne({
             _id: mongoose.Types.ObjectId(req.params.id),
@@ -266,11 +265,18 @@ exports.getSingleAccountDetails = async (req, res) => {
                 message: message.DATA_NOT_FOUND,
             });
         }
+
+        //convert to object
+        let accountMasterDetails = accountMasterData.toObject();
+
+        // concatenate the string to the account_image field
+        accountMasterDetails['account_image_url'] = `${constant.GCP_ACCOUNT_MASTER_FOLDER_URL}/${accountMasterData.account_image}`;
+
         //send success response
         return res.status(200).json({
             status: 200,
             message: "account master details by Id fatched successfully!",
-            data: accountMasterData,
+            data: accountMasterDetails,
         });
     } catch (error) {
         return res.status(500).json({

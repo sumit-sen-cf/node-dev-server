@@ -41,7 +41,7 @@ module.exports = {
             discription: "Execution Paused By Sales Executive."
         },
         '11': {
-            status: "Execution Closed",
+            status: "Payment Closed",
             discription: "Full payment received and Execution is done."
         },
         '12': {
