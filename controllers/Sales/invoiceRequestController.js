@@ -206,7 +206,7 @@ exports.getInvoiceRequestDataList = async (req, res) => {
         }
 
         if (req.query?.userId) {
-            matchQuery["created_by"] = Number(req.query.userId);
+            matchCondition["created_by"] = Number(req.query.userId);
         }
 
         const invoiceRequestData = await invoiceRequestModel.aggregate([{
