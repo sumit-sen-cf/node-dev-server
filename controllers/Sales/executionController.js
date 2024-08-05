@@ -17,8 +17,9 @@ exports.createExecution = async (req, res) => {
         } = req.body;
 
         // Get distinct IDs from the database
-        const recordServiceDetail = await recordServiceModel.distinct('_id', {
+        const recordServiceDetail = await recordServiceModel.find({
             sale_booking_id: sale_booking_id,
+            is_execution_request_sent: false,
             status: {
                 $ne: constant.DELETED
             }
@@ -42,6 +43,12 @@ exports.createExecution = async (req, res) => {
             }
             //obj push in array
             exeDataArray.push(exeDataObj);
+            //update record service execution sent status
+            await recordServiceModel.updateOne({
+                _id: element._id,
+            }, {
+                is_execution_request_sent: true,
+            });
         }
         //data insert into the db
         const exeDetails = await executionModel.insertMany(exeDataArray);

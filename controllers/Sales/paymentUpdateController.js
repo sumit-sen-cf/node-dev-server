@@ -112,16 +112,24 @@ exports.getPaymentUpdateDetail = async (req, res) => {
             _id: id,
             status: { $ne: constant.DELETED },
         });
+
         if (!paymentUpdateDetail) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
+
+        //convert to object
+        let paymentUpdateData = paymentUpdateDetail.toObject();
+
+        // concatenate the string to the payment_screenshot field
+        paymentUpdateData['payment_screenshot_url'] = `${constant.GCP_SALES_PAYMENT_UPDATE_FOLDER_URL}/${paymentUpdateDetail.payment_screenshot}`;
+
         // Return a success response with the updated record details
         return response.returnTrue(
             200,
             req,
             res,
             "Payment update details retrive successfully!",
-            paymentUpdateDetail
+            paymentUpdateData
         );
     } catch (error) {
         // Return an error response in case of any exceptions
