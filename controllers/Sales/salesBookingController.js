@@ -4,6 +4,7 @@ const multer = require("multer");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
 const deleteSalesbookingModel = require("../../models/Sales/deletedSalesBookingModel.js");
 const recordServiceModel = require("../../models/Sales/recordServiceModel.js");
+const executionCampaignModel = require("../../models/executionCampaignModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
 const { saleBookingStatus } = require("../../helper/status.js");
@@ -126,6 +127,15 @@ exports.addSalesBooking = [
                     unearned_incentive_amount: totalIncentiveAmount
                 }
             })
+
+            //exe campign collection sale booking true marked.
+            await executionCampaignModel.updateOne({
+                _id: createSaleBooking.campaign_id
+            }, {
+                $set: {
+                    is_sale_booking_created: true
+                }
+            });
 
             //success response send
             return response.returnTrue(200, req, res,
@@ -253,6 +263,29 @@ exports.getAllSalesBooking = async (req, res) => {
             }
         }, {
             $lookup: {
+                from: "salesbookingexecutionmodels",
+                let: {
+                    sale_booking_id: "$sale_booking_id"
+                },
+                pipeline: [{
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { $eq: ["$$sale_booking_id", "$sale_booking_id"] },
+                            ]
+                        }
+                    }
+                }, {
+                    $project: {
+                        sale_booking_id: 1,
+                        record_service_id: 1,
+                        execution_token: 1,
+                    }
+                }],
+                as: "executionData"
+            }
+        }, {
+            $lookup: {
                 from: "salesinvoicerequestmodels",
                 localField: "sale_booking_id",
                 foreignField: "sale_booking_id",
@@ -289,6 +322,8 @@ exports.getAllSalesBooking = async (req, res) => {
                 requested_amount: 1,
                 record_service_amount: 1,
                 record_service_counts: 1,
+                is_execution_token_show: 1,
+                executionData: "$executionData",
                 brand_id: 1,
                 base_amount: 1,
                 gst_amount: 1,

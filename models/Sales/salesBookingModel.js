@@ -53,6 +53,11 @@ const salesBooking = new mongoose.Schema({
         required: false,
         default: 0
     },
+    is_execution_token_show: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
     brand_id: {
         type: Schema.Types.ObjectId,
         required: false,

@@ -38,6 +38,11 @@ const exeCampaignSchema = new mongoose.Schema({
     type: Schema.Types.ObjectId,
     required: false,
   },
+  is_sale_booking_created: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   created_by: {
     type: Number,
     required: false
