@@ -43,7 +43,12 @@ exports.addExeCampaign = [
         exeCampaignAdded
       );
     } catch (err) {
-      return response.returnFalse(500, req, res, err.message, {});
+      if (err.code === 11000) {
+        // 11000 is the error code for duplicate key error
+        return response.returnFalse(500, req, res, `Campaign Name already exists!`, {});
+      } else {
+        return response.returnFalse(500, req, res, err.message, {});
+      }
     }
   }];
 
@@ -122,7 +127,8 @@ exports.getExeCampaignsNameWiseData = async (req, res) => {
         $ne: constant.DELETED
       }
     }, {
-      exe_campaign_name: 1
+      exe_campaign_name: 1,
+      is_sale_booking_created: 1
     });
     // Return a success response with the list of records and pagination details
     return response.returnTrueWithPagination(
@@ -252,6 +258,7 @@ exports.getAllExeCampaignList = async (req, res) => {
         brand_id: 1,
         user_id: 1,
         agency_id: 1,
+        is_sale_booking_created: 1,
         created_by: 1,
         agencymastersData: {
           agencymastersData: "$agencymastersData.name"

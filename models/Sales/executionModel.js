@@ -13,11 +13,11 @@ const salesBookingExecution = new Schema({
         ref: "salesrecordservicemodels"
     },
     start_date: {
-        type: String,
+        type: Date,
         required: false
     },
     end_date: {
-        type: String,
+        type: Date,
         required: false
     },
     execution_status: {
@@ -31,7 +31,7 @@ const salesBookingExecution = new Schema({
         required: false
     },
     execution_date: {
-        type: String,
+        type: Date,
         required: false
     },
     // execution_excel: {
@@ -39,7 +39,7 @@ const salesBookingExecution = new Schema({
     //     required: false,
     // },
     execution_done_by: {
-        type: String,
+        type: Number,
         required: false,
     },
     execution_remark: {

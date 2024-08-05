@@ -53,7 +53,8 @@ exports.createExecution = async (req, res) => {
                 sale_booking_id: sale_booking_id
             }, {
                 $set: {
-                    booking_status: saleBookingStatus['06'].status
+                    booking_status: saleBookingStatus['06'].status,
+                    is_execution_token_show: true
                 }
             });
         }
