@@ -921,6 +921,7 @@ exports.getAllUsers = async (req, res) => {
                     user_id: 1,
                     user_name: 1,
                     user_credit_limit: 1,
+                    user_available_limit: 1,
                     account_type: 1,
                     branch_name: 1,
                     offer_later_status: 1,
@@ -1348,7 +1349,8 @@ exports.getSingleUser = async (req, res) => {
                     account_type: "$account_type",
                     branch_name: "$branch_name",
                     upi_Id: "$upi_Id",
-                    user_credit_limit: "$user_credit_limit"
+                    user_credit_limit: "$user_credit_limit",
+                    user_available_limit: "$user_available_limit"
                 }
             }
         ]).exec();
