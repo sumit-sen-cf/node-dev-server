@@ -540,65 +540,65 @@ exports.updateUser = [upload, async (req, res) => {
 
 
         const editsim = await userModel.findOneAndUpdate({ user_id: parseInt(req.body.user_id) }, {
-            user_name: req.body.user_name,
-            user_designation: req.body.user_designation,
-            user_email_id: req.body.user_email_id,
-            user_login_id: req.body.user_login_id,
-            user_login_password: encryptedPass,
-            user_report_to_id: req.body.user_report_to_id,
-            user_contact_no: req.body.user_contact_no,
-            dept_id: req.body.dept_id,
-            location_id: req.body.location_id,
-            created_by: req.body.created_by,
-            role_id: req.body.role_id,
-            sitting_id: req.body.sitting_id,
-            job_type: req.body.job_type,
-            personal_number: req.body.personal_number,
-            Report_L1: req.body.report_L1,
-            Report_L2: req.body?.report_L2,
-            Report_L3: req.body?.report_L3,
-            Personal_email: req.body.Personal_email,
-            joining_date: req.body.joining_date,
+            user_name: req.body.user_name || existingUser.user_name,
+            user_designation: req.body.user_designation || existingUser.user_designation,
+            user_email_id: req.body.user_email_id || existingUser.user_email_id,
+            user_login_id: req.body.user_login_id || existingUser.user_login_id,
+            user_login_password: encryptedPass || existingUser.user_login_password,
+            user_report_to_id: req.body.user_report_to_id || existingUser.user_report_to_id,
+            user_contact_no: req.body.user_contact_no || existingUser.user_contact_no,
+            dept_id: req.body.dept_id || existingUser.dept_id,
+            location_id: req.body.location_id || existingUser.location_id,
+            created_by: req.body.created_by || existingUser.created_by,
+            role_id: req.body.role_id || existingUser.role_id,
+            sitting_id: req.body.sitting_id || existingUser.sitting_id,
+            job_type: req.body.job_type || existingUser.job_type,
+            personal_number: req.body.personal_number || existingUser?.personal_number,
+            Report_L1: req.body.report_L1 || existingUser.Report_L1,
+            Report_L2: req.body?.report_L2 || existingUser.Report_L2,
+            Report_L3: req.body?.report_L3 || existingUser.Report_L3,
+            Personal_email: req.body.Personal_email || existingUser?.Personal_email,
+            joining_date: req.body.joining_date || existingUser.joining_date,
             // releaving_date: req.body.releaving_date,
-            level: req.body.level,
-            room_id: req.body.room_id,
-            salary: req.body.salary,
-            att_status: req.body.att_status,
-            year_salary: req.body.year_salary,
-            SpokenLanguages: req.body.SpokenLanguages,
-            Gender: req.body.Gender,
-            Nationality: req.body.Nationality,
-            DOB: req.body.DOB,
-            Age: req.body.Age,
-            fatherName: req.body.fatherName,
-            motherName: req.body.motherName,
+            level: req.body.level || existingUser.level,
+            room_id: req.body.room_id || existingUser.room_id,
+            salary: req.body.salary || existingUser.salary,
+            att_status: req.body.att_status || existingUser.att_status,
+            year_salary: req.body.year_salary || existingUser.year_salary,
+            SpokenLanguages: req.body.SpokenLanguages || existingUser.SpokenLanguages,
+            Gender: req.body.Gender || existingUser.Gender,
+            Nationality: req.body.Nationality || existingUser.Nationality,
+            DOB: req.body.DOB || existingUser.DOB,
+            Age: req.body.Age || existingUser.Age,
+            fatherName: req.body.fatherName || existingUser.fatherName,
+            motherName: req.body.motherName || existingUser.motherName,
             // Hobbies: req.body.Hobbies,
-            Hobbies: req.body?.Hobbies?.split(',').map(Number),
-            BloodGroup: req.body.BloodGroup,
-            MartialStatus: req.body.MartialStatus,
-            DateofMarriage: req.body.DateofMarriage,
-            tds_applicable: req.body?.tds_applicable,
-            tds_per: req.body?.tds_per,
+            Hobbies: req.body?.Hobbies?.split(',').map(Number) || existingUser.Hobbies,
+            BloodGroup: req.body.BloodGroup || existingUser.BloodGroup,
+            MartialStatus: req.body.MartialStatus || existingUser.MartialStatus,
+            DateofMarriage: req.body.DateofMarriage || existingUser.DateOfMarriage,
+            tds_applicable: req.body?.tds_applicable || existingUser.tds_applicable,
+            tds_per: req.body?.tds_per || existingUser.tds_per,
             // tds_applicable: (req.body.salary >= 30000 || req.body.ctc >= 100000) ? 'Yes' : req.body.tds_applicable,
             // tds_per: (req.body.salary >= 30000 || req.body.ctc >= 100000) ? 1 : req.body.tds_per,
-            onboard_status: req.body.onboard_status,
-            image_remark: req.body.image_remark,
-            image_validate: req.body.image_validate,
-            uid_remark: req.body.uid_remark,
-            uid_validate: req.body.uid_validate,
-            pan_remark: req.body.pan_remark,
-            pan_validate: req.body.pan_validate,
-            highest_upload_remark: req.body.highest_upload_remark,
-            highest_upload_validate: req.body.highest_upload_validate,
-            other_upload_remark: req.body.other_upload_remark,
-            other_upload_validate: req.body.other_upload_validate,
-            user_status: req.body.user_status,
-            lastupdated: req.body.lastupdated,
-            sub_dept_id: req.body?.sub_dept_id,
-            pan_no: req.body.pan_no,
-            uid_no: req.body.uid_no,
-            spouse_name: req.body.spouse_name,
-            highest_qualification_name: req.body.highest_qualification_name,
+            onboard_status: req.body.onboard_status || existingUser.onboard_status,
+            image_remark: req.body.image_remark || existingUser.image_remark,
+            image_validate: req.body.image_validate || existingUser.image_validate,
+            uid_remark: req.body.uid_remark || existingUser.uid_remark,
+            uid_validate: req.body.uid_validate || existingUser.uid_validate,
+            pan_remark: req.body.pan_remark || existingUser.pan_remark,
+            pan_validate: req.body.pan_validate || existingUser.pan_validate,
+            highest_upload_remark: req.body.highest_upload_remark || existingUser.highest_upload_remark,
+            highest_upload_validate: req.body.highest_upload_validate || existingUser.highest_upload_validate,
+            other_upload_remark: req.body.other_upload_remark || existingUser.other_upload_remark,
+            other_upload_validate: req.body.other_upload_validate || existingUser.other_upload_validate,
+            user_status: req.body.user_status || existingUser.user_status,
+            lastupdated: req.body.lastupdated || existingUser.lastupdated,
+            sub_dept_id: req.body?.sub_dept_id || existingUser.sub_dept_id,
+            pan_no: req.body.pan_no || existingUser.pan_no,
+            uid_no: req.body.uid_no || existingUser.uid_no,
+            spouse_name: req.body.spouse_name || existingUser.spouse_name,
+            highest_qualification_name: req.body.highest_qualification_name || existingUser.highest_qualification_name,
             tenth_marksheet_validate: req.body.tenth_marksheet_validate,
             twelveth_marksheet_validate: req.body.twelveth_marksheet_validate,
             UG_Marksheet_validate: req.body.UG_Marksheet_validate,
@@ -615,19 +615,19 @@ exports.updateUser = [upload, async (req, res) => {
             pre_expe_letter_validate_remark: req.body.pre_expe_letter_validate_remark,
             pre_relieving_letter_validate_remark: req.body.pre_relieving_letter_validate_remark,
             bankPassBook_Cheque_validate_remark: req.body.bankPassBook_Cheque_validate_remark,
-            current_address: req.body.current_address,
-            current_city: req.body.current_city,
-            current_state: req.body.current_state,
-            current_pin_code: req.body.current_pin_code,
-            permanent_address: req.body.permanent_address,
-            permanent_city: req.body.permanent_city,
-            permanent_state: req.body.permanent_state,
-            permanent_pin_code: req.body.permanent_pin_code,
+            current_address: req.body.current_address || existingUser.current_address,
+            current_city: req.body.current_city || existingUser.current_city,
+            current_state: req.body.current_state || existingUser.current_state,
+            current_pin_code: req.body.current_pin_code || existingUser.current_pin_code,
+            permanent_address: req.body.permanent_address || existingUser.permanent_address,
+            permanent_city: req.body.permanent_city || existingUser.permanent_city,
+            permanent_state: req.body.permanent_state || existingUser.permanent_state,
+            permanent_pin_code: req.body.permanent_pin_code || existingUser.permanent_pin_code,
             joining_date_extend: req.body.joining_date_extend,
             joining_date_extend_status: req.body.joining_date_extend_status,
             joining_date_extend_reason: req.body.joining_date_extend_reason,
             joining_date_reject_reason: req.body.joining_date_reject_reason,
-            invoice_template_no: req.body.invoice_template_no,
+            invoice_template_no: req.body.invoice_template_no || existingUser.invoice_template_no,
             image: req.files && req.files?.image && req.files?.image[0] ? req.files?.image[0].originalname : existingUser.image,
             UID: req.files && req.files['UID'] && req.files['UID'][0] ? req.files['UID'][0].filename : (existingUser && existingUser.UID) || '',
             pan: req.files && req.files['pan'] && req.files['pan'][0] ? req.files['pan'][0].filename : (existingUser && existingUser.pan) || '',
@@ -3428,31 +3428,80 @@ exports.getUserGraphDataOfWFHD = async (req, res) => {
             ]).sort({ dept_id: 1 });
         }
         else if (req.body.caseType == 'year') {
-            result = await userModel.aggregate([
+            // result = await userModel.aggregate([
+            //     {
+            //         $match: { job_type: "WFHD", user_status: "Active", att_status: "onboarded" }
+            //     },
+            //     {
+            //         $addFields: {
+            //             convertedDate: { $toDate: "$joining_date" },
+            //         },
+            //     },
+            //     {
+            //         $group: {
+            //             _id: {
+            //                 month: { $month: "$convertedDate" },
+            //             },
+            //             userjoined: { $sum: 1 },
+            //         },
+            //     },
+            //     {
+            //         $project: {
+            //             _id: 0,
+            //             month: "$_id.month",
+            //             userjoined: 1,
+            //         },
+            //     },
+            // ]).sort({ year: 1 });
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+            const currentYear = new Date().getFullYear();
+
+            const result = await userModel.aggregate([
                 {
-                    $match: { job_type: "WFHD", user_status: "Active", att_status: "onboarded" }
+                    $match: {
+                        job_type: "WFHD",
+                        user_status: "Active",
+                        att_status: "onboarded"
+                    }
                 },
                 {
                     $addFields: {
                         convertedDate: { $toDate: "$joining_date" },
-                    },
+                        joiningYear: { $year: { $toDate: "$joining_date" } }
+                    }
+                },
+                {
+                    $match: {
+                        joiningYear: currentYear
+                    }
                 },
                 {
                     $group: {
                         _id: {
-                            year: { $year: "$convertedDate" },
+                            month: { $month: "$convertedDate" }
                         },
-                        userjoined: { $sum: 1 },
-                    },
+                        userjoined: { $sum: 1 }
+                    }
+                },
+                {
+                    $addFields: {
+                        monthName: { $arrayElemAt: [monthNames, { $subtract: ["$_id.month", 1] }] }
+                    }
                 },
                 {
                     $project: {
                         _id: 0,
-                        year: "$_id.year",
-                        userjoined: 1,
-                    },
+                        month: "$_id.month",
+                        monthName: 1,
+                        userjoined: 1
+                    }
                 },
-            ]).sort({ year: 1 });
+            ])
+                .sort({ month: 1 });
+
+            return res.send(result);
         }
         else if (req.body.caseType == 'age') {
             result = await userModel.aggregate([
@@ -3735,107 +3784,6 @@ function monthNameToNumber(monthName) {
     return monthIndex !== -1 ? monthIndex + 1 : null;
 }
 
-// exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
-//     try {
-//         let month = req.body.month;
-//         let year = req.body.year;
-//         let deptId = req.body.dept_id;
-//         const monthNumber = monthNameToNumber(month);
-//         const joiningMonth = String(monthNumber).padStart(
-//             2,
-//             "0"
-//         );
-//         const bodyMonthYear = `${year}` + `${joiningMonth}`;
-//         const findData = await userModel.aggregate([
-//             {
-//                 $match: {
-//                     job_type: "WFHD",
-//                     dept_id: deptId,
-//                     att_status: "onboarded",
-//                     $expr: {
-//                         $lte: [
-//                             {
-//                                 $dateToString: {
-//                                     date: "$joining_date",
-//                                     format: "%Y%m"
-//                                 }
-//                             },
-//                             bodyMonthYear
-//                         ]
-//                     }
-//                 }
-//             },
-//             {
-//                 $group: {
-//                     _id: "$dept_id",
-//                     count: { $sum: 1 }
-//                 }
-//             }
-//         ]);
-//         return response.returnTrue(200, req, res, findData);
-//     } catch (err) {
-//         return response.returnFalse(500, req, res, err.message, {});
-//     }
-// };
-
-// exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
-//     try {
-//         let month = req.body.month;
-//         let year = req.body.year;
-//         let deptId = req.body.dept_id;
-//         const monthNumber = monthNameToNumber(month);
-//         const joiningMonth = String(monthNumber).padStart(
-//             2,
-//             "0"
-//         );
-//         const bodyMonthYear = `${year}${joiningMonth}`;
-//         const findData = await userModel.aggregate([
-//             {
-//                 $match: {
-//                     job_type: "WFHD",
-//                     dept_id: deptId,
-//                     att_status: "onboarded",
-//                     $expr: {
-//                         $lte: [
-//                             {
-//                                 $dateToString: {
-//                                     date: "$joining_date",
-//                                     format: "%Y%m"
-//                                 }
-//                             },
-//                             bodyMonthYear
-//                         ]
-//                     }
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     user_id: "$user_id",
-//                     user_name: "$user_name"
-//                 }
-//             }
-//         ]);
-
-//         const separationData = await separationModel.find({}).select({ user_id: 1, resignation_date: 1 });
-
-//         const filteredSeparationData = separationData.filter(data => {
-//             const resignationMonthYear = `${data.resignation_date.getFullYear()}${String(data.resignation_date.getMonth() + 1).padStart(2, "0")}`;
-//             return resignationMonthYear !== bodyMonthYear;
-//         });
-
-//         const separatedUserIds = filteredSeparationData.map(data => data.user_id);
-
-//         const filteredData = findData.filter(data => !separatedUserIds.includes(data.user_id));
-
-//         const count = filteredData.length;
-
-
-//         return response.returnTrue(200, req, res, count);
-//     } catch (err) {
-//         return response.returnFalse(500, req, res, err.message, {});
-//     }
-// };
-
 
 exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
     try {
@@ -3843,29 +3791,21 @@ exports.getAllUsersCountsWithJoiningDate = async (req, res) => {
         let year = req.body.year;
         let deptId = req.body.dept_id;
 
-        // Convert month name to number
         const monthNumber = monthNameToNumber(month);
-
-        // Pad month number with zero if needed
         const joiningMonth = String(monthNumber).padStart(2, "0");
 
-        // Concatenate year and month for comparison
         const bodyMonthYear = `${year}${joiningMonth}`;
 
-        // Find users with joining date, active status, onboarded attendance status, and matching department ID
         const users = await userModel.find({
             dept_id: deptId,
             user_status: 'Active',
             att_status: 'onboarded'
         }, { joining_date: 1 });
-        // console.log("users", users)
 
-        // Filter users based on joining month and year
         const usersCount = users.filter(user => {
             const userJoiningDate = new Date(user.joining_date);
             const userMonthYear = userJoiningDate.getFullYear().toString() +
                 String(userJoiningDate.getMonth() + 1).padStart(2, '0');
-            // console.log("userMonthYear", userMonthYear)
             return userMonthYear <= bodyMonthYear;
         }).length;
 
@@ -3951,40 +3891,6 @@ exports.rejoinUser = async (req, res) => {
     }
 };
 
-// exports.getUserTimeLine = async (req, res) => {
-//     try {
-//         const userId = parseInt(req.params.id);
-//         const userData = await userModel.findOne({ user_id: userId });
-//         if (!userData) {
-//             return res.status(404).json({ error: "User not found!" });
-//         }
-//         const joiningDate = userData.joining_date;
-//         const joiningDate1 = userData.joining_date;
-//         const DOB = userData.DOB;
-//         if (!joiningDate) {
-//             return res.status(400).json({ error: "Joining date not found for the user" });
-//         }
-//         const probationEndDate = new Date(joiningDate);
-//         probationEndDate.setMonth(probationEndDate.getMonth() + 6);
-//         const today = new Date();
-//         const yearsOfWork = today.getFullYear() - joiningDate.getFullYear();
-//         return res.status(200).json({
-//             status: 200,
-//             message: "User timeline data fetched successfully!",
-//             joiningDate: joiningDate,
-//             DOB: DOB,
-//             probationEndDate: probationEndDate,
-//             probationMonthValue: "6 Months",
-//             workAnniversaryYears: {
-//                 Date: joiningDate,
-//                 Work_Anniversary_Years: yearsOfWork <= 1 ? "1 year" : `${yearsOfWork} years`
-//             }
-//         });
-//     } catch (err) {
-//         console.error("Error:", err.message);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// };
 
 exports.getUserTimeLine = async (req, res) => {
     try {
@@ -4006,10 +3912,12 @@ exports.getUserTimeLine = async (req, res) => {
         const today = new Date();
         const yearsOfWork = today.getFullYear() - joiningDate.getFullYear();
 
-        const Date1 = new Date(joiningDate.getFullYear() + 1, joiningDate.getMonth(), joiningDate.getDate());
+        let nextAnniversaryDate = new Date(today.getFullYear(), joiningDate.getMonth(), joiningDate.getDate());
+        if (today > nextAnniversaryDate) {
+            nextAnniversaryDate = new Date(today.getFullYear() + 1, joiningDate.getMonth(), joiningDate.getDate());
+        }
 
-        // const isAnniversaryToday = (today.getDate() === joiningDate.getDate()) && (today.getMonth() === joiningDate.getMonth());
-        // const nextAnniversaryDate = new Date(today.getFullYear() + 1, joiningDate.getMonth(), joiningDate.getDate());
+        const formattedJoiningDate = `${nextAnniversaryDate.getFullYear()}-${(joiningDate.getMonth() + 1).toString().padStart(2, '0')}-${joiningDate.getDate().toString().padStart(2, '0')}`;
 
         return res.status(200).json({
             status: 200,
@@ -4019,8 +3927,8 @@ exports.getUserTimeLine = async (req, res) => {
             probationEndDate: probationEndDate,
             probationMonthValue: "6 Months",
             workAnniversaryYears: {
-                Date: Date1,
-                Work_Anniversary_Years: yearsOfWork <= 1 ? "1 year" : `${yearsOfWork} years`
+                Date: formattedJoiningDate,
+                Work_Anniversary_Years: yearsOfWork < 1 ? "0 year" : `${yearsOfWork} years`
             }
         });
     } catch (err) {
@@ -4684,7 +4592,7 @@ exports.getBirthDaysForWFHDUsers = async (req, res) => {
             },
             {
                 $match: {
-                    joiningMonth: currentMonth
+                    joiningMonth: currentMonth,
                 }
             },
             {
@@ -4694,8 +4602,12 @@ exports.getBirthDaysForWFHDUsers = async (req, res) => {
                             { $year: currentDate },
                             { $year: "$DOB" }
                         ]
-                    }
+                    },
+                    dayOfMonth: { $dayOfMonth: "$DOB" }
                 }
+            },
+            {
+                $sort: { dayOfMonth: 1 }
             },
             {
                 $project: {
@@ -4728,7 +4640,7 @@ exports.getBirthDaysForWFHDUsers = async (req, res) => {
 
 exports.getNewJoineeOfWFHDUsers = async (req, res) => {
     try {
-        const currentMonth = new Date().getMonth() + 1;
+        const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
 
         const users = await userModel.aggregate([
@@ -4752,13 +4664,15 @@ exports.getNewJoineeOfWFHDUsers = async (req, res) => {
             {
                 $addFields: {
                     joiningMonth: { $month: "$joining_date" },
-                    joiningYear: { $year: "$joining_date" }
+                    joiningYear: { $year: "$joining_date" },
+                    joiningDay: { $dayOfMonth: "$joining_date" }
                 }
             },
             {
                 $match: {
                     joiningMonth: currentMonth,
-                    joiningYear: currentYear
+                    joiningYear: currentYear,
+                    joiningDay: { $gte: 16 }
                 }
             },
             {
@@ -4773,6 +4687,70 @@ exports.getNewJoineeOfWFHDUsers = async (req, res) => {
 
         users.forEach(user => {
             user.joining_date = formatDate(user.joining_date);
+        });
+
+        res.status(200).json({
+            success: true,
+            data: users
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+}
+
+exports.getNewExitOfWFHDUsers = async (req, res) => {
+    try {
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+
+        const users = await userModel.aggregate([
+            {
+                $match: { job_type: "WFHD", user_status: "Exit", att_status: "onboarded" }
+            },
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $addFields: {
+                    joiningMonth: { $month: "$releaving_date" },
+                    joiningYear: { $year: "$releaving_date" },
+                    joiningDay: { $dayOfMonth: "$releaving_date" }
+                }
+            },
+            {
+                $match: {
+                    joiningMonth: currentMonth,
+                    joiningYear: currentYear,
+                    joiningDay: { $gte: 16 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    user_name: 1,
+                    releaving_date: 1,
+                    dept_name: "$department.dept_name"
+                }
+            }
+        ]);
+
+        users.forEach(user => {
+            user.releaving_date = formatDate(user.releaving_date);
         });
 
         res.status(200).json({
@@ -4832,6 +4810,7 @@ exports.getAllExitUsersOfWFHD = async (req, res) => {
                     Gender: 1,
                     DOB: 1,
                     dept_id: 1,
+                    releaving_date: 1,
                     user_designation: 1,
                     dept_name: "$department.dept_name",
                     desi_name: "$designation.desi_name"
@@ -4852,6 +4831,25 @@ exports.getAllExitUsersOfWFHD = async (req, res) => {
             success: true,
             data: allUsers
         });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+}
+
+exports.updateTraining = async (req, res) => {
+    try {
+        const editsim = await userModel.findOneAndUpdate({ user_id: req.body.user_id }, {
+            att_status: req.body.att_status
+        }, { new: true });
+
+        if (!editsim) {
+            return res.status(500).send({ success: false })
+        }
+        return res.status(200).send({ success: true, data: editsim })
     } catch (error) {
         console.error(error);
         res.status(500).json({

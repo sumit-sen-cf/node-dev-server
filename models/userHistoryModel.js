@@ -12,13 +12,11 @@ const userHistoryModel = new mongoose.Schema({
     },
     user_email_id: {
         type: String,
-        required: false,
-        unique: true
+        required: false
     },
     user_login_id: {
         type: String,
-        required: false,
-        unique: true
+        required: false
     },
     user_login_password: {
         type: String,
@@ -33,8 +31,7 @@ const userHistoryModel = new mongoose.Schema({
     },
     user_contact_no: {
         type: Number,
-        required: false,
-        unique: true
+        required: false
     },
     dept_id: {
         type: Number,
