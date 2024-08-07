@@ -241,6 +241,7 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
             salary: req.body.salary,
             // emp_id: empId,
             user_credit_limit: req.body.user_credit_limit,
+            user_available_limit: req.body.user_credit_limit,
             created_date_time: req.body.created_date_time,
         });
 
@@ -312,7 +313,14 @@ exports.updateUserForGeneralInformation = [upload, async (req, res) => {
             encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
         }
         //check user exist or not
-        const existingUser = await userModel.findOne({ user_id: req.params.user_id });
+        const existingUser = await userModel.findOne({
+            user_id: req.params.user_id
+        });
+
+        //new updated user credit limit
+        let newUserCreditLimit = Number(req.body?.user_credit_limit);
+        let limitDifference = newUserCreditLimit - existingUser.user_credit_limit;
+        let finalAvailableCreditLimit = existingUser.user_available_limit + limitDifference;
 
         //if user not exist then return error
         if (!existingUser) {
@@ -320,7 +328,9 @@ exports.updateUserForGeneralInformation = [upload, async (req, res) => {
         }
 
         //user details update in DB
-        const editsim = await userModel.findOneAndUpdate({ user_id: parseInt(req.params.user_id) }, {
+        const editsim = await userModel.findOneAndUpdate({
+            user_id: parseInt(req.params.user_id)
+        }, {
             //for personal information
             user_name: req.body.user_name,
             PersonalEmail: req.body.Personal_email,
@@ -344,18 +354,21 @@ exports.updateUserForGeneralInformation = [upload, async (req, res) => {
             role_id: req.body.role_id,
             user_email_id: req.body.user_email_id, //for offical
             user_contact_no: req.body.user_contact_no, //for offical
-            user_login_id: req.body.user_login_id.toLowerCase().trim(),
+            user_login_id: req.body?.user_login_id?.toLowerCase().trim(),
             user_login_password: encryptedPass,
             user_status: req.body.user_status,
             joining_date: req.body.joining_date,
             sitting_id: req.body.sitting_id,
             room_id: req.body.room_id,
             upi_Id: req.body.upi_Id,
-            user_credit_limit: req.body.user_credit_limit,
+            user_credit_limit: newUserCreditLimit,
+            user_available_limit: finalAvailableCreditLimit,
             ctc: req.body.ctc,
             salary: req.body.salary,
             emergency_contact_person_name2: req.body.emergency_contact_person_name2
-        }, { new: true });
+        }, {
+            new: true
+        });
 
         if (!editsim) {
             return res.status(500).send({ success: false })
@@ -4484,7 +4497,11 @@ exports.getAllSalesUsersByDepartment = async (req, res) => {
 
         //all sales users data get from the db collection
         const salesUsersDetails = await userModel.find({
-            dept_id: deptDetail.dept_id
+            $or: [{
+                dept_id: deptDetail.dept_id,
+            }, {
+                role_id: 1
+            }]
         }, {
             user_name: 1,
             user_id: 1,

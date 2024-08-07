@@ -166,6 +166,7 @@ const salesBooking = new mongoose.Schema({
     },
     payment_credit_status: {
         type: String,
+        required: true,
         enum: ['sent_for_payment_approval', 'sent_for_credit_approval', 'self_credit_used'],//0-1
     },
     booking_status: {

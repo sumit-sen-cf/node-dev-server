@@ -5,6 +5,7 @@ const salesBookingModel = require("../../models/Sales/salesBookingModel");
 const deleteSalesbookingModel = require("../../models/Sales/deletedSalesBookingModel.js");
 const recordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const executionCampaignModel = require("../../models/executionCampaignModel.js");
+const userModel = require("../../models/userModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
 const { saleBookingStatus } = require("../../helper/status.js");
@@ -87,6 +88,24 @@ exports.addSalesBooking = [
 
             //save data in the collection
             const saleBookingAdded = await createSaleBooking.save();
+
+            //user credit limit decrement on user limit.
+            if (saleBookingAdded.payment_credit_status == "self_credit_used") {
+                const result = await userModel.findOneAndUpdate({
+                    user_id: saleBookingAdded.created_by
+                }, {
+                    $inc: {
+                        user_available_limit: -(saleBookingAdded.campaign_amount)
+                    }
+                }, {
+                    projection: {
+                        user_id: 1,
+                        user_credit_limit: 1,
+                        user_available_limit: 1
+                    },
+                    new: true
+                });
+            }
 
             let recordServicesDataUpdatedArray = [];
             let recordServicesDetails = (req.body?.record_services && JSON.parse(req.body.record_services)) || [];

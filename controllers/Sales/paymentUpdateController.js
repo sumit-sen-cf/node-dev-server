@@ -519,6 +519,24 @@ exports.updatePaymentAndSaleData = async (req, res) => {
             // if (saleBookingData.campaign_amount == approvedAmount) {
             //     updateObj["booking_status"] = saleBookingStatus['05'].status;
             // }
+
+            //used credit limit increment on user.
+            if (saleBookingData.payment_credit_status == "self_credit_used") {
+                const result = await userModel.findOneAndUpdate({
+                    user_id: saleBookingData.created_by
+                }, {
+                    $inc: {
+                        user_available_limit: (paymentAmount)
+                    }
+                }, {
+                    projection: {
+                        user_id: 1,
+                        user_credit_limit: 1,
+                        user_available_limit: 1
+                    },
+                    new: true
+                });
+            }
         }
 
         //approved amount add in sale booking collection.

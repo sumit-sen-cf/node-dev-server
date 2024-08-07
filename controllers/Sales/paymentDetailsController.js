@@ -105,7 +105,6 @@ exports.getPaymentDetailList = async (req, res) => {
             status: {
                 $ne: constant.DELETED
             },
-            is_hide: false
         }
 
         if (req.query?.is_hide && (req.query.is_hide == "true" || true)) {

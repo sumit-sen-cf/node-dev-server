@@ -719,7 +719,12 @@ const userModel = new mongoose.Schema({
         required: false,
         default: 0
     },
-    user_credit_limit: {
+    user_credit_limit: { //for sale booking creation
+        type: Number,
+        required: false,
+        default: 0
+    },
+    user_available_limit: { //for sale booking creation
         type: Number,
         required: false,
         default: 0
