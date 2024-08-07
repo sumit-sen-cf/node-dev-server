@@ -22,6 +22,8 @@ module.exports = Object.freeze({
   GCP_ACCOUNT_FOLDER_URL: `${vari.IMAGE_URL}AccountDocument`,
   GCP_INVOICE_REQUEST_URL: `${vari.IMAGE_URL}InvoiceRequestFiles`,
   GCP_PMS2_Document_FOLDER_URL: `${vari.IMAGE_URL}PMS2DocumentImage`,
+  GCP_ACCOUNT_BRANDS_FOLDER_URL: `${vari.IMAGE_URL}AccountBrandFiles`,
+  GCP_ACCOUNT_MASTER_FOLDER_URL: `${vari.IMAGE_URL}AccountMasterImages`,
 
 
   /* JWT  */

@@ -4,6 +4,7 @@ const constant = require("../../common/constant.js");
 const { uploadImage, deleteImage } = require("../../common/uploadImage.js");
 const { getIncentiveAmountRecordServiceWise } = require("../../helper/functions.js");
 const invoiceRequestModel = require("../../models/Sales/invoiceRequestModel.js");
+const salesBookingModel = require("../../models/Sales/salesBookingModel.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -22,6 +23,7 @@ exports.createInvoiceRequest = [
                 purchase_order_number: req.body.purchase_order_number,
                 invoice_creation_status: "pending",
                 invoice_action_reason: req.body.invoice_action_reason,
+                invoice_amount: req.body?.invoice_amount,
                 created_by: req.body.created_by,
             });
             // Define the image fields 
@@ -34,6 +36,19 @@ exports.createInvoiceRequest = [
                 }
             }
             await addInvoiceRequest.save();
+
+            //sale booking in update invoice request status and amount
+            await salesBookingModel.updateOne({
+                sale_booking_id: req.body.sale_booking_id,
+            }, {
+                $set: {
+                    invoice_request_status: "requested",
+                },
+                $inc: {
+                    invoice_requested_amount: (req.body.invoice_amount) || 0
+                }
+            });
+
             // Return a success response with the updated record details
             return response.returnTrue(200, req, res, "Invoice Request created successfully", addInvoiceRequest);
 
@@ -144,6 +159,15 @@ exports.updateInvoiceUploadedByFinance = [
             }
             // Save the updated document with the new image URLs
             await updatedInvoiceRequestData.save();
+
+            //sale booking in update invoice request status.
+            await salesBookingModel.updateOne({
+                sale_booking_id: updatedInvoiceRequestData.sale_booking_id,
+            }, {
+                $set: {
+                    invoice_request_status: "uploaded",
+                }
+            })
 
             // Return a success response with the updated record details
             return response.returnTrue(
@@ -256,6 +280,7 @@ exports.getInvoiceRequestDataList = async (req, res) => {
                 invoice_type_id: 1,
                 invoice_particular_id: 1,
                 purchase_order_number: 1,
+                invoice_amount: 1,
                 invoice_file_url: {
                     $cond: {
                         if: { $ne: ["$invoice_file", ""] },

@@ -59,7 +59,7 @@ exports.addSalesBooking = [
                 no_badge_achivement: req.body.no_badge_achivement,
                 sale_booking_type: req.body.sale_booking_type,
                 // payment_type: req.body.payment_type,
-                final_invoice: req.body.final_invoice,
+                // final_invoice: req.body.final_invoice,
                 is_draft_save: req.body.is_draft_save,
                 created_by: req.body.created_by,
             })
@@ -198,7 +198,7 @@ exports.editSalesBooking = [
                 no_badge_achivement: req.body.no_badge_achivement,
                 sale_booking_type: req.body.sale_booking_type,
                 // payment_type: req.body.payment_type,
-                final_invoice: req.body.final_invoice,
+                // final_invoice: req.body.final_invoice,
                 is_draft_save: req.body.is_draft_save,
                 updated_by: req.body.updated_by,
             };
@@ -369,7 +369,9 @@ exports.getAllSalesBooking = async (req, res) => {
                 updatedAt: 1,
                 sale_booking_id: 1,
                 record_service_file_url: 1,
-                url: 1
+                url: 1,
+                invoice_request_status: 1,
+                invoice_requested_amount: 1
             }
         }, {
             $sort: sort
