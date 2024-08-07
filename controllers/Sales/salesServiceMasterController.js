@@ -76,7 +76,7 @@ exports.updateSalesServiceMaster = async (req, res) => {
         const { id } = req.params;
         const { service_name, post_type, amount_status, no_of_hours_status, goal_status, day_status,
             quantity_status, brand_name_status, hashtag, indiviual_amount_status, start_end_date_status,
-            per_month_amount_status, no_of_creators, deliverables_info, remarks, updated_by } = req.body;
+            per_month_amount_status, no_of_creators, deliverables_info, remarks, status, updated_by } = req.body;
         const serviceMasterUpdated = await salesServiceMasterModel.findByIdAndUpdate({ _id: id }, {
             $set: {
                 service_name,
@@ -95,6 +95,7 @@ exports.updateSalesServiceMaster = async (req, res) => {
                 no_of_creators,
                 deliverables_info,
                 remarks,
+                status,
                 updated_by
             },
         },
@@ -123,7 +124,11 @@ exports.getServiceMasterList = async (req, res) => {
         const skip = (page && limit) ? (page - 1) * limit : 0;
         const sort = { createdAt: -1 };
 
-        const serviceMasterList = await salesServiceMasterModel.find().skip(skip).limit(limit).sort(sort);
+        const serviceMasterList = await salesServiceMasterModel.find({
+            status: {
+                $ne: constant.DELETED
+            }
+        }).skip(skip).limit(limit).sort(sort);
         const serviceMasterCount = await salesServiceMasterModel.countDocuments();
 
         if (serviceMasterList.length === 0) {
