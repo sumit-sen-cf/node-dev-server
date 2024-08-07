@@ -990,6 +990,7 @@ exports.getSalaryByDeptIdMonthYear = async (req, res) => {
           bank_name: "$user.bank_name",
           ifsc_code: "$user.ifsc_code",
           account_no: "$user.account_no",
+          beneficiary_name: "$user.beneficiary",
           billing_header_name: {
             $cond: {
               if: {
