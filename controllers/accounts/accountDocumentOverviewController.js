@@ -90,8 +90,12 @@ exports.getDocumentOverviewDetails = async (req, res) => {
                 updatedAt: 1,
                 document_name: "$documentMaster.document_name",
                 document_image_upload: {
-                    $concat: [imageUrl, "$document_image_upload"],
-                }
+                    $concat: [
+                        constant.GCP_ACCOUNT_FOLDER_URL,
+                        "/",
+                        "$document_image_upload",
+                    ],
+                },
             }
         }]);
 

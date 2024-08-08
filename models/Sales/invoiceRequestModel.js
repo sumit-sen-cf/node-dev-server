@@ -25,6 +25,10 @@ const salesBookingInvoiceRequest = new Schema({
         type: String,
         required: false
     },
+    invoice_amount: {
+        type: Number,
+        required: false,
+    },
     invoice_file: { //finance uploded
         type: String,
         required: false,

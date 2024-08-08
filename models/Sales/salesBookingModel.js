@@ -224,8 +224,16 @@ const salesBooking = new mongoose.Schema({
         type: String,
         enum: ['partial', 'full'],
     },
-    final_invoice: {
+    // final_invoice: {
+    //     type: String,
+    //     required: false,
+    // },
+    invoice_request_status: {
         type: String,
+        enum: ['pending', 'requested', 'uploaded'],
+    },
+    invoice_requested_amount: {
+        type: Number,
         required: false,
     },
     created_by: {
@@ -249,6 +257,12 @@ salesBooking.pre('save', async function (next) {
         } else {
             this.sale_booking_id = 2000;
         }
+    }
+
+    //if the gst_status is true then invoice request default "pending" set.
+    if (this.isNew && this.gst_status === true && !this.invoice_request_status) {
+        this.invoice_request_status = 'pending';
+        this.invoice_requested_amount = 0;
     }
     next();
 });
