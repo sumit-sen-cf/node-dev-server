@@ -4497,7 +4497,7 @@ exports.getAllWfhUsersWithDept = async (req, res) => {
                     _id: 0
                 }
             }
-        ]).exec();
+        ]).sort({ dept_id: 1 });
 
         if (simc.length === 0) {
             return res.status(500).send({ success: false, message: "No record found" });
