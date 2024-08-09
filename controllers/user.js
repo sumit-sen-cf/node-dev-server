@@ -120,8 +120,10 @@ exports.addUser = async (req, res) => {
             att_status: req.body.att_status,
             alternate_contact: req.body?.alternate_contact,
             salary: req.body?.salary,
-            tds_applicable: req.body?.tds_applicable,
-            tds_per: req.body?.tds_per,
+            tds_applicable: (req.body.salary >= 25000 || req.body.ctc >= 100000) ? 'Yes' : req.body.tds_applicable,
+            tds_per: (req.body.salary >= 25000 || req.body.ctc >= 100000) ? 1 : req.body.tds_per,
+            // tds_applicable: req.body?.tds_applicable,
+            // tds_per: req.body?.tds_per,
             permanent_city: req.body?.permanent_city,
             permanent_state: req.body?.permanent_state,
             permanent_address: req.body?.permanent_address,
@@ -1847,7 +1849,10 @@ exports.getSingleUserAuthDetail = async (req, res) => {
                 }
             },
             {
-                $unwind: '$object'
+                $unwind: {
+                    path: "$object",
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $group: {
@@ -2588,7 +2593,7 @@ exports.getAllWfhUsers = async (req, res) => {
                 $project: {
                     user_id: "$user_id",
                     user_name: "$user_name",
-                    offer_later_status: "$offer_later_status",
+                    // offer_later_status: "$offer_later_status",
                     user_designation: "$user_designation",
                     desi_name: "$designation.desi_name",
                     user_email_id: "$user_email_id",
@@ -2650,20 +2655,20 @@ exports.getAllWfhUsers = async (req, res) => {
                     sub_dept_id: "$sub_dept_id",
                     pan_no: "$pan_no",
                     uid_no: "$uid_no",
-                    spouse_name: "$spouse_name",
-                    current_address: "$current_address",
-                    current_city: "$current_city",
-                    current_state: "$current_state",
-                    current_pin_code: "$current_pin_code",
+                    // spouse_name: "$spouse_name",
+                    // current_address: "$current_address",
+                    // current_city: "$current_city",
+                    // current_state: "$current_state",
+                    // current_pin_code: "$current_pin_code",
                     permanent_address: "$permanent_address",
                     permanent_city: "$permanent_city",
                     permanent_state: "$permanent_state",
                     permanent_pin_code: "$permanent_pin_code",
-                    joining_date_extend: "$joining_date_extend",
-                    joining_date_extend_status: "$joining_date_extend_status",
-                    joining_date_extend_reason: "$joining_date_extend_reason",
-                    joining_date_reject_reason: "$joining_date_reject_reason",
-                    joining_extend_document: "$joining_extend_document",
+                    // joining_date_extend: "$joining_date_extend",
+                    // joining_date_extend_status: "$joining_date_extend_status",
+                    // joining_date_extend_reason: "$joining_date_extend_reason",
+                    // joining_date_reject_reason: "$joining_date_reject_reason",
+                    // joining_extend_document: "$joining_extend_document",
                     invoice_template_no: "$invoice_template_no",
                     userSalaryStatus: "$userSalaryStatus",
                     digital_signature_image: {
@@ -2687,18 +2692,18 @@ exports.getAllWfhUsers = async (req, res) => {
                     ctc: "$ctc",
                     // offer_letter_send: "$offer_letter_send",
                     // annexure_pdf: "$annexure_pdf",
-                    profileflag: "$profileflag",
-                    nick_name: "$nick_name",
-                    showOnboardingModal: "$showOnboardingModal",
+                    // profileflag: "$profileflag",
+                    // nick_name: "$nick_name",
+                    // showOnboardingModal: "$showOnboardingModal",
                     // coc_flag: "$coc_flag",
                     // latitude: "$latitude",
                     // longitude: "$longitude",
                     beneficiary: "$beneficiary",
                     emp_id: "$emp_id",
                     alternate_contact: "$alternate_contact",
-                    cast_type: "$cast_type",
+                    // cast_type: "$cast_type",
                     emergency_contact_person_name1: "$emergency_contact_person_name1",
-                    emergency_contact_person_name2: "$emergency_contact_person_name2",
+                    // emergency_contact_person_name2: "$emergency_contact_person_name2",
                     emergency_contact_relation1: "$emergency_contact_relation1",
                     // emergency_contact_relation2: "$emergency_contact_relation2",
                     // document_percentage_mandatory: "$document_percentage_mandatory",
@@ -3928,9 +3933,9 @@ exports.getUserTimeLine = async (req, res) => {
         const yearsOfWork = today.getFullYear() - joiningDate.getFullYear();
 
         let nextAnniversaryDate = new Date(today.getFullYear(), joiningDate.getMonth(), joiningDate.getDate());
-        if (today > nextAnniversaryDate) {
-            nextAnniversaryDate = new Date(today.getFullYear() + 1, joiningDate.getMonth(), joiningDate.getDate());
-        }
+        // if (today.getFullYear() === nextAnniversaryDate.getFullYear()) {
+        //     nextAnniversaryDate = new Date(today.getFullYear(), joiningDate.getMonth(), joiningDate.getDate());
+        // }
 
         const formattedJoiningDate = `${nextAnniversaryDate.getFullYear()}-${(joiningDate.getMonth() + 1).toString().padStart(2, '0')}-${joiningDate.getDate().toString().padStart(2, '0')}`;
 
