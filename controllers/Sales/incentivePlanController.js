@@ -390,6 +390,24 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
                 incentiveReleasedAmount: { $ifNull: ["$incentiveRequestData.incentiveReleasedAmount", 0] },
             }
         }, {
+            $lookup: {
+                from: "salesincentiverequestmodels",
+                let: { created_by: "$_id.created_by" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$sales_executive_id", "$$created_by"] },
+                                    { $in: ["$finance_status", ["pending"]] }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as: "incentiveButtonShowCondition"
+            }
+        }, {
             $project: {
                 _id: 0,
                 user_id: "$_id.created_by",
@@ -404,6 +422,7 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
                 incentiveRequestedAmount: "$incentiveRequestedAmount",
                 incentiveRequestPendingAmount: "$incentiveRequestPendingAmount",
                 incentiveReleasedAmount: "$incentiveReleasedAmount",
+                incentiveButtonShowCondition: "$incentiveButtonShowCondition"
             }
         }, {
             $group: {
