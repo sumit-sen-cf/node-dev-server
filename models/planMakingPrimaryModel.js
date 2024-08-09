@@ -36,10 +36,10 @@ const planMakingPrimaryModel = new mongoose.Schema({
         type: Number,
         required: false,
     },
-    plan_status: {
+    plan_status:{
         type: String,
         required: true,
-        enum: ['Draft', 'Saved'],
+        enum: ['Draft','Saved'],
         default: 'Draft'
     }
 });
