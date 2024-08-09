@@ -1,4 +1,12 @@
 steps:
+  # Install Node.js and npm dependencies in Cloud Build environment
+  #- name: 'node:18'
+  #  entrypoint: 'bash'
+  #  args:
+  #    - '-c'
+  #    - |
+  #      npm install
+
   # Delete the existing nodedevserver folder on the GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
