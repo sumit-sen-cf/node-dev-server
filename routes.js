@@ -136,6 +136,7 @@ const assetVendorSum = require("./controllers/assetVendorSum.js");
 const pmsPageAssignment = require("./controllers/PMS/pmsPageAssignment.js");
 const dynamicTablesModel = require("./controllers/dynamicTables.js");
 const adminController = require('./controllers/adminController.js')
+const planMakingController = require('./controllers/planMakingController.js')
 
 /* Task Mangement Controller Import */
 //const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
@@ -1794,8 +1795,9 @@ router.get("/get_all_list_exe_history", getExeHistoryList);
 router.get("/get_exe_history/:pageMast_id", getExeHistoryDetails);
 
 router.get("/get_exe_historyData", getAllExeData);
-
-
+router.post('/add_plan_making_data', planMakingController.addPlanMaking)
+router.get('/get_all_plan_making_data', planMakingController.getAllPlanMakingData)
+router.get('/get_single_plan_making_data/:_id', planMakingController.getSinglePlanMakingData)
 
 
 //pms page assignment APi's
