@@ -120,13 +120,16 @@ exports.getExeCampaigns = async (req, res) => {
 
 exports.getExeCampaignsNameWiseData = async (req, res) => {
   try {
-
-    // Retrieve the list of records with pagination applied
-    const exeCampaignList = await exeCampaignSchema.find({
+    const matchCondition = {
       status: {
         $ne: constant.DELETED
       }
-    }, {
+    }
+    if (req.query?.userId) {
+      matchCondition["user_id"] = Number(req.query.userId);
+    }
+    // Retrieve the list of records with pagination applied
+    const exeCampaignList = await exeCampaignSchema.find(matchCondition, {
       exe_campaign_name: 1,
       is_sale_booking_created: 1
     });

@@ -384,7 +384,7 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
                 incentiveRequestPendingAmount: {
                     $subtract: [
                         { $ifNull: ["$earnedIncentiveAmount", 0] },
-                        { $ifNull: ["$incentiveRequestData.incentiveRequestedAmount", 0] }
+                        { $ifNull: ["$incentiveRequestData.incentiveReleasedAmount", 0] }
                     ]
                 },
                 incentiveReleasedAmount: { $ifNull: ["$incentiveRequestData.incentiveReleasedAmount", 0] },
