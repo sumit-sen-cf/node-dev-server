@@ -5,7 +5,7 @@ const constant = require("../../common/constant.js");
 const { saleBookingStatus } = require("../../helper/status.js");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
 const salesBookingPayment = require('../../models/Sales/paymentUpdateModel.js')
-const phpFinanceModel = require("../../models/phpFinanceModel.js");
+const userModel = require("../../models/userModel.js");
 const { uploadImage, deleteImage } = require("../../common/uploadImage.js");
 const upload = multer({
     storage: multer.memoryStorage()
