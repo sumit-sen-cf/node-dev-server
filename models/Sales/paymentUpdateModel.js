@@ -66,37 +66,8 @@ const salesBookingPayment = new Schema({
     status: {
         type: Number,
         required: false,
-        default: constant?.ACTIVE,
-    },
-    sale_booking_date: {
-        type: Date,
-        required: false
-    },
-    sales_executive_name: {
-        type: String,
-        required: false
-    },
-    account_name: {
-        type: String,
-        required: false
-    },
-    gst_status: {
-        type: String,
-        required: false
-    },
-    campaign_amount: {
-        type: Number,
-        required: false
-    },
-    campaign_amount_without_gst: {
-        type: Number,
-        required: false
-    },
-    creation_date: {
-        type: Date,
-        required: false
+        default: constant?.ACTIVE
     }
-
 }, {
     timestamps: true
 });
