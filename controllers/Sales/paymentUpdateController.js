@@ -56,31 +56,8 @@ exports.createPaymentUpdate = [
             let saleBookingData = await salesBookingModel.findOne({
                 sale_booking_id: sale_booking_id
             });
-            //temp code start
-            //get sale booking data
-            let accountData = await accountMasterModel.findOne({
-                account_id: account_id
-            }, {
-                account_name: 1
-            });
 
-            //get sale booking data
-            let userData = await userModel.findOne({
-                user_id: saleBookingData.created_by
-            }, {
-                user_id: 1,
-                user_name: 1
-            });
-
-            addSalesBookingPayment["sale_booking_date"] = saleBookingData.sale_booking_date;
-            addSalesBookingPayment["sales_executive_name"] = userData?.user_name || "";
-            addSalesBookingPayment["account_name"] = accountData.account_name;
-            addSalesBookingPayment["gst_status"] = saleBookingData.gst_status;
-            addSalesBookingPayment["campaign_amount"] = saleBookingData.campaign_amount;
-            addSalesBookingPayment["campaign_amount_without_gst"] = saleBookingData.base_amount;
-            addSalesBookingPayment["creation_date"] = new Date();
-            //temp code end
-
+            //data added in DB collection
             await addSalesBookingPayment.save();
 
             //requested amount add in previous pending data in sale booking collection.
@@ -156,12 +133,6 @@ exports.updatePaymentDeatil = [
                 action_reason: req.body.action_reason,
                 remarks: req.body.remarks,
                 updated_by: req.body.updated_by,
-                sale_booking_date: req.body.sale_booking_date,
-                sales_executive_name: req.body.sales_executive_name,
-                account_name: req.body.account_name,
-                gst_status: req.body.gst_status,
-                campaign_amount_without_gst: req.body.campaign_amount_without_gst,
-                creation_date: req.body.creation_date
             };
 
             // Fetch the old document and update it
@@ -431,14 +402,7 @@ exports.salesBookingPaymentStatusDetailsList = async (req, res) => {
                     ],
                 },
                 createdAt: 1,
-                updatedAt: 1,
-                sale_booking_date: 1,
-                sales_executive_name: 1,
-                account_name: 1,
-                gst_status: 1,
-                campaign_amount: 1,
-                campaign_amount_without_gst: 1,
-                creation_date: 1,
+                updatedAt: 1
             }
         }]);
         if (salesBookingPaymentListData.length === 0) {
