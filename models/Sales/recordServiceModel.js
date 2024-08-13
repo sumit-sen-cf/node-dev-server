@@ -50,7 +50,7 @@ const recordServiceMaster = new Schema({
         type: String,
         required: false
     },
-    individual_amount: {
+    individual_amount: {//old name per_hour_amount
         type: Number,
         required: false
     },
