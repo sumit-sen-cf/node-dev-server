@@ -11,7 +11,7 @@ const paymentDeatils = new Schema({
     details: {        //bank_details
         type: String,
         required: false,
-        trim: true
+        // trim: true
     },
     gst_bank: {
         type: Boolean,   //1,0 = check if bank is gst or non gst_amount
