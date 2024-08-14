@@ -5,6 +5,7 @@ const constant = require("../../common/constant.js");
 const { saleBookingStatus } = require("../../helper/status.js");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
 const salesBookingPayment = require('../../models/Sales/paymentUpdateModel.js')
+const paymentDetailsModel = require('../../models/Sales/paymentDetailsModel.js')
 const userModel = require("../../models/userModel.js");
 const { uploadImage, deleteImage } = require("../../common/uploadImage.js");
 const upload = multer({
@@ -113,6 +114,16 @@ exports.salesBalanceUpdate = [
                     updateData[field] = await uploadImage(req.files[field][0], "SalesPaymentUpdateFiles");
                 }
             }
+
+            //Payment Detail model data get from DB
+            const paymentDetailsData = await paymentDetailsModel.findOne({
+                _id: req.body.payment_detail_id
+            });
+
+            if (paymentDetailsData && paymentDetailsData?.payment_mode_id) {
+                updateData["payment_mode"] = paymentDetailsData?.payment_mode_id;
+            }
+
             //save image and data in DB collection data
             await updateData.save();
 

@@ -3,12 +3,9 @@ const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
 const salesBookingPayment = new Schema({
-    payment_update_id: {
-        type: Number,
-        required: false
-    },
     payment_date: {
-        type: String,
+        type: Date,
+        required: false,
     },
     sale_booking_id: {
         type: Number,
@@ -39,7 +36,7 @@ const salesBookingPayment = new Schema({
         required: false
     },
     payment_ref_no: {
-        type: Number,
+        type: String,
         required: false
     },
     payment_approval_status: {
@@ -70,19 +67,6 @@ const salesBookingPayment = new Schema({
     }
 }, {
     timestamps: true
-});
-
-salesBookingPayment.pre('save', async function (next) {
-    if (!this.payment_update_id) {
-        const lastPaymentData = await this.constructor.findOne({}, {}, { sort: { 'payment_update_id': -1 } });
-
-        if (lastPaymentData && lastPaymentData.payment_update_id) {
-            this.payment_update_id = lastPaymentData.payment_update_id + 1;
-        } else {
-            this.payment_update_id = 1;
-        }
-    }
-    next();
 });
 
 module.exports = mongoose.model('salesPaymentUpdateModel', salesBookingPayment);
