@@ -1968,6 +1968,7 @@ router.get('/get_vendor_details_with_ids', adminController.getVendorDetailsWithI
 router.get('/get_vendor_details_with_ids_by_id/:vendor_id', adminController.getVendorDetailsWithIdsById)
 router.get('/generate_plural_payment_jwt_token', adminController.createJWTForPluralPayment)
 router.get('/update_vid_in_grouplink', adminController.updateVendoridinGroupLink)
+router.get('/copy_vhomeaddress_to_company', adminController.copyHomeToCompAddress)
 
 /* expense api */
 router.post("/add_expense", expenseApi.addExpense);
