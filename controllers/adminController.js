@@ -13,6 +13,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const vendorGroupLinkModel = require('../models/PMS2/vendorGroupLinkModel.js')
+const companyDetailsSchema = require('../models/PMS2/companyDetailsModel.js')
 
 exports.changePassOfSelectedUsers = async (req, res) => {
     try {
