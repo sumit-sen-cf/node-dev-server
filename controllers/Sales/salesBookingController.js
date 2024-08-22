@@ -890,3 +890,119 @@ exports.salesDataOfUserOutstanding = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 }
+
+exports.testingDataApi = async (req, res) => {
+    try {
+        console.log("testing API CALLS");
+        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', {});
+        console.log("🚀 ~ exports.testingDataApi= ~ distinctSaleBookingIds:", distinctSaleBookingIds)
+
+        const paymentUpdateModel = require("../../models/Sales/paymentUpdateModel.js");
+        // const saleBookingIdsArray = [79];
+        const saleBookingIdsArray = distinctSaleBookingIds;
+        for (const element of saleBookingIdsArray) {
+            console.log("testing API inner loop sale booking");
+
+            const sale_booking_id = element;
+
+            //for salebooking related changes
+            const recordServicesDataArray = await recordServiceModel.find({
+                sale_booking_id: sale_booking_id
+            });
+
+            let totalIncentiveAmount = 0;
+            let totalRecordServiceAmount = 0;
+            const recordServiceCounts = (recordServicesDataArray && recordServicesDataArray.length) ? recordServicesDataArray.length : 0;
+            for (let index = 0; index < recordServicesDataArray.length; index++) {
+                const element = recordServicesDataArray[index];
+                totalRecordServiceAmount += element?.amount;
+                const incentiveAmount = await getIncentiveAmountRecordServiceWise(element.sales_service_master_id, element.amount);
+                //total incentive amount get from record service
+                totalIncentiveAmount += incentiveAmount;
+            }
+
+            //update incentive amount in sale booking collection
+            await salesBookingModel.updateOne({
+                sale_booking_id: sale_booking_id
+            }, {
+                $set: {
+                    incentive_amount: totalIncentiveAmount,
+                    record_service_amount: totalRecordServiceAmount,
+                    record_service_counts: recordServiceCounts,
+                    unearned_incentive_amount: totalIncentiveAmount
+                }
+            })
+
+            //for payment update related changes
+            let requestedAmount = 0;
+            let approvedAmount = 0;
+            let incentiveEarningStatus = "un-earned";
+            let earnedIncentiveAmount = 0;
+            let unearnedIncentiveAmount = 0;
+
+            //get sale booking data
+            const saleBookingData = await salesBookingModel.findOne({
+                sale_booking_id: sale_booking_id
+            });
+
+            const paymentUpdateDataArray = await paymentUpdateModel.find({
+                sale_booking_id: sale_booking_id
+            });
+
+            for (const element of paymentUpdateDataArray) {
+                const status = element.payment_approval_status;
+                const paymentAmount = element.payment_amount;
+                if (status == 'pending') {
+                    // updateObj["requested_amount"] = requestedAmount + parseInt(paymentAmount);
+                    requestedAmount = requestedAmount + parseInt(paymentAmount);
+                }
+                if (status == 'approval') {
+                    approvedAmount = approvedAmount + parseInt(paymentAmount);
+                    requestedAmount = requestedAmount + parseInt(paymentAmount);
+                    // updateObj["approved_amount"] = approvedAmount;
+                }
+            }
+
+            // incentive status set if 90% amount paid
+            let campaignPercentageAmount = (saleBookingData.campaign_amount * 90) / 100;
+            if (approvedAmount >= campaignPercentageAmount) {
+                incentiveEarningStatus = "earned";
+                earnedIncentiveAmount = saleBookingData.incentive_amount;
+                unearnedIncentiveAmount = 0;
+
+                // updateObj["incentive_earning_status"] = "earned";
+                // updateObj["earned_incentive_amount"] = saleBookingData.incentive_amount;
+                // updateObj["unearned_incentive_amount"] = 0;
+                // updateObj["booking_status"] = saleBookingStatus['05'].status;
+            } else {
+                unearnedIncentiveAmount = saleBookingData.incentive_amount;
+                // updateObj["unearned_incentive_amount"] = saleBookingData.incentive_amount;
+            }
+
+            let updateObj = {
+                approved_amount: approvedAmount,
+                requested_amount: requestedAmount,
+                incentive_earning_status: incentiveEarningStatus,
+                earned_incentive_amount: earnedIncentiveAmount,
+                unearned_incentive_amount: unearnedIncentiveAmount,
+            }
+
+            //approved amount add in sale booking collection.
+            await salesBookingModel.updateOne({
+                sale_booking_id: sale_booking_id
+            }, {
+                $set: updateObj
+            });
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Sales booking Testing successfully!",
+            {}
+        );
+    } catch (err) {
+        console.log("🚀 ~ err:", err)
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
