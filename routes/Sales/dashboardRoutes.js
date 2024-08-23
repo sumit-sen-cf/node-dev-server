@@ -9,4 +9,7 @@ const { verifyToken } = require("../../middleware/auth");
 router.get("/sales/top20_account_list/", verifyToken, dashboardController.getTop20AccountList);
 router.get("/sales/weekly_monthly_quarterly_list/", verifyToken, dashboardController.getWeeklyMonthlyQuarterlyList);
 
+//finance dashboard counts
+router.get("/sales/finance_dashboard_counts/", verifyToken, dashboardController.financeDashboardCounts);
+
 module.exports = router; 
