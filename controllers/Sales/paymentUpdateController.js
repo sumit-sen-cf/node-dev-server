@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const { ObjectId } = require('mongodb');
 const multer = require("multer");
 const vari = require("../../variables.js");
 const { message } = require("../../common/message.js")
@@ -193,6 +193,9 @@ exports.paymentUpdateList = async (req, res) => {
         }
         if (req.query?.sale_booking_id) {
             matchQuery["sale_booking_id"] = Number(req.query.sale_booking_id);
+        }
+        if (req.query?.payment_detail_id) {
+            matchQuery["payment_detail_id"] = ObjectId(req.query.payment_detail_id);
         }
 
         const pipeline = [{

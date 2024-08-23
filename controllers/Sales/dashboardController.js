@@ -4,6 +4,9 @@ const vari = require("../../variables.js");
 const { storage } = require('../../common/uploadFile.js');
 const accountMasterModel = require("../../models/accounts/accountMasterModel.js");
 const salesBookingModel = require("../../models/Sales/salesBookingModel.js");
+const paymentUpdateModel = require("../../models/Sales/paymentUpdateModel.js");
+const invoiceRequestModel = require("../../models/Sales/invoiceRequestModel.js");
+const incentiveRequestModel = require("../../models/Sales/incentiveRequestModel.js");
 
 /**
  * Api is to used for get top 20 account list data.
@@ -184,6 +187,85 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
                 monthlyData,
                 quarterlyData
             }
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+/**
+ * Api is to used for finance dashboard counts.
+ */
+exports.financeDashboardCounts = async (req, res) => {
+    try {
+        //sale booking outstanding counts
+        const saleBookingOutstandingCounts = await salesBookingModel.countDocuments({});
+
+        //sale booking tds open counts
+        const saleBookingtdsOpenCounts = await salesBookingModel.countDocuments({
+            tds_status: "open"
+        });
+
+        //sale booking tds close counts
+        const saleBookingtdsCloseCounts = await salesBookingModel.countDocuments({
+            tds_status: "close"
+        });
+
+        //pending payment request counts
+        const pendingPaymentReqCounts = await paymentUpdateModel.countDocuments({
+            payment_approval_status: "pending"
+        })
+
+        //pending payment request counts
+        const pendingInvoiceReqCounts = await invoiceRequestModel.countDocuments({
+            invoice_creation_status: "pending"
+        })
+
+        //pending payment request counts
+        const pendingIncentiveReqData = await incentiveRequestModel.aggregate([{
+            $match: {
+                finance_status: "pending"
+            }
+        }, {
+            $group: {
+                _id: null,
+                totalIncentiveReqCounts: {
+                    $sum: 1
+                },
+                totalIncentiveReqAmount: {
+                    $sum: '$admin_approved_amount'
+                },
+            }
+        }, {
+            $project: {
+                _id: 0,
+                totalIncentiveReqCounts: 1,
+                totalIncentiveReqAmount: 1
+            }
+        }]);
+
+        let financeDataCountsObj = {
+            saleBookingOutstandingCounts: saleBookingOutstandingCounts,
+            saleBookingtdsOpenCounts: saleBookingtdsOpenCounts,
+            saleBookingtdsCloseCounts: saleBookingtdsCloseCounts,
+            pendingPaymentReqCounts: pendingPaymentReqCounts,
+            pendingInvoiceReqCounts: pendingInvoiceReqCounts,
+            pendingIncentiveReqCounts: 0,
+            pendingIncentiveReqAmount: 0
+        }
+
+        //check length of the incentive data
+        if (pendingIncentiveReqData && pendingIncentiveReqData.length) {
+            financeDataCountsObj["pendingIncentiveReqCounts"] = pendingIncentiveReqData[0].totalIncentiveReqCounts;
+            financeDataCountsObj["pendingIncentiveReqAmount"] = pendingIncentiveReqData[0].totalIncentiveReqAmount;
+        }
+        // Return a success response
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Finance Dashboard Api Counts retrive Successfully",
+            financeDataCountsObj,
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});

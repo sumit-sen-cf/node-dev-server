@@ -9,7 +9,7 @@ const salesBookingPayment = new Schema({
     },
     sale_booking_id: {
         type: Number,
-        required: false,
+        required: true,
         ref: "salesBookingModel"
     },
     account_id: {
@@ -19,7 +19,7 @@ const salesBookingPayment = new Schema({
     },
     payment_amount: {
         type: Number,
-        required: false
+        required: true
     },
     payment_mode: {
         type: Schema.Types.ObjectId,

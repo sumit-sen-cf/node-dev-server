@@ -12,4 +12,6 @@ router.put("/sales/badges_master/:id", verifyToken, badgesMasterController.updat
 router.get("/sales/badges_master", verifyToken, badgesMasterController.getBadgesMasterList);
 router.delete("/sales/badges_master/:id", verifyToken, badgesMasterController.deleteBadgesMaster);
 
+router.get("/sales/badges_sales_booking_data", verifyToken, badgesMasterController.totalSaleBookingAmountForBadge);
+
 module.exports = router;
