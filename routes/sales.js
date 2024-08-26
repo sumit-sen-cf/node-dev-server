@@ -5,45 +5,10 @@ const autoIncentiveCalculation = require("../controllers/SMS/autoIncentiveCalcul
 const salesIncentiveSettelmentGst = require("../controllers/SMS/salesIncentiveSettelmentGstController");
 const salesIncentiveSettelmentNonGst = require("../controllers/SMS/salesIncentiveSettelmentNonGstController");
 const salesIncentiveSettelmentNonGstSb = require("../controllers/SMS/salesIncentiveSettledNonGstSbController");
-// const paymentDetailsController = require("../controllers/SMS/paymentDetailsController");
-// const salesBookingPayment = require("../controllers/SMS/salesBookingPaymentController");
-// const salesInvoiceParticular = require("../controllers/SMS/salesInvoiceParticularController");
-// const salesInvoiceType = require("../controllers/SMS/salesInvoiceTypeController");
-// const salesBookingInvoiceRequest = require("../controllers/SMS/salesBookingInvoiceRequestController");
-// const reasonCreditApproval = require("../controllers/SMS/reasonCreditApprovalController");
-// const salesBookingRefund = require("../controllers/SMS/salesBookingRefundController");
-// const salesServiceMaster = require("../controllers/SMS/salesServiceMasterController");
-// const incentivePlan = require("../controllers/SMS/incentivePlanController");
-// const recordServiceMaster = require("../controllers/SMS/recordServiceMasterController");
-// const recordServicePages = require("../controllers/SMS/recordServicePageController");
-// const salesBrand = require("../controllers/SMS/salesBrandController");
-// const salesIndustry = require("../controllers/SMS/salesIndustryController");
-// const salesBadgesMaster = require("../controllers/SMS/salesBadgesMasterController");
-// const financialYearSetup = require("../controllers/SMS/financialYearSetupController");
-// const salesRoleBadgeAssignedRate = require("../controllers/SMS/salesRoleBadgeAssignedRateController");
-// const salesPaymentMode = require("../controllers/SMS/salesPaymentModeController");
-// const salesBookingExecution = require("../controllers/SMS/salesBookingExecutionController");
 
 router.get("/sales", (req, res) => {
     res.send({ message: "Welcome to Sales module." });
 });
-
-/**
- * sales booking routes
- */
-router.post("/sales/add_sales_booking", SMS.addSalesBooking);
-router.put("/sales/edit_sales_booking/:id", SMS.editSalesBooking);
-router.get("/sales/get_all_sales_booking", SMS.getAllSalesBooking);
-router.get("/sales/get_single_sales_booking/:id", SMS.getSingleSalesBooking);
-router.delete("/sales/delete_sales_booking/:id", SMS.deleteSalesBooking);
-router.get("/sales/get_all_new_deleted_data", SMS.getNewSalesBooking);
-router.get("/sales/get_all_list_sales_booking/:id", SMS.getSalesBookingPaymentDetail);
-
-
-/**
- * sales booking status routes
- */
-router.post("/sales/add_sales_booking_status", SMS.addSalesBookingStatus);
 
 /**
  * sales booking credit approval status Api's
