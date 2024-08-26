@@ -11,7 +11,7 @@ const executionCampaignModel = require("../../models/executionCampaignModel.js")
 const userModel = require("../../models/userModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
-const { saleBookingStatus } = require("../../helper/status.js");
+const { saleBookingStatus, salesEmail } = require("../../helper/status.js");
 const { getIncentiveAmountRecordServiceWise } = require("../../helper/functions.js");
 const path = require('path');
 const moment = require('moment');
@@ -159,6 +159,57 @@ exports.addSalesBooking = [
                 }
             });
 
+            //user data get for the name
+            const userData = await userModel.findOne({
+                user_id: saleBookingAdded.created_by
+            }, {
+                user_id: 1,
+                user_name: 1,
+            });
+
+            // Format a specific date
+            const formattedDate = moment(saleBookingAdded.sale_booking_date).format('MM/DD/YYYY HH:mm:ss');
+            //for email send process to admin
+            try {
+                const transporterOptions = {
+                    service: "gmail",
+                    auth: {
+                        user: "onboarding@creativefuel.io",
+                        pass: "qtttmxappybgjbhp",
+                    },
+                };
+
+                const createMailOptions = (html) => ({
+                    from: "onboarding@creativefuel.io",
+                    to: salesEmail,
+                    // to: "amanrathod197@gmail.com,vijayanttrivedi1500@gmail.com",
+                    subject: "Sale Booking Created",
+                    html: html,
+                });
+
+                const sendMail = async (mailOptions) => {
+                    const transporter = nodemailer.createTransport(transporterOptions);
+                    await transporter.sendMail(mailOptions);
+                };
+
+                const templatePath = path.join(__dirname, "template.ejs");
+                const template = await fs.promises.readFile(templatePath, "utf-8");
+                const html = ejs.render(template, {
+                    salesExecutiveName: userData.user_name,
+                    salesExecutiveID: saleBookingAdded.created_by,
+                    saleBookingId: saleBookingAdded.sale_booking_id,
+                    saleBookingDate: formattedDate,
+                    saleBookingAmount: saleBookingAdded.campaign_amount,
+                    headerText: "New Sale Booking is Created."
+                });
+                const mailOptions = createMailOptions(html);
+
+                //send email to admin
+                await sendMail(mailOptions);
+            } catch (err) {
+                console.log("Error in email send process", err);
+                return response.returnFalse(500, req, res, err.message, {});
+            }
             //success response send
             return response.returnTrue(200, req, res,
                 "Sales Booking Created Successfully",
