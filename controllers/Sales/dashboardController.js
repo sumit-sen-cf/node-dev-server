@@ -14,7 +14,11 @@ const incentiveRequestModel = require("../../models/Sales/incentiveRequestModel.
 exports.getTop20AccountList = async (req, res) => {
     try {
         let accountLimit = 20;
+        // Prepare the match query
         let matchCondition = {};
+        if (req.query?.userId && req.query?.isAdmin == ("false" || false)) {
+            matchCondition["created_by"] = Number(req.query.userId);
+        }
         //get top 20 account list with campaign amount wise.
         const accountWiseSaleBookingData = await salesBookingModel.aggregate([{
             $match: matchCondition
