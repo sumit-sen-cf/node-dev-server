@@ -93,38 +93,60 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
     try {
         // Get the current date
         const currentDate = new Date();
-        // Calculate the start and end of the current week (Monday to Sunday)
-        const startOfWeek = new Date(currentDate);
-        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Monday
-        startOfWeek.setHours(0, 0, 0, 0);
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 5); // Sunday
-        endOfWeek.setHours(23, 59, 59, 999);
 
-        // Calculate the start and end of the current month (1st to 30th/31st)
-        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 2);
-        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-        endOfMonth.setHours(23, 59, 59, 999);
+        // Function to get the start and end dates of a week (Monday to Sunday)
+        const getWeekRange = (date, offset = 0) => {
+            const startOfWeek = new Date(date);
+            startOfWeek.setDate(date.getDate() - date.getDay() + 1 + offset * 7); // Monday
+            startOfWeek.setHours(0, 0, 0, 0);
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 5); // Sunday
+            endOfWeek.setHours(23, 59, 59, 999);
+            return { startOfWeek, endOfWeek };
+        };
 
-        // Calculate the start and end of the current quarter (e.g., January to March)
-        const quarter = Math.floor((currentDate.getMonth() / 3));
-        const startOfQuarter = new Date(currentDate.getFullYear(), quarter * 3, 2);
-        const endOfQuarter = new Date(currentDate.getFullYear(), quarter * 3 + 3, 0);
-        endOfQuarter.setHours(23, 59, 59, 999);
+        // Function to get the start and end dates of a month
+        const getMonthRange = (date, offset = 0) => {
+            const startOfMonth = new Date(date.getFullYear(), date.getMonth() + offset, 2);
+            startOfMonth.setHours(0, 0, 0, 0);
+            const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1 + offset, 0);
+            endOfMonth.setHours(23, 59, 59, 999);
+            return { startOfMonth, endOfMonth };
+        };
+
+        // Function to get the start and end dates of a quarter
+        const getQuarterRange = (date, offset = 0) => {
+            const quarter = Math.floor((date.getMonth() / 3)) + offset;
+            const startOfQuarter = new Date(date.getFullYear(), quarter * 3, 2);
+            startOfQuarter.setHours(0, 0, 0, 0);
+            const endOfQuarter = new Date(date.getFullYear(), quarter * 3 + 3, 0);
+            endOfQuarter.setHours(23, 59, 59, 999);
+            return { startOfQuarter, endOfQuarter };
+        };
+
+        // Current week, month, and quarter
+        const { startOfWeek, endOfWeek } = getWeekRange(currentDate);
+        const { startOfMonth, endOfMonth } = getMonthRange(currentDate);
+        const { startOfQuarter, endOfQuarter } = getQuarterRange(currentDate);
+
+        // Last week, month, and quarter
+        const { startOfWeek: lastWeekStart, endOfWeek: lastWeekEnd } = getWeekRange(currentDate, -1);
+        const { startOfMonth: lastMonthStart, endOfMonth: lastMonthEnd } = getMonthRange(currentDate, -1);
+        const { startOfQuarter: lastQuarterStart, endOfQuarter: lastQuarterEnd } = getQuarterRange(currentDate, -1);
 
         // Define the pipeline for weekly, monthly, and quarterly data
         const getData = async (startDate, endDate) => {
-            //match obj prepare
+            // Prepare the match query
             let matchQuery = {
                 sale_booking_date: {
                     $gte: startDate,
                     $lt: endDate
                 }
-            }
+            };
             if (req.query?.userId && req.query?.isAdmin == ("false" || false)) {
                 matchQuery["created_by"] = Number(req.query.userId);
             }
-            //get data using user and date filter.
+            // Get data using user and date filter
             const salesData = await salesBookingModel.aggregate([{
                 $match: matchQuery
             }, {
@@ -142,27 +164,29 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
                     _id: 0,
                     totalCampaignAmount: 1,
                     totalSaleBookingCounts: 1,
-                    startDate: { $literal: startDate },  // Adding startDate to the projection
-                    endDate: { $literal: endDate }       // Adding endDate to the projection
+                    startDate: { $literal: startDate },
+                    endDate: { $literal: endDate }
                 }
             }]);
 
-            //get total account counts
+            // Get total account counts
             const accountDataCounts = await accountMasterModel.countDocuments({
                 createdAt: {
                     $gte: startDate,
                     $lt: endDate
                 }
             });
-            //return obj prepare
+
+            // Prepare the return object
             let dashboardObj = {
                 totalCampaignAmount: 0,
                 totalSaleBookingCounts: 0,
                 totalAccountCounts: 0,
                 startDate: startDate,
                 endDate: endDate
-            }
-            //length check of the data
+            };
+
+            // Check the length of the data
             if (salesData && salesData[0]) {
                 dashboardObj["totalCampaignAmount"] = salesData[0].totalCampaignAmount;
                 dashboardObj["totalSaleBookingCounts"] = salesData[0].totalSaleBookingCounts;
@@ -171,10 +195,13 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
             return dashboardObj;
         };
 
-        // Fetch data for weekly, monthly, and quarterly
+        // Fetch data for current and last periods
         const weeklyData = await getData(startOfWeek, endOfWeek);
+        const lastWeekData = await getData(lastWeekStart, lastWeekEnd);
         const monthlyData = await getData(startOfMonth, endOfMonth);
+        const lastMonthData = await getData(lastMonthStart, lastMonthEnd);
         const quarterlyData = await getData(startOfQuarter, endOfQuarter);
+        const lastQuarterData = await getData(lastQuarterStart, lastQuarterEnd);
 
         // Return a success response with all the data
         return response.returnTrue(
@@ -184,8 +211,11 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
             "Dashboard Data retrieved successfully!",
             {
                 weeklyData,
+                lastWeekData,
                 monthlyData,
-                quarterlyData
+                lastMonthData,
+                quarterlyData,
+                lastQuarterData
             }
         );
     } catch (error) {
