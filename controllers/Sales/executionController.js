@@ -2,8 +2,6 @@ const executionModel = require("../../models/Sales/executionModel");
 const recordServiceModel = require("../../models/Sales/recordServiceModel");
 const constant = require("../../common/constant");
 const response = require("../../common/response");
-const vari = require("../../variables.js");
-const { storage } = require('../../common/uploadFile.js');
 const { saleBookingStatus } = require("../../helper/status.js");
 const salesBookingModel = require("../../models/Sales/salesBookingModel.js");
 
@@ -13,8 +11,11 @@ const salesBookingModel = require("../../models/Sales/salesBookingModel.js");
 exports.createExecution = async (req, res) => {
     try {
         const { sale_booking_id, start_date, end_date, commitment, created_by,
-            reach, impression, engagement, story_view
         } = req.body;
+        const reach = (req.body && req.body.reach) ? Number(req.body.reach) : 0;
+        const impression = (req.body && req.body.impression) ? Number(req.body.impression) : 0;
+        const engagement = (req.body && req.body.engagement) ? Number(req.body.engagement) : 0;
+        const story_view = (req.body && req.body.story_view) ? Number(req.body.story_view) : 0;
 
         // Get distinct IDs from the database
         const recordServiceDetail = await recordServiceModel.find({
@@ -30,19 +31,21 @@ exports.createExecution = async (req, res) => {
             const randomNumber = Math.floor(1000000 + Math.random() * 90000);
             let exeDataObj = {
                 sale_booking_id: sale_booking_id,
-                record_service_id: element,
+                record_service_id: element._id,
                 start_date: start_date,
                 end_date: end_date,
                 execution_token: randomNumber,
                 commitment: commitment,
-                reach: Number(reach),
-                impression: Number(impression),
-                engagement: Number(engagement),
-                story_view: Number(story_view),
+                reach: reach,
+                impression: impression,
+                engagement: engagement,
+                story_view: story_view,
                 created_by: created_by
             }
+            //data insert into the db
+            const exeDetails = await executionModel.create(exeDataObj);
             //obj push in array
-            exeDataArray.push(exeDataObj);
+            exeDataArray.push(exeDetails);
             //update record service execution sent status
             await recordServiceModel.updateOne({
                 _id: element._id,
@@ -50,11 +53,9 @@ exports.createExecution = async (req, res) => {
                 is_execution_request_sent: true,
             });
         }
-        //data insert into the db
-        const exeDetails = await executionModel.insertMany(exeDataArray);
 
         //check the execution req is generated then status update in sale booking
-        if (exeDetails && exeDetails.length) {
+        if (exeDataArray && exeDataArray.length) {
             //update booking status in sale booking collection
             await salesBookingModel.updateOne({
                 sale_booking_id: sale_booking_id
@@ -72,7 +73,7 @@ exports.createExecution = async (req, res) => {
             req,
             res,
             "Sales booking execution created successfully",
-            exeDetails
+            exeDataArray
         );
 
     } catch (error) {
