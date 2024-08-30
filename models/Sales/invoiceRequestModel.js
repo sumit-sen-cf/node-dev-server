@@ -18,7 +18,7 @@ const salesBookingInvoiceRequest = new Schema({
         ref: "salesinvoiceparticularmodels"
     },
     purchase_order_number: {
-        type: Number,
+        type: String,
         required: false,
     },
     purchase_order_upload: {
@@ -34,7 +34,7 @@ const salesBookingInvoiceRequest = new Schema({
         required: false,
     },
     invoice_number: { //finance uploded
-        type: Number,
+        type: String,
         required: false,
     },
     // invoice_date: { //finance uploded

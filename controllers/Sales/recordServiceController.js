@@ -324,7 +324,19 @@ exports.updateMultipleRecordService = async (req, res) => {
         // Delete documents that are not included in accountPocDetails
         for (let id of distinctIds) {
             if (!documentIds.has(id.toString())) {
-                await salesRecordServiceModel.deleteOne({ _id: id });
+                // await salesRecordServiceModel.deleteOne({ _id: id });
+                const recordServiceDeleted = await salesRecordServiceModel.findOneAndUpdate({
+                    _id: id,
+                    status: {
+                        $ne: constant.DELETED
+                    }
+                }, {
+                    $set: {
+                        status: constant.DELETED,
+                    }
+                }, {
+                    new: true
+                });
             }
         }
 

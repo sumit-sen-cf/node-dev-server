@@ -48,6 +48,11 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
         type: Number,
         required: false,
     },
+    is_execution_token_show: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
     brand_id: {
         type: Schema.Types.ObjectId,
         required: false,
@@ -181,10 +186,6 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
         type: String,
         enum: ['normal_booking', 'renewed_booking'],   //0=normal booking, 1=renewed_booking
     },
-    service_taken_amount: {
-        type: Number,
-        required: false,
-    },
     incentive_amount: {
         type: Number,
         required: false,
@@ -201,8 +202,12 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
         type: String,
         enum: ['partial', 'full'],
     },
-    final_invoice: {
+    invoice_request_status: {
         type: String,
+        enum: ['pending', 'requested', 'uploaded'],
+    },
+    invoice_requested_amount: {
+        type: Number,
         required: false,
     },
     created_by: {

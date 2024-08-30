@@ -503,6 +503,19 @@ exports.deleteSalesBooking = [upload, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Sales Booking Data not found' });
         }
 
+        //first create new Sale booking then delete  
+        let nextSBId = Number(salesBookingData.sale_booking_id) + 1;
+        let nextSalesBookingData = await salesBookingModel.findOne({
+            sale_booking_id: nextSBId
+        });
+        //if next booking not found then return
+        if (!nextSalesBookingData) {
+            return res.status(400).json({
+                success: false,
+                message: `Create New Sale Booking then You Can Delete ${salesBookingData.sale_booking_id} Sales Booking`
+            });
+        }
+
         // Prepare the data to be inserted into the deletedSalesBookingModel
         const salesBookingCopy = salesBookingData.toObject();
         delete salesBookingCopy._id;
