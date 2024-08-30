@@ -182,8 +182,7 @@ exports.addSalesBooking = [
                 const createMailOptions = (html) => ({
                     from: "onboarding@creativefuel.io",
                     to: salesEmail,
-                    // to: "amanrathod197@gmail.com,vijayanttrivedi1500@gmail.com",
-                    subject: "Sale Booking Created",
+                    subject: "New Sale Booking Created",
                     html: html,
                 });
 
