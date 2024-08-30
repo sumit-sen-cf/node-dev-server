@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const salesBookingExecution = new Schema({
     sale_booking_id: {
         type: Number,
-        required: false,
+        required: true,
     },
     record_service_id: {
         type: Schema.Types.ObjectId,
