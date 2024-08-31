@@ -655,7 +655,7 @@ const userModel = new mongoose.Schema({
     alternate_contact: {
         type: Number,
         required: false,
-        default: null
+        default: 0
     },
     cast_type: {
         type: String,

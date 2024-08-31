@@ -30,9 +30,9 @@ const familyModel = new mongoose.Schema({
     default: ""
   },
   annual_income: {
-    type: Number,
+    type: String,
     required: false,
-    default: 0
+    default: ""
   },
   relation: {
     type: String,

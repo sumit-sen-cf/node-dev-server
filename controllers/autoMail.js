@@ -12,7 +12,7 @@ var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: "onboarding@creativefuel.io",
-    pass: "zboiicwhuvakthth",
+    pass: "qtttmxappybgjbhp",
 
     // user: "ankigupta1254@gmail.com",
     // pass: "ptxbqtjmcaghogcg",
@@ -20,7 +20,15 @@ var transporter = nodemailer.createTransport({
   },
 });
 
-const job0Days = schedule.scheduleJob('0 0 * * *', async () => {
+const birthDay = schedule.scheduleJob('0 0 * * *', async () => {
+  sendBirthdayEmail();
+})
+
+const workAnniversary = schedule.scheduleJob('0 0 * * *', async () => {
+  sendWorkAnniversaryEmail();
+})
+
+const job0Days = schedule.scheduleJob('* * * * *', async () => {
   sendReminderEmail(0);
   // sendWhatsappSms(0);
 });
@@ -84,10 +92,78 @@ async function sendWhatsappSms(daysBefore) {
   })
 }
 
+// async function sendReminderEmail(daysBefore) {
+//   const currentDate = new Date();
+//   currentDate.setDate(currentDate.getDate() + daysBefore);
+//   const year = currentDate.getFullYear();
+//   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+//   const day = String(currentDate.getDate()).padStart(2, '0');
+//   const formattedDate = `${year}-${month}-${day}T00:00:00.000+00:00`;
 
+//   const users = await userModel.find({ joining_date: formattedDate });
+//   console.log("users", users)
+
+//   users.forEach(async (user) => {
+//     const templatePath = path.join(__dirname, `emailtemp${daysBefore}.ejs`);
+//     const template = await fs.promises.readFile(templatePath, "utf-8");
+//     const name = user.user_name;
+//     const html = ejs.render(template, { name });
+
+//     /* dynamic email temp code start */
+//     // let contentList = await emailTempModel.findOne({ email_for_id: '65be340cad52cfd11fa27e50', send_email: true })
+
+//     // const filledEmailContent = contentList.email_content.replace("{{user_name}}", user.user_name);
+
+//     // const html = filledEmailContent;
+
+//     // let mailOptions = {
+//     //   from: "onboarding@creativefuel.io",
+//     //   to: user.user_email_id,
+//     //   subject:
+//     //     daysBefore === 0
+//     //       ? contentList.email_sub
+//     //       : daysBefore === 1
+//     //         ? contentList.email_sub
+//     //         : daysBefore === 2
+//     //           ? contentList.email_sub
+//     //           : daysBefore === 3
+//     //             ? contentList.email_sub
+//     //             : "Your Joining Date is Approaching",
+//     //   html: html
+//     // };
+//     /* dynamic email temp code end */
+
+//     let mailOptions = {
+//       from: "onboarding@creativefuel.io",
+
+//       to: user.user_email_id,
+//       subject:
+//         daysBefore === 0
+//           ? "Welcome to CreativeFuel! It's almost time."
+//           : daysBefore === 1
+//             ? "See you tomorrow! With love, CF"
+//             : daysBefore === 2
+//               ? "Have you geared up yet? #2daystogo!"
+//               : daysBefore === 3
+//                 ? "Meme Magic in 3 Days:Your First Day is 3 Days Away! 🌟"
+//                 : "Your Joining Date is Approaching",
+//       html: html
+//     };
+//     transporter.sendMail(mailOptions, (error, info) => {
+//       console.log("info", info);
+//       if (error) {
+//         console.log('Error sending email:', error);
+//       } else {
+//         console.log('Reminder email sent:', info.response);
+//       }
+//     });
+//   });
+// }
 
 async function sendReminderEmail(daysBefore) {
   const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
   currentDate.setDate(currentDate.getDate() + daysBefore);
   const year = currentDate.getFullYear();
   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
@@ -97,54 +173,41 @@ async function sendReminderEmail(daysBefore) {
   const users = await userModel.find({ joining_date: formattedDate });
 
   users.forEach(async (user) => {
+    const targetDate = new Date(user.joining_date);
+    targetDate.setDate(targetDate.getDate() - daysBefore);
+
+    const targetYear = targetDate.getFullYear();
+    const targetMonth = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const targetDay = String(targetDate.getDate()).padStart(2, '0');
+    // const formattedTargetDate = `${targetDay}-${targetMonth}-${targetYear}`;
+    const formattedTargetDate = targetDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
 
     const templatePath = path.join(__dirname, `emailtemp${daysBefore}.ejs`);
     const template = await fs.promises.readFile(templatePath, "utf-8");
     const name = user.user_name;
-    const html = ejs.render(template, { name });
-
-    /* dynamic email temp code start */
-    // let contentList = await emailTempModel.findOne({ email_for_id: '65be340cad52cfd11fa27e50', send_email: true })
-
-    // const filledEmailContent = contentList.email_content.replace("{{user_name}}", user.user_name);
-
-    // const html = filledEmailContent;
-
-    // let mailOptions = {
-    //   from: "onboarding@creativefuel.io",
-    //   to: user.user_email_id,
-    //   subject:
-    //     daysBefore === 0
-    //       ? contentList.email_sub
-    //       : daysBefore === 1
-    //         ? contentList.email_sub
-    //         : daysBefore === 2
-    //           ? contentList.email_sub
-    //           : daysBefore === 3
-    //             ? contentList.email_sub
-    //             : "Your Joining Date is Approaching",
-    //   html: html
-    // };
-    /* dynamic email temp code end */
+    const html = ejs.render(template, { name, formattedTargetDate });
 
     let mailOptions = {
       from: "onboarding@creativefuel.io",
-
       to: user.user_email_id,
       subject:
         daysBefore === 0
-          ? "Welcome to CreativeFuel! It's almost time."
+          ? `⏰ Today's the Day! 🚀 Welcome to Creativefuel, ${name}!`
           : daysBefore === 1
-            ? "See you tomorrow! With love, CF"
+            ? "⏳ 1 Day Left! Get Ready to Rock with CF! 🎉"
             : daysBefore === 2
-              ? "Have you geared up yet? #2daystogo!"
+              ? "Two Days and Counting: Memes, Magic, and You at Creativefuel! 🌟"
               : daysBefore === 3
-                ? "the countdown begins! #3daystogo!"
+                ? "Meme Magic in 3 Days: Your First Day is 3 Days Away! 🌟"
                 : "Your Joining Date is Approaching",
       html: html
     };
+
     transporter.sendMail(mailOptions, (error, info) => {
-      console.log("info", info);
       if (error) {
         console.log('Error sending email:', error);
       } else {
@@ -198,4 +261,100 @@ async function sendEmail(daysBefore) {
       }
     });
   });
+}
+
+async function sendBirthdayEmail() {
+  try {
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate());
+
+    const month = currentDate.getMonth() + 1;
+    const day = currentDate.getDate();
+
+    const users = await userModel.find({
+      $expr: {
+        $and: [
+          { $eq: [{ $dayOfMonth: "$DOB" }, day] },
+          { $eq: [{ $month: "$DOB" }, month] }
+        ]
+      }
+    });
+
+    for (const user of users) {
+      const templatePath = path.join(__dirname, "birthdayemailtemp.ejs");
+      const template = await fs.promises.readFile(templatePath, "utf-8");
+      const name = user.user_name;
+      const html = ejs.render(template, { name });
+
+      const mailOptions = {
+        from: "onboarding@creativefuel.io",
+        to: user.user_email_id,
+        subject: `Celebrating Your Special Day, ${name} !`,
+        html: html
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log('Error sending email:', error);
+        } else {
+          console.log('Birthday email sent:', info.response);
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error in sendBirthdayEmail:', error);
+  }
+}
+
+async function sendWorkAnniversaryEmail() {
+  try {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentDay = currentDate.getDate();
+
+    const users = await userModel.find({
+      $expr: {
+        $and: [
+          { $eq: [{ $dayOfMonth: "$joining_date" }, currentDay] },
+          { $eq: [{ $month: "$joining_date" }, currentMonth] }
+        ]
+      }
+    });
+
+    function getOrdinalSuffix(year) {
+      const suffixes = ["th", "st", "nd", "rd"];
+      const v = year % 100;
+      return year + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
+    }
+
+    for (const user of users) {
+      const joiningYear = user.joining_date.getFullYear();
+      const workAnniversaryYears = currentYear - joiningYear;
+
+      const workAnniversaryString = getOrdinalSuffix(workAnniversaryYears);
+
+      const templatePath = path.join(__dirname, "workAnniversaryemailtemp.ejs");
+      const template = await fs.promises.readFile(templatePath, "utf-8");
+      const name = user.user_name;
+      const html = ejs.render(template, { name, workAnniversaryYears: workAnniversaryString });
+
+      const mailOptions = {
+        from: "onboarding@creativefuel.io",
+        to: user.user_email_id,
+        subject: `Creativefuel Congratulates ${name} on  ${workAnniversaryString} Work Anniversary`,
+        html: html
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log('Error sending email:', error);
+        } else {
+          console.log('Work anniversary email sent:', info.response);
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error in sendWorkAnniversaryEmail:', error);
+  }
 }
