@@ -618,7 +618,7 @@ exports.addAttendance = async (req, res) => {
 
         let filteredUserData = check2.map(user => {
           const attendance = attendanceData.find(data => data.user_id === user.user_id);
-          console.log("attendance", attendance)
+          // console.log("attendance", attendance)
           if (attendance) {
             return { ...user.toObject(), ...attendance };
           } else {
@@ -698,13 +698,14 @@ exports.addAttendance = async (req, res) => {
 
                 const perdaysal = user.salary / lastDate;
 
-                const totalSalary = perdaysal * presentDays;
+                const totalSalary = (perdaysal * presentDays).toFixed(2);
+                console.log("ffffffffffffff", totalSalary);
 
                 const Bonus = bonus == undefined ? 0 : req.body.bonus;
 
                 const netSalary = totalSalary + Bonus;
 
-                const tdsDeduction = 0;
+                const tdsDeduction = (user.salary) * (user.tds_per) / 100;
 
                 const ToPay = netSalary - tdsDeduction;
                 const salary = user.salary;
@@ -812,15 +813,17 @@ exports.addAttendance = async (req, res) => {
 
         const presentDays = lastDate;
         // console.log("presentDays", presentDays);
-        const perdaysal = Math.round(results4[0].salary / lastDate);
+        // const perdaysal = Math.round(results4[0].salary / lastDate);
+        const perdaysal = (results4[0].salary / lastDate);
         // console.log("perdaysal", perdaysal);
         const Bonus = bonus == undefined ? 0 : req.body.bonus;
-        const totalSalary = (perdaysal * work_days) + Bonus;
+        const totalSalary = ((perdaysal * work_days) + Bonus).toFixed(2);
+        console.log("ddddd", totalSalary);
         // console.log("totalSalary", totalSalary);
         // console.log("Bonus", Bonus);
         const netSalary = totalSalary - salaryDeduction;
         // console.log("netSalary", netSalary);
-        const tdsDeduction = 0;
+        const tdsDeduction = (results4[0].salary) * (results4[0].tds_per) / 100;
         const ToPay = netSalary - tdsDeduction;
         // console.log("ToPay", ToPay);
         const salary = results4[0].salary;

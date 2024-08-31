@@ -114,6 +114,8 @@ exports.addObjectMast = async (req, res) => {
 
     await deptDesiAuthModel.insertMany(userDestDesiAuthDocuments);
 
+    console.log("dddddddddddd", userDestDesiAuthDocuments);
+
     res.send({
       data: savedObjectMast,
       status: 200,
