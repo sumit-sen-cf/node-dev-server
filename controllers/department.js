@@ -11,6 +11,7 @@ exports.addDepartment = async (req, res) => {
     }
     const simc = new departmentModel({
       dept_name: req.body.dept_name,
+      m_dept_id: req.body.m_dept_id,
       short_name: req.body.short_name,
       Remarks: req.body.remark,
       Created_by: req.body.Created_by,
@@ -47,6 +48,20 @@ exports.getDepartments = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "majordepartmentmodels",
+          localField: "m_dept_id",
+          foreignField: "m_dept_id",
+          as: "majorData",
+        },
+      },
+      {
+        $unwind: {
+          path: "$majorData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $project: {
           _id: 1,
           dept_id: 1,
@@ -54,6 +69,8 @@ exports.getDepartments = async (req, res) => {
           short_name: 1,
           Remarks: 1,
           Created_by: 1,
+          m_dept_id: 1,
+          major_dept_name: '$majorData.m_dept_name',
           created_by_name: "$userData.user_name",
           Last_updated_by: 1,
           Last_updated_date: 1,
@@ -105,6 +122,7 @@ exports.editDepartment = async (req, res) => {
       {
         dept_name: req.body.dept_name,
         short_name: req.body.short_name,
+        m_dept_id: req.body.m_dept_id,
         Remarks: req.body.remark,
         Created_by: req.body.Created_by,
         Last_updated_by: req.body.Last_updated_by,
@@ -176,13 +194,13 @@ exports.deleteDepartment = async (req, res) => {
 
 exports.addSubDepartment = async (req, res) => {
   try {
-    const checkDuplicacy = await subDepartmentModel.findOne({ sub_dept_name: req.body.sub_dept_name })
-    if (checkDuplicacy) {
-      return res.status(409).send({
-        data: [],
-        message: "Sub department name already exist",
-      });
-    }
+    // const checkDuplicacy = await subDepartmentModel.findOne({ sub_dept_name: req.body.sub_dept_name })
+    // if (checkDuplicacy) {
+    //   return res.status(409).send({
+    //     data: [],
+    //     message: "Sub department name already exist",
+    //   });
+    // }
     const simc = new subDepartmentModel({
       sub_dept_name: req.body.sub_dept_name,
       dept_id: req.body.dept_id,
@@ -205,13 +223,13 @@ exports.addSubDepartment = async (req, res) => {
 
 exports.editSubDepartment = async (req, res) => {
   try {
-    const checkDuplicacy = await subDepartmentModel.findOne({ sub_dept_name: req.body.sub_dept_name })
-    if (checkDuplicacy) {
-      return res.status(409).send({
-        data: [],
-        message: "Sub department name already exist",
-      });
-    }
+    // const checkDuplicacy = await subDepartmentModel.findOne({ sub_dept_name: req.body.sub_dept_name })
+    // if (checkDuplicacy) {
+    //   return res.status(409).send({
+    //     data: [],
+    //     message: "Sub department name already exist",
+    //   });
+    // }
     const editsim = await subDepartmentModel.findOneAndUpdate(
       { id: req.body.id },
       {
