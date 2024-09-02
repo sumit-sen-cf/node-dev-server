@@ -2,6 +2,7 @@ const constant = require("../../common/constant");
 const response = require("../../common/response");
 const vari = require("../../variables.js");
 const { storage } = require('../../common/uploadFile.js');
+const { saleBookingStatus } = require('../../helper/status.js');
 const accountMasterModel = require("../../models/accounts/accountMasterModel.js");
 const salesBookingModel = require("../../models/Sales/salesBookingModel.js");
 const paymentUpdateModel = require("../../models/Sales/paymentUpdateModel.js");
@@ -300,6 +301,39 @@ exports.financeDashboardCounts = async (req, res) => {
             res,
             "Finance Dashboard Api Counts retrive Successfully",
             financeDataCountsObj,
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+/**
+ * Api is to used for get top 20 account list data.
+ */
+exports.getSaleBookingStatusList = async (req, res) => {
+    try {
+        let dataResponse = [
+            saleBookingStatus['01'],
+            saleBookingStatus['02'],
+            saleBookingStatus['03'],
+            saleBookingStatus['04'],
+            saleBookingStatus['05'],
+            saleBookingStatus['06'],
+            saleBookingStatus['07'],
+            saleBookingStatus['08'],
+            saleBookingStatus['09'],
+            saleBookingStatus['10'],
+            saleBookingStatus['11'],
+            saleBookingStatus['12'],
+            saleBookingStatus['13']
+        ]
+        // Return a success response
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Sale Booking Status List retrieved successfully!",
+            dataResponse,
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});

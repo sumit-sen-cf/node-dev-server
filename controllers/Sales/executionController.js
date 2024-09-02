@@ -26,6 +26,18 @@ exports.createExecution = async (req, res) => {
             }
         });
 
+        //if the record service not found then return data
+        if (recordServiceDetail.length == 0) {
+            //Return a success response
+            return response.returnFalse(
+                400,
+                req,
+                res,
+                "Record Service Data Not Found.",
+                {}
+            );
+        }
+
         let exeDataArray = [];
         for (const element of recordServiceDetail) {
             const randomNumber = Math.floor(1000000 + Math.random() * 90000);
