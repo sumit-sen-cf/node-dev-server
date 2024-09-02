@@ -138,6 +138,9 @@ const dynamicTablesModel = require("./controllers/dynamicTables.js");
 const adminController = require('./controllers/adminController.js')
 const planMakingController = require('./controllers/planMakingController.js')
 
+
+const majorDepartmentController = require("./controllers/majorDepartment.js");
+
 /* Task Mangement Controller Import */
 //const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
 const { createTmsCatMast, getTmsCatMast, updateTmsCatMast, deleteTmsCatMast, getAllTmsCatMast } = require("./controllers/TMS/tmsCatMastController.js");
@@ -447,6 +450,14 @@ router.get(
 router.delete("/delete_designation/:desi_id", designation.deleteDesignation); //Done
 router.get("/get_all_designations", designation.getDesignations); //Done
 router.get("/get_all_designation/:sub_dept_id", designation.getAllDesignationBySubDeptID);
+
+
+/* Major Department */
+router.post("/add_major_department", majorDepartmentController.addMajorDepartment);
+router.get("/get_all_major_departments", majorDepartmentController.getMajorDepartments);
+router.get("/get_single_major_department/:id", majorDepartmentController.getSingleMajorDepartment);
+router.put("/edit_major_department", majorDepartmentController.editMajorDepartment);
+router.delete("/delete_major_department/:id", majorDepartmentController.deleteMajorDepartment);
 
 //brand routes
 router.post("/add_brand", brand.addBrand);
@@ -1617,7 +1628,7 @@ router.get('/total_count_data', dataController.totalCountOfData);
 
 //deptDesiAuth routes
 router.post("/add_dept_desi_auth", deptDesiAuth.addDeptDesiAuth);
-router.get("/get_single_desi_dept_auth/:desi_id", deptDesiAuth.getSingleDeptDesiAuthDetail);
+router.get("/get_single_desi_dept_auth/:dept_id", deptDesiAuth.getSingleDeptDesiAuthDetail);
 router.put("/update_dept_desi_auth", deptDesiAuth.updateDeptDesiAuth);
 
 router.get("/get_single_desi_dept_auth_count", deptDesiAuth.getListDeptDesiAuthData);
