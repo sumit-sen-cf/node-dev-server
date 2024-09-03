@@ -36,7 +36,6 @@ const invoiceRequestRoutes = require("./Sales/invoiceRequestRoutes");
 const incentiveRequestRoutes = require("./Sales/incentiveRequestRoutes");
 const financeSalesRoutes = require("./Sales/financeSalesRoutes");
 const dashboardRoutes = require("./Sales/dashboardRoutes");
-const targetCompetitionRoutes = require("./Sales/targetCompetitionRoutes");
 const blogCategoryRoutes = require("./sarcasm_co/blogCategoryRoutes");
 const blogImagesRoutes = require("./sarcasm_co/blogImagesRoutes");
 const blogRoutes = require("./sarcasm_co/blogRoutes");
