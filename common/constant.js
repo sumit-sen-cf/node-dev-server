@@ -53,4 +53,7 @@ module.exports = Object.freeze({
   CONST_SUMIT_MAIL: "sumit@creativefuel.io",
   CONST_MAIL_PASS_FOR_ALERT: "absolwvkdihbvahf",
 
+    //@2 Formates for sarcasm image
+    CONST_SARCASM_FOLDER : "sarcasm_co",
+    CONST_IMAGE_FORMATE : ".jpeg",
 });
