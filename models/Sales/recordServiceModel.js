@@ -24,7 +24,7 @@ const recordServiceMaster = new Schema({
     // },
     amount: {
         type: Number,
-        required: false
+        required: true
     },
     no_of_hours: {
         type: Number,

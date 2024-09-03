@@ -24,7 +24,7 @@ exports.addAccountDetails = [
         try {
             //body data get for add in db
             const { account_name, account_type_id, company_type_id, category_id, description,
-                account_owner_id, website, turn_over, brand_id, created_by,
+                account_owner_id, website, turn_over, brand_id, created_by, is_rewards_sent,
                 how_many_offices, connect_billing_street, connect_billing_city,
                 connect_billing_state, connect_billing_country, connect_billing_pin_code, head_billing_street,
                 head_billing_city, head_billing_state, head_billing_country, head_billing_pin_code, company_email,
@@ -58,6 +58,7 @@ exports.addAccountDetails = [
                 turn_over: turn_over,
                 description: description,
                 company_email: company_email,
+                is_rewards_sent: is_rewards_sent,
                 created_by: created_by
             })
 
@@ -153,7 +154,7 @@ exports.editAccountDetails = [
 
             //get data from the body
             const { account_name, account_type_id, company_type_id, category_id, description,
-                account_owner_id, website, turn_over, brand_id, updated_by,
+                account_owner_id, website, turn_over, brand_id, updated_by, is_rewards_sent,
                 how_many_offices, connect_billing_street, connect_billing_city,
                 connect_billing_state, connect_billing_country, connect_billing_pin_code, head_billing_street,
                 head_billing_city, head_billing_state, head_billing_country, head_billing_pin_code, company_email,
@@ -181,6 +182,7 @@ exports.editAccountDetails = [
                     turn_over: turn_over,
                     description: description,
                     company_email: company_email,
+                    is_rewards_sent: is_rewards_sent,
                     updated_by: updated_by
                 }
             }, {
@@ -440,6 +442,7 @@ exports.getAllAccountDetails = async (req, res) => {
                 website: { $first: "$website" },
                 turn_over: { $first: "$turn_over" },
                 description: { $first: "$description" },
+                is_rewards_sent: { $first: "$is_rewards_sent" },
                 created_by: { $first: "$created_by" },
                 created_by_name: { $first: "$userData.user_name" },
                 updated_by: { $first: "$updated_by" },
@@ -480,6 +483,7 @@ exports.getAllAccountDetails = async (req, res) => {
                 website: 1,
                 turn_over: 1,
                 description: 1,
+                is_rewards_sent: 1,
                 created_by: 1,
                 created_by_name: 1,
                 updated_by: 1,

@@ -60,6 +60,11 @@ const accountMasterSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    is_rewards_sent: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
     created_by: {
         type: Number,
         required: true,
