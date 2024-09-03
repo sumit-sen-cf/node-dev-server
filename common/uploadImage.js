@@ -27,6 +27,28 @@ const uploadImage = (file, folder) => {
     });
 };
 
+// Function to upload image to Google Cloud Storage
+const uploadImageWithAdjustedFileName = (fileName, file, folder) => {
+    return new Promise((resolve, reject) => {
+        if (fileName) {
+            return resolve(null);
+        }
+
+        const blob = bucket.file(`${folder}/${fileName}`);
+        const blobStream = blob.createWriteStream();
+
+        blobStream.on('error', (err) => {
+            reject(err);
+        });
+
+        blobStream.on('finish', () => {
+            resolve(fileName);
+        });
+
+        blobStream.end(file.buffer);
+    });
+};
+
 
 // Function to delete image from Google Cloud Storage
 const deleteImage = (filePath) => {
@@ -57,4 +79,4 @@ const moveImage = (soureceFolder, designationFolder, fileName) => {
     });
 };
 
-module.exports = { uploadImage, deleteImage, moveImage };
+module.exports = { uploadImage, deleteImage, moveImage, uploadImageWithAdjustedFileName };

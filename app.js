@@ -15,7 +15,7 @@ const cron = require("./common/cronjob.js");
 const path = require("path");
 const requireDirectory = require('require-directory');
 const { registerRoutes } = require("./helper/helper.js");
-const { routeModulesV1, routeModules } = require("./routes/routeModule.js");
+const { routeModulesV1, routeModules,routeModulesV1SarcasmCo } = require("./routes/routeModule.js");
 const { restrictIPMiddleware } = require("./middleware/ipAuthMiddleware.js");
 require("./controllers/autoMail.js");
 require("./controllers/assetAutoMail.js");
@@ -45,6 +45,7 @@ app.use("/api", routes);
 // New Version Route Configuration
 registerRoutes(app, "/api/", routeModules);
 registerRoutes(app, "/api/v1", routeModulesV1);
+registerRoutes(app, "/api/v1/sarcasm", routeModulesV1SarcasmCo);
 // End
 
 // app.get('/*', function (req, res) {

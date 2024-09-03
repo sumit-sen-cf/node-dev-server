@@ -36,6 +36,9 @@ const invoiceRequestRoutes = require("./Sales/invoiceRequestRoutes");
 const incentiveRequestRoutes = require("./Sales/incentiveRequestRoutes");
 const financeSalesRoutes = require("./Sales/financeSalesRoutes");
 const dashboardRoutes = require("./Sales/dashboardRoutes");
+const blogCategoryRoutes = require("./sarcasm_co/blogCategoryRoutes");
+const blogImagesRoutes = require("./sarcasm_co/blogImagesRoutes");
+const blogRoutes = require("./sarcasm_co/blogRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -58,6 +61,13 @@ exports.routeModulesV1 = [
     bankNameRoutes,
     companyDetailsRoutes,
     documentDetailsRoutes,
+];
+
+//used for the http://localhost:8080/api/v1/sarcasm/end-point
+exports.routeModulesV1SarcasmCo = [
+    blogCategoryRoutes,
+    blogImagesRoutes,
+    blogRoutes
 ];
 
 //used for the http://localhost:8080/api/end-points
