@@ -28,7 +28,7 @@ const workAnniversary = schedule.scheduleJob('0 0 * * *', async () => {
   sendWorkAnniversaryEmail();
 })
 
-const job0Days = schedule.scheduleJob('* * * * *', async () => {
+const job0Days = schedule.scheduleJob('0 0 * * *', async () => {
   sendReminderEmail(0);
   // sendWhatsappSms(0);
 });
