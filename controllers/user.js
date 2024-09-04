@@ -127,6 +127,10 @@ exports.addUser = [upload, async (req, res) => {
             permanent_state: req.body?.permanent_state,
             permanent_address: req.body?.permanent_address,
             user_status: req.body?.user_status,
+            current_address: req.body.current_address,
+            current_city: req.body.current_city,
+            current_state: req.body.current_state,
+            current_pin_code: req.body.current_pin_code,
             emergency_contact_person_name2: req.body.emergency_contact_person_name2
         })
 
