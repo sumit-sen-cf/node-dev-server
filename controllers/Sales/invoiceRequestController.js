@@ -320,6 +320,7 @@ exports.getInvoiceRequestDataList = async (req, res) => {
                     campaign_name: "$saleData.campaign_name",
                     sale_booking_date: "$saleData.sale_booking_date",
                     invoice_requested_date: "$saleData.invoice_requested_date",
+                    account_id: "$saleData.account_id",
                     account_name: "$accountData.account_name",
                     invoice_particular_name: "$invoiceData.invoice_particular_name",
                     campaign_amount: "$saleData.campaign_amount",

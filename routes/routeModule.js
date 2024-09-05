@@ -36,6 +36,7 @@ const invoiceRequestRoutes = require("./Sales/invoiceRequestRoutes");
 const incentiveRequestRoutes = require("./Sales/incentiveRequestRoutes");
 const financeSalesRoutes = require("./Sales/financeSalesRoutes");
 const dashboardRoutes = require("./Sales/dashboardRoutes");
+const targetCompetitionRoutes = require("./Sales/targetCompetitionRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -80,6 +81,7 @@ exports.routeModules = [
     invoiceRequestRoutes,
     incentiveRequestRoutes,
     financeSalesRoutes,
-    dashboardRoutes
+    dashboardRoutes,
+    targetCompetitionRoutes
 ];
 
