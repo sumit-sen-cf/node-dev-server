@@ -98,11 +98,17 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
     try {
         // Get the current date
         const currentDate = new Date();
+        // Check if the environment is local or server
+        const isLocal = vari.NODE_ENV === 'development'; // Assuming 'development' is local
+        console.log("🚀 ~ isLocal:", isLocal);
+        // Set the day based on the environment (1st locally, 2nd on server)
+        const startDay = isLocal ? 1 : 2;
+        console.log("🚀 ~ startDay:", startDay);
 
         // Function to get the start and end dates of a week (Monday to Sunday)
         const getWeekRange = (date, offset = 0) => {
             const startOfWeek = new Date(date);
-            startOfWeek.setDate(date.getDate() - date.getDay() + 1 + offset * 7); // Monday
+            startOfWeek.setDate(date.getDate() - date.getDay() + startDay + offset * 7); // Adjust for local or server
             startOfWeek.setHours(0, 0, 0, 0);
             const endOfWeek = new Date(startOfWeek);
             endOfWeek.setDate(startOfWeek.getDate() + 5); // Sunday
@@ -112,7 +118,7 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
 
         // Function to get the start and end dates of a month
         const getMonthRange = (date, offset = 0) => {
-            const startOfMonth = new Date(date.getFullYear(), date.getMonth() + offset, 2);
+            const startOfMonth = new Date(date.getFullYear(), date.getMonth() + offset, startDay);
             startOfMonth.setHours(0, 0, 0, 0);
             const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1 + offset, 0);
             endOfMonth.setHours(23, 59, 59, 999);
@@ -122,7 +128,7 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
         // Function to get the start and end dates of a quarter
         const getQuarterRange = (date, offset = 0) => {
             const quarter = Math.floor((date.getMonth() / 3)) + offset;
-            const startOfQuarter = new Date(date.getFullYear(), quarter * 3, 2);
+            const startOfQuarter = new Date(date.getFullYear(), quarter * 3, startDay);
             startOfQuarter.setHours(0, 0, 0, 0);
             const endOfQuarter = new Date(date.getFullYear(), quarter * 3 + 3, 0);
             endOfQuarter.setHours(23, 59, 59, 999);
