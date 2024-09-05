@@ -40,9 +40,6 @@ const blogCategoryRoutes = require("./sarcasm_co/blogCategoryRoutes");
 const blogImagesRoutes = require("./sarcasm_co/blogImagesRoutes");
 const blogRoutes = require("./sarcasm_co/blogRoutes");
 const targetCompetitionRoutes = require("./Sales/targetCompetitionRoutes");
-const blogCategoryRoutes = require("./sarcasm_co/blogCategoryRoutes");
-const blogImagesRoutes = require("./sarcasm_co/blogImagesRoutes");
-const blogRoutes = require("./sarcasm_co/blogRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
