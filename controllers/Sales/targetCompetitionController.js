@@ -65,7 +65,7 @@ exports.updateTargetCompetition = async (req, res) => {
     try {
         // Extract the id from request parameters
         const { id } = req.params;
-        const { competition_name, start_date, end_date, target_amount, updated_by } = req.body;
+        const { competition_name, start_date, end_date, target_amount, status, updated_by } = req.body;
 
         const targetCompetitionUpdated = await targetCompetitionModel.findByIdAndUpdate({
             _id: id
@@ -75,6 +75,7 @@ exports.updateTargetCompetition = async (req, res) => {
                 start_date: start_date,
                 end_date: end_date,
                 target_amount: target_amount,
+                status: status,
                 updated_by: updated_by
             },
         }, {

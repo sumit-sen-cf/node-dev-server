@@ -12,6 +12,9 @@ router.get("/sales/weekly_monthly_quarterly_list/", verifyToken, dashboardContro
 //finance dashboard counts
 router.get("/sales/finance_dashboard_counts/", verifyToken, dashboardController.financeDashboardCounts);
 
+//Date Range wise total sale booking amount list for the competition
+router.get("/sales/date_range_total_sale_amount/", verifyToken, dashboardController.getdateRangeTotalSaleAmountData);
+
 //sale booking status list
 router.get("/sales/sale_booking_status_list/", verifyToken, dashboardController.getSaleBookingStatusList);
 

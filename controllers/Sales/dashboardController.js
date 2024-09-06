@@ -98,11 +98,12 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
     try {
         // Get the current date
         const currentDate = new Date();
+
         // Check if the environment is local or server
         const isLocal = vari.NODE_ENV === 'development'; // Assuming 'development' is local
         console.log("🚀 ~ isLocal:", isLocal);
         // Set the day based on the environment (1st locally, 2nd on server)
-        const startDay = isLocal ? 1 : 2;
+        const startDay = isLocal ? 0 : 1;
         console.log("🚀 ~ startDay:", startDay);
 
         // Function to get the start and end dates of a week (Monday to Sunday)
@@ -111,7 +112,7 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
             startOfWeek.setDate(date.getDate() - date.getDay() + startDay + offset * 7); // Adjust for local or server
             startOfWeek.setHours(0, 0, 0, 0);
             const endOfWeek = new Date(startOfWeek);
-            endOfWeek.setDate(startOfWeek.getDate() + 5); // Sunday
+            endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
             endOfWeek.setHours(23, 59, 59, 999);
             return { startOfWeek, endOfWeek };
         };
@@ -307,6 +308,93 @@ exports.financeDashboardCounts = async (req, res) => {
             res,
             "Finance Dashboard Api Counts retrive Successfully",
             financeDataCountsObj,
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+/**
+ * Api is to used for date range sale booking data.
+ */
+exports.getdateRangeTotalSaleAmountData = async (req, res) => {
+    try {
+        //get date from the query
+        let startDate = req.query.startDate; //"2024-08-15"
+        let endDate = req.query.endDate; //"2024-10-19"
+
+        // Prepare the match query
+        let matchCondition = {
+            createdAt: {
+                $gte: new Date(startDate), // start date
+                $lte: new Date(endDate)  // end date
+            }
+        }
+        // if (req.query?.userId && req.query?.isAdmin == ("false" || false)) {
+        //     matchCondition["created_by"] = Number(req.query.userId);
+        // }
+        //date range sale booking with campaign amount wise.
+        const dateRangeWiseSaleBookingData = await salesBookingModel.aggregate([{
+            $match: matchCondition
+        }, {
+            $group: {
+                _id: '$created_by',
+                campaignAmount: {
+                    $sum: '$campaign_amount'
+                },
+                totalSaleBookingCounts: {
+                    $sum: 1
+                },
+                created_by: {
+                    $first: '$created_by'
+                }
+            }
+        }, {
+            $sort: {
+                campaignAmount: -1
+            }
+        }, {
+            $lookup: {
+                from: 'usermodels',
+                localField: 'created_by',
+                foreignField: 'user_id',
+                as: 'userData'
+            }
+        }, {
+            $unwind: '$userData'
+        }, {
+            $project: {
+                _id: 0,
+                sales_executive_id: '$created_by',
+                sales_executive_name: '$userData.user_name',
+                campaignAmount: 1,
+                totalSaleBookingCounts: 1,
+            }
+        }, {
+            $group: {
+                _id: null,
+                totalCampaignAmount: { $sum: "$campaignAmount" },
+                userWiseData: { $push: "$$ROOT" },
+            }
+        }, {
+            $project: {
+                _id: 0,
+                totalCampaignAmount: 1,
+                userWiseData: 1,
+            }
+        }]);
+
+        // If no data are found, return a response indicating no data found
+        if (dateRangeWiseSaleBookingData.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
+        }
+        // Return a success response
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Date Range Sale Booking Amount Data retrieved successfully!",
+            dateRangeWiseSaleBookingData,
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
