@@ -921,6 +921,7 @@ router.post(
   upload.single("attachment"),
   user.sendMailAllWfoUser
 );
+router.post("/send_mail_for_extend_joining_date", user.sendUserMailForJoiningDayExtension);
 router.get("/get_all_wfh_users", user.getAllWfhUsers);
 router.get("/get_all_login_history", user.getLoginHistory);
 router.post("/get_user_pre_sitting", user.getUserPresitting);
