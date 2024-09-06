@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Request for Joining Date Extension</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            text-align: center;
+        }
+        p {
+            margin: 10px 0;
+        }
+        .details {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #3498db;
+        }
+        .details p {
+            margin: 5px 0;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p>Dear HR,</p>
+        <p>I am writing to request an extension of my joining date at Creativefuel. Due to <strong><%= joining_date_extend_reason %></strong>, I am unable to start on the originally agreed date of <strong><%= joining_date %></strong>.</p>
+
+        <p>I would like to propose a new joining date of <strong><%= joining_date_extend %></strong>. I assure you that this request is made after careful consideration of my current situation and is intended to ensure that I am fully prepared and committed when I begin my role.</p>
+
+        <div class="details">
+            <p><strong>Current Joining Date:</strong> <%= joining_date %></p>
+            <p><strong>Proposed New Joining Date:</strong> <%= joining_date_extend %></p>
+            <p><strong>Reason for Extension:</strong> <%= joining_date_extend_reason %></p>
+        </div>
+
+        <p>I understand the potential impact of this request and am more than willing to discuss any adjustments or additional information you may require. Please let me know if there are any specific forms or procedures I need to follow to formalize this request within the HRMS system.</p>
+
+        <p>I am very excited about joining Creativefuel and am committed to making a positive contribution to the team. Thank you for considering my request, and I appreciate your understanding and flexibility.</p>
+
+        <p>Looking forward to your response.</p>
+
+        <p>Best regards,</p>
+        <p><%= name %></p>
+
+        <div class="footer">
+            <p>Creativefuel | HR Department</p>
+        </div>
+    </div>
+</body>
+</html>

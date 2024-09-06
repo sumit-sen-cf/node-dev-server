@@ -4949,3 +4949,40 @@ exports.updateTraining = async (req, res) => {
         });
     }
 }
+
+exports.sendUserMailForJoiningDayExtension = async (req, res) => {
+    try {
+        const { email, name, joining_date, joining_date_extend, joining_date_extend_reason } = req.body;
+
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: "onboarding@creativefuel.io",
+                pass: "qtttmxappybgjbhp",
+            },
+        });
+
+        const templatePath = path.join(__dirname, "joiningdayextentemp.ejs");
+        const template = await fs.promises.readFile(templatePath, "utf-8");
+        const html = ejs.render(template, { name, joining_date, joining_date_extend, joining_date_extend_reason });
+
+        let mailOptions = {
+            from: email,
+            to: "onboarding@creativefuel.io",
+            subject: "Request for Joining Date Extension",
+            html: html,
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log('Error sending email:', error);
+                res.status(500).send({ error: 'Error sending email', sms: 'Error sending to email' });
+            } else {
+                console.log('Reminder email sent:', info.response);
+                res.status(200).send({ message: 'Email sent successfully', info: info.response });
+            }
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message, sms: 'Error sending to email' });
+    }
+};
