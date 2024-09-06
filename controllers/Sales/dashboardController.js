@@ -98,11 +98,12 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
     try {
         // Get the current date
         const currentDate = new Date();
+
         // Check if the environment is local or server
         const isLocal = vari.NODE_ENV === 'development'; // Assuming 'development' is local
         console.log("🚀 ~ isLocal:", isLocal);
         // Set the day based on the environment (1st locally, 2nd on server)
-        const startDay = isLocal ? 1 : 2;
+        const startDay = isLocal ? 0 : 1;
         console.log("🚀 ~ startDay:", startDay);
 
         // Function to get the start and end dates of a week (Monday to Sunday)
@@ -111,7 +112,7 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
             startOfWeek.setDate(date.getDate() - date.getDay() + startDay + offset * 7); // Adjust for local or server
             startOfWeek.setHours(0, 0, 0, 0);
             const endOfWeek = new Date(startOfWeek);
-            endOfWeek.setDate(startOfWeek.getDate() + 5); // Sunday
+            endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
             endOfWeek.setHours(23, 59, 59, 999);
             return { startOfWeek, endOfWeek };
         };
