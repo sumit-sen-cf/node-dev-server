@@ -315,6 +315,93 @@ exports.financeDashboardCounts = async (req, res) => {
 };
 
 /**
+ * Api is to used for date range sale booking data.
+ */
+exports.getdateRangeTotalSaleAmountData = async (req, res) => {
+    try {
+        //get date from the query
+        let startDate = req.query.startDate; //"2024-08-15"
+        let endDate = req.query.endDate; //"2024-10-19"
+
+        // Prepare the match query
+        let matchCondition = {
+            createdAt: {
+                $gte: new Date(startDate), // start date
+                $lte: new Date(endDate)  // end date
+            }
+        }
+        // if (req.query?.userId && req.query?.isAdmin == ("false" || false)) {
+        //     matchCondition["created_by"] = Number(req.query.userId);
+        // }
+        //date range sale booking with campaign amount wise.
+        const dateRangeWiseSaleBookingData = await salesBookingModel.aggregate([{
+            $match: matchCondition
+        }, {
+            $group: {
+                _id: '$created_by',
+                campaignAmount: {
+                    $sum: '$campaign_amount'
+                },
+                totalSaleBookingCounts: {
+                    $sum: 1
+                },
+                created_by: {
+                    $first: '$created_by'
+                }
+            }
+        }, {
+            $sort: {
+                campaignAmount: -1
+            }
+        }, {
+            $lookup: {
+                from: 'usermodels',
+                localField: 'created_by',
+                foreignField: 'user_id',
+                as: 'userData'
+            }
+        }, {
+            $unwind: '$userData'
+        }, {
+            $project: {
+                _id: 0,
+                sales_executive_id: '$created_by',
+                sales_executive_name: '$userData.user_name',
+                campaignAmount: 1,
+                totalSaleBookingCounts: 1,
+            }
+        }, {
+            $group: {
+                _id: null,
+                totalCampaignAmount: { $sum: "$campaignAmount" },
+                userWiseData: { $push: "$$ROOT" },
+            }
+        }, {
+            $project: {
+                _id: 0,
+                totalCampaignAmount: 1,
+                userWiseData: 1,
+            }
+        }]);
+
+        // If no data are found, return a response indicating no data found
+        if (dateRangeWiseSaleBookingData.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
+        }
+        // Return a success response
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Date Range Sale Booking Amount Data retrieved successfully!",
+            dateRangeWiseSaleBookingData,
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+/**
  * Api is to used for get top 20 account list data.
  */
 exports.getSaleBookingStatusList = async (req, res) => {
