@@ -38,7 +38,9 @@ exports.addBlog = async (req, res) => {
     });
     if (req.files?.bannerImage) {
       const timestamp = Date.now();
-      const fileNamePrefix = req.files?.bannerImage[0].originalname.slice(0, 5).replace(/\s+/g, '');;
+      const fileNamePrefix = req.files?.bannerImage[0].originalname
+        .slice(0, 5)
+        .replace(/\s+/g, "");
       const adjustedFileName = `${timestamp}_${fileNamePrefix}${constant.CONST_IMAGE_FORMATE}`;
       let imageResult = await uploadImageWithAdjustedFileName(
         adjustedFileName,
@@ -60,7 +62,9 @@ exports.addBlog = async (req, res) => {
     if (req.files?.blog_images) {
       for (const file of req.files?.blog_images) {
         const timestamp = Date.now();
-        const fileNamePrefix = file.originalname.slice(0, 5).replace(/\s+/g, '');;
+        const fileNamePrefix = file.originalname
+          .slice(0, 5)
+          .replace(/\s+/g, "");
         const adjustedFileName = `${timestamp}_${fileNamePrefix}${constant.CONST_IMAGE_FORMATE}`;
         let imageResult = await uploadImageWithAdjustedFileName(
           adjustedFileName,
@@ -156,6 +160,42 @@ exports.getAllBlogDetails = async (req, res) => {
     return response.returnFalse(500, req, res, `${error.message}`, {});
   }
 };
+exports.getAllBlogByCategory = async (req, res) => {
+  try {
+    const data = await blogModel.aggregate([
+      {
+        $match: {
+          blogCategoryId: mongoose.Types.ObjectId(req.params.id),
+        },
+      },
+      {
+        $addFields: {
+          bannerImageUrl: {
+            $cond: {
+              if: { $ne: ["$bannerImage", ""] },
+              then: {
+                $concat: [constant.CONST_BLOG_IMAGES_URL, "$bannerImage"],
+              },
+              else: null,
+            },
+          },
+        },
+      },
+    ]);
+    if (data?.length <= 0) {
+      return response.returnFalse(200, req, res, `No Record Found`, []);
+    }
+    return response.returnTrue(
+      200,
+      req,
+      res,
+      "Successfully Fetch Details",
+      data
+    );
+  } catch (error) {
+    return response.returnFalse(500, req, res, `${error.message}`, {});
+  }
+};
 
 exports.updateSingleBlogDetails = async (req, res) => {
   try {
@@ -166,7 +206,9 @@ exports.updateSingleBlogDetails = async (req, res) => {
     }
     if (req.file) {
       const timestamp = Date.now();
-      const fileNamePrefix = req.file?.originalname.slice(0, 5).replace(/\s+/g, '');
+      const fileNamePrefix = req.file?.originalname
+        .slice(0, 5)
+        .replace(/\s+/g, "");
       const adjustedFileName = `${timestamp}_${fileNamePrefix}${constant.CONST_IMAGE_FORMATE}`;
       let imageResult = await uploadImageWithAdjustedFileName(
         adjustedFileName,
