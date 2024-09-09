@@ -18,4 +18,7 @@ router.get("/sales/date_range_total_sale_amount/", verifyToken, dashboardControl
 //sale booking status list
 router.get("/sales/sale_booking_status_list/", verifyToken, dashboardController.getSaleBookingStatusList);
 
+//sale booking Grid status count list
+router.get("/sales/sale_booking_grid_status_count_list/", verifyToken, dashboardController.getSaleBookingGridStatusCountList);
+
 module.exports = router; 
