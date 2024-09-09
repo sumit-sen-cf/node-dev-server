@@ -10,10 +10,10 @@ const {
 
 const router = express.Router();
 
-router.post("/blog-category", verifyToken, addBlogCategory);
-router.get("/blog-category", verifyToken, getAllBlogCategoryDetails);
-router.get("/blog-category/:id", verifyToken, getSingleBlogCategoryDetails);
-router.put("/blog-category/:id", verifyToken, updateSingleBlogCategoryDetails);
-router.delete("/blog-category/:id", verifyToken, deleteBlogCategoryDetails);
+router.post("/blog-category",  addBlogCategory);
+router.get("/blog-category", getAllBlogCategoryDetails);
+router.get("/blog-category/:id", getSingleBlogCategoryDetails);
+router.put("/blog-category/:id", updateSingleBlogCategoryDetails);
+router.delete("/blog-category/:id", deleteBlogCategoryDetails);
 
 module.exports = router;

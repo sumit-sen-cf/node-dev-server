@@ -1,4 +1,4 @@
-const vari = require("../variables")
+const vari = require("../variables");
 
 module.exports = Object.freeze({
   // base_url: vari.IMAGE_URL, //http://34.93.135.33:8080,
@@ -25,14 +25,13 @@ module.exports = Object.freeze({
   GCP_ACCOUNT_BRANDS_FOLDER_URL: `${vari.IMAGE_URL}AccountBrandFiles`,
   GCP_ACCOUNT_MASTER_FOLDER_URL: `${vari.IMAGE_URL}AccountMasterImages`,
 
-
   /* JWT  */
   SECRET_KEY_LOGIN: "thisissecret12",
   SECRET_KEY_DOC_LOGIN: "docloginsect1234d",
   CONST_VALIDATE_SESSION_EXPIRE_DOC: "1h",
-  CONST_SESSION_TIME_FOR_SWAGGER: 1500000,  //   1/2 hours
-  CONST_VALIDATE_SESSION_EXPIRE: '24h',
-  CONST_EMAIL_VERIFICATION_EXPIRED: '10m',
+  CONST_SESSION_TIME_FOR_SWAGGER: 1500000, //   1/2 hours
+  CONST_VALIDATE_SESSION_EXPIRE: "24h",
+  CONST_EMAIL_VERIFICATION_EXPIRED: "10m",
 
   /* Response messages */
 
@@ -43,17 +42,18 @@ module.exports = Object.freeze({
   FETCH_SUCCESSFULLY: "Data Updated Successfully...",
   NO_RECORD_FOUND: "No Record found...",
 
-  //@2 Model Status 
+  //@2 Model Status
   DELETED: 2,
   ACTIVE: 0,
   INACTIVE: 1,
 
-  //@2 Email Configuration 
+  //@2 Email Configuration
   CONST_MAIL_USER_FOR_ALERT: "naveen@creativefuel.io",
   CONST_SUMIT_MAIL: "sumit@creativefuel.io",
   CONST_MAIL_PASS_FOR_ALERT: "absolwvkdihbvahf",
 
-    //@2 Formates for sarcasm image
-    CONST_SARCASM_FOLDER : "sarcasm_co",
-    CONST_IMAGE_FORMATE : ".jpeg",
+  //@2 Formates for sarcasm image
+  CONST_SARCASM_FOLDER: "sarcasm_co",
+  CONST_IMAGE_FORMATE: ".jpeg",
+  CONST_BLOG_IMAGES_URL : `${vari.IMAGE_URL}sarcasm_co/`
 });
