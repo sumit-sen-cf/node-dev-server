@@ -123,6 +123,42 @@ exports.getAllBlogImageDetails = async (req, res) => {
     return response.returnFalse(500, req, res, `${error.message}`, {});
   }
 };
+exports.getAllblogImageByBlogId = async (req, res) => {
+  try {
+    const data = await blogImages.aggregate([
+      {
+        $match: {
+          blogId: mongoose.Types.ObjectId(req.params.id),
+        },
+      },
+      {
+        $addFields: {
+          imageUrl: {
+            $cond: {
+              if: { $ne: ["$image", ""] },
+              then: {
+                $concat: [constant.CONST_BLOG_IMAGES_URL, "$image"],
+              },
+              else: null,
+            },
+          },
+        },
+      },
+    ]);
+    if (data?.length <= 0) {
+      return response.returnFalse(200, req, res, `No Record Found`, []);
+    }
+    return response.returnTrue(
+      200,
+      req,
+      res,
+      "Successfully Fetch Details",
+      data
+    );
+  } catch (error) {
+    return response.returnFalse(500, req, res, `${error.message}`, {});
+  }
+};
 
 exports.updateSingleBlogImageDetails = async (req, res) => {
   try {

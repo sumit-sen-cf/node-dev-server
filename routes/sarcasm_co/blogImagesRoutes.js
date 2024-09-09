@@ -7,6 +7,7 @@ const {
   deleteBlogImageDetails,
   getAllBlogImageDetails,
   updateSingleBlogImageDetails,
+  getAllblogImageByBlogId,
 } = require("../../controllers/sarcasm_co/blogImagesController");
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.post(
 );
 router.get("/blog-image", getAllBlogImageDetails);
 router.get("/blog-image/:id", getSingleBlogImagesDetails);
+router.get("/blog-image-by-blogId/:id", getAllblogImageByBlogId);
 router.put(
   "/blog-image",
   upload1.single("blog_images"),
