@@ -30,7 +30,7 @@ const uploadImage = (file, folder) => {
 // Function to upload image to Google Cloud Storage
 const uploadImageWithAdjustedFileName = (fileName, file, folder) => {
     return new Promise((resolve, reject) => {
-        if (fileName) {
+        if (!fileName) {
             return resolve(null);
         }
 

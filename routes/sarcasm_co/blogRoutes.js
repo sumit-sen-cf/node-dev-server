@@ -16,17 +16,16 @@ router.post(
     { name: "blog_images", maxCount: 10 },
     { name: "bannerImage", maxCount: 1 },
   ]),
-  verifyToken,
+  // verifyToken,
   addBlog
 );
-router.get("/blog", verifyToken, getAllBlogDetails);
-router.get("/blog/:id", verifyToken, getSingleBlogDetails);
+router.get("/blog",  getAllBlogDetails);
+router.get("/blog/:id",  getSingleBlogDetails);
 router.put(
   "/blog",
   upload1.single("bannerImage"),
-  verifyToken,
   updateSingleBlogDetails
 );
-router.delete("/blog/:id", verifyToken, deleteBlogDetails);
+router.delete("/blog/:id",  deleteBlogDetails);
 
 module.exports = router;
