@@ -6,6 +6,7 @@ const {
   getAllBlogDetails,
   getSingleBlogDetails,
   updateSingleBlogDetails,
+  getAllBlogByCategory,
 } = require("../../controllers/sarcasm_co/blogController");
 const { upload1 } = require("../../common/uploadFile");
 const router = express.Router();
@@ -21,6 +22,7 @@ router.post(
 );
 router.get("/blog",  getAllBlogDetails);
 router.get("/blog/:id",  getSingleBlogDetails);
+router.get("/blog-by-category/:id",  getAllBlogByCategory);
 router.put(
   "/blog",
   upload1.single("bannerImage"),
