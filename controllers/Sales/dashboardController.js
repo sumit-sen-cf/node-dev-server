@@ -434,3 +434,58 @@ exports.getSaleBookingStatusList = async (req, res) => {
     }
 };
 
+/**
+ * Api is to used for Sale booking grid status list count data.
+ */
+exports.getSaleBookingGridStatusCountList = async (req, res) => {
+    try {
+        // Define all possible booking statuses
+        const allBookingStatuses = [
+            { booking_status: saleBookingStatus['01'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['02'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['03'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['04'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['05'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['06'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['07'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['08'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['09'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['10'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['11'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['12'].status, totalSaleBookingCounts: 0 },
+            { booking_status: saleBookingStatus['13'].status, totalSaleBookingCounts: 0 },
+            { booking_status: null, totalSaleBookingCounts: 0 }, // Handling null status as well
+        ];
+
+        // Get data using user and date filter
+        const salesData = await salesBookingModel.aggregate([{
+            $group: {
+                _id: '$booking_status', // Group by booking status
+                totalSaleBookingCounts: { $sum: 1 }
+            }
+        }, {
+            $project: {
+                _id: 0,
+                booking_status: "$_id",
+                totalSaleBookingCounts: 1,
+            }
+        }]);
+
+        // Merge the salesData with allBookingStatuses
+        const mergedData = allBookingStatuses.map(status => {
+            const matchingData = salesData.find(sale => sale.booking_status === status.booking_status);
+            return matchingData ? matchingData : status;
+        });
+
+        // Return a success response
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Sale Booking Grid Status Count List retrieved Successfully!",
+            mergedData
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};

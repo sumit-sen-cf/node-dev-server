@@ -318,6 +318,11 @@ exports.getAllSalesBooking = async (req, res) => {
             matchQuery["created_by"] = Number(req.query.userId);
         }
 
+        //status wise fiter apply in db collection
+        if (req.query?.booking_status) {
+            matchQuery["booking_status"] = req.query.booking_status;
+        }
+
         //condition creation for get data
         const pipeline = [{
             $match: matchQuery
