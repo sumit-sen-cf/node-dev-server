@@ -8,9 +8,9 @@ exports.upload = multer({
 });
 
 const storage = new Storage({
-  projectId: "noble-return-426210-t3",
+  projectId: "primal-hybrid-435111-f8",
   // projectId: "hello-backend-416611",
-  keyFilename: path.join(__dirname, "../jarvis-dev-back-project-d2580576b574.json"),
+  keyFilename: path.join(__dirname, "../primal-hybrid-435111-f8-68a81e0d054d.json"),
   // keyFilename: path.join(__dirname, "../hello-backend-416611-5a1009ac3405.json"),
 });
 exports.storage = storage;
