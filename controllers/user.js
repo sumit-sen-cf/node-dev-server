@@ -359,7 +359,7 @@ exports.addUserForGeneralInformation = [upload, async (req, res) => {
 
 exports.updateUserForGeneralInformation = [upload, async (req, res) => {
     try {
-        console.log("ddddddd", req.body)
+        // console.log("ddddddd", req.body)
         let encryptedPass;
         if (req.body.user_login_password) {
             encryptedPass = await bcrypt.hash(req.body.user_login_password, 10);
@@ -624,7 +624,7 @@ exports.updateUser = [upload, async (req, res) => {
             Report_L3: req.body?.report_L3 || existingUser.Report_L3,
             Personal_email: req.body.Personal_email || existingUser.Personal_email,
             joining_date: req.body.joining_date || existingUser.joining_date,
-            // releaving_date: req.body.releaving_date,
+            releaving_date: req.body.releaving_date,
             level: req.body.level || existingUser.level,
             room_id: req.body.room_id || existingUser.room_id,
             salary: req.body.salary || existingUser.salary,
@@ -2415,7 +2415,7 @@ exports.addSeparation = async (req, res) => {
 
         await userModel.findOneAndUpdate(
             { user_id: simv.user_id },
-            { user_status: 'Exist' },
+            { user_status: 'Exit' },
             { new: true }
         );
 
@@ -4636,7 +4636,7 @@ exports.getWorkAnniversarysForWFHDUsers = async (req, res) => {
 
         users.forEach(user => {
             user.joining_date = formatDate(user.joining_date);
-            user.total_years = user.total_years + " Years"
+            user.total_years = `${user.total_years} ${user.total_years > 1 ? "Years" : "Year"}`
         });
 
         // Send the response
@@ -4952,13 +4952,14 @@ exports.updateTraining = async (req, res) => {
 
 exports.sendUserMailForJoiningDayExtension = async (req, res) => {
     try {
-        const { email, name, joining_date, joining_date_extend, joining_date_extend_reason } = req.body;
+        const { user_email, name, joining_date, joining_date_extend, joining_date_extend_reason } = req.body;
+        console.log("user_email", user_email);
 
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
                 user: "onboarding@creativefuel.io",
-                pass: "qtttmxappybgjbhp",
+                pass: "qtttmxappybgjbhp"
             },
         });
 
@@ -4967,10 +4968,11 @@ exports.sendUserMailForJoiningDayExtension = async (req, res) => {
         const html = ejs.render(template, { name, joining_date, joining_date_extend, joining_date_extend_reason });
 
         let mailOptions = {
-            from: email,
+            from: `"${name} <${user_email}>" <onboarding@creativefuel.io>`,
             to: "onboarding@creativefuel.io",
             subject: "Request for Joining Date Extension",
             html: html,
+            replyTo: user_email,
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
@@ -4984,5 +4986,511 @@ exports.sendUserMailForJoiningDayExtension = async (req, res) => {
         });
     } catch (error) {
         res.status(500).send({ error: error.message, sms: 'Error sending to email' });
+    }
+};
+
+exports.getNewExitOfWFOUsers = async (req, res) => {
+    try {
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+
+        const users = await userModel.aggregate([
+            {
+                $match: { job_type: "WFO", user_status: "Exit" }
+            },
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $addFields: {
+                    joiningMonth: { $month: "$releaving_date" },
+                    joiningYear: { $year: "$releaving_date" },
+                    joiningDay: { $dayOfMonth: "$releaving_date" }
+                }
+            },
+            {
+                $match: {
+                    joiningMonth: currentMonth,
+                    joiningYear: currentYear,
+                    joiningDay: { $gte: 16 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    user_name: 1,
+                    releaving_date: 1,
+                    dept_name: "$department.dept_name"
+                }
+            }
+        ]);
+
+        users.forEach(user => {
+            user.releaving_date = formatDate(user.releaving_date);
+        });
+
+        res.status(200).json({
+            success: true,
+            data: users
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+}
+
+exports.getAllWfOUsersWithDept = async (req, res) => {
+    try {
+        const simc = await userModel.aggregate([
+            {
+                $match: { job_type: 'WFO', user_status: "Active" }
+            },
+            {
+                $lookup: {
+                    from: 'usermodels',
+                    localField: 'Report_L1',
+                    foreignField: 'user_id',
+                    as: 'userData'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userData",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        dept_id: "$dept_id",
+                        dept_name: "$department.dept_name"
+                    },
+                    user_count: { $sum: 1 },
+                    Report_L1N: { $first: "$userData.user_name" }
+                }
+            },
+            {
+                $project: {
+                    dept_id: "$_id.dept_id",
+                    dept_name: "$_id.dept_name",
+                    user_count: 1,
+                    Report_L1N: 1,
+                    _id: 0
+                }
+            }
+        ]).sort({ dept_id: 1 });
+
+        if (simc.length === 0) {
+            return res.status(500).send({ success: false, message: "No record found" });
+        }
+        res.status(200).send({ data: simc });
+    } catch (err) {
+        res.status(500).send({ error: err.message, sms: 'Error getting all WFH users' });
+    }
+};
+
+exports.getBirthDaysForWFOUsers = async (req, res) => {
+    try {
+        const currentMonth = new Date().getMonth() + 1;
+        const currentDate = new Date();
+
+        const users = await userModel.aggregate([
+            {
+                $match: { job_type: "WFO", user_status: "Active" }
+            },
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $addFields: {
+                    joiningMonth: { $month: "$DOB" }
+                }
+            },
+            {
+                $match: {
+                    joiningMonth: currentMonth,
+                }
+            },
+            {
+                $addFields: {
+                    age: {
+                        $subtract: [
+                            { $year: currentDate },
+                            { $year: "$DOB" }
+                        ]
+                    },
+                    dayOfMonth: { $dayOfMonth: "$DOB" }
+                }
+            },
+            {
+                $sort: { dayOfMonth: 1 }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    user_name: 1,
+                    DOB: 1,
+                    dept_name: "$department.dept_name",
+                    age: 1
+                }
+            }
+        ]);
+
+        users.forEach(user => {
+            user.DOB = formatDate(user.DOB);
+        });
+
+        // Send the response
+        res.status(200).json({
+            success: true,
+            data: users
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+}
+
+exports.getWorkAnniversarysForWFOUsers = async (req, res) => {
+    try {
+        const currentMonth = new Date().getMonth() + 1;
+        const currentDate = new Date();
+
+        const users = await userModel.aggregate([
+            {
+                $match: { job_type: "WFO", user_status: "Active" }
+            },
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $addFields: {
+                    joiningMonth: { $month: "$joining_date" }
+                }
+            },
+            {
+                $match: {
+                    joiningMonth: currentMonth
+                }
+            },
+            {
+                $addFields: {
+                    total_years: {
+                        $subtract: [
+                            { $year: currentDate },
+                            { $year: "$joining_date" }
+                        ]
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    user_id: 1,
+                    user_name: 1,
+                    joining_date: 1,
+                    dept_name: "$department.dept_name",
+                    total_years: 1
+                }
+            }
+        ]);
+
+        users.forEach(user => {
+            user.joining_date = formatDate(user.joining_date);
+            user.total_years = `${user.total_years} ${user.total_years > 1 ? "Years" : "Year"}`;
+        });
+
+        // Send the response
+        res.status(200).json({
+            success: true,
+            data: users
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+}
+
+exports.getNewJoineeOfWFOUsers = async (req, res) => {
+    try {
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+
+        const users = await userModel.aggregate([
+            {
+                $match: { job_type: "WFO", user_status: "Active" }
+            },
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $addFields: {
+                    joiningMonth: { $month: "$joining_date" },
+                    joiningYear: { $year: "$joining_date" },
+                    joiningDay: { $dayOfMonth: "$joining_date" }
+                }
+            },
+            {
+                $match: {
+                    joiningMonth: currentMonth,
+                    joiningYear: currentYear,
+                    joiningDay: { $gte: 16 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    user_id: 1,
+                    user_name: 1,
+                    joining_date: 1,
+                    dept_name: "$department.dept_name"
+                }
+            }
+        ]);
+
+        users.forEach(user => {
+            user.joining_date = formatDate(user.joining_date);
+        });
+
+        res.status(200).json({
+            success: true,
+            data: users
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+}
+
+exports.getUserGraphDataOfWFO = async (req, res) => {
+    try {
+        let result;
+
+        if (req.body.caseType == 'department_wise') {
+            result = await userModel.aggregate([
+                {
+                    $match: { job_type: "WFO", user_status: "Active" }
+                },
+                {
+                    $group: {
+                        _id: {
+                            dept_id: "$dept_id",
+                            gender: "$Gender",
+                        },
+                        count: { $sum: 1 },
+                    },
+                },
+                {
+                    $group: {
+                        _id: "$_id.dept_id",
+                        maleCount: {
+                            $sum: {
+                                $cond: [{ $eq: ["$_id.gender", "Male"] }, "$count", 0],
+                            },
+                        },
+                        femaleCount: {
+                            $sum: {
+                                $cond: [{ $eq: ["$_id.gender", "Female"] }, "$count", 0],
+                            },
+                        },
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "departmentmodels",
+                        localField: "_id",
+                        foreignField: "dept_id",
+                        as: "department",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$department",
+                        preserveNullAndEmptyArrays: true
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        dept_id: "$_id",
+                        maleCount: 1,
+                        dept_name: "$department.dept_name",
+                        femaleCount: 1,
+                    },
+                },
+            ]).sort({ dept_id: 1 });
+        }
+        else if (req.body.caseType == 'year') {
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+            const currentYear = new Date().getFullYear();
+
+            const result = await userModel.aggregate([
+                {
+                    $match: {
+                        job_type: "WFO",
+                        user_status: "Active"
+                    }
+                },
+                {
+                    $addFields: {
+                        convertedDate: { $toDate: "$joining_date" },
+                        joiningYear: { $year: { $toDate: "$joining_date" } }
+                    }
+                },
+                {
+                    $match: {
+                        joiningYear: currentYear
+                    }
+                },
+                {
+                    $group: {
+                        _id: {
+                            month: { $month: "$convertedDate" }
+                        },
+                        userjoined: { $sum: 1 }
+                    }
+                },
+                {
+                    $addFields: {
+                        monthName: { $arrayElemAt: [monthNames, { $subtract: ["$_id.month", 1] }] }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        month: "$_id.month",
+                        monthName: 1,
+                        userjoined: 1
+                    }
+                },
+            ])
+                .sort({ month: 1 });
+
+            return res.send(result);
+        }
+        else if (req.body.caseType == 'age') {
+            result = await userModel.aggregate([
+                {
+                    $match: { job_type: "WFO", user_status: "Active" }
+                },
+                {
+                    $addFields: {
+                        birthYear: { $year: { $toDate: "$DOB" } },
+                        age: {
+                            $subtract: [
+                                { $year: new Date() },
+                                { $year: { $toDate: "$DOB" } }
+                            ]
+                        }
+                    },
+                },
+                {
+                    $group: {
+                        _id: {
+                            ageGroup: {
+                                $switch: {
+                                    branches: [
+                                        { case: { $and: [{ $gte: ["$age", 10] }, { $lte: ["$age", 17] }] }, then: "10-17" },
+                                        { case: { $and: [{ $gte: ["$age", 18] }, { $lte: ["$age", 24] }] }, then: "18-24" },
+                                        { case: { $and: [{ $gte: ["$age", 25] }, { $lte: ["$age", 30] }] }, then: "25-30" },
+                                        { case: { $and: [{ $gte: ["$age", 31] }, { $lte: ["$age", 35] }] }, then: "31-35" },
+                                        { case: { $and: [{ $gte: ["$age", 36] }, { $lte: ["$age", 40] }] }, then: "36-40" },
+                                        { case: { $gte: ["$age", 41] }, then: "41+" }
+                                    ],
+                                    default: "Unknown"
+                                }
+                            }
+                        },
+                        userCount: { $sum: 1 },
+                    },
+                },
+                {
+                    $match: {
+                        "_id.ageGroup": { $ne: "Unknown" }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        age: "$_id.ageGroup",
+                        userCount: 1,
+                    },
+                }
+            ]).sort({ age: 1 });
+        }
+        res.status(200).send(result);
+    } catch (err) {
+        res.status(500).send({ error: err.message, sms: "Error creating user graph" });
     }
 };
