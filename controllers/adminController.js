@@ -269,7 +269,34 @@ exports.getVendorDetailsWithIds = async (req, res) => {
                     path: "$vendorPageDetail",
                     preserveNullAndEmptyArrays: true,
                 },
+            },
+            {
+                $lookup: {
+                    from: "pms2vendorbankdetailsmodels",
+                    localField: "_id",
+                    foreignField: "vendor_id",
+                    as: "vendorBankDetail",
+                },
             }, {
+                $unwind: {
+                    path: "$vendorBankDetail",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "pms2documentdetailsmodels",
+                    localField: "_id",
+                    foreignField: "vendor_id",
+                    as: "vendorDocDetail",
+                },
+            }, {
+                $unwind: {
+                    path: "$vendorDocDetail",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $project: {
                     closed_by: 1,
                     status: 1,
@@ -292,7 +319,14 @@ exports.getVendorDetailsWithIds = async (req, res) => {
                     primary_page: 1,
                     platform_name: "$vendorPlatformDetail.platform_name",
                     type_name: "$vendorTypeDetail.type_name",
-                    primary_page_name: "$vendorPageDetail.page_name"
+                    primary_page_name: "$vendorPageDetail.page_name",
+                    bank_name: "$vendorBankDetail.bank_name",
+                    account_no: "$vendorBankDetail.account_number",
+                    account_type: "$vendorBankDetail.account_type",
+                    upi_id: "$vendorBankDetail.upi_id",
+                    ifcs: "$vendorBankDetail.ifcs",
+                    document_name: "$vendorDocDetail.document_name",
+                    document_no: "$vendorDocDetail.document_no"
                 }
             }
         ]);
