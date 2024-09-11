@@ -526,8 +526,10 @@ function getStartDateAndEndDate(monthName, year) {
     throw new Error("Invalid month name");
   }
 
-  const startDate = new Date(year, monthIndex, 16);
-  const endDate = new Date(year, monthIndex + 1, 15);
+  const startDate = new Date(year, monthIndex, 17);
+  console.log("startDate", startDate);
+  const endDate = new Date(year, monthIndex + 1, 16);
+  console.log("endDate", endDate);
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -3213,6 +3215,55 @@ exports.getAllWFHDUsersWithBonus = async (req, res) => {
 exports.getAllStatusOfAttendance = async (req, res) => {
   try {
     const data = await attendanceModel.find({}).select({ attendance_status_flow: 1 })
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+}
+
+exports.getSalaryWithLPAOfWFO = async (req, res) => {
+  try {
+    const users = await userModel.aggregate([
+      {
+        $match: { job_type: "WFO", user_status: "Active" }
+      },
+      {
+        $project: {
+          ctc: 1,
+          LPA: { $divide: ["$ctc", 100000] }
+        }
+      },
+      {
+        $bucket: {
+          groupBy: "$LPA",
+          boundaries: [0, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50],
+          default: "Other",
+          output: {
+            user_count: { $sum: 1 }
+          }
+        }
+      }
+    ]);
+
+    const formattedResult = users.map(bucket => {
+      let range = "";
+      if (bucket._id === "Other") {
+        range = "Above 50 LPA";
+      } else {
+        const lowerBound = bucket._id;
+        const upperBound = lowerBound + 1;
+        range = `${lowerBound}-${upperBound} LPA`;
+      }
+      return { [range]: bucket.user_count };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: formattedResult
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({

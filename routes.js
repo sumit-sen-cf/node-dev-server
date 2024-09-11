@@ -962,6 +962,7 @@ router.get("/get_newjoinee_of_wfo_users", user.getNewJoineeOfWFOUsers);
 router.get("/get_exit_of_wfhd_users", user.getNewExitOfWFHDUsers);
 router.get("/get_exit_of_wfo_users", user.getNewExitOfWFOUsers);
 router.get("/get_all_exit_users_of_wfhd", user.getAllExitUsersOfWFHD);
+router.get("/get_all_exit_users_of_wfo", user.getAllExitUsersOfWFO);
 router.put("/update_training", user.updateTraining);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
@@ -1036,6 +1037,7 @@ router.put("/update_attendance", attendance.updateAttendance);
 router.delete("/delete_all_attendance", attendance.deleteAttecndenceData);
 router.get("/get_salary_by_month_wise", attendance.getSalaryByMonthWise);
 router.get("/get_salary_by_LPA", attendance.getSalaryWithLPAOfWFHD);
+router.get("/get_salary_by_LPA_of_wfo_users", attendance.getSalaryWithLPAOfWFO);
 router.get("/get_all_wfhd_users_with_bonus", attendance.getAllWFHDUsersWithBonus);
 
 
