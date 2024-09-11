@@ -13,7 +13,7 @@ const router = express.Router();
 router.post("/blog-category",  addBlogCategory);
 router.get("/blog-category", getAllBlogCategoryDetails);
 router.get("/blog-category/:id", getSingleBlogCategoryDetails);
-router.put("/blog-category/:id", updateSingleBlogCategoryDetails);
+router.put("/blog-category", updateSingleBlogCategoryDetails);
 router.delete("/blog-category/:id", deleteBlogCategoryDetails);
 
 module.exports = router;
