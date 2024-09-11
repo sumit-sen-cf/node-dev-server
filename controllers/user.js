@@ -5494,3 +5494,76 @@ exports.getUserGraphDataOfWFO = async (req, res) => {
         res.status(500).send({ error: err.message, sms: "Error creating user graph" });
     }
 };
+
+exports.getAllExitUsersOfWFO = async (req, res) => {
+    try {
+        const allUsers = await userModel.aggregate([
+            {
+                $match: {
+                    job_type: "WFO",
+                    user_status: "Exit"
+                }
+            },
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department"
+                }
+            },
+            {
+                $lookup: {
+                    from: 'designationmodels',
+                    localField: 'desi_id',
+                    foreignField: 'user_designation',
+                    as: 'designation'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$designation",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    user_id: 1,
+                    user_name: 1,
+                    Gender: 1,
+                    DOB: 1,
+                    dept_id: 1,
+                    releaving_date: 1,
+                    user_designation: 1,
+                    dept_name: "$department.dept_name",
+                    desi_name: "$designation.desi_name"
+                }
+            },
+            {
+                $group: {
+                    _id: "$user_id",
+                    doc: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$doc" }
+            }
+        ]);
+
+        res.status(200).json({
+            success: true,
+            data: allUsers
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+}
