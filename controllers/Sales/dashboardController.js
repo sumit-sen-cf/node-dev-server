@@ -155,8 +155,16 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
                     $lt: endDate
                 }
             };
+
+            let matchQueryForAccount = {
+                createdAt: {
+                    $gte: startDate,
+                    $lt: endDate
+                }
+            };
             if (req.query?.userId && req.query?.isAdmin == ("false" || false)) {
                 matchQuery["created_by"] = Number(req.query.userId);
+                matchQueryForAccount["created_by"] = Number(req.query.userId);
             }
             // Get data using user and date filter
             const salesData = await salesBookingModel.aggregate([{
@@ -165,7 +173,7 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
                 $group: {
                     _id: null,
                     totalCampaignAmount: {
-                        $sum: '$campaign_amount'
+                        $sum: '$base_amount'
                     },
                     totalSaleBookingCounts: {
                         $sum: 1
@@ -182,12 +190,7 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
             }]);
 
             // Get total account counts
-            const accountDataCounts = await accountMasterModel.countDocuments({
-                createdAt: {
-                    $gte: startDate,
-                    $lt: endDate
-                }
-            });
+            const accountDataCounts = await accountMasterModel.countDocuments(matchQueryForAccount);
 
             // Prepare the return object
             let dashboardObj = {
@@ -325,7 +328,7 @@ exports.getdateRangeTotalSaleAmountData = async (req, res) => {
 
         // Prepare the match query
         let matchCondition = {
-            createdAt: {
+            sale_booking_date: {
                 $gte: new Date(startDate), // start date
                 $lte: new Date(endDate)  // end date
             }
@@ -340,7 +343,7 @@ exports.getdateRangeTotalSaleAmountData = async (req, res) => {
             $group: {
                 _id: '$created_by',
                 campaignAmount: {
-                    $sum: '$campaign_amount'
+                    $sum: '$base_amount'
                 },
                 totalSaleBookingCounts: {
                     $sum: 1
