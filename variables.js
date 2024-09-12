@@ -12,6 +12,6 @@ module.exports = {
     ALLOWED_URL: 'http://34.70.225.161 ',
     // ALLOWED_URL: 'https://www.jarvis.work',
     CICD: 'testing2',
-    // NODE_ENV: 'production',
-    NODE_ENV: 'development',
+    NODE_ENV: 'production',
+    // NODE_ENV: 'development',
 };
