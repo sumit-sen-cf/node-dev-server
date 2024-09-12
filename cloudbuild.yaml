@@ -13,7 +13,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute ssh aman-rathod-sdb@node-dev-server --zone=us-central1-b --command="rm -rf /home/aman-rathod-sdb/nodedevserver"
+        gcloud compute ssh icreativefuel@node-dev-instance --zone=us-central1-a --command="rm -rf /home/icreativefuel/nodedevserver"
 
   # Copy the repository files to the GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -21,7 +21,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute scp --recurse $(pwd) aman-rathod-sdb@node-dev-server:/home/aman-rathod-sdb/nodedevserver --zone=us-central1-b
+        gcloud compute scp --recurse $(pwd) icreativefuel@node-dev-instance:/home/icreativefuel/nodedevserver --zone=us-central1-a
 
   # Install App dependencies and start the application using pm2 on the GCP VM instance
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -29,7 +29,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute ssh aman-rathod-sdb@node-dev-server --zone=us-central1-b --command="cd /home/aman-rathod-sdb/nodedevserver && npm install --f && pm2 restart all"
+        gcloud compute ssh icreativefuel@node-dev-instance --zone=us-central1-a --command="cd /home/icreativefuel/nodedevserver && npm install --f && pm2 restart all"
 
 options:
   logging: CLOUD_LOGGING_ONLY

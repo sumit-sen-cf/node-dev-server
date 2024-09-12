@@ -8,9 +8,9 @@ exports.upload = multer({
 });
 
 const storage = new Storage({
-  projectId: "primal-hybrid-435111-f8",
+  projectId: "hello-backend-416611",
   // projectId: "hello-backend-416611",
-  keyFilename: path.join(__dirname, "../primal-hybrid-435111-f8-48abd052e730.json"),
+  keyFilename: path.join(__dirname, "../hello-backend-416611-73bb3d971ab8.json"),
   // keyFilename: path.join(__dirname, "../hello-backend-416611-5a1009ac3405.json"),
 });
 exports.storage = storage;
