@@ -29,7 +29,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute ssh icreativefuel@node-dev-instance --zone=us-central1-a --command="cd /home/icreativefuel/nodedevserver && npm install --f && pm2 restart all"
+        gcloud compute ssh icreativefuel@node-dev-instance --zone=us-central1-a --command="cd /home/icreativefuel/nodedevserver && npm install -f && pm2 restart all"
 
 options:
   logging: CLOUD_LOGGING_ONLY
