@@ -9,6 +9,9 @@ const deleteSalesbookingModel = require("../../models/Sales/deletedSalesBookingM
 const recordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const executionCampaignModel = require("../../models/executionCampaignModel.js");
 const userModel = require("../../models/userModel.js");
+const accountMasterModel = require("../../models/accounts/accountMasterModel.js");
+const accountTypesModel = require("../../models/accounts/accountTypesModel.js");
+const brandModel = require("../../models/accounts/brandModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
 const { saleBookingStatus, salesEmail } = require("../../helper/status.js");
@@ -167,6 +170,29 @@ exports.addSalesBooking = [
                 user_name: 1,
             });
 
+            //account data get for the name
+            const accountData = await accountMasterModel.findOne({
+                account_id: saleBookingAdded.account_id
+            }, {
+                account_id: 1,
+                account_name: 1,
+                account_type_id: 1,
+            });
+
+            //user data get for the name
+            const accountTypeData = await accountTypesModel.findOne({
+                _id: accountData.account_type_id
+            }, {
+                account_type_name: 1,
+            });
+
+            //user data get for the name
+            const brandData = await brandModel.findOne({
+                _id: saleBookingAdded.brand_id
+            }, {
+                brand_name: 1,
+            });
+
             // Format a specific date
             const formattedDate = moment(saleBookingAdded.sale_booking_date).format('MM/DD/YYYY HH:mm:ss');
             //for email send process to admin
@@ -199,6 +225,10 @@ exports.addSalesBooking = [
                     saleBookingId: saleBookingAdded.sale_booking_id,
                     saleBookingDate: formattedDate,
                     saleBookingAmount: saleBookingAdded.campaign_amount,
+                    accountId: accountData.account_id,
+                    accountName: accountData.account_name,
+                    accountType: accountTypeData.account_type_name,
+                    brandName: brandData.brand_name,
                     headerText: "New Sale Booking is Created."
                 });
                 const mailOptions = createMailOptions(html);
