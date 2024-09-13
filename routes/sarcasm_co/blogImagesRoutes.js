@@ -8,6 +8,7 @@ const {
   getAllBlogImageDetails,
   updateSingleBlogImageDetails,
   getAllblogImageByBlogId,
+  uploadImageToDirectGCP,
 } = require("../../controllers/sarcasm_co/blogImagesController");
 const router = express.Router();
 
@@ -15,6 +16,11 @@ router.post(
   "/blog-image",
   upload1.fields([{ name: "blog_images", maxCount: 10 }]),
   addBlogImages
+);
+router.post(
+  "/gcp/upload-image",
+  upload1.single("image"),
+  uploadImageToDirectGCP
 );
 router.get("/blog-image", getAllBlogImageDetails);
 router.get("/blog-image/:id", getSingleBlogImagesDetails);
