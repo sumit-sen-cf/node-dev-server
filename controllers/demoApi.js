@@ -1,9 +1,9 @@
 const demoModel = require('../models/demoModel.js');
 const vari = require("../variables.js");
-const {storage, uploadToGCP} = require('../common/uploadFile.js')
+const { storage, uploadToGCP } = require('../common/uploadFile.js')
 
-exports.addDemo = async (req, res) =>{
-    try{
+exports.addDemo = async (req, res) => {
+    try {
         const simc = new demoModel({
             t1: req.body.t1,
             t2: req.body.t2,
@@ -21,44 +21,44 @@ exports.addDemo = async (req, res) =>{
         })
 
         uploadToGCP(req, simc, 't13')
-        .then((message) => {
-            res.status(200).send(message);
-        })
-        .catch((error) => {
-            res.status(500).send(error.message);
-        });
+            .then((message) => {
+                res.status(200).send(message);
+            })
+            .catch((error) => {
+                res.status(500).send(error.message);
+            });
         const simv = await simc.save();
-        res.send({simv,status:200});
-    } catch(err){
-        res.status(500).send({error:err.message,sms:'This demo data cannot be created'})
+        res.send({ simv, status: 200 });
+    } catch (err) {
+        res.status(500).send({ error: err.message, sms: 'This demo data cannot be created' })
     }
 };
 
 exports.getAllDemo = async (req, res) => {
-    try{
+    try {
         const simc = await demoModel.find({});
 
-        if(!simc){
-            res.status(500).send({success:false})
+        if (!simc) {
+            res.status(500).send({ success: false })
         }
-        res.status(200).send({data:simc, message:'demo data fetched successfully'})
-    } catch(err){
-        res.status(500).send({error:err.message,sms:'Error getting all demo datas'})
+        res.status(200).send({ data: simc, message: 'demo data fetched successfully by testing' })
+    } catch (err) {
+        res.status(500).send({ error: err.message, sms: 'Error getting all demo datas' })
     }
 };
 
-exports.getSingleDemo = async (req, res) =>{
+exports.getSingleDemo = async (req, res) => {
     try {
         const user = await demoModel.findById(req.params._id);
-        res.status(200).send({data:user})
+        res.status(200).send({ data: user })
     } catch (error) {
-        res.status(500).send({error:error.message,sms:'Error getting single demo data'})
+        res.status(500).send({ error: error.message, sms: 'Error getting single demo data' })
     }
 };
 
 exports.editDemo = async (req, res) => {
-    try{
-        const editsim = await demoModel.findByIdAndUpdate(req.body._id,{
+    try {
+        const editsim = await demoModel.findByIdAndUpdate(req.body._id, {
             t1: req.body.t1,
             t2: req.body.t2,
             t3: req.body.t3,
@@ -71,36 +71,36 @@ exports.editDemo = async (req, res) => {
             t10: req.body.t10,
             t11: req.body.t11,
             t12: req.body.t12,
-            t13 : req.file?.originalname
+            t13: req.file?.originalname
         }, { new: true })
 
-        if(req.file){
+        if (req.file) {
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
             const blob = bucket.file(req.file.originalname);
             editsim.t13 = blob.name;
             const blobStream = blob.createWriteStream();
-            blobStream.on("finish", () => { 
+            blobStream.on("finish", () => {
                 editsim.save();
                 // res.status(200).send("Success") 
             });
             blobStream.end(req.file.buffer);
         }
 
-        res.status(200).send({success:true,data:editsim})
-    } catch(err){
-        res.status(500).send({error:err,sms:'Error updating demo details'})
+        res.status(200).send({ success: true, data: editsim })
+    } catch (err) {
+        res.status(500).send({ error: err, sms: 'Error updating demo details' })
     }
 };
 
-exports.deleteDemo = async (req, res) =>{
-    demoModel.findByIdAndDelete(req.params._id).then(item =>{
-        if(item){
-            return res.status(200).json({success:true, message:'demo data deleted'})
-        }else{
-            return res.status(404).json({success:false, message:'demo data not found'})
+exports.deleteDemo = async (req, res) => {
+    demoModel.findByIdAndDelete(req.params._id).then(item => {
+        if (item) {
+            return res.status(200).json({ success: true, message: 'demo data deleted' })
+        } else {
+            return res.status(404).json({ success: false, message: 'demo data not found' })
         }
-    }).catch(err=>{
-        return res.status(400).json({success:false, message:err})
+    }).catch(err => {
+        return res.status(400).json({ success: false, message: err })
     })
 };
