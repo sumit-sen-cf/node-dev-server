@@ -54,6 +54,40 @@ exports.addBlogImages = async (req, res) => {
     return response.returnFalse(500, req, res, `${error.message}`, {});
   }
 };
+exports.uploadImageToDirectGCP = async (req, res) => {
+  try {
+    let imageResult;
+    if (req.file) {
+
+        const timestamp = Date.now();
+        const fileNamePrefix = req.file.originalname
+          .slice(0, 5)
+          .replace(/\s+/g, "");
+        const adjustedFileName = `${timestamp}_${fileNamePrefix}${constant.CONST_IMAGE_FORMATE}`;
+        imageResult = await uploadImageWithAdjustedFileName(
+          adjustedFileName,
+          req.file,
+          constant.CONST_SARCASM_FOLDER
+        );
+      
+    } else {
+      return response.returnFalse(
+        402,
+        req,
+        res,
+        "Please provide valid imag",
+        {}
+      );
+    }
+    let resObj = {
+      url: `${constant.CONST_BLOG_IMAGES_URL}${imageResult}`,
+      name: imageResult,
+    };
+    return response.returnTrue(200, req, res, "Successfully Saved Data", resObj);
+  } catch (error) {
+    return response.returnFalse(500, req, res, `${error.message}`, {});
+  }
+};
 
 exports.getSingleBlogImagesDetails = async (req, res) => {
   try {
