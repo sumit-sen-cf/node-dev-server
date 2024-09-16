@@ -131,6 +131,12 @@ exports.getSingleBlogDetails = async (req, res) => {
 
 exports.getAllBlogDetails = async (req, res) => {
   try {
+    // Extract page and limit from query parameters, default to null if not provided
+    const page = req.query?.page ? parseInt(req.query.page) : 1;
+    const limit = req.query?.limit ? parseInt(req.query.limit) : 10;
+
+    // Calculate the number of records to skip based on the current page and limit
+    const skip = page && limit ? (page - 1) * limit : 0;
     const data = await blogModel.aggregate([
       {
         $addFields: {
@@ -144,6 +150,17 @@ exports.getAllBlogDetails = async (req, res) => {
             },
           },
         },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      // Skip stage
+      {
+        $skip: skip,
+      },
+      // Limit stage
+      {
+        $limit: limit,
       },
     ]);
     if (data?.length <= 0) {
@@ -162,6 +179,11 @@ exports.getAllBlogDetails = async (req, res) => {
 };
 exports.getAllBlogByCategory = async (req, res) => {
   try {
+    // Extract page and limit from query parameters, default to null if not provided
+    const page = req.query?.page ? parseInt(req.query.page) : 1;
+    const limit = req.query?.limit ? parseInt(req.query.limit) : 10;
+    // Calculate the number of records to skip based on the current page and limit
+    const skip = page && limit ? (page - 1) * limit : 0;
     const data = await blogModel.aggregate([
       {
         $match: {
@@ -180,6 +202,17 @@ exports.getAllBlogByCategory = async (req, res) => {
             },
           },
         },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      // Skip stage
+      {
+        $skip: skip,
+      },
+      // Limit stage
+      {
+        $limit: limit,
       },
     ]);
     if (data?.length <= 0) {
