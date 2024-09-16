@@ -1,3 +1,4 @@
+const constant = require("../../common/constant");
 const response = require("../../common/response");
 const blogCategoryModel = require("../../models/sarcasm_co/blogCategoryModel");
 
@@ -79,7 +80,7 @@ exports.getRecentBlogsForEachBlogCategory = async (req, res) => {
     const skip = page && limit ? (page - 1) * limit : 0;
 
     const data = await blogCategoryModel.aggregate([
-      // Stage 1: Fetch all categories
+      // Stage 1: Fetch all categories and lookup recent blogs
       {
         $lookup: {
           from: "blogmodels",
@@ -95,21 +96,66 @@ exports.getRecentBlogsForEachBlogCategory = async (req, res) => {
           preserveNullAndEmptyArrays: true,
         },
       },
-      // Stage 3: Sort blogs within each category by createdAt
+      // Stage 3: Add bannerImageUrl field to the recentBlogs documents
       {
-        $sort: {
-          "recentBlogs.createdAt": -1,
+        $addFields: {
+          "recentBlogs.bannerImageUrl": {
+            $cond: {
+              if: {
+                $and: [
+                  { $ne: ["$recentBlogs", []] },
+                  { $ne: ["$recentBlogs.bannerImage", ""] },
+                ],
+              },
+              then: {
+                $concat: [
+                  constant.CONST_BLOG_IMAGES_URL,
+                  "$recentBlogs.bannerImage",
+                ],
+              },
+              else: "null",
+            },
+          },
         },
       },
-      // Stage 4: Group back to categories and get the most recent blog for each category
+      // Stage 4: Exclude certain fields from the root document
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          recentBlog: {
+            _id: "$recentBlogs._id",
+            blogCategoryId: "$recentBlogs.blogCategoryId",
+            title: "$recentBlogs.title",
+            bannerAltDesc: "$recentBlogs.bannerAltDesc",
+            metaTitle: "$recentBlogs.metaTitle",
+            bannerImageUrl: "$recentBlogs.bannerImageUrl",
+            bannerImageUrl: "$recentBlogs.bannerImageUrl",
+            createdAt: "$recentBlogs.createdAt",
+            updatedAt: "$recentBlogs.updatedAt",
+          },
+          createdAt: 1,
+        },
+      },
+      // Stage 5: Sort blogs within each category by createdAt
+      {
+        $sort: {
+          "recentBlog.createdAt": -1,
+        },
+      },
+      // Stage 6: Group back to categories and get the most recent blog for each category
       {
         $group: {
           _id: "$_id",
-          categoryName: { $first: "$name" }, // Adjust based on your schema
-          recentBlog: { $first: "$recentBlogs" },
+          categoryName: { $first: "$name" },
+          createdAt: { $first: "$createdAt" },
+          recentBlog: { $first: "$recentBlog" },
         },
       },
-      // Stage 5: Pagination
+      // Stage 7: Pagination
+      {
+        $sort: { createdAt: -1 },
+      },
       {
         $skip: skip,
       },
