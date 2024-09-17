@@ -16,7 +16,10 @@ const dynamicTablesSchema = new mongoose.Schema({
     },
     filter_array: {
         type: Array
-    }
+    },
+    group_array: {
+        type: Array
+    },
     // column_visible: {
     //     type: Array,
     //     required: false
