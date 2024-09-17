@@ -407,6 +407,31 @@ exports.getAllAccountDetails = async (req, res) => {
                 preserveNullAndEmptyArrays: true,
             }
         }, {
+            $lookup: {
+                from: "accountpocmodels",
+                let: {
+                    account_id: "$account_id"
+                },
+                pipeline: [{
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { $eq: ["$$account_id", "$account_id"] }
+                            ]
+                        }
+                    }
+                }, {
+                    $project: {
+                        account_id: 1,
+                        contact_name: 1,
+                        contact_no: 1,
+                        alternative_contact_no: 1,
+                        email: 1
+                    }
+                }],
+                as: "accountPocData"
+            }
+        }, {
             $addFields: {
                 account_image_url: {
                     $cond: {
@@ -442,12 +467,14 @@ exports.getAllAccountDetails = async (req, res) => {
                 website: { $first: "$website" },
                 turn_over: { $first: "$turn_over" },
                 description: { $first: "$description" },
+                company_email: { $first: "$company_email" },
                 is_rewards_sent: { $first: "$is_rewards_sent" },
                 created_by: { $first: "$created_by" },
                 created_by_name: { $first: "$userData.user_name" },
                 updated_by: { $first: "$updated_by" },
                 createdAt: { $first: "$createdAt" },
                 updatedAt: { $first: "$updatedAt" },
+                accountPocData: { $first: "$accountPocData" },
                 totalSaleBookingCounts: {
                     $sum: {
                         $cond: {
@@ -483,12 +510,21 @@ exports.getAllAccountDetails = async (req, res) => {
                 website: 1,
                 turn_over: 1,
                 description: 1,
+                company_email: 1,
                 is_rewards_sent: 1,
                 created_by: 1,
                 created_by_name: 1,
                 updated_by: 1,
                 createdAt: 1,
                 updatedAt: 1,
+                accountPocData: 1,
+                accountPocCounts: {
+                    $cond: {
+                        if: { $ne: ["$accountPocData", null] },
+                        then: { $size: "$accountPocData" },
+                        else: 0
+                    }
+                },
                 totalSaleBookingCounts: 1,
                 campaignAmount: 1,
                 requestedAmount: 1,
