@@ -15,6 +15,7 @@ exports.addDynamicTablesData = async (req, res) => {
             table_name: req.body.table_name,
             user_id: req.body.user_id,
             column_order_Obj: req.body.column_order_Obj,
+            group_array: req.body.group_array
         });
 
         const simv = await dynamicTableData.save();
@@ -72,7 +73,7 @@ exports.getSingleDynamicTablesData = async (req, res) => {
 exports.editDynamicTablesData = async (req, res) => {
     try {
         const filter = { user_id: req.body.user_id, table_name: req.body.table_name };
-        const update = { column_order_Obj: req.body.column_order_Obj, filter_array: req.body.filter_array };
+        const update = { column_order_Obj: req.body.column_order_Obj, filter_array: req.body.filter_array, group_array: req.body.group_array };
         const options = { new: true, upsert: true };
         const editDynamicData = await dynamicTablesModel.findOneAndUpdate(
             filter,
