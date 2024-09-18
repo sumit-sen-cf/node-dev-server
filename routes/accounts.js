@@ -42,8 +42,8 @@ router.delete("/accounts/delete_account_type/:id", verifyToken, accountType.dele
 /**
  * account poc routes
  */
-router.post("/accounts/add_account_poc", verifyToken, validation.accountPocValidation, accountPoc.addAccountPoc);
-router.put("/accounts/update_account_poc/:id", verifyToken, validation.accountPocValidation, accountPoc.updateAccountPoc);
+router.post("/accounts/add_account_poc", verifyToken, accountPoc.addAccountPoc);
+router.put("/accounts/update_account_poc/:id", verifyToken, accountPoc.updateAccountPoc);
 router.get("/accounts/get_account_poc/:id", verifyToken, accountPoc.getAccountPocDetails);
 router.get("/accounts/get_account_poc_list", verifyToken, accountPoc.getAccountPocList);
 router.delete("/accounts/delete_account_poc/:id", verifyToken, accountPoc.deleteAccountPoc);
