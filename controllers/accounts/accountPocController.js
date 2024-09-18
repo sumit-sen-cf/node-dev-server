@@ -160,13 +160,13 @@ exports.updateAccountPoc = async (req, res) => {
  */
 exports.getAccountPocList = async (req, res) => {
     try {
-        //filter for pagination page wise data = page=1 & limit=2 
-        let page = parseInt(req.query?.page) || 1;
-        let limit = 10;
-        let skip = limit * (page - 1);
-        let sort = {
-            createdAt: -1
-        };
+        // Extract page and limit from query parameters, default to null if not provided
+        const page = req.query?.page ? parseInt(req.query.page) : 1;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : Number.MAX_SAFE_INTEGER;
+        const sort = { createdAt: -1 };
+
+        // Calculate the number of records to skip based on the current page and limit
+        const skip = (page && limit) ? (page - 1) * limit : 0;
 
         //for match conditions
         let matchQuery = {};
@@ -184,14 +184,40 @@ exports.getAccountPocList = async (req, res) => {
         const accountPocList = await accountPocModel.aggregate([{
             $match: matchQuery
         }, {
+            $lookup: {
+                from: "accountmastermodels",
+                localField: "account_id",
+                foreignField: "account_id",
+                as: "accountData",
+            }
+        }, {
+            $unwind: {
+                path: "$accountData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "accountdepartmentmodels",
+                localField: "department",
+                foreignField: "_id",
+                as: "departmentData",
+            }
+        }, {
+            $unwind: {
+                path: "$departmentData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
             $project: {
                 account_id: 1,
+                account_name: "$accountData.account_name",
                 contact_name: 1,
                 contact_no: 1,
                 description: 1,
                 alternative_contact_no: 1,
                 email: 1,
                 department: 1,
+                department_name: "$departmentData.department_name",
                 designation: 1,
                 social_platforms: 1,
                 created_by: 1,
