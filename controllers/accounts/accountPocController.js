@@ -208,6 +208,18 @@ exports.getAccountPocList = async (req, res) => {
                 preserveNullAndEmptyArrays: true,
             }
         }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "created_by",
+                foreignField: "user_id",
+                as: "userData",
+            }
+        }, {
+            $unwind: {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
             $project: {
                 account_id: 1,
                 account_name: "$accountData.account_name",
@@ -221,6 +233,7 @@ exports.getAccountPocList = async (req, res) => {
                 designation: 1,
                 social_platforms: 1,
                 created_by: 1,
+                created_by_name: "$userData.user_name",
                 updated_by: 1,
                 createdAt: 1,
                 updatedAt: 1,

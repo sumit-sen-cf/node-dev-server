@@ -1,7 +1,8 @@
-//db models
-const response = require("../common/response");
-const autoIncentiveCalculationModel = require("../models/Sales/autoIncentiveCalculationModel");
+const vari = require("../variables");
 const incentivePlanModel = require("../models/Sales/incentivePlanModel");
+// Check if the environment is local or server
+// Set the day based on the environment (1st locally, 2nd on server)
+const startDay = vari.NODE_ENV === 'development' ? 0 : 1;
 
 module.exports = {
     /**
@@ -41,57 +42,73 @@ module.exports = {
         })
     },
 
-    async autoIncentiveCalculationDetailsUpdate(filterObj, incentiveDetailsObj) {
+    /**
+     * Function to get the start and end dates of a week (Monday to Sunday)
+     * @param {*} date :for the date range find
+     * @param {*} offset : for the last week get
+     * @returns : start and end dates of a week Range
+     */
+    async getWeekDateRange(date, offset = 0) {
         return new Promise(async function (resolve, reject) {
             try {
-                const month = filterObj.month || 4;
-                const year = filterObj.year || 2024;
-                const userId = filterObj.userId || 712;
-
-                const formattedMonth = ("0" + month).slice(-2);
-                const yearMonth = `${year}-${formattedMonth}`;
-
-                const oldAutoIncentiveData = await autoIncentiveCalculationModel.findOne({
-                    month_year: yearMonth
-                });
-
-                let autoIncentiveObj = {
-                    campaign_amount: incentiveDetailsObj.campaign_amount,
-                    paid_amount: incentiveDetailsObj.paid_amount,
-                    record_service_amount: incentiveDetailsObj.record_service_amount,
-                    incentive_amount: incentiveDetailsObj.incentive_amount,
-                    earned_incentive: incentiveDetailsObj.earned_incentive,
-                    unearned_incentive: incentiveDetailsObj.unearned_incentive
-                }
-
-                //if year_month found then add in older data.
-                if (oldAutoIncentiveData && Object.keys(oldAutoIncentiveData)) {
-                    //previous data add in new obj
-                    autoIncentiveObj["campaign_amount"] = oldAutoIncentiveData.campaign_amount + incentiveDetailsObj.campaign_amount;
-                    autoIncentiveObj["paid_amount"] = oldAutoIncentiveData.paid_amount + incentiveDetailsObj.paid_amount;
-                    autoIncentiveObj["record_service_amount"] = oldAutoIncentiveData.record_service_amount + incentiveDetailsObj.record_service_amount;
-                    autoIncentiveObj["incentive_amount"] = oldAutoIncentiveData.incentive_amount + incentiveDetailsObj.incentive_amount;
-                    autoIncentiveObj["earned_incentive"] = oldAutoIncentiveData.earned_incentive + incentiveDetailsObj.earned_incentive;
-                    autoIncentiveObj["unearned_incentive"] = oldAutoIncentiveData.unearned_incentive + incentiveDetailsObj.unearned_incentive;
-
-                    //month_year and user wise data update in db collection.
-                    await autoIncentiveCalculationModel.updateOne({
-                        month_year: yearMonth
-                    }, {
-                        $set: autoIncentiveObj
-                    })
-                } else {
-                    autoIncentiveObj["sales_executive_id"] = userId;
-                    autoIncentiveObj["month_year"] = yearMonth;
-
-                    //month_year and user wise data create in db collection. 
-                    await autoIncentiveCalculationModel.create(autoIncentiveObj)
-                }
-                return resolve(autoIncentiveObj);
+                const startOfWeek = new Date(date);
+                startOfWeek.setDate(date.getDate() - date.getDay() + startDay + offset * 7); // Adjust for local or server
+                startOfWeek.setHours(0, 0, 0, 0);
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
+                endOfWeek.setHours(23, 59, 59, 999);
+                //return week date range
+                return resolve({ startOfWeek, endOfWeek });
             } catch (err) {
-                console.log('Error While calculate auto incentive calculation', err);
+                console.log('Error While get Week Date Range details', err);
                 return resolve({});
             }
         })
-    }
+    },
+
+    /**
+     * Function to get the start and end dates of a month 
+     * @param {*} date :for the date range find
+     * @param {*} offset : for the last month get
+     * @returns : start and end dates of a month Range
+     */
+    async getMonthDateRange(date, offset = 0) {
+        return new Promise(async function (resolve, reject) {
+            try {
+                const startOfMonth = new Date(date.getFullYear(), date.getMonth() + offset, startDay);
+                startOfMonth.setHours(0, 0, 0, 0);
+                const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1 + offset, 0);
+                endOfMonth.setHours(23, 59, 59, 999);
+                //return month date range
+                return resolve({ startOfMonth, endOfMonth });
+            } catch (err) {
+                console.log('Error While get Month Date Range details', err);
+                return resolve({});
+            }
+        })
+    },
+
+    /**
+     * Function to get the start and end dates of a quarter 
+     * @param {*} date :for the date range find
+     * @param {*} offset : for the last quarter get
+     * @returns : start and end dates of a quarter Range
+     */
+    async getQuarterDateRange(date, offset = 0) {
+        return new Promise(async function (resolve, reject) {
+            try {
+                const quarter = Math.floor((date.getMonth() / 3)) + offset;
+                const startOfQuarter = new Date(date.getFullYear(), quarter * 3, startDay);
+                startOfQuarter.setHours(0, 0, 0, 0);
+                const endOfQuarter = new Date(date.getFullYear(), quarter * 3 + 3, 0);
+                endOfQuarter.setHours(23, 59, 59, 999);
+                //return quarter date range
+                return resolve({ startOfQuarter, endOfQuarter });
+            } catch (err) {
+                console.log('Error While get Quarter Date Range details', err);
+                return resolve({});
+            }
+        })
+    },
+
 };
