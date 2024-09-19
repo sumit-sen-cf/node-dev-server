@@ -21,4 +21,8 @@ router.get("/sales/sale_booking_status_list/", verifyToken, dashboardController.
 //sale booking Grid status count list
 router.get("/sales/sale_booking_grid_status_count_list/", verifyToken, dashboardController.getSaleBookingGridStatusCountList);
 
+//sales booking Users Report list
+router.get("/sales/sales_users_report_list/", verifyToken, dashboardController.getSalesUsersReportList);
+
+
 module.exports = router; 

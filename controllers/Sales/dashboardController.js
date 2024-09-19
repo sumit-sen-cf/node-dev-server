@@ -1,6 +1,9 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
 const vari = require("../../variables.js");
+const {
+    getWeekDateRange, getMonthDateRange, getQuarterDateRange
+} = require("../../helper/functions.js");
 const { storage } = require('../../common/uploadFile.js');
 const { saleBookingStatus } = require('../../helper/status.js');
 const accountMasterModel = require("../../models/accounts/accountMasterModel.js");
@@ -101,10 +104,8 @@ exports.getWeeklyMonthlyQuarterlyList = async (req, res) => {
 
         // Check if the environment is local or server
         const isLocal = vari.NODE_ENV === 'development'; // Assuming 'development' is local
-        console.log("🚀 ~ isLocal:", isLocal);
         // Set the day based on the environment (1st locally, 2nd on server)
         const startDay = isLocal ? 0 : 1;
-        console.log("🚀 ~ startDay:", startDay);
 
         // Function to get the start and end dates of a week (Monday to Sunday)
         const getWeekRange = (date, offset = 0) => {
@@ -457,7 +458,6 @@ exports.getSaleBookingGridStatusCountList = async (req, res) => {
             { booking_status: saleBookingStatus['11'].status, totalSaleBookingCounts: 0 },
             { booking_status: saleBookingStatus['12'].status, totalSaleBookingCounts: 0 },
             { booking_status: saleBookingStatus['13'].status, totalSaleBookingCounts: 0 },
-            { booking_status: null, totalSaleBookingCounts: 0 }, // Handling null status as well
         ];
 
         // Get data using user and date filter
@@ -487,6 +487,126 @@ exports.getSaleBookingGridStatusCountList = async (req, res) => {
             res,
             "Sale Booking Grid Status Count List retrieved Successfully!",
             mergedData
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+/**
+ * Api is show get all Sales User Report List.
+ */
+exports.getSalesUsersReportList = async (req, res) => {
+    try {
+        // Get the current date
+        const currentDate = new Date();
+        let startDate, endDate;
+
+        //filter check for calculation
+        if (req.query && req.query.filter) {
+            if (req.query.filter === "today") {
+                currentDate.setHours(0, 0, 0, 0);
+                startDate = new Date(currentDate);
+                endDate = new Date(startDate);
+                endDate.setHours(23, 59, 59, 999);
+            }
+            if (req.query.filter === "week") {
+                const { startOfWeek, endOfWeek } = await getWeekDateRange(currentDate);
+                startDate = startOfWeek;
+                endDate = endOfWeek;
+            }
+            if (req.query.filter === "month") {
+                const { startOfMonth, endOfMonth } = await getMonthDateRange(currentDate);
+                startDate = startOfMonth;
+                endDate = endOfMonth;
+            }
+            if (req.query.filter === "quarter") {
+                const { startOfQuarter, endOfQuarter } = await getQuarterDateRange(currentDate);
+                startDate = startOfQuarter;
+                endDate = endOfQuarter;
+            }
+        }
+
+        // Prepare the match query
+        let matchQuery = {};
+        if (startDate && endDate) {
+            matchQuery = {
+                sale_booking_date: {
+                    $gte: startDate,
+                    $lt: endDate
+                }
+            }
+        }
+        // Get data using user and date filter
+        const salesData = await salesBookingModel.aggregate([{
+            $match: matchQuery
+        }, {
+            $group: {
+                _id: "$created_by",
+                totalSaleBookingCounts: {
+                    $sum: 1
+                },
+                totalCampaignAmount: {
+                    $sum: '$campaign_amount'
+                },
+                totalBaseAmount: {
+                    $sum: '$base_amount'
+                },
+                totalGstAmount: {
+                    $sum: '$gst_amount'
+                },
+                totalRecordServiceAmount: {
+                    $sum: '$record_service_amount'
+                },
+                totalRecordServiceCounts: {
+                    $sum: '$record_service_counts'
+                },
+                totalRequestedAmount: {
+                    $sum: '$requested_amount'
+                },
+                totalApprovedAmount: {
+                    $sum: '$approved_amount'
+                },
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "_id",
+                foreignField: "user_id",
+                as: "userData",
+            }
+        }, {
+            $unwind: {
+                path: "$userData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                _id: 0,
+                userId: "$_id",
+                userName: "$userData.user_name",
+                totalSaleBookingCounts: 1,
+                totalCampaignAmount: 1,
+                totalBaseAmount: 1,
+                totalGstAmount: 1,
+                totalRecordServiceAmount: 1,
+                totalRecordServiceCounts: 1,
+                totalRequestedAmount: 1,
+                totalApprovedAmount: 1,
+            }
+        }, {
+            $sort: {
+                userId: 1
+            }
+        }]);
+
+        // Return a success response with all the data
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Sales Users Report list retrieved successfully!",
+            salesData
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
