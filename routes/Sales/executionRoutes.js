@@ -13,4 +13,7 @@ router.delete("/sales/sales_booking_execution/:id", verifyToken, executionContro
 router.put("/sales/execution_status/:id", verifyToken, executionController.updateStatusExecution);
 router.get("/sales/count_data_status_wise", executionController.countTheDataStatusWise);
 
+//execution token to get data 
+router.get("/sales/get_execution_token_data/:id", verifyToken, executionController.getExcutionTokenData);
+
 module.exports = router;

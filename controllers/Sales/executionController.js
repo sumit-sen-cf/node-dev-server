@@ -368,3 +368,130 @@ exports.countTheDataStatusWise = async (req, res) => {
         res.status(500).json({ error: "An error occurred while counting statuses" });
     }
 };
+/**
+ * Api is to used for the execution token data data in the DB collection.
+ */
+exports.getExcutionTokenData = async (req, res) => {
+    try {
+        let matchCondition = {
+            status: {
+                $ne: constant.DELETED
+            },
+            execution_token: Number(req.params?.id)
+        }
+
+        // get token to execution data from db
+        const executionList = await executionModel.aggregate([{
+            $match: matchCondition
+        }, {
+            $lookup: {
+                from: "salesbookingmodels",
+                localField: "sale_booking_id",
+                foreignField: "sale_booking_id",
+                as: "salesBookingData",
+            }
+        }, {
+            $unwind: {
+                path: "$salesBookingData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "salesrecordservicemodels",
+                localField: "record_service_id",
+                foreignField: "_id",
+                as: "recordserviceData",
+            }
+        }, {
+            $unwind: {
+                path: "$recordserviceData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "accountmastermodels",
+                localField: "salesBookingData.account_id",
+                foreignField: "account_id",
+                as: "accountsData",
+            }
+        }, {
+            $unwind: {
+                path: "$accountsData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "usermodels",
+                localField: "created_by",
+                foreignField: "user_id",
+                as: "usersData",
+            }
+        }, {
+            $unwind: {
+                path: "$usersData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $lookup: {
+                from: "accountbrandmodels",
+                localField: "salesBookingData.brand_id",
+                foreignField: "_id",
+                as: "brandData",
+            }
+        }, {
+            $unwind: {
+                path: "$brandData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                execution_time: 1,
+                start_date: 1,
+                end_date: 1,
+                sale_booking_id: 1,
+                execution_token: 1,
+                execution_status: 1,
+                reach: 1,
+                impression: 1,
+                engagement: 1,
+                story_view: 1,
+                created_by: 1,
+                sales_executive_name: "$usersData.user_name",
+                account_id: "$accountsData.account_id",
+                account_name: "$accountsData.account_name",
+                recordServiceAmount: "$recordserviceData.amount",
+                brand_id: "$salesBookingData.brand_id",
+                brand_name: "$brandData.brand_name",
+                campaign_id: "$salesBookingData.campaign_id",
+                campaign_name: "$salesBookingData.campaign_name",
+                sale_booking_date: "$salesBookingData.sale_booking_date",
+                campaign_amount: "$salesBookingData.campaign_amount",
+                base_amount: "$salesBookingData.base_amount",
+                gst_amount: "$salesBookingData.gst_amount",
+                requested_amount: "$salesBookingData.requested_amount",
+                approved_amount: "$salesBookingData.approved_amount",
+                execution_excel: {
+                    $concat: [
+                        constant.GCP_SALES_BOOKING_FOLDER_URL,
+                        "/",
+                        "$salesBookingData.record_service_file",
+                    ]
+                },
+            }
+        }])
+        // If no exectuion are found, return a response indicating no exectuion found
+        if (executionList.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
+        }
+        // Return a success response with the list of exectuion and pagination details
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Token wise execution data retrieved successfully!",
+            executionList,
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
