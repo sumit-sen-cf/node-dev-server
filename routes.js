@@ -1039,6 +1039,7 @@ router.get("/get_salary_by_month_wise", attendance.getSalaryByMonthWise);
 router.get("/get_salary_by_LPA", attendance.getSalaryWithLPAOfWFHD);
 router.get("/get_salary_by_LPA_of_wfo_users", attendance.getSalaryWithLPAOfWFO);
 router.get("/get_all_wfhd_users_with_bonus", attendance.getAllWFHDUsersWithBonus);
+router.put("/update_all_salary_with_finance", attendance.updateAllSalaryWithFinance);
 
 
 /* commitement */
@@ -1989,6 +1990,7 @@ router.get('/get_vendor_details_with_ids_by_id/:vendor_id', adminController.getV
 router.get('/generate_plural_payment_jwt_token', adminController.createJWTForPluralPayment)
 router.get('/update_vid_in_grouplink', adminController.updateVendoridinGroupLink)
 router.get('/copy_vhomeaddress_to_company', adminController.copyHomeToCompAddress)
+router.post("/create_payout", adminController.createpayout);
 
 /* expense api */
 router.post("/add_expense", expenseApi.addExpense);

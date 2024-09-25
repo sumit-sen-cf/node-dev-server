@@ -570,3 +570,49 @@ exports.copyHomeToCompAddress = async (req, res) => {
         res.status(500).json({ error: err.message, message: 'Error while shifting data' });
     }
 };
+
+exports.createpayout = async (req, res) => {
+    try {
+
+        if (!req.body.token) {
+            return res.status(400).json({
+                message: 'Authorization token is missing'
+            });
+        }
+
+        const payload = {
+            "clientReferenceId": req.body.clientReferenceId,
+            "payeeName": req.body.payeeName,
+            "accountNumber": req.body.accountNumber,
+            "branchCode": req.body.branchCode,
+            "email": req.body.email,
+            "phone": req.body.phone,
+            "amount": {
+                "currency": req.body.currency,
+                "value": req.body.value
+            },
+            "mode": req.body.mode,
+            "remarks": req.body.remarks
+        };
+
+        const response = await axios.post('https://api-staging.pluralonline.com/payouts/v2/payments/banks', payload, {
+            headers: {
+                'Authorization': `Bearer ${req.body.token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        res.status(200).json({
+            message: 'Payout created successfully',
+            data: response.data
+        });
+
+    } catch (err) {
+        console.error('Error creating payout:', err.response ? err.response.data : err.message);
+
+        res.status(err.response ? err.response.status : 500).json({
+            message: 'Error creating payout',
+            error: err.response ? err.response.data : err.message
+        });
+    }
+};

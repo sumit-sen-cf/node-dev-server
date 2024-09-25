@@ -831,6 +831,18 @@ exports.updateUser = [upload, async (req, res) => {
             editsim.joining_extend_document = '';
         }
 
+
+        // update salary also in attendance model
+        const attendanceData = await attendanceModel.findOneAndUpdate({
+            user_id: req.body.user_id
+        }, {
+            $set: {
+                salary: req.body.salary
+            }
+        }, {
+            new: true
+        });
+
         const historyData = new userHistoryModel({
             user_id: editsim.user_id,
             user_name: editsim.user_name,

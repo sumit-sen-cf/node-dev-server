@@ -5,6 +5,7 @@ const userModel = require("../models/userModel.js");
 const vari = require("../variables.js");
 const billingHeaderModel = require("../models/billingheaderModel.js");
 const separationModel = require("../models/separationModel.js");
+const financeModel = require("../models/financeModel.js");
 
 async function doesUserExistInAttendance(userId, month, year) {
   const results = await attendanceModel.find({
@@ -526,10 +527,8 @@ function getStartDateAndEndDate(monthName, year) {
     throw new Error("Invalid month name");
   }
 
-  const startDate = new Date(year, monthIndex, 17);
-  console.log("startDate", startDate);
-  const endDate = new Date(year, monthIndex + 1, 16);
-  console.log("endDate", endDate);
+  const startDate = new Date(year, monthIndex, 16);
+  const endDate = new Date(year, monthIndex + 1, 15);
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -616,11 +615,10 @@ exports.addAttendance = async (req, res) => {
           dept_id: req.body.dept,
           att_status: 'onboarded',
           user_status: "Active"
-        });
+        }).select({ user_name: 1, joining_date: 1, salary: 1, user_id: 1 });
 
         let filteredUserData = check2.map(user => {
           const attendance = attendanceData.find(data => data.user_id === user.user_id);
-          // console.log("attendance", attendance)
           if (attendance) {
             return { ...user.toObject(), ...attendance };
           } else {
@@ -630,6 +628,7 @@ exports.addAttendance = async (req, res) => {
 
         filteredUserData?.length > 0 &&
           filteredUserData.map(async (user) => {
+            // console.log("users", user);
             //logic for separation
             const resignDate = user.resignation_date;
 
@@ -658,37 +657,51 @@ exports.addAttendance = async (req, res) => {
 
             const extractDate = new Date(newconvertDate);
             const extractDate1 = extractDate.getDate();
+
             const joiningMonth = extractDate.getUTCMonth() + 1;
             const joiningYear = extractDate.getUTCFullYear();
             mergeJoining = `${joiningYear}` + `${joiningMonth}`;
             const previousMonthNumber = sMonth - 1;
             const previous = `${previousMonthNumber}` + `${year}`;
 
+            const nextMonthNumber = sMonth + 1;
+            const next = `${nextMonthNumber}` + `${year}`;
+
             const previousLastDate = getLastDate(previousMonthNumber, sYear);
+            const absent = noOfabsent == undefined ? 0 : req.body.noOfabsent;
 
             if (mergeStartDate == mergeJoining) {
               if (extractDate1 <= 15) {
-                work_days = 15 - (extractDate - 1);
+                work_days = (15 - (extractDate1 - 1)) - absent;
+                // console.log("work_days1", work_days);
               }
             } else if (user.user_status == "Resigned") {
-              work_days = (30 - resignExtractDate);
+              work_days = (30 - resignExtractDate) - absent;
+              // console.log("work_days2", work_days);
             } else if (previous <= mergeJoining) {
               if (extractDate1 <= 15) {
                 work_days = previousLastDate;
+                // console.log("work_days3", work_days);
               } else if (previousMonthNumber == joiningMonth) {
-                work_days = (previousLastDate - extractDate1) + 15
+                work_days = (previousLastDate - extractDate1) + 15 - absent
+                // console.log("work_days4", work_days);
               }
               else {
-                work_days = lastDate;
+                work_days = lastDate - absent;
+                // console.log("work_days5", work_days);
+              }
+            } else if (nextMonthNumber == joiningMonth) {
+              if (extractDate1 <= 15) {
+                work_days = (15 - extractDate1) - absent;
+                // console.log("work_days8", work_days);
               }
             }
             else {
-              work_days = lastDate;
+              work_days = lastDate - absent;
+              // console.log("work_days6", work_days);
             }
 
-            const absent = noOfabsent == undefined ? 0 : req.body.noOfabsent;
-
-            if (mergeStartDate >= mergeJoining) {
+            if (mergeStartDate >= mergeJoining || mergeJoining >= mergeStartDate) {
 
               const userExistsInAttendance = await doesUserExistInAttendance(
                 user.user_id,
@@ -696,40 +709,36 @@ exports.addAttendance = async (req, res) => {
                 req.body.year
               );
               if (!userExistsInAttendance) {
-                const presentDays = lastDate;
-
-                const perdaysal = user.salary / lastDate;
-
-                const totalSalary = (perdaysal * presentDays).toFixed(2);
-                console.log("ffffffffffffff", totalSalary);
 
                 const Bonus = bonus == undefined ? 0 : req.body.bonus;
-
+                const presentDays = work_days;
+                const perdaysal = (user.salary / lastDate).toFixed(2);
+                const working_days = work_days ? Number(work_days) : 0;
+                const totalSalary = ((perdaysal * working_days) + Bonus).toFixed(2);
                 const netSalary = totalSalary + Bonus;
-
-                const tdsDeduction = (user.salary) * (user.tds_per) / 100;
-
+                const tdsDeduction = Number(user.salary) * Number(user.tds_per || 0) / 100;
                 const ToPay = netSalary - tdsDeduction;
                 const salary = user.salary;
+
                 let invoiceNo = await createNextInvoiceNumber(user.user_id, monthName, sYear);
 
                 const attendanceId = getNextAttendanceId();
                 const creators = new attendanceModel({
                   attendence_id: attendanceId,
-                  dept: user.dept_id,
+                  dept: dept,
                   user_id: user.user_id,
                   invoiceNo: invoiceNo,
                   user_name: user.user_name,
-                  noOfabsent: Number(absent),
-                  present_days: Number(presentDays),
-                  month_salary: Number(totalSalary) && Number(totalSalary).toFixed(2),
+                  noOfabsent: absent,
+                  present_days: presentDays,
+                  month_salary: Number(totalSalary),
                   month: monthName,
                   year: sYear,
                   bonus: Bonus,
-                  total_salary: Number(user.salary) && Number(user.salary).toFixed(2),
-                  tds_deduction: Number(tdsDeduction) && Number(tdsDeduction).toFixed(2),
-                  net_salary: Number(netSalary) && Number(netSalary).toFixed(2),
-                  toPay: Number(ToPay) && Number(ToPay).toFixed(2),
+                  total_salary: user.salary,
+                  tds_deduction: Number(tdsDeduction),
+                  net_salary: Number(netSalary),
+                  toPay: ToPay,
                   remark: "",
                   Created_by: req.body.user_id,
                   salary,
@@ -759,8 +768,6 @@ exports.addAttendance = async (req, res) => {
           user_id: parseInt(req.body.user_id),
         });
 
-        // console.log("results4", results4)
-
         const findSeparationData = await separationModel.findOne({ user_id: req.body.user_id })
         const resignDate = findSeparationData?.resignation_date;
         const resignConvertDate = new Date(resignDate);
@@ -783,51 +790,49 @@ exports.addAttendance = async (req, res) => {
 
         const previousMonthNumber = sMonth - 1;
         const previous = `${previousMonthNumber}` + `${year}`;
+        const nextMonthNumber = sMonth + 1;
+        const next = `${nextMonthNumber}` + `${year}`;
+
+        const previousLastDate = getLastDate(previousMonthNumber, sYear);
 
         if (mergeStartDate == mergeJoining) {
           if (extractDate <= 15) {
-            work_days = 15 - (extractDate - 1) - absent;
-            // console.log("A", work_days);
+            work_days = (15 - (extractDate - 1)) - absent;
+            console.log("work_days1", work_days);
           }
-        } else if (results4.user_status == "Resigned") {
-          work_days = (30 - resignExtractDate);
-          // console.log("B", work_days);
+        } else if (results4[0].user_status == "Resigned") {
+          work_days = ((lastDate - resignExtractDate) - absent);
         } else if (previous <= mergeJoining) {
           if (extractDate <= 15) {
             work_days = previousLastDate - absent;
-            // console.log("C", work_days);
+            console.log("work_days2", work_days);
           } else if (previousMonthNumber == joiningMonth) {
             work_days = (previousLastDate - extractDate) + 15 - absent
-            // console.log("D", work_days);
-
+            console.log("work_days3", work_days);
           }
           else {
             work_days = lastDate - absent;
-            // console.log("E", work_days);
-
+            console.log("work_days4", work_days);
+          }
+        } else if (nextMonthNumber == joiningMonth) {
+          if (extractDate <= 15) {
+            work_days = (15 - extractDate) - absent;
+            console.log("work_days5", work_days);
           }
         }
         else {
           work_days = lastDate - absent;
-          // console.log("F", work_days);
-
+          console.log("work_days6", work_days);
         }
 
-        const presentDays = lastDate;
-        // console.log("presentDays", presentDays);
-        // const perdaysal = Math.round(results4[0].salary / lastDate);
-        const perdaysal = (results4[0].salary / lastDate);
-        // console.log("perdaysal", perdaysal);
         const Bonus = bonus == undefined ? 0 : req.body.bonus;
-        const totalSalary = ((perdaysal * work_days) + Bonus).toFixed(2);
-        console.log("ddddd", totalSalary);
-        // console.log("totalSalary", totalSalary);
-        // console.log("Bonus", Bonus);
+        const presentDays = work_days;
+        const perdaysal = (results4[0].salary / lastDate).toFixed(2);
+        const working_days = work_days ? Number(work_days) : 0;
+        const totalSalary = ((perdaysal * working_days) + Bonus).toFixed(2);
         const netSalary = totalSalary - salaryDeduction;
-        // console.log("netSalary", netSalary);
-        const tdsDeduction = (results4[0].salary) * (results4[0].tds_per) / 100;
+        const tdsDeduction = Number(results4[0].salary) * Number(results4[0].tds_per || 0) / 100;
         const ToPay = netSalary - tdsDeduction;
-        // console.log("ToPay", ToPay);
         const salary = results4[0].salary;
 
         const editsim = await attendanceModel.findOneAndUpdate(
@@ -849,6 +854,7 @@ exports.addAttendance = async (req, res) => {
             toPay: ToPay,
             month_salary: presentDays * perdaysal,
             remark: req.body.remark,
+            present_days: presentDays,
             salary,
             salary_deduction,
             attendence_status,
@@ -1247,7 +1253,10 @@ exports.getSalaryByUserId = async (req, res) => {
           },
         },
         {
-          $unwind: "$department",
+          $unwind: {
+            path: "$department",
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
           $lookup: {
@@ -1287,7 +1296,10 @@ exports.getSalaryByUserId = async (req, res) => {
           },
         },
         {
-          $unwind: "$user",
+          $unwind: {
+            path: "$user",
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
           $lookup: {
@@ -1298,7 +1310,10 @@ exports.getSalaryByUserId = async (req, res) => {
           },
         },
         {
-          $unwind: "$designation",
+          $unwind: {
+            path: "$designation",
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
           $project: {
@@ -1392,8 +1407,7 @@ exports.getSalaryByUserId = async (req, res) => {
         {
           $replaceRoot: { newRoot: "$data" },
         },
-      ])
-      .exec();
+      ]).sort({ attendence_id: -1 });
     if (getcreators?.length === 0) {
       return res.status(500).send({ success: false });
     }
@@ -3272,3 +3286,32 @@ exports.getSalaryWithLPAOfWFO = async (req, res) => {
     });
   }
 }
+
+exports.updateAllSalaryWithFinance = async (req, res) => {
+  try {
+    const { attendence_ids, sendToFinance } = req.body;
+
+    if (!attendence_ids || !attendence_ids.length) {
+      return res.status(400).json({ message: "No attendance IDs provided" });
+    }
+
+    const financeRecords = attendence_ids.map(attendence_id => ({
+      attendence_id: attendence_id,
+    }));
+
+    const insertedFinance = await financeModel.insertMany(financeRecords);
+    const updatedAttendance = await attendanceModel.updateMany(
+      { attendence_id: { $in: attendence_ids } },
+      { $set: { sendToFinance: sendToFinance, attendence_status_flow: 'Pending From Finance' } }
+    );
+
+    res.status(200).json({
+      message: "Finance data inserted and attendance updated successfully",
+      finance: insertedFinance,
+      attendance: updatedAttendance,
+    });
+  } catch (err) {
+    console.error("Error updating salary with finance:", err.message);
+    res.status(500).json({ message: "Internal server error", error: err.message });
+  }
+};
