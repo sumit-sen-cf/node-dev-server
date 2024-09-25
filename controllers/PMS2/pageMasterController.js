@@ -451,3 +451,100 @@ exports.getPageMasterDetailBYPID = async (req, res) => {
 //         return response.returnFalse(500, req, res, `${error.message}`, {});
 //     }
 // };
+
+exports.getPageMasterData = async (req, res) => {
+    try {
+        const simc = await pageMasterModel.aggregate([
+            {
+                $lookup: {
+                    from: 'pms2pagecategorymodels',
+                    localField: 'page_category_id',
+                    foreignField: '_id',
+                    as: 'pageData'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$pageData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: 'pms2vendormodels',
+                    localField: 'vendor_id',
+                    foreignField: '_id',
+                    as: 'VendorData'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$VendorData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: 'pms2pagepricetypemodels',
+                    localField: 'platfrom_id',
+                    foreignField: 'platform_id',
+                    as: 'pricetypeData'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$pricetypeData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    p_id: 1,
+                    page_name: 1,
+                    page_link: 1,
+                    page_status: 1,
+                    follower_count_before_update: 1,
+                    vendor_id: 1,
+                    temp_vendor_id: 1,
+                    price_type: 1,
+                    story: 1,
+                    post: 1,
+                    both_: 1,
+                    m_post_price: 1,
+                    m_story_price: 1,
+                    m_both_price: 1,
+                    created_at: 1,
+                    ownership_type: 1,
+                    page_closed_by: 1,
+                    page_profile_type_id: 1,
+                    page_name_type: 1,
+                    rate_type: 1,
+                    update_date: 1,
+                    est_update: 1,
+                    last_updated_by: 1,
+                    status: 1,
+                    updatedAt: 1,
+                    page_category_id: 1,
+                    followers_count: 1,
+                    platform_id: 1,
+                    preference_level: 1,
+                    temp_page_cat_id: 1,
+                    content_creation: 1,
+                    tags_page_category: 1,
+                    platform_active_on: 1,
+                    page_cat_name: "$pageData.page_category",
+                    num_vendor_id: "$VendorData.vendor_id",
+                    vendor_name: "$VendorData.vendor_name",
+                    price_type_name: "$pricetypeData.name"
+                }
+            }
+        ]).exec();
+        if (!simc) {
+            res.status(500).send({ success: false })
+        }
+        res.status(200).send(simc)
+    } catch (err) {
+        res.status(500).send({ error: err.message, sms: 'error getting all page Data' })
+    }
+}

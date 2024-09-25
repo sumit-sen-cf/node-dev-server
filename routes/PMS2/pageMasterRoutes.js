@@ -6,7 +6,8 @@ const {
     getSinglePageMasterDetails,
     deletePageMasterDetails,
     getPageMasterDataVendorWise,
-    getPageMasterDetailBYPID
+    getPageMasterDetailBYPID,
+    getPageMasterData
 } = require("../../controllers/PMS2/pageMasterController");
 const { addPageMasterValidation, updatePageMasterValidation } = require("../../helper/validation");
 const { verifyToken } = require("../../middleware/auth");
@@ -14,7 +15,8 @@ const router = express.Router();
 
 router.post("/pageMaster", verifyToken, addPageMaster);
 router.put("/pageMaster/:id", verifyToken, updateSinglePageMasterDetails);
-router.get("/pageMaster", verifyToken, getAllPageMasterDetails);
+router.get("/pageMaster", getAllPageMasterDetails);
+router.get("/pageMasterData", getPageMasterData);
 router.get("/pageMaster/:id", verifyToken, getSinglePageMasterDetails);
 router.get("/pageMasterDataByPID/:p_id", getPageMasterDetailBYPID);
 router.delete("/pageMaster/:id", verifyToken, deletePageMasterDetails);

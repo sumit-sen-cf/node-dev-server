@@ -172,15 +172,15 @@ exports.getFinances = async (req, res) => {
           beneficiary_name: "$user_data.beneficiary"
         },
       },
-      {
-        $group: {
-          _id: "$id",
-          data: { $first: "$$ROOT" }
-        }
-      },
-      {
-        $replaceRoot: { newRoot: "$data" }
-      }
+      // {
+      //   $group: {
+      //     _id: "$id",
+      //     data: { $first: "$$ROOT" }
+      //   }
+      // },
+      // {
+      //   $replaceRoot: { newRoot: "$data" }
+      // }
     ]);
     if (!simc) {
       res.status(500).send({ success: false });
