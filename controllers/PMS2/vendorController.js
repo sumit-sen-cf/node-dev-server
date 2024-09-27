@@ -5,7 +5,8 @@ const paymentMethodModel = require("../../models/PMS2/paymentMethodModel");
 const vendorGroupLinkModel = require("../../models/PMS2/vendorGroupLinkModel");
 const vendorModel = require("../../models/PMS2/vendorModel");
 const companyDetailsModel = require("../../models/PMS2/companyDetailsModel");
-
+const XLSX = require('xlsx');
+const bulkVendorModel = require("../../models/PMS2/bulkVendorModel");
 
 exports.createVendorData = async (req, res) => {
     try {
@@ -411,3 +412,48 @@ exports.getVendorDetailsBYVendorId = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
+exports.insertBulkVendor = async (req, res) => {
+    try{
+        const workbook = XLSX.read(req.file.buffer, {type: 'buffer'})
+        const sheetName = workbook.SheetNames[0]
+        const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName])
+
+        const {vendor_id, category_id} = req.body;
+        const vendorsData = worksheet.map((row) => ({
+            page_id: row.page_id,
+            vendor_id: vendor_id,
+            category_id: category_id,
+            page_name: row.page_name,
+            story: row.story,
+            post: row.post,
+            both: row.both,
+            m_story: row.m_story,
+            m_post: row.m_post,
+            m_both: row.m_both,
+            reel: row.reel,
+            carousel: row.carousel,
+        }))
+
+        await bulkVendorModel.insertMany(vendorsData);
+        return response.returnTrue(200, req, res, "Bulk Vendor data added successfully!", {});
+    }catch(err){
+        return response.returnFalse(500, req, res, `${err.message}`, {})
+    }
+}
+
+exports.bulkVendorData = async (req, res) => {
+    try {
+        const page = req.query.page;
+        let limit = 0; 
+
+        if (page && !isNaN(page) && parseInt(page) > 0) {
+            limit = parseInt(page) * 10;
+        }
+        const vendors = await bulkVendorModel.find().limit(limit);
+
+        return response.returnTrue(200, req, res, "Bulk Vendor data fetched successfully!", vendors);
+    } catch (err) {
+        return response.returnFalse(500, req, res, `${err.message}`, {});
+    }
+}
