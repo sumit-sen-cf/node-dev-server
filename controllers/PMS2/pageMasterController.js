@@ -177,16 +177,166 @@ exports.getSinglePageMasterDetails = async (req, res) => {
 //     }
 // };
 
+// exports.getAllPageMasterDetails = async (req, res) => {
+//     try {
+//         const page = req.query.page ? parseInt(req.query.page) : null;
+//         const limit = req.query.limit ? parseInt(req.query.limit) : null;
+//         const skip = (page - 1) * limit;
+//         let pageMasterDetails;
+
+//         const matchQuery = {
+//             page_mast_status: { $ne: constant.DELETED }
+//         };
+
+//         const pipeline = [
+//             { $match: matchQuery },
+//             {
+//                 $lookup: {
+//                     from: "pms2pagepricemultiplemodels",
+//                     localField: "_id",
+//                     foreignField: "page_master_id",
+//                     as: "price_details"
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "pms2pagepricetypemodels",
+//                     localField: "price_details.page_price_type_id",
+//                     foreignField: "_id",
+//                     as: "pagePriceData"
+//                 }
+//             },
+//             {
+//                 $match: { "price_details.0": { $exists: true }, "pagePriceData.0": { $exists: true } }
+//             },
+//             {
+//                 $project: {
+//                     _id: 1,
+//                     p_id: 1,
+//                     page_name: 1,
+//                     page_link: 1,
+//                     page_category_id: 1,
+//                     follower_count_before_update: 1,
+//                     vendor_id: 1,
+//                     temp_vendor_id: 1,
+//                     price_type: 1,
+//                     story: 1,
+//                     post: 1,
+//                     both_: 1,
+//                     m_post_price: 1,
+//                     m_story_price: 1,
+//                     m_both_price: 1,
+//                     created_at: 1,
+//                     ownership_type: 1,
+//                     page_closed_by: 1,
+//                     page_profile_type_id: 1,
+//                     page_name_type: 1,
+//                     rate_type: 1,
+//                     update_date: 1,
+//                     est_update: 1,
+//                     last_updated_by: 1,
+//                     page_mast_status: 1,
+//                     updatedAt: 1,
+//                     followers_count: 1,
+//                     platform_id: 1,
+//                     preference_level: 1,
+//                     temp_page_cat_id: 1,
+//                     content_creation: 1,
+//                     tags_page_category: 1,
+//                     platform_active_on: 1,
+//                     tag_category: 1,
+//                     created_by: 1,
+//                     page_sub_category_id: 1,
+//                     price_data: {
+//                         $map: {
+//                             input: "$price_details",
+//                             as: "priceDetail",
+//                             in: {
+//                                 page_price_name: {
+//                                     $arrayElemAt: [
+//                                         {
+//                                             $filter: {
+//                                                 input: "$pagePriceData",
+//                                                 as: "priceType",
+//                                                 cond: {
+//                                                     $eq: ["$$priceType._id", "$$priceDetail.page_price_type_id"]
+//                                                 }
+//                                             }
+//                                         },
+//                                         0
+//                                     ]
+//                                 },
+//                                 price: "$$priceDetail.price",
+//                                 index: {
+//                                     $switch: {
+//                                         branches: [
+//                                             {
+//                                                 case: { $regexMatch: { input: "$$priceDetail.name", regex: /Post/i } },
+//                                                 then: 1
+//                                             },
+//                                             {
+//                                                 case: { $regexMatch: { input: "$$priceDetail.name", regex: /Story/i } },
+//                                                 then: 2
+//                                             },
+//                                             {
+//                                                 case: { $regexMatch: { input: "$$priceDetail.name", regex: /Both/i } },
+//                                                 then: 3
+//                                             }
+//                                         ],
+//                                         default: 0
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         ];
+
+//         if (page && limit) {
+//             pipeline.push(
+//                 { $skip: skip },
+//                 { $limit: limit }
+//             );
+//         }
+
+//         pageMasterDetails = await pageMasterModel.aggregate(pipeline);
+
+//         if (pageMasterDetails?.length <= 0) {
+//             return response.returnFalse(200, req, res, `No Record Found`, []);
+//         }
+
+//         const pageMasterDataCount = await pageMasterModel.countDocuments(matchQuery);
+
+//         // Send success response with pagination details
+//         return response.returnTrueWithPagination(
+//             200,
+//             req,
+//             res,
+//             "page master list fetched successfully!",
+//             pageMasterDetails,
+//             {
+//                 start_record: skip + 1,
+//                 end_record: skip + pageMasterDetails?.length,
+//                 total_records: pageMasterDataCount,
+//                 currentPage: page,
+//                 total_page: Math.ceil(pageMasterDataCount / limit),
+//             }
+//         );
+//     } catch (error) {
+//         return response.returnFalse(500, req, res, `${error.message}`, {});
+//     }
+// };
+
 exports.getAllPageMasterDetails = async (req, res) => {
     try {
-        const page = req.query.page ? parseInt(req.query.page) : null;
-        const limit = req.query.limit ? parseInt(req.query.limit) : null;
-        const skip = (page - 1) * limit;
         let pageMasterDetails;
 
         const matchQuery = {
             page_mast_status: { $ne: constant.DELETED }
         };
+
+        console.log("matchQuery", matchQuery);
 
         const pipeline = [
             { $match: matchQuery },
@@ -244,61 +394,65 @@ exports.getAllPageMasterDetails = async (req, res) => {
                     content_creation: 1,
                     tags_page_category: 1,
                     platform_active_on: 1,
-                    tag_category: 1,
                     created_by: 1,
                     page_sub_category_id: 1,
-                    price_data: {
-                        $map: {
+                    price_details_obj: {
+                        $reduce: {
                             input: "$price_details",
-                            as: "priceDetail",
+                            initialValue: {},
                             in: {
-                                page_price_name: {
-                                    $arrayElemAt: [
-                                        {
-                                            $filter: {
-                                                input: "$pagePriceData",
-                                                as: "priceType",
-                                                cond: {
-                                                    $eq: ["$$priceType._id", "$$priceDetail.page_price_type_id"]
+                                $mergeObjects: [
+                                    "$$value",
+                                    {
+                                        $arrayToObject: {
+                                            $map: {
+                                                input: {
+                                                    $filter: {
+                                                        input: "$pagePriceData",
+                                                        as: "priceType",
+                                                        cond: {
+                                                            $eq: ["$$priceType._id", "$$this.page_price_type_id"]
+                                                        }
+                                                    }
+                                                },
+                                                as: "matchedPriceType",
+                                                in: {
+                                                    k: "$$matchedPriceType.name",
+                                                    v: "$$this.price"
                                                 }
                                             }
-                                        },
-                                        0
-                                    ]
-                                },
-                                price: "$$priceDetail.price",
-                                index: {
-                                    $switch: {
-                                        branches: [
-                                            {
-                                                case: { $regexMatch: { input: "$$priceDetail.name", regex: /Post/i } },
-                                                then: 1
-                                            },
-                                            {
-                                                case: { $regexMatch: { input: "$$priceDetail.name", regex: /Story/i } },
-                                                then: 2
-                                            },
-                                            {
-                                                case: { $regexMatch: { input: "$$priceDetail.name", regex: /Both/i } },
-                                                then: 3
-                                            }
-                                        ],
-                                        default: 0
+                                        }
                                     }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    price_details: {
+                        $arrayToObject: {
+                            $map: {
+                                input: {
+                                    $objectToArray: "$price_details_obj"
+                                },
+                                as: "priceDetail",
+                                in: {
+                                    k: "$$priceDetail.k",
+                                    v: "$$priceDetail.v"
                                 }
                             }
                         }
                     }
                 }
+            },
+            {
+                $project: {
+                    price_details_obj: 0
+                }
             }
         ];
-
-        if (page && limit) {
-            pipeline.push(
-                { $skip: skip },
-                { $limit: limit }
-            );
-        }
 
         pageMasterDetails = await pageMasterModel.aggregate(pipeline);
 
@@ -306,22 +460,12 @@ exports.getAllPageMasterDetails = async (req, res) => {
             return response.returnFalse(200, req, res, `No Record Found`, []);
         }
 
-        const pageMasterDataCount = await pageMasterModel.countDocuments(matchQuery);
-
-        // Send success response with pagination details
-        return response.returnTrueWithPagination(
+        return response.returnTrue(
             200,
             req,
             res,
-            "page master list fetched successfully!",
-            pageMasterDetails,
-            {
-                start_record: skip + 1,
-                end_record: skip + pageMasterDetails?.length,
-                total_records: pageMasterDataCount,
-                currentPage: page,
-                total_page: Math.ceil(pageMasterDataCount / limit),
-            }
+            "Page master list fetched successfully!",
+            pageMasterDetails
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
