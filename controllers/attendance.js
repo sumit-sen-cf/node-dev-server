@@ -716,7 +716,7 @@ exports.addAttendance = async (req, res) => {
                 const working_days = work_days ? Number(work_days) : 0;
                 const totalSalary = ((perdaysal * working_days) + Bonus).toFixed(2);
                 const netSalary = totalSalary + Bonus;
-                const tdsDeduction = Number(user.salary) * Number(user.tds_per || 0) / 100;
+                const tdsDeduction = Number(totalSalary) * Number(user.tds_per || 0) / 100;
                 const ToPay = netSalary - tdsDeduction;
                 const salary = user.salary;
 
@@ -831,7 +831,7 @@ exports.addAttendance = async (req, res) => {
         const working_days = work_days ? Number(work_days) : 0;
         const totalSalary = ((perdaysal * working_days) + Bonus).toFixed(2);
         const netSalary = totalSalary - salaryDeduction;
-        const tdsDeduction = Number(results4[0].salary) * Number(results4[0].tds_per || 0) / 100;
+        const tdsDeduction = Number(totalSalary) * Number(results4[0].tds_per || 0) / 100;
         const ToPay = netSalary - tdsDeduction;
         const salary = results4[0].salary;
 

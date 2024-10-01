@@ -46,6 +46,7 @@ module.exports = Object.freeze({
   DELETED: 2,
   ACTIVE: 0,
   INACTIVE: 1,
+  SEMI_ACTIVE: 3,
 
   //@2 Email Configuration
   CONST_MAIL_USER_FOR_ALERT: "naveen@creativefuel.io",
@@ -55,5 +56,5 @@ module.exports = Object.freeze({
   //@2 Formates for sarcasm image
   CONST_SARCASM_FOLDER: "sarcasm_co",
   CONST_IMAGE_FORMATE: ".jpeg",
-  CONST_BLOG_IMAGES_URL : `${vari.IMAGE_URL}sarcasm_co/`
+  CONST_BLOG_IMAGES_URL: `${vari.IMAGE_URL}sarcasm_co/`
 });
