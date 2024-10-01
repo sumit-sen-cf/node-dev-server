@@ -35,5 +35,8 @@ const pagePriceMultipleSchema = new Schema({
 }, {
     timestamps: true
 });
+
+pagePriceMultipleSchema.index({ page_master_id: 1 })
+
 const pagePriceMultipleModel = mongoose.model("Pms2PagePriceMultipleModel", pagePriceMultipleSchema);
 module.exports = pagePriceMultipleModel;
