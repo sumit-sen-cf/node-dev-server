@@ -169,5 +169,7 @@ pageMasterSchema.pre('save', async function (next) {
     next();
 });
 
+pageMasterSchema.index({ page_name: 1 })
+
 const pageMasterModel = mongoose.model("Pms2PageMasterModel", pageMasterSchema);
 module.exports = pageMasterModel;
