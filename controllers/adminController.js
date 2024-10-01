@@ -573,8 +573,9 @@ exports.copyHomeToCompAddress = async (req, res) => {
 
 exports.createpayout = async (req, res) => {
     try {
+        const token = req.headers.authorization;
 
-        if (!req.body.token) {
+        if (!token) {
             return res.status(400).json({
                 message: 'Authorization token is missing'
             });
@@ -597,7 +598,7 @@ exports.createpayout = async (req, res) => {
 
         const response = await axios.post('https://api-staging.pluralonline.com/payouts/v2/payments/banks', payload, {
             headers: {
-                'Authorization': `Bearer ${req.body.token}`,
+                'Authorization': token,
                 'Content-Type': 'application/json'
             }
         });

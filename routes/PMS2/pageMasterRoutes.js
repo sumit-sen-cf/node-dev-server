@@ -7,7 +7,9 @@ const {
     deletePageMasterDetails,
     getPageMasterDataVendorWise,
     getPageMasterDetailBYPID,
-    getPageMasterData
+    getPageMasterData,
+    getAllPageCategoryAssignments,
+    addPageCategoryAssignmentToUser
 } = require("../../controllers/PMS2/pageMasterController");
 const { addPageMasterValidation, updatePageMasterValidation } = require("../../helper/validation");
 const { verifyToken } = require("../../middleware/auth");
@@ -19,7 +21,9 @@ router.get("/pageMaster", getAllPageMasterDetails);
 router.get("/pageMasterData", getPageMasterData);
 router.get("/pageMaster/:id", verifyToken, getSinglePageMasterDetails);
 router.get("/pageMasterDataByPID/:p_id", getPageMasterDetailBYPID);
-router.delete("/pageMaster/:id", verifyToken, deletePageMasterDetails);
+router.delete("/pageMaster/:id", deletePageMasterDetails);
 router.get("/vendor_wise_page_master_data/:id", verifyToken, getPageMasterDataVendorWise);
+router.post('/add_page_cat_assignment', addPageCategoryAssignmentToUser);
+router.get("/get_all_page_cat_assignment/:user_id", getAllPageCategoryAssignments);
 
 module.exports = router;

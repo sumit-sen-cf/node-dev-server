@@ -119,7 +119,7 @@ const pageMasterSchema = new Schema({
         required: false,
         default: 0,
     },
-    status: {
+    page_mast_status: {
         type: Number,
         required: false,
         default: constant?.ACTIVE,

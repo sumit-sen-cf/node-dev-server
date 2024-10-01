@@ -2,13 +2,14 @@ const constant = require("../../common/constant");
 const response = require("../../common/response");
 const pageMasterModel = require("../../models/PMS2/pageMasterModel");
 const pagePriceMultipleModel = require("../../models/PMS2/pagePriceMultipleModel");
+const pageCatAssignment = require("../../models/pageCatAssignment");
 const vendorModel = require("../../models/PMS2/vendorModel");
 const { ObjectId } = require('mongodb');
 
 exports.addPageMaster = async (req, res) => {
     try {
         //get data from body 
-        const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link, status, preference_level,
+        const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link, page_mast_status, preference_level,
             content_creation, ownership_type, rate_type, variable_type, description, page_closed_by, followers_count, engagment_rate, tags_page_category,
             platform_active_on, created_by, story, post, both_, m_post_price, m_story_price, m_both_price, page_sub_category_id } = req.body;
 
@@ -22,7 +23,7 @@ exports.addPageMaster = async (req, res) => {
             page_name_type,
             primary_page,
             page_link,
-            status,
+            page_mast_status,
             preference_level,
             content_creation,
             ownership_type,
@@ -115,7 +116,7 @@ exports.getSinglePageMasterDetails = async (req, res) => {
         const { id } = req.params;
         const pageMasterDetail = await pageMasterModel.findOne({
             _id: id,
-            status: { $ne: constant.DELETED },
+            page_mast_status: { $ne: constant.DELETED },
         });
         if (!pageMasterDetail) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
@@ -132,6 +133,50 @@ exports.getSinglePageMasterDetails = async (req, res) => {
     }
 };
 
+// exports.getAllPageMasterDetails = async (req, res) => {
+//     try {
+//         const page = req.query.page ? parseInt(req.query.page) : null;
+//         const limit = req.query.limit ? parseInt(req.query.limit) : null;
+//         const skip = (page - 1) * limit;
+//         let pageMasterDetails;
+
+//         if (page && limit) {
+//             pageMasterDetails = await pageMasterModel.find({
+//                 status: { $ne: constant.DELETED },
+//             }).skip(skip).limit(limit);
+//         } else {
+//             pageMasterDetails = await pageMasterModel.find({
+//                 status: { $ne: constant.DELETED },
+//             });
+//         }
+
+//         if (pageMasterDetails?.length <= 0) {
+//             return response.returnFalse(200, req, res, `No Record Found`, []);
+//         }
+
+//         const pageMasterDataCount = await pageMasterModel.countDocuments();
+
+//         //send success response
+//         return response.returnTrueWithPagination(
+//             200,
+//             req,
+//             res,
+//             "page master list fetch successfully!",
+//             pageMasterDetails,
+//             {
+//                 start_record: skip + 1,
+//                 end_record: skip + pageMasterDetails?.length,
+//                 total_records: pageMasterDataCount,
+//                 currentPage: page,
+//                 total_page: Math.ceil(pageMasterDataCount / limit),
+
+//             }
+//         );
+//     } catch (error) {
+//         return response.returnFalse(500, req, res, `${error.message}`, {});
+//     }
+// };
+
 exports.getAllPageMasterDetails = async (req, res) => {
     try {
         const page = req.query.page ? parseInt(req.query.page) : null;
@@ -139,28 +184,136 @@ exports.getAllPageMasterDetails = async (req, res) => {
         const skip = (page - 1) * limit;
         let pageMasterDetails;
 
+        const matchQuery = {
+            page_mast_status: { $ne: constant.DELETED }
+        };
+
+        const pipeline = [
+            { $match: matchQuery },
+            {
+                $lookup: {
+                    from: "pms2pagepricemultiplemodels",
+                    localField: "_id",
+                    foreignField: "page_master_id",
+                    as: "price_details"
+                }
+            },
+            {
+                $lookup: {
+                    from: "pms2pagepricetypemodels",
+                    localField: "price_details.page_price_type_id",
+                    foreignField: "_id",
+                    as: "pagePriceData"
+                }
+            },
+            {
+                $match: { "price_details.0": { $exists: true }, "pagePriceData.0": { $exists: true } }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    p_id: 1,
+                    page_name: 1,
+                    page_link: 1,
+                    page_category_id: 1,
+                    follower_count_before_update: 1,
+                    vendor_id: 1,
+                    temp_vendor_id: 1,
+                    price_type: 1,
+                    story: 1,
+                    post: 1,
+                    both_: 1,
+                    m_post_price: 1,
+                    m_story_price: 1,
+                    m_both_price: 1,
+                    created_at: 1,
+                    ownership_type: 1,
+                    page_closed_by: 1,
+                    page_profile_type_id: 1,
+                    page_name_type: 1,
+                    rate_type: 1,
+                    update_date: 1,
+                    est_update: 1,
+                    last_updated_by: 1,
+                    page_mast_status: 1,
+                    updatedAt: 1,
+                    followers_count: 1,
+                    platform_id: 1,
+                    preference_level: 1,
+                    temp_page_cat_id: 1,
+                    content_creation: 1,
+                    tags_page_category: 1,
+                    platform_active_on: 1,
+                    tag_category: 1,
+                    created_by: 1,
+                    page_sub_category_id: 1,
+                    price_data: {
+                        $map: {
+                            input: "$price_details",
+                            as: "priceDetail",
+                            in: {
+                                page_price_name: {
+                                    $arrayElemAt: [
+                                        {
+                                            $filter: {
+                                                input: "$pagePriceData",
+                                                as: "priceType",
+                                                cond: {
+                                                    $eq: ["$$priceType._id", "$$priceDetail.page_price_type_id"]
+                                                }
+                                            }
+                                        },
+                                        0
+                                    ]
+                                },
+                                price: "$$priceDetail.price",
+                                index: {
+                                    $switch: {
+                                        branches: [
+                                            {
+                                                case: { $regexMatch: { input: "$$priceDetail.name", regex: /Post/i } },
+                                                then: 1
+                                            },
+                                            {
+                                                case: { $regexMatch: { input: "$$priceDetail.name", regex: /Story/i } },
+                                                then: 2
+                                            },
+                                            {
+                                                case: { $regexMatch: { input: "$$priceDetail.name", regex: /Both/i } },
+                                                then: 3
+                                            }
+                                        ],
+                                        default: 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        ];
+
         if (page && limit) {
-            pageMasterDetails = await pageMasterModel.find({
-                status: { $ne: constant.DELETED },
-            }).skip(skip).limit(limit);
-        } else {
-            pageMasterDetails = await pageMasterModel.find({
-                status: { $ne: constant.DELETED },
-            });
+            pipeline.push(
+                { $skip: skip },
+                { $limit: limit }
+            );
         }
+
+        pageMasterDetails = await pageMasterModel.aggregate(pipeline);
 
         if (pageMasterDetails?.length <= 0) {
             return response.returnFalse(200, req, res, `No Record Found`, []);
         }
 
-        const pageMasterDataCount = await pageMasterModel.countDocuments();
+        const pageMasterDataCount = await pageMasterModel.countDocuments(matchQuery);
 
-        //send success response
+        // Send success response with pagination details
         return response.returnTrueWithPagination(
             200,
             req,
             res,
-            "page master list fetch successfully!",
+            "page master list fetched successfully!",
             pageMasterDetails,
             {
                 start_record: skip + 1,
@@ -168,7 +321,6 @@ exports.getAllPageMasterDetails = async (req, res) => {
                 total_records: pageMasterDataCount,
                 currentPage: page,
                 total_page: Math.ceil(pageMasterDataCount / limit),
-
             }
         );
     } catch (error) {
@@ -176,14 +328,14 @@ exports.getAllPageMasterDetails = async (req, res) => {
     }
 };
 
+
 exports.updateSinglePageMasterDetails = async (req, res) => {
     try {
         const { id } = req.params;
 
         const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link,
-            status, preference_level, content_creation, ownership_type, rate_type, variable_type, description, page_closed_by,
-            followers_count, engagment_rate, tags_page_category, platform_active_on, last_updated_by, story, post, both_, m_post_price,
-            m_story_price, m_both_price, page_sub_category_id } = req.body;
+            page_mast_status, preference_level, content_creation, ownership_type, rate_type, variable_type, description, page_closed_by,
+            followers_count, engagment_rate, tags_page_category, platform_active_on, last_updated_by, story, post, both_, m_post_price, m_story_price, m_both_price } = req.body;
 
         const pageMasterDetails = await pageMasterModel.findOneAndUpdate({
             _id: id
@@ -197,7 +349,7 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
                 page_name_type,
                 primary_page,
                 page_link,
-                status,
+                page_mast_status,
                 preference_level,
                 content_creation,
                 ownership_type,
@@ -258,14 +410,24 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
 exports.deletePageMasterDetails = async (req, res) => {
     try {
         const { id } = req.params;
+
+        const findVendorData = await pageMasterModel.findOne({ _id: id });
+        const vendor = await vendorModel.findOne({ _id: new ObjectId(findVendorData.vendor_id) });
+
+        const updatedVendor = await vendorModel.findOneAndUpdate(
+            { _id: new ObjectId(findVendorData.vendor_id) },
+            { $set: { page_count: vendor.page_count - 1 } },
+            { new: true }
+        );
+
         const pageMasterDeleted = await pageMasterModel.findOneAndUpdate({
             _id: id,
-            status: {
+            page_mast_status: {
                 $ne: constant.DELETED
             }
         }, {
             $set: {
-                status: constant.DELETED,
+                page_mast_status: constant.DELETED,
             }
         }, {
             new: true
@@ -290,7 +452,7 @@ exports.getPageMasterDataVendorWise = async (req, res) => {
         const { id } = req.params;
         const pageMasterDetail = await pageMasterModel.find({
             vendor_id: id,
-            status: {
+            page_mast_status: {
                 $ne: constant.DELETED
             }
         });
@@ -314,7 +476,7 @@ exports.getPageMasterDetailBYPID = async (req, res) => {
         const pageId = parseInt(req.params.p_id);
         const pageMasterDetail = await pageMasterModel.findOne({
             p_id: pageId,
-            status: { $ne: constant.DELETED },
+            page_mast_status: { $ne: constant.DELETED },
         });
         if (!pageMasterDetail) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
@@ -506,7 +668,7 @@ exports.getPageMasterData = async (req, res) => {
                     p_id: 1,
                     page_name: 1,
                     page_link: 1,
-                    page_status: 1,
+                    // page_status: 1,
                     follower_count_before_update: 1,
                     vendor_id: 1,
                     temp_vendor_id: 1,
@@ -526,7 +688,7 @@ exports.getPageMasterData = async (req, res) => {
                     update_date: 1,
                     est_update: 1,
                     last_updated_by: 1,
-                    status: 1,
+                    page_mast_status: 1,
                     updatedAt: 1,
                     page_category_id: 1,
                     followers_count: 1,
@@ -541,6 +703,15 @@ exports.getPageMasterData = async (req, res) => {
                     vendor_name: "$VendorData.vendor_name",
                     price_type_name: "$pricetypeData.name"
                 }
+            },
+            {
+                $group: {
+                    _id: "$p_id",
+                    data: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$data" }
             }
         ]).exec();
         if (!simc) {
@@ -549,5 +720,45 @@ exports.getPageMasterData = async (req, res) => {
         res.status(200).send(simc)
     } catch (err) {
         res.status(500).send({ error: err.message, sms: 'error getting all page Data' })
+    }
+}
+
+exports.addPageCategoryAssignmentToUser = async (req, res) => {
+    try {
+        const { user_id, page_master_id, page_category_id } = req.body;
+
+        const savingObj = await pageCatAssignment.create({
+            user_id: user_id,
+            page_master_id: page_master_id,
+            page_category_id: page_category_id
+        });
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Successfully assignment page Master Data",
+            savingObj
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, `${err.message}`, {});
+    }
+}
+
+exports.getAllPageCategoryAssignments = async (req, res) => {
+    try {
+        const user_id = req.params.user_id;
+
+        const data = await pageCatAssignment.find({ user_id: user_id });
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Successfully get all page Master Data",
+            data
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, `${err.message}`, {});
     }
 }
