@@ -21,6 +21,7 @@ require("./controllers/autoMail.js");
 require("./controllers/assetAutoMail.js");
 const https = require("https");
 const fs = require("fs");
+const Bot = require('./controllers/Bot.js')
 
 const app = express();
 cron.cronImplement();
