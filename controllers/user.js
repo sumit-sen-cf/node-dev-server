@@ -5583,3 +5583,67 @@ exports.getAllExitUsersOfWFO = async (req, res) => {
         });
     }
 }
+
+exports.changeUserFromWFHDToWFO = async (req, res) => {
+    try {
+        const { user_id, onboard_status, offer_letter_send, joining_date, emergency_contact_person_name2, current_address, current_city, current_state, current_pin_code, job_type } = req.body;
+
+        const userData = await userModel.findOne({ user_id: user_id }).select({ user_name: 1, user_email_id: 1, user_login_id: 1 });
+
+        const username = userData.user_email_id.split('@')[0];
+
+        const passwordChanged = username;
+
+        const data = await userModel.findOneAndUpdate({ user_id: user_id }, {
+            onboard_status: onboard_status,
+            offer_letter_send: offer_letter_send,
+            joining_date: joining_date,
+            emergency_contact_person_name2: emergency_contact_person_name2,
+            current_address: current_address,
+            current_city: current_city,
+            current_state: current_state,
+            current_pin_code: current_pin_code,
+            password: passwordChanged,
+            job_type: job_type
+        })
+
+        const transporterOptions = {
+            service: "gmail",
+            auth: {
+                user: "onboarding@creativefuel.io",
+                pass: "qtttmxappybgjbhp",
+            },
+        };
+
+        const createMailOptions = (html) => ({
+            from: "onboarding@creativefuel.io",
+            to: "lalit@creativefuel.io",
+            subject: "Welcome To Creativefuel",
+            html: html
+        });
+
+        const sendMail = async (mailOptions) => {
+            const transporter = nodemailer.createTransport(transporterOptions);
+            await transporter.sendMail(mailOptions);
+        };
+
+        const templatePath = path.join(__dirname, "template.ejs");
+        const template = await fs.promises.readFile(templatePath, "utf-8");
+        const html = ejs.render(template, {
+            email: userData.PersonalEmail,
+            password: passwordChanged,
+            name: userData.user_name,
+            login_id: userData.user_login_id,
+            status: "onboarded",
+            text: ""
+        });
+        const mailOptions = createMailOptions(html);
+        await sendMail(mailOptions);
+
+        return res.status(200).send(data);
+        // res.sendStatus(200);
+
+    } catch (err) {
+        return res.status(500).send({ error: err.message, sms: "Error Shifting to user from WFHD to WFO" });
+    }
+}

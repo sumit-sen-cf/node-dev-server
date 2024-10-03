@@ -13,6 +13,7 @@ const countryCodeRoutes = require("./PMS2/countryCodeRoutes")
 const ipAuthRoutes = require("./common/ipAuthRoutes")
 const pageProfileRoutes = require("./PMS2/pageProfileTypeRoutes");
 const pageCategoryRoutes = require("./PMS2/pageCategoryRoutes");
+const pageSubCategoryRoutes = require("./PMS2/pageSubCategoryRoutes");
 const pagePriceTypeRoutes = require("./PMS2/pagePriceTypeRoutes");
 const pagePriceMultipleRoutes = require("./PMS2/pagePriceMultipleRoutes");
 const pageMasterRoutes = require("./PMS2/pageMasterRoutes");
@@ -56,6 +57,7 @@ exports.routeModulesV1 = [
     vendorRoutes,
     pageProfileRoutes,
     pageCategoryRoutes,
+    pageSubCategoryRoutes,
     pagePriceTypeRoutes,
     pagePriceMultipleRoutes,
     pageMasterRoutes,
