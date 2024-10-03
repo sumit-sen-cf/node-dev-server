@@ -13,12 +13,18 @@ const pageCatAssignment = new Schema({
         required: false,
         unique: false
     },
-    page_category_id: {
+    // page_category_id: {
+    //     type: mongoose.Types.ObjectId,
+    //     ref: "",
+    //     required: false,
+    //     unique: false
+    // },
+    page_sub_category_id: {
         type: mongoose.Types.ObjectId,
         ref: "",
         required: false,
         unique: false
-    },
+    }
 }, {
     timestamps: true
 });

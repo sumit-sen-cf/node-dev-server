@@ -723,12 +723,13 @@ exports.getPageMasterData = async (req, res) => {
 
 exports.addPageCategoryAssignmentToUser = async (req, res) => {
     try {
-        const { user_id, page_master_id, page_category_id } = req.body;
+        const { user_id, page_master_id, page_category_id, page_sub_category_id } = req.body;
 
         const savingObj = await pageCatAssignment.create({
             user_id: user_id,
             page_master_id: page_master_id,
-            page_category_id: page_category_id
+            // page_category_id: page_category_id
+            page_sub_category_id: page_sub_category_id
         });
 
         return response.returnTrue(
