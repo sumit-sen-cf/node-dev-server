@@ -4,7 +4,9 @@ const pageMasterModel = require("../../models/PMS2/pageMasterModel");
 const pagePriceMultipleModel = require("../../models/PMS2/pagePriceMultipleModel");
 const pageCatAssignment = require("../../models/pageCatAssignment");
 const vendorModel = require("../../models/PMS2/vendorModel");
-const { ObjectId } = require('mongodb');
+const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types;
+// const { ObjectId } = require('mongodb');
 
 exports.addPageMaster = async (req, res) => {
     try {
@@ -333,7 +335,8 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
 
         const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link,
             page_mast_status, preference_level, content_creation, ownership_type, rate_type, variable_type, description, page_closed_by,
-            followers_count, engagment_rate, tags_page_category, platform_active_on, last_updated_by, story, post, both_, m_post_price, m_story_price, m_both_price } = req.body;
+            followers_count, engagment_rate, tags_page_category, platform_active_on, last_updated_by, story, post, both_, m_post_price,
+            m_story_price, m_both_price, page_sub_category_id } = req.body;
 
         const pageMasterDetails = await pageMasterModel.findOneAndUpdate({
             _id: id
@@ -721,34 +724,57 @@ exports.getPageMasterData = async (req, res) => {
     }
 }
 
+
 exports.addPageCategoryAssignmentToUser = async (req, res) => {
     try {
-        const { user_id, page_master_id, page_category_id, page_sub_category_id } = req.body;
+        const { user_id, page_sub_category_id, created_by } = req.body;
 
-        const savingObj = await pageCatAssignment.create({
-            user_id: user_id,
-            page_master_id: page_master_id,
-            // page_category_id: page_category_id
-            page_sub_category_id: page_sub_category_id
-        });
+        if (!user_id || !Array.isArray(page_sub_category_id) || page_sub_category_id.length === 0) {
+            return response.returnFalse(400, req, res, "Invalid input data", {});
+        }
 
-        return response.returnTrue(
-            200,
-            req,
-            res,
-            "Successfully assignment page Master Data",
-            savingObj
-        );
+        const pageCats = page_sub_category_id.map(item => item.value);
+
+        const savingResults = [];
+
+        for (let i = 0; i < pageCats.length; i++) {
+            const savingObj = await pageCatAssignment.create({
+                user_id: user_id,
+                page_sub_category_id: pageCats[i],
+                created_by: created_by
+            });
+            savingResults.push(savingObj);
+        }
+
+        return response.returnTrue(200, req, res, "Successfully assigned page master data", savingResults);
     } catch (err) {
         return response.returnFalse(500, req, res, `${err.message}`, {});
     }
-}
+};
+
 
 exports.getAllPageCategoryAssignments = async (req, res) => {
     try {
         const user_id = req.params.user_id;
 
         const data = await pageCatAssignment.find({ user_id: user_id });
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Successfully get all page Master Data",
+            data
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, `${err.message}`, {});
+    }
+}
+
+exports.getAllPageCatAssignment = async (req, res) => {
+    try {
+
+        const data = await pageCatAssignment.find();
 
         return response.returnTrue(
             200,

@@ -2112,7 +2112,7 @@ exports.userObjectAuth = async (req, res) => {
 exports.sendUserMail = async (req, res) => {
     try {
         const { email, subject, name, password, login_id, status, text, name2 } = req.body;
-        const attachment = req.file;
+        // const attachment = req.file;
 
         const transporterOptions = {
             service: "gmail",
@@ -2127,14 +2127,6 @@ exports.sendUserMail = async (req, res) => {
             to: email,
             subject: subject,
             html: html,
-            attachments: attachment
-                ? [
-                    {
-                        filename: attachment.originalname,
-                        path: attachment.path,
-                    },
-                ]
-                : [],
         });
 
         const sendMail = async (mailOptions) => {
@@ -5604,7 +5596,10 @@ exports.changeUserFromWFHDToWFO = async (req, res) => {
             current_state: current_state,
             current_pin_code: current_pin_code,
             password: passwordChanged,
-            job_type: job_type
+            job_type: job_type,
+            offer_later_status: true,
+            att_status: "",
+            show_rocket: true
         })
 
         const transporterOptions = {

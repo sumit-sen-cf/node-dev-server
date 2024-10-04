@@ -24,6 +24,10 @@ const pageCatAssignment = new Schema({
         ref: "",
         required: false,
         unique: false
+    },
+    created_by: {
+        type: Number,
+        required: false
     }
 }, {
     timestamps: true

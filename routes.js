@@ -876,8 +876,6 @@ router.get(
 router.get("/get_user_object_auth", user.userObjectAuth);
 router.post(
   "/add_send_user_mail",
-  upload.single("attachment"),
-
   user.sendUserMail
 );
 router.post(
@@ -1938,6 +1936,10 @@ router.put("/edit_dynamic_table_data", dynamicTablesModel.editDynamicTablesData)
 router.post('/change_selected_user_password', adminController.changePassOfSelectedUsers);
 router.post('/change_all_user_password', adminController.changePassOfUsers);
 router.post('/send_email_to_all_users', adminController.sendPassEmailToUsers);
+router.post("/node_data_to_php_update_vendor", adminController.nodeDataToPhpUpDateOfVendor);
+router.post("/node_data_to_php_delete_vendor", adminController.nodeDataToPhpDeleteOfVendor);
+router.post("/node_data_to_php_update_page", adminController.nodeDataToPhpUpdateOfPage);
+router.post("/node_data_to_php_delete_page", adminController.nodeDataToPhpDeleteOfPage);
 
 // router.post('/get_story_data', adminController.trackCreatorGet);
 // router.put('/update_vendorid_pagemaster', adminController.updatepagevendorids);
