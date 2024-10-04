@@ -13,7 +13,10 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const vendorGroupLinkModel = require('../models/PMS2/vendorGroupLinkModel.js')
-const companyDetailsSchema = require('../models/PMS2/companyDetailsModel.js')
+const companyDetailsSchema = require('../models/PMS2/companyDetailsModel.js');
+const axios = require("axios");
+const FormData = require('form-data');
+
 
 exports.changePassOfSelectedUsers = async (req, res) => {
     try {
@@ -617,3 +620,114 @@ exports.createpayout = async (req, res) => {
         });
     }
 };
+
+exports.nodeDataToPhpUpDateOfVendor = async (req, res) => {
+    try {
+
+        const { vendor_id, mobile, alternate_mobile, account_type, account_no, ifcs, bank_name, vendor_name } = req.body;
+
+        const form = new FormData();
+
+        form.append('vendor_id', vendor_id);
+        form.append('mobile', mobile);
+        form.append('alternate_mobile', alternate_mobile);
+        form.append('account_type', account_type);
+        form.append('account_no', account_no);
+        form.append('ifcs', ifcs);
+        form.append('bank_name', bank_name);
+        form.append('vendor_name', vendor_name);
+
+        const phpResponse = await axios.post(
+            'https://purchase.creativefuel.io/webservices/RestController.php?view=updatevendor',
+            form,
+            { headers: form.getHeaders() }
+        );
+        return res.status(phpResponse.status).json(phpResponse.data);
+    } catch (error) {
+        res.status(500).json({ error: error.message, message: 'Error while updating data' });
+    }
+};
+
+exports.nodeDataToPhpDeleteOfVendor = async (req, res) => {
+    try {
+
+        const vendor_id = req.body.vendor_id;
+
+        const form = new FormData();
+
+        form.append('vendor_id', vendor_id);
+
+        const phpResponse = await axios.post(
+            'https://purchase.creativefuel.io/webservices/RestController.php?view=deletevendor',
+            form,
+            { headers: form.getHeaders() }
+        );
+        return res.status(phpResponse.status).json(phpResponse.data);
+    } catch (error) {
+        res.status(500).json({ error: err.message, message: 'Error while deleting data' });
+    }
+};
+
+exports.nodeDataToPhpUpdateOfPage = async (req, res) => {
+    try {
+
+        const { p_id,
+            page_name,
+            page_link,
+            temp_vendor_id,
+            story,
+            post,
+            both_,
+            m_post_price,
+            m_story_price,
+            m_both_price,
+            followers_count,
+            preference_level,
+            temp_page_cat_id } = req.body;
+
+        const form = new FormData();
+
+        form.append('p_id', p_id);
+        form.append('page_name', page_name);
+        form.append('page_link', page_link);
+        form.append('temp_vendor_id', temp_vendor_id);
+        form.append('story', story);
+        form.append('post', post);
+        form.append('both_', both_);
+        form.append('m_post_price', m_post_price);
+        form.append('m_story_price', m_story_price);
+        form.append('m_both_price', m_both_price);
+        form.append('followers_count', followers_count);
+        form.append('preference_level', preference_level);
+        form.append('temp_page_cat_id', temp_page_cat_id);
+
+        const phpResponse = await axios.post(
+            'https://purchase.creativefuel.io/webservices/RestController.php?view=updatepage',
+            form,
+            { headers: form.getHeaders() }
+        );
+        return res.status(phpResponse.status).json(phpResponse.data);
+    } catch (error) {
+        res.status(500).json({ error: error.message, message: 'Error while updating data' });
+    }
+}
+
+exports.nodeDataToPhpDeleteOfPage = async (req, res) => {
+    try {
+
+        const p_id = req.body.p_id;
+
+        const form = new FormData();
+
+        form.append('p_id', p_id);
+
+        const phpResponse = await axios.post(
+            'https://purchase.creativefuel.io/webservices/RestController.php?view=deletepage',
+            form,
+            { headers: form.getHeaders() }
+        );
+        return res.status(phpResponse.status).json(phpResponse.data);
+    } catch (error) {
+        res.status(500).json({ error: err.message, message: 'Error while deleting data' });
+    }
+}
