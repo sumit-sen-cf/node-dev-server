@@ -12,7 +12,7 @@ exports.createVendorData = async (req, res) => {
     try {
         const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, primary_field,
             vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
-            home_address, home_city, home_state, created_by, vendor_category, closed_by } = req.body;
+            home_address, home_city, home_state, created_by, vendor_category, closed_by, busi_type } = req.body;
         const addVendorData = new vendorModel({
             vendor_type,
             vendor_platform,
@@ -32,7 +32,8 @@ exports.createVendorData = async (req, res) => {
             vendor_category,
             home_state,
             created_by,
-            closed_by
+            closed_by,
+            busi_type
         });
 
         const vendorDataSaved = await addVendorData.save();
@@ -190,7 +191,7 @@ exports.updateVendorData = async (req, res) => {
         // Assuming vendor_id is passed as a URL parameter
         const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, primary_field, vendor_name,
             home_pincode, country_code, mobile, alternate_mobile, email, personal_address, home_address, home_city, home_state,
-            vendor_category, updated_by, closed_by } = req.body;
+            vendor_category, updated_by, closed_by, busi_type } = req.body;
 
         // Find the vendor by ID
         const existingVendor = await vendorModel.findById(vendor_id);
@@ -219,6 +220,7 @@ exports.updateVendorData = async (req, res) => {
         existingVendor.home_state = home_state;
         existingVendor.updated_by = updated_by;
         existingVendor.vendor_category = vendor_category;
+        existingVendor.busi_type = busi_type;
 
         // Save updated vendor data
         const updatedVendorData = await existingVendor.save();
@@ -305,7 +307,7 @@ exports.updateVendorDetails = async (req, res) => {
         const { id } = req.params;
         const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, primary_field,
             vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
-            home_address, home_city, home_state, vendor_category, } = req.body;
+            home_address, home_city, home_state, vendor_category, busi_type} = req.body;
 
         let updateVendordata = {
             vendor_type,
@@ -326,7 +328,8 @@ exports.updateVendorDetails = async (req, res) => {
             home_city,
             vendor_category,
             home_state,
-            updated_by
+            updated_by,
+            busi_type
         }
 
         const updateResult = await vendorModel.updateOne({

@@ -9,6 +9,11 @@ const vendorSchema = new Schema({
         required: false,
         unique: true
     },
+    busi_type:{
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: ''
+    },
     vendor_type: {
         type: Schema.Types.ObjectId,
         required: false,
