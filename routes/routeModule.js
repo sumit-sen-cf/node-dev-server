@@ -2,6 +2,7 @@ const accountRoutes = require('./accounts');
 const salesRoutes = require('./sales');
 const salesBookingRoutes = require('./Sales/salesBookingRoutes');
 const vendorTypeRoutes = require('./PMS2/vendorTypeRoutes');
+const vendorBusinessTypeRoutes = require('./PMS2/vendorBusinessTypeRoutes');
 const vendorGroupLinkRoutes = require('./PMS2/vendorGroupLinkRoutes');
 const vendorPlatformRoutes = require('./PMS2/vendorPlatformRoutes');
 const vendorPaymentMethodRoutes = require('./PMS2/paymentMethodRoutes');
@@ -45,6 +46,7 @@ const caseStudyRoutes = require("./executionCaseStudy/caseStudyRoutes")
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
+    vendorBusinessTypeRoutes,
     vendorTypeRoutes,
     countryCodeRoutes,
     ipAuthRoutes,
