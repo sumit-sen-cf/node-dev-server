@@ -206,6 +206,7 @@ exports.getExcutionList = async (req, res) => {
                 impression: 1,
                 engagement: 1,
                 story_view: 1,
+                case_study_status: 1,
                 campaign_name: "$salesbookingmodelsData.campaign_name",
                 account_id: "$salesbookingmodelsData.account_id",
                 brand_id: "$salesbookingmodelsData.brand_id",
@@ -338,3 +339,32 @@ exports.updateStatusExecution = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 }
+
+exports.countTheDataStatusWise = async (req, res) => {
+    try {
+        const counts = await executionModel.aggregate([
+            {
+                $group: {
+                    _id: "$execution_status",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+
+        const result = {
+            sales_for_execution: 0,
+            execution_accepted: 0,
+            execution_completed: 0,
+            execution_rejected: 0,
+            execution_paused: 0
+        };
+
+        counts.forEach((item) => {
+            result[item._id] = item.count;
+        });
+
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: "An error occurred while counting statuses" });
+    }
+};

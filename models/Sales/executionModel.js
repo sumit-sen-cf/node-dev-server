@@ -91,6 +91,10 @@ const salesBookingExecution = new Schema({
         required: false,
         default: constant?.ACTIVE,
     },
+    case_study_status: {
+        type: Boolean,
+        default: true
+    },
 }, {
     timestamps: true
 });

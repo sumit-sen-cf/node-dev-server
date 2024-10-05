@@ -6,7 +6,8 @@ const fs = require('fs');
 const ejs = require('ejs');
 const path = require("path");
 const axios = require('axios');
-const emailTempModel = require("../models/emailTempModel")
+const emailTempModel = require("../models/emailTempModel");
+const pageMasterModel = require("../models/PMS2/pageMasterModel.js");
 
 var transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -14,6 +15,11 @@ var transporter = nodemailer.createTransport({
     user: "onboarding@creativefuel.io",
     pass: "qtttmxappybgjbhp",
   },
+});
+
+const updateFollowersJob = schedule.scheduleJob('0 0 */15 * *', async () => {
+  console.log("Running updateFollowers every 15 days");
+  await updateFollowers();
 });
 
 const birthDay = schedule.scheduleJob('0 0 * * *', async () => {
@@ -352,5 +358,58 @@ async function sendWorkAnniversaryEmail() {
     }
   } catch (error) {
     console.error('Error in sendWorkAnniversaryEmail:', error);
+  }
+}
+
+async function updateFollowers() {
+  let successfulUpdates = 0;
+  try {
+    const pageData = await pageMasterModel.find().select({ p_id: 1, page_name: 1 });
+
+    for (const page of pageData) {
+      const payload = {
+        "creators": [page.page_name],
+        "department": "65c38781c52b3515f77b0815",
+        "userId": 111111
+      };
+
+      console.log('pageName', page.page_name);
+
+      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlc3RpbmciLCJpYXQiOjE3MDczMTIwODB9.ytDpwGbG8dc9jjfDasL_PI5IEhKSQ1wXIFAN-2QLrT8';
+
+      try {
+        const response = await axios.post(
+          `https://insights.ist:8080/api/v1/creators_details_v3`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          }
+        );
+
+        if (response.data && response.data.data && response.data.data[0] && response.data.data[0].creatorDetails) {
+          const followers_data = response.data.data[0].creatorDetails.followers;
+          console.log("followers", followers_data);
+          const updateResult = await pageMasterModel.updateOne(
+            { p_id: page.p_id },
+            { $set: { followers_count: followers_data } }
+          );
+
+          if (updateResult.nModified > 0) {
+            successfulUpdates++;
+          }
+        } else {
+          console.error("Invalid response structure or missing followers data for page:", page.page_name);
+        }
+      } catch (apiError) {
+        console.error("Error fetching followers for page", apiError);
+      }
+    }
+
+    console.log(`Successfully updated ${successfulUpdates} records in pageMasterModel.`);
+  } catch (error) {
+    console.error('Error in updateFollowers:', error.message);
   }
 }
