@@ -4,6 +4,7 @@ const pageMasterModel = require("../../models/PMS2/pageMasterModel");
 const pagePriceMultipleModel = require("../../models/PMS2/pagePriceMultipleModel");
 const pageCatAssignment = require("../../models/pageCatAssignment");
 const vendorModel = require("../../models/PMS2/vendorModel");
+// const pageFollowerCountLogModel = require("../../models/PMS2/pageFollowerCountLogModel");
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
 // const { ObjectId } = require('mongodb');
@@ -233,6 +234,7 @@ exports.getAllPageMasterDetails = async (req, res) => {
                     m_story_price: 1,
                     m_both_price: 1,
                     created_at: 1,
+                    createdAt: 1,
                     ownership_type: 1,
                     page_closed_by: 1,
                     page_profile_type_id: 1,
@@ -332,6 +334,18 @@ exports.getAllPageMasterDetails = async (req, res) => {
 exports.updateSinglePageMasterDetails = async (req, res) => {
     try {
         const { id } = req.params;
+
+        const pageData = await pageMasterModel.findOne({ _id: id });
+
+        // const followerLogsData = new pageFollowerCountLogModel({
+        //     page_name: pageData.page_name,
+        //     follower_count: pageData.followers_count,
+        //     story_price: pageData.story,
+        //     post_price: pageData.post,
+        //     both_price: pageData.both_,
+        // })
+
+        // const result = await followerLogsData.save();
 
         const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link,
             page_mast_status, preference_level, content_creation, ownership_type, rate_type, variable_type, description, page_closed_by,
