@@ -42,7 +42,9 @@ const blogCategoryRoutes = require("./sarcasm_co/blogCategoryRoutes");
 const blogImagesRoutes = require("./sarcasm_co/blogImagesRoutes");
 const blogRoutes = require("./sarcasm_co/blogRoutes");
 const targetCompetitionRoutes = require("./Sales/targetCompetitionRoutes");
-const caseStudyRoutes = require("./executionCaseStudy/caseStudyRoutes")
+const caseStudyRoutes = require("./executionCaseStudy/caseStudyRoutes");
+const planXLogsRutes = require("./PMS2/planxlogsRoutes");
+const planPageDetailsRoutes = require("./PMS2/planPageDetailsRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -67,6 +69,8 @@ exports.routeModulesV1 = [
     bankNameRoutes,
     companyDetailsRoutes,
     documentDetailsRoutes,
+    planXLogsRutes,
+    planPageDetailsRoutes
 ];
 
 //used for the http://localhost:8080/api/v1/sarcasm/end-point
