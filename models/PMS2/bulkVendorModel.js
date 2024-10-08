@@ -63,4 +63,11 @@ const bulkVendorModel = new Schema({
     },
 }, { timestamps: true });
 
+bulkVendorModel.index({
+    vendor_id: 1,
+    page_id: 1
+}, {
+    unique: true
+});
+
 module.exports = mongoose.model('bulkVendorModel', bulkVendorModel);

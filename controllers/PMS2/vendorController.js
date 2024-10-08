@@ -445,15 +445,65 @@ exports.insertBulkVendor = async (req, res) => {
     }
 }
 
+// exports.bulkVendorData = async (req, res) => {
+//     try {
+//         const page = req.query.page;
+//         let limit = 0; 
+
+//         if (page && !isNaN(page) && parseInt(page) > 0) {
+//             limit = parseInt(page) * 10;
+//         }
+//         const vendors = await bulkVendorModel.find().limit(limit);
+
+//         return response.returnTrue(200, req, res, "Bulk Vendor data fetched successfully!", vendors);
+//     } catch (err) {
+//         return response.returnFalse(500, req, res, `${err.message}`, {});
+//     }
+// }
+
 exports.bulkVendorData = async (req, res) => {
     try {
         const page = req.query.page;
-        let limit = 0; 
+        let limit = 0;
 
         if (page && !isNaN(page) && parseInt(page) > 0) {
             limit = parseInt(page) * 10;
         }
-        const vendors = await bulkVendorModel.find().limit(limit);
+
+        const vendors = await bulkVendorModel.aggregate([
+            {
+                $lookup: {
+                    from: 'pms2vendormodels', 
+                    localField: 'vendor_id',  
+                    foreignField: '_id', 
+                    as: 'VendorData'  
+                }
+            },
+            {
+                $unwind: {
+                    path: "$VendorData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project:{
+                    _id: 1,
+                    page_name: 1,
+                    vendor_id: 1,
+                    story: 1,
+                    post: 1,
+                    both: 1,
+                    m_story: 1,
+                    m_post:1,
+                    m_both: 1,
+                    reel: 1,
+                    carousel: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    vendor_name: '$VendorData.vendor_name'
+                }
+            }
+        ]);
 
         return response.returnTrue(200, req, res, "Bulk Vendor data fetched successfully!", vendors);
     } catch (err) {
