@@ -253,6 +253,7 @@ exports.getAllPageMasterDetails = async (req, res) => {
                     tags_page_category: 1,
                     platform_active_on: 1,
                     created_by: 1,
+                    bio: 1,
                     page_sub_category_id: 1,
                     price_details_obj: {
                         $reduce: {
@@ -337,15 +338,14 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
 
         const pageData = await pageMasterModel.findOne({ _id: id });
 
-        // const followerLogsData = new pageFollowerCountLogModel({
-        //     page_name: pageData.page_name,
-        //     follower_count: pageData.followers_count,
-        //     story_price: pageData.story,
-        //     post_price: pageData.post,
-        //     both_price: pageData.both_,
-        // })
+        const followerLogsData = new pageFollowerCountLogModel({
+            p_id: pageData.p_id,
+            page_name: pageData.page_name,
+            follower_count: pageData.followers_count,
+            bio: pageData.bio
+        })
 
-        // const result = await followerLogsData.save();
+        const result = await followerLogsData.save();
 
         const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link,
             page_mast_status, preference_level, content_creation, ownership_type, rate_type, variable_type, description, page_closed_by,

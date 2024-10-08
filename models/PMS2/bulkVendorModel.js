@@ -2,62 +2,62 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const bulkVendorModel = new Schema({
-    page_name: { 
-        type: String, 
-        required: true 
+    page_name: {
+        type: String,
+        required: true
     },
-    page_id: { 
-        type: Schema.Types.ObjectId, 
+    page_id: {
+        type: Schema.Types.ObjectId,
         required: false,
         ref: ''
     },
-    vendor_id: { 
-        type: Schema.Types.ObjectId, 
+    vendor_id: {
+        type: Schema.Types.ObjectId,
         required: false,
         ref: ''
     },
-    category_id: { 
-        type: Schema.Types.ObjectId, 
+    category_id: {
+        type: Schema.Types.ObjectId,
         required: false,
         ref: ''
     },
-    story: { 
-        type: Number, 
+    story: {
+        type: Number,
         required: false,
         default: 0
     },
-    post: { 
-        type: Number, 
+    post: {
+        type: Number,
         required: false,
         default: 0
     },
-    both: { 
-        type: Number, 
+    both: {
+        type: Number,
         required: false,
         default: 0
     },
-    m_story: { 
-        type: Number, 
+    m_story: {
+        type: Number,
         required: false,
         default: 0
     },
-    m_post: { 
-        type: Number, 
+    m_post: {
+        type: Number,
         required: false,
         default: 0
     },
-    m_both: { 
-        type: Number, 
+    m_both: {
+        type: Number,
         required: false,
         default: 0
     },
-    reel: { 
-        type: Number, 
+    reel: {
+        type: Number,
         required: false,
         default: 0
     },
-    carousel: { 
-        type: Number, 
+    carousel: {
+        type: Number,
         required: false,
         default: 0
     },
@@ -65,7 +65,7 @@ const bulkVendorModel = new Schema({
 
 bulkVendorModel.index({
     vendor_id: 1,
-    page_id: 1
+    page_name: 1
 }, {
     unique: true
 });

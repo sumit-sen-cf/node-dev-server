@@ -624,13 +624,12 @@ exports.createpayout = async (req, res) => {
 exports.nodeDataToPhpUpDateOfVendor = async (req, res) => {
     try {
 
+        console.log("vvvvvvvvvvvv", req.body)
         const phpResponse = await axios.post(
             'https://purchase.creativefuel.io/webservices/RestController.php?view=updatevendor',
             req.body,
             { httpsAgent: new (require('https')).Agent({ rejectUnauthorized: false }) }
         );
-
-        console.log("vvvvvvvvvv", phpResponse.data)
         return res.status(phpResponse.status).json(phpResponse.data);
     } catch (error) {
         res.status(500).json({ error: error.message, message: 'Error while updating data' });
