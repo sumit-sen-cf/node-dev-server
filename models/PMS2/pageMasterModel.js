@@ -151,6 +151,11 @@ const pageMasterSchema = new Schema({
     m_both_price: {
         type: Number,
         required: false,
+    },
+    bio: {
+        type: String,
+        required: false,
+        default: ""
     }
 }, {
     timestamps: true

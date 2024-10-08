@@ -1,6 +1,7 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
 const pagePriceMultipleModel = require("../../models/PMS2/pagePriceMultipleModel");
+const pagePriceLogModel = require("../../models/PMS2/pagePriceLogModel");
 
 exports.addPagePriceMultiple = async (req, res) => {
     try {
@@ -21,6 +22,14 @@ exports.addPagePriceMultiple = async (req, res) => {
                 {}
             );
         }
+
+        const savingObjData = await pagePriceLogModel.create({
+            page_master_id,
+            page_price_type_id,
+            price,
+            created_by,
+        });
+
         //success response send
         return response.returnTrue(
             200,
@@ -102,6 +111,18 @@ exports.getAllPagePriceMultipleDetails = async (req, res) => {
 exports.updateSinglePagePriceMultipleDetails = async (req, res) => {
     try {
         const { id } = req.params;
+
+        const data = await pagePriceMultipleModel.findOne({ _id: id });
+
+        const savingData = await pagePriceLogModel.create({
+            page_master_id: data.page_master_id,
+            page_price_type_id: data.page_price_type_id,
+            price: data.price,
+            created_by: data.created_by,
+        });
+
+        const result = await savingData.save();
+
         const pagePriceMultipleDetails = await pagePriceMultipleModel.findOneAndUpdate({
             _id: id
         }, {

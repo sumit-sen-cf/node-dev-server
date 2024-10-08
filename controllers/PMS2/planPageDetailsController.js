@@ -155,3 +155,40 @@ exports.deletePlanPageDetail = async (req, res) => {
         return res.status(400).json({ success: false, message: err.message })
     })
 };
+
+exports.addMultiplePlanPageDetail = async (req, res) => {
+    try {
+        const { planx_id, plan_pages } = req.body;
+
+        if (!Array.isArray(plan_pages)) {
+            return response.returnFalse(400, req, res, "Invalid data format. Expected an array of plan pages.", {});
+        }
+
+        await planPageDetailModel.deleteMany({ planx_id: planx_id });
+
+        const planPageData = plan_pages.map((planPage) => {
+            return new planPageDetailModel({
+                planx_id: planx_id,
+                page_name: planPage.page_name,
+                post_count: planPage.post_count,
+                story_count: planPage.story_count,
+                post_price: planPage.post_price,
+                story_price: planPage.story_price,
+                description: planPage.description || "",
+                created_by: planPage.created_by
+            });
+        });
+
+        const planData = await planPageDetailModel.insertMany(planPageData);
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Plan Page Details Data Created Successfully",
+            planData
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};

@@ -1878,9 +1878,9 @@ exports.updateUserAuth = async (req, res) => {
         if (!editsim) {
             res.status(500).send({ success: false })
         }
-        res.status(200).send({ success: true, data: editsim })
+        return res.status(200).send({ success: true, data: editsim })
     } catch (err) {
-        res.status(500).send({ error: err, sms: 'Error updating user auth details' })
+        return res.status(500).send({ error: err, sms: 'Error updating user auth details' })
     }
 };
 
