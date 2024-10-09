@@ -56,5 +56,9 @@ module.exports = Object.freeze({
   //@2 Formates for sarcasm image
   CONST_SARCASM_FOLDER: "sarcasm_co",
   CONST_IMAGE_FORMATE: ".jpeg",
-  CONST_BLOG_IMAGES_URL: `${vari.IMAGE_URL}sarcasm_co/`
+  CONST_BLOG_IMAGES_URL: `${vari.IMAGE_URL}sarcasm_co/`,
+
+  //EmailID And Password for send Mail
+  EMAIL_ID: "Jarvis@creativefuel.io",
+  EMAIL_PASS: "wudnmrbhzhzqedyp"
 });

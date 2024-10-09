@@ -2117,13 +2117,13 @@ exports.sendUserMail = async (req, res) => {
         const transporterOptions = {
             service: "gmail",
             auth: {
-                user: "onboarding@creativefuel.io",
-                pass: "qtttmxappybgjbhp",
+                user: constant.EMAIL_ID,
+                pass: constant.EMAIL_PASS,
             },
         };
 
         const createMailOptions = (html) => ({
-            from: "onboarding@creativefuel.io",
+            from: constant.EMAIL_ID,
             to: email,
             subject: subject,
             html: html,
@@ -2575,13 +2575,13 @@ exports.sendMailAllWfoUser = async (req, res) => {
             let mailTransporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
-                    user: "onboarding@creativefuel.io",
-                    pass: "qtttmxappybgjbhp",
+                    user: constant.EMAIL_ID,
+                    pass: constant.EMAIL_PASS,
                 },
             });
 
             let mailOptions = {
-                from: "onboarding@creativefuel.io",
+                from: constant.EMAIL_ID,
                 to: emailId,
                 subject: subject,
                 html: html,
@@ -4370,13 +4370,13 @@ exports.sendOfferLetter = async (req, res) => {
             let mailTransporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
-                    user: "onboarding@creativefuel.io",
-                    pass: "qtttmxappybgjbhp",
+                    user: constant.EMAIL_ID,
+                    pass: constant.EMAIL_PASS,
                 },
             });
 
             const mailOptions = {
-                from: 'onboarding@creativefuel.io',
+                from: constant.EMAIL_ID,
                 to: email,
                 subject: 'Offer Letter',
                 text: 'Please find attached the offer letter.',
@@ -4418,13 +4418,13 @@ exports.sendOfferLetterMail = async (req, res) => {
             const mailTransporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
-                    user: "onboarding@creativefuel.io",
-                    pass: "qtttmxappybgjbhp",
+                    user: constant.EMAIL_ID,
+                    pass: constant.EMAIL_PASS,
                 },
             });
             const mailOptions = {
-                from: "onboarding@creativefuel.io",
-                to: [email, "onboarding@creativefuel.io"],
+                from: constant.EMAIL_ID,
+                to: [email, constant.EMAIL_ID],
                 subject: "Your Offer Letter Inside from Creativefuel!!",
                 html: html,
                 attachments: attachment
@@ -4966,8 +4966,8 @@ exports.sendUserMailForJoiningDayExtension = async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: "onboarding@creativefuel.io",
-                pass: "qtttmxappybgjbhp"
+                user: constant.EMAIL_ID,
+                pass: constant.EMAIL_PASS,
             },
         });
 
@@ -4976,8 +4976,8 @@ exports.sendUserMailForJoiningDayExtension = async (req, res) => {
         const html = ejs.render(template, { name, joining_date, joining_date_extend, joining_date_extend_reason });
 
         let mailOptions = {
-            from: `"${name} <${user_email}>" <onboarding@creativefuel.io>`,
-            to: "onboarding@creativefuel.io",
+            from: `"${name} <${user_email}>" <${constant.EMAIL_ID}>`,
+            to: constant.EMAIL_ID,
             subject: "Request for Joining Date Extension",
             html: html,
             replyTo: user_email,
@@ -5605,14 +5605,14 @@ exports.changeUserFromWFHDToWFO = async (req, res) => {
         const transporterOptions = {
             service: "gmail",
             auth: {
-                user: "onboarding@creativefuel.io",
-                pass: "qtttmxappybgjbhp",
+                user: constant.EMAIL_ID,
+                pass: constant.EMAIL_PASS,
             },
         };
 
         const createMailOptions = (html) => ({
-            from: "onboarding@creativefuel.io",
-            to: "lalit@creativefuel.io",
+            from: constant.EMAIL_ID,
+            to: "fabhr@creativefuel.io",
             subject: "Welcome To Creativefuel",
             html: html
         });

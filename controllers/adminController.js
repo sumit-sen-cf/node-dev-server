@@ -127,14 +127,14 @@ exports.sendPassEmailToUsers = async (req, res) => {
         let mailTransporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: "onboarding@creativefuel.io",
-                pass: "qtttmxappybgjbhp",
+                user: constant.EMAIL_ID,
+                pass: constant.EMAIL_PASS,
             },
         });
 
         for (const email of allUserEmailIds) {
             const mailOptions = {
-                from: 'onboarding@creativefuel.io',
+                from: constant.EMAIL_ID,
                 to: email,
                 subject: 'Your Login Password Changed',
                 text: 'Your new password is',

@@ -1,6 +1,7 @@
 const schedule = require("node-schedule");
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
+const constant = require("../common/constant")
 const simModel = require("../models/simModel");
 const simAlloModel = require("../models/simAlloModel");
 const userModel = require("../models/userModel");
@@ -9,8 +10,8 @@ const emailTempModel = require("../models/emailTempModel")
 var transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "onboarding@creativefuel.io",
-    pass: "qtttmxappybgjbhp",
+    user: constant.EMAIL_ID,
+    pass: constant.EMAIL_PASS,
   },
 });
 
@@ -89,7 +90,7 @@ async function sendReminderAssetEmail(simModel) {
   /* dynamic email temp code end */
 
   let mailOptions = {
-    from: "onboarding@creativefuel.io",
+    from: constant.EMAIL_ID,
     to: "aditi@creativefuel.io",
     // subject: "It's time to verify our asset",
     subject: contentList.email_sub,
@@ -199,7 +200,7 @@ async function sendReminderAssetEmail1(simModel) {
   /* dynamic email temp code end */
 
   let mailOptions = {
-    from: "onboarding@creativefuel.io",
+    from: constant.EMAIL_ID,
     to: simModel.user_email_id,
     // subject: "It's time to verify our asset",
     subject: contentList.email_sub,

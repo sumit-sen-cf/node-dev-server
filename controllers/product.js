@@ -543,13 +543,13 @@ exports.addOrderReq = async (req, res) => {
     let transport = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "onboarding@creativefuel.io",
-        pass: "qtttmxappybgjbhp",
+        user: constant.EMAIL_ID,
+        pass: constant.EMAIL_PASS,
       },
     });
 
     let mailOptions = {
-      from: "onboarding@creativefuel.io",
+      from: constant.EMAIL_ID,
       to: req.body.email,
       subject: contentList.email_sub,
       html: html,
