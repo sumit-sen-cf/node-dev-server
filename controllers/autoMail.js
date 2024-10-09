@@ -1,6 +1,7 @@
 const schedule = require('node-schedule');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
+const constant = require("../common/constant.js");
 const userModel = require('../models/userModel');
 const fs = require('fs');
 const ejs = require('ejs');
@@ -12,8 +13,8 @@ const pageMasterModel = require("../models/PMS2/pageMasterModel.js");
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: "onboarding@creativefuel.io",
-    pass: "qtttmxappybgjbhp",
+    user: constant.EMAIL_ID,
+    pass: constant.EMAIL_PASS,
   },
 });
 
@@ -194,7 +195,7 @@ async function sendReminderEmail(daysBefore) {
     const html = ejs.render(template, { name, formattedTargetDate });
 
     let mailOptions = {
-      from: "onboarding@creativefuel.io",
+      from: constant.EMAIL_ID,
       to: user.user_email_id,
       subject:
         daysBefore === 0
@@ -248,7 +249,7 @@ async function sendEmail(daysBefore) {
     // /* dynamic email temp code end */
 
     let mailOptions = {
-      from: "onboarding@creativefuel.io",
+      from: constant.EMAIL_ID,
       to: user.user_email_id,
       subject: "Welcome Onboard- Your First Day at Creativefuel!",
       // subject: contentList.email_sub,
@@ -289,7 +290,7 @@ async function sendBirthdayEmail() {
       const html = ejs.render(template, { name });
 
       const mailOptions = {
-        from: "onboarding@creativefuel.io",
+        from: constant.EMAIL_ID,
         to: user.user_email_id,
         subject: `Celebrating Your Special Day, ${name} !`,
         html: html
@@ -342,7 +343,7 @@ async function sendWorkAnniversaryEmail() {
       const html = ejs.render(template, { name, workAnniversaryYears: workAnniversaryString });
 
       const mailOptions = {
-        from: "onboarding@creativefuel.io",
+        from: constant.EMAIL_ID,
         to: user.user_email_id,
         subject: `Creativefuel Congratulates ${name} on  ${workAnniversaryString} Work Anniversary`,
         html: html

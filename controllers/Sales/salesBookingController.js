@@ -200,13 +200,13 @@ exports.addSalesBooking = [
                 const transporterOptions = {
                     service: "gmail",
                     auth: {
-                        user: "onboarding@creativefuel.io",
-                        pass: "qtttmxappybgjbhp",
+                        user: constant.EMAIL_ID,
+                        pass: constant.EMAIL_PASS,
                     },
                 };
 
                 const createMailOptions = (html) => ({
-                    from: "onboarding@creativefuel.io",
+                    from: constant.EMAIL_ID,
                     to: salesEmail,
                     subject: "New Sale Booking Created",
                     html: html,
