@@ -1,9 +1,16 @@
 const response = require("../../common/response.js");
 const addPlanXLogModel = require("../../models/PMS2/planxlogModel.js");
+const planPageDetailModel = require("../../models/PMS2/planPageDetailModel.js");
 const mongoose = require("mongoose");
 
 exports.addPlanXLogs = async (req, res) => {
     try {
+        const existingPlan = await addPlanXLogModel.findOne({ plan_name: req.body.plan_name });
+
+        if (existingPlan) {
+            return response.returnFalse(400, req, res, "Plan with the same name already exists", {});
+        }
+
         const planData = new addPlanXLogModel({
             plan_name: req.body.plan_name,
             cost_price: req.body.cost_price,
@@ -14,6 +21,7 @@ exports.addPlanXLogs = async (req, res) => {
             description: req.body.description,
             sales_executive_id: req.body.sales_executive_id,
             account_id: req.body.account_id,
+            duplicate_planx_id: req.body.duplicate_planx_id,
             brand_id: req.body.brand_id,
             brief: req.body.brief,
             plan_status: req.body.plan_status,
@@ -21,13 +29,33 @@ exports.addPlanXLogs = async (req, res) => {
             created_by: req.body.created_by
         });
 
-        const planxlogdata = await planData.save();
+        const newPlan = await planData.save();
+
+        const pagesFromDuplicatePlan = await planPageDetailModel.find({
+            planx_id: planData.duplicate_planx_id
+        });
+
+        if (pagesFromDuplicatePlan.length > 0) {
+            const newPages = pagesFromDuplicatePlan.map(page => ({
+                planx_id: newPlan._id,
+                page_name: page.page_name,
+                post_count: page.post_count,
+                story_count: page.story_count,
+                post_price: page.post_price,
+                story_price: page.story_price,
+                description: page.description,
+                created_by: page.created_by
+            }));
+
+            await planPageDetailModel.insertMany(newPages);
+        }
+
         return response.returnTrue(
             200,
             req,
             res,
-            "Add Plan X Logs Data Created Successfully",
-            planxlogdata
+            "New plan and pages assigned successfully",
+            newPlan
         );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
