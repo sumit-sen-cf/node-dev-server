@@ -824,7 +824,7 @@ exports.getAllPagesForUsers = async (req, res) => {
 
 
         if (!subCatData || subCatData.length === 0) {
-            return response.returnFalse(200, req, res, "No matching Page Sub Categories found", {});
+            return response.returnFalse(200, req, res, "No matching Page Sub Categories found", []);
         }
 
         return response.returnTrue(

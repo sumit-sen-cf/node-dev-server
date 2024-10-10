@@ -46,6 +46,7 @@ const caseStudyRoutes = require("./executionCaseStudy/caseStudyRoutes");
 const planXLogsRutes = require("./PMS2/planxlogsRoutes");
 const planPageDetailsRoutes = require("./PMS2/planPageDetailsRoutes");
 const pagePriceLogRoutes = require("./PMS2/pagePriceLogRoutes");
+const pageTagCategoryRoutes = require("./PMS2/pageTagCategoryRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -72,7 +73,8 @@ exports.routeModulesV1 = [
     documentDetailsRoutes,
     planXLogsRutes,
     planPageDetailsRoutes,
-    pagePriceLogRoutes
+    pagePriceLogRoutes,
+    pageTagCategoryRoutes
 ];
 
 //used for the http://localhost:8080/api/v1/sarcasm/end-point
