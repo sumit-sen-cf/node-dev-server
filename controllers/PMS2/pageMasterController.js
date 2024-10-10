@@ -5,7 +5,7 @@ const pagePriceMultipleModel = require("../../models/PMS2/pagePriceMultipleModel
 const pageCatAssignment = require("../../models/PMS2/pageCatAssignment");
 const vendorModel = require("../../models/PMS2/vendorModel");
 const pageCatAssignmentModel = require("../../models/PMS2/pageCatAssignment");
-// const pageFollowerCountLogModel = require("../../models/PMS2/pageFollowerCountLogModel");
+const pageFollowerCountLogModel = require("../../models/PMS2/pageFollowerCountLogModel");
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
 // const { ObjectId } = require('mongodb');
@@ -343,7 +343,8 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
             p_id: pageData.p_id,
             page_name: pageData.page_name,
             follower_count: pageData.followers_count,
-            bio: pageData.bio
+            bio: pageData.bio,
+            created_by: pageData.created_by
         })
 
         const result = await followerLogsData.save();

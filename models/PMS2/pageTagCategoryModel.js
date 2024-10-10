@@ -2,20 +2,19 @@ const mongoose = require("mongoose");
 const constant = require("../../common/constant");
 const Schema = mongoose.Schema;
 
-const pagePriceLogSchema = new Schema({
-    page_master_id: {
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: "Pms2PageMasterModel"
-    },
-    page_price_type_id: {
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: "Pms2PagePriceTypeModel"
-    },
-    price: {
+const pageTagCategorySchema = new Schema({
+    page_id: {
         type: Number,
-        required: false,
+        required: true
+    },
+    page_name: {
+        type: String,
+        required: true
+    },
+    page_category_id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "Pms2PageCategoryModel"
     },
     created_by: {
         type: Number,
@@ -36,7 +35,6 @@ const pagePriceLogSchema = new Schema({
     timestamps: true
 });
 
-pagePriceLogSchema.index({ page_master_id: 1 })
 
-const pagePriceLogModel = mongoose.model("Pms2PagePriceLogModel", pagePriceLogSchema);
-module.exports = pagePriceLogModel;
+const pageTagCategoryModel = mongoose.model("pageTagCategoryModel", pageTagCategorySchema);
+module.exports = pageTagCategoryModel;

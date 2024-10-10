@@ -10,20 +10,9 @@ const pageFollowerCountLogModel = new mongoose.Schema({
         required: false,
         default: 0
     },
-    story_price: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    post_price: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    both_price: {
-        type: Number,
-        required: false,
-        default: 0
+    bio: {
+        type: String,
+        default: ""
     },
     created_by: {
         type: Number,
