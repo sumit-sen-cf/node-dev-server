@@ -102,25 +102,30 @@ exports.updatePageSubCategory = async (req, res) => {
 exports.deletePageSubCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const pageSubCategoryDataDelete = await pms2PageSubCatModel.findOneAndUpdate(
-            { _id: id, status: { $ne: constant.DELETED } },
-            {
-                $set: {
-                    status: constant.DELETED,
+        const pageData = await pageMasterModel.find({ page_category_id: id });
+        if (pageData.length === 0) {
+            const pageSubCategoryDataDelete = await pms2PageSubCatModel.findOneAndUpdate(
+                { _id: id, status: { $ne: constant.DELETED } },
+                {
+                    $set: {
+                        status: constant.DELETED,
+                    },
                 },
-            },
-            { new: true }
-        );
-        if (!pageSubCategoryDataDelete) {
-            return response.returnFalse(200, req, res, `No Record Found`, {});
+                { new: true }
+            );
+            if (!pageSubCategoryDataDelete) {
+                return response.returnFalse(200, req, res, `No Record Found`, {});
+            }
+            return response.returnTrue(
+                200,
+                req,
+                res,
+                `Page sub category deleted successfully! ${id}`,
+                pageSubCategoryDataDelete
+            );
+        } else {
+            return res.status(400).json({ message: "You Can not Delete this Sub Category because this Sub Category is assigned in PageMaster Data " })
         }
-        return response.returnTrue(
-            200,
-            req,
-            res,
-            `Page sub category deleted successfully! ${id}`,
-            pageSubCategoryDataDelete
-        );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
@@ -138,5 +143,53 @@ exports.getAllPageSubCategoryDeleted = async (req, res) => {
         return response.returnTrue(200, req, res, 'Page sub category retrieved successfully!', pageSubCategoryDeletedData);
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+exports.mergePageSubCategory = async (req, res) => {
+    try {
+        const { preference_id, removed_id, flag, start_date, end_date } = req.body;
+
+        if (!preference_id || !removed_id || !start_date || !end_date) {
+            return res.status(400).json({ message: "Invalid input" });
+        }
+
+        const subcategoryA = await pms2PageSubCatModel.findOne({ page_sub_category_id: preference_id });
+        const subcategoryB = await pms2PageSubCatModel.findOne({ page_sub_category_id: removed_id });
+
+        if (!subcategoryA || !subcategoryB) {
+            return res.status(404).json({ message: "Category not found" });
+        }
+
+        const start = new Date(start_date);
+        const end = new Date(end_date);
+
+        const data = await pms2PageSubCatModel.updateMany(
+            {
+                page_sub_category_id: removed_id,
+                createdAt: { $gte: start, $lte: end }
+            },
+            { $set: { page_sub_category_id: preference_id } }
+        );
+
+        if (flag === 2) {
+            const pageData = await pageMasterModel.find({
+                page_sub_category_id: subcategoryB._id,
+                createdAt: { $gte: start, $lte: end }
+            });
+
+            if (pageData.length === 0) {
+                const data = await pms2PageSubCatModel.findByIdAndUpdate(
+                    subcategoryB._id,
+                    { $set: { status: constant.DELETED } }
+                );
+                return res.status(200).json({ message: "Page Sub Category Data Deleted Successfully Which is not exit this sub category id in PageMaster" })
+            }
+        }
+
+        return res.status(200).json({ message: "Sub Categories merged successfully" });
+    } catch (error) {
+        console.error("Error merging sub categories: ", error.message);
+        return res.status(500).json({ message: "Internal server error" });
     }
 };

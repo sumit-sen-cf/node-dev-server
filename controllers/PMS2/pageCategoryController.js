@@ -1,6 +1,7 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
 const pageCategoryModel = require("../../models/PMS2/pageCategoryModel");
+const pageMasterModel = require("../../models/PMS2/pageMasterModel");
 
 exports.createPageCategory = async (req, res) => {
     try {
@@ -102,25 +103,32 @@ exports.updatePageCategory = async (req, res) => {
 exports.deletePageCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const pageCategoryDataDelete = await pageCategoryModel.findOneAndUpdate(
-            { _id: id, status: { $ne: constant.DELETED } },
-            {
-                $set: {
-                    status: constant.DELETED,
+
+        const pageData = await pageMasterModel.find({ page_category_id: id });
+
+        if (pageData.length === 0) {
+            const pageCategoryDataDelete = await pageCategoryModel.findOneAndUpdate(
+                { _id: id, status: { $ne: constant.DELETED } },
+                {
+                    $set: {
+                        status: constant.DELETED,
+                    },
                 },
-            },
-            { new: true }
-        );
-        if (!pageCategoryDataDelete) {
-            return response.returnFalse(200, req, res, `No Record Found`, {});
+                { new: true }
+            );
+            if (!pageCategoryDataDelete) {
+                return response.returnFalse(200, req, res, `No Record Found`, {});
+            }
+            return response.returnTrue(
+                200,
+                req,
+                res,
+                `Page category deleted successfully! ${id}`,
+                pageCategoryDataDelete
+            );
+        } else {
+            return res.status(400).json({ message: "You Can not Delete this Category because this category is assigned in PageMaster Data " })
         }
-        return response.returnTrue(
-            200,
-            req,
-            res,
-            `Page category deleted successfully! ${id}`,
-            pageCategoryDataDelete
-        );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
@@ -138,5 +146,53 @@ exports.getAllPageCategoryDeleted = async (req, res) => {
         return response.returnTrue(200, req, res, 'Page category retrieved successfully!', pageCategoryDeletedData);
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+exports.mergePageCategory = async (req, res) => {
+    try {
+        const { preference_id, removed_id, flag, start_date, end_date } = req.body;
+
+        if (!preference_id || !removed_id || !start_date || !end_date) {
+            return res.status(400).json({ message: "Invalid input" });
+        }
+
+        const categoryA = await pageCategoryModel.findOne({ page_category_id: preference_id });
+        const categoryB = await pageCategoryModel.findOne({ page_category_id: removed_id });
+
+        if (!categoryA || !categoryB) {
+            return res.status(404).json({ message: "Category not found" });
+        }
+
+        const start = new Date(start_date);
+        const end = new Date(end_date);
+
+        const data = await pageCategoryModel.updateMany(
+            {
+                page_category_id: removed_id,
+                createdAt: { $gte: start, $lte: end }
+            },
+            { $set: { page_category_id: preference_id } }
+        );
+
+        if (flag === 2) {
+            const pageData = await pageMasterModel.find({
+                page_category_id: categoryB._id,
+                createdAt: { $gte: start, $lte: end }
+            });
+
+            if (pageData.length === 0) {
+                const data = await pageCategoryModel.findByIdAndUpdate(
+                    categoryB._id,
+                    { $set: { status: constant.DELETED } }
+                );
+                return res.status(200).json({ message: "Page Category Data Deleted Successfully Which is not exit this category id in PageMaster" })
+            }
+        }
+
+        return res.status(200).json({ message: "Categories merged successfully" });
+    } catch (error) {
+        console.error("Error merging categories: ", error.message);
+        return res.status(500).json({ message: "Internal server error" });
     }
 };
