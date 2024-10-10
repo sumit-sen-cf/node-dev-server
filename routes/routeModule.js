@@ -45,6 +45,7 @@ const targetCompetitionRoutes = require("./Sales/targetCompetitionRoutes");
 const caseStudyRoutes = require("./executionCaseStudy/caseStudyRoutes");
 const planXLogsRutes = require("./PMS2/planxlogsRoutes");
 const planPageDetailsRoutes = require("./PMS2/planPageDetailsRoutes");
+const pagePriceLogRoutes = require("./PMS2/pagePriceLogRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -70,7 +71,8 @@ exports.routeModulesV1 = [
     companyDetailsRoutes,
     documentDetailsRoutes,
     planXLogsRutes,
-    planPageDetailsRoutes
+    planPageDetailsRoutes,
+    pagePriceLogRoutes
 ];
 
 //used for the http://localhost:8080/api/v1/sarcasm/end-point
