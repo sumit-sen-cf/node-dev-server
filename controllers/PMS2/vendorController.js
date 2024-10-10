@@ -7,6 +7,8 @@ const vendorModel = require("../../models/PMS2/vendorModel");
 const companyDetailsModel = require("../../models/PMS2/companyDetailsModel");
 const XLSX = require('xlsx');
 const bulkVendorModel = require("../../models/PMS2/bulkVendorModel");
+const pageCatAssignmentModel = require("../../models/PMS2/pageCatAssignment");
+const pageMasterModel = require("../../models/PMS2/pageMasterModel");
 
 exports.createVendorData = async (req, res) => {
     try {
@@ -307,7 +309,7 @@ exports.updateVendorDetails = async (req, res) => {
         const { id } = req.params;
         const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, primary_field,
             vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
-            home_address, home_city, home_state, vendor_category, busi_type} = req.body;
+            home_address, home_city, home_state, vendor_category, busi_type } = req.body;
 
         let updateVendordata = {
             vendor_type,
@@ -417,12 +419,12 @@ exports.getVendorDetailsBYVendorId = async (req, res) => {
 };
 
 exports.insertBulkVendor = async (req, res) => {
-    try{
-        const workbook = XLSX.read(req.file.buffer, {type: 'buffer'})
+    try {
+        const workbook = XLSX.read(req.file.buffer, { type: 'buffer' })
         const sheetName = workbook.SheetNames[0]
         const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName])
 
-        const {vendor_id, category_id} = req.body;
+        const { vendor_id, category_id } = req.body;
         const vendorsData = worksheet.map((row) => ({
             page_id: row.page_id,
             vendor_id: vendor_id,
@@ -440,7 +442,7 @@ exports.insertBulkVendor = async (req, res) => {
 
         await bulkVendorModel.insertMany(vendorsData);
         return response.returnTrue(200, req, res, "Bulk Vendor data added successfully!", {});
-    }catch(err){
+    } catch (err) {
         return response.returnFalse(500, req, res, `${err.message}`, {})
     }
 }
@@ -473,10 +475,10 @@ exports.bulkVendorData = async (req, res) => {
         const vendors = await bulkVendorModel.aggregate([
             {
                 $lookup: {
-                    from: 'pms2vendormodels', 
-                    localField: 'vendor_id',  
-                    foreignField: '_id', 
-                    as: 'VendorData'  
+                    from: 'pms2vendormodels',
+                    localField: 'vendor_id',
+                    foreignField: '_id',
+                    as: 'VendorData'
                 }
             },
             {
@@ -486,7 +488,7 @@ exports.bulkVendorData = async (req, res) => {
                 },
             },
             {
-                $project:{
+                $project: {
                     _id: 1,
                     page_name: 1,
                     vendor_id: 1,
@@ -494,7 +496,7 @@ exports.bulkVendorData = async (req, res) => {
                     post: 1,
                     both: 1,
                     m_story: 1,
-                    m_post:1,
+                    m_post: 1,
                     m_both: 1,
                     reel: 1,
                     carousel: 1,
@@ -510,3 +512,45 @@ exports.bulkVendorData = async (req, res) => {
         return response.returnFalse(500, req, res, `${err.message}`, {});
     }
 }
+
+exports.getAllVendorsForUsers = async (req, res) => {
+    try {
+        const { user_id } = req.body;
+
+        const usersData = await pageCatAssignmentModel
+            .find({ user_id: user_id })
+            .select({ page_sub_category_id: 1, _id: 0 });
+
+        if (!usersData || usersData.length === 0) {
+            return response.returnFalse(200, req, res, "No Record Found", {});
+        }
+
+        const subCategoryIds = usersData.map(item => item.page_sub_category_id);
+
+        const subCatData = await pageMasterModel.find({
+            page_sub_category_id: { $in: subCategoryIds }
+        });
+
+
+        if (!subCatData || subCatData.length === 0) {
+            return response.returnFalse(200, req, res, "No matching Page Sub Categories found", {});
+        }
+
+        const vendorIds = subCatData.map(item => item.vendor_id);
+
+        const vendorData = await vendorModel.find({
+            _id: { $in: vendorIds }
+        });
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Page Sub Categories retrieved successfully!",
+            vendorData
+        );
+
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};

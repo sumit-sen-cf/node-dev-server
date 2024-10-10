@@ -113,6 +113,58 @@ exports.getSinglePlanPageDetail = async (req, res) => {
     }
 };
 
+exports.getSinglePlanPageDetailWithPlanXID = async (req, res) => {
+    try {
+        const planPageSingleData = await planPageDetailModel
+            .aggregate([
+                {
+                    $match: {
+                        planx_id: mongoose.Types.ObjectId(req.params.planx_id)
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "created_by",
+                        foreignField: "user_id",
+                        as: "userData",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$userData",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        planx_id: 1,
+                        page_name: 1,
+                        post_price: 1,
+                        story_price: 1,
+                        post_count: 1,
+                        story_count: 1,
+                        created_by: 1,
+                        created_by_name: "$userData.user_name"
+                    },
+                },
+            ]);
+        if (!planPageSingleData) {
+            return response.returnFalse(200, req, res, "No Record Found...", []);
+        }
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Plan Page Details Data Fetched Successfully",
+            planPageSingleData
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
+
 exports.editPlanPageDetail = async (req, res) => {
     try {
         const editPlanPageData = await planPageDetailModel.findOneAndUpdate(
@@ -191,4 +243,16 @@ exports.addMultiplePlanPageDetail = async (req, res) => {
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
+};
+
+exports.deletePlanPageDetailWithPlanXID = async (req, res) => {
+    planPageDetailModel.deleteMany({ planx_id: req.params.planx_id }).then(item => {
+        if (item) {
+            return res.status(200).json({ success: true, message: 'Plan Page Detail Data Deleted with planx id Successfully' })
+        } else {
+            return res.status(404).json({ success: false, message: 'Plan Page Detail Data of planx id not found' })
+        }
+    }).catch(err => {
+        return res.status(400).json({ success: false, message: err.message })
+    })
 };

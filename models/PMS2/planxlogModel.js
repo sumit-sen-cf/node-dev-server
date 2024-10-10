@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 // plan_status = open , close
-//plan_saved = drafted,saved
+//plan_saved = false:drafted,true:saved
 
 const planxlogModel = new mongoose.Schema({
     plan_name: {
@@ -46,6 +46,11 @@ const planxlogModel = new mongoose.Schema({
     account_id: {
         type: mongoose.Types.ObjectId,
         ref: "accountmastermodels",
+        required: false
+    },
+    duplicate_planx_id: {
+        type: mongoose.Types.ObjectId,
+        ref: "planxlogmodels",
         required: false
     },
     brand_id: {

@@ -4,6 +4,7 @@ const pageMasterModel = require("../../models/PMS2/pageMasterModel");
 const pagePriceMultipleModel = require("../../models/PMS2/pagePriceMultipleModel");
 const pageCatAssignment = require("../../models/PMS2/pageCatAssignment");
 const vendorModel = require("../../models/PMS2/vendorModel");
+const pageCatAssignmentModel = require("../../models/PMS2/pageCatAssignment");
 // const pageFollowerCountLogModel = require("../../models/PMS2/pageFollowerCountLogModel");
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
@@ -801,3 +802,39 @@ exports.getAllPageCatAssignment = async (req, res) => {
         return response.returnFalse(500, req, res, `${err.message}`, {});
     }
 }
+
+exports.getAllPagesForUsers = async (req, res) => {
+    try {
+        const { user_id } = req.body;
+
+        const usersData = await pageCatAssignmentModel
+            .find({ user_id: user_id })
+            .select({ page_sub_category_id: 1, _id: 0 });
+
+        if (!usersData || usersData.length === 0) {
+            return response.returnFalse(200, req, res, "No Record Found", {});
+        }
+
+        const subCategoryIds = usersData.map(item => item.page_sub_category_id);
+
+        const subCatData = await pageMasterModel.find({
+            page_sub_category_id: { $in: subCategoryIds }
+        });
+
+
+        if (!subCatData || subCatData.length === 0) {
+            return response.returnFalse(200, req, res, "No matching Page Sub Categories found", {});
+        }
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Page Datas retrieved successfully!",
+            subCatData
+        );
+
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
