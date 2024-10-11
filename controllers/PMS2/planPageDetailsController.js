@@ -1,6 +1,7 @@
 const response = require("../../common/response.js");
 const planPageDetailModel = require("../../models/PMS2/planPageDetailModel.js");
 const mongoose = require("mongoose");
+const constant = require("../../common/constant");
 
 exports.addPlanPageDetail = async (req, res) => {
     try {
@@ -197,15 +198,35 @@ exports.editPlanPageDetail = async (req, res) => {
 };
 
 exports.deletePlanPageDetail = async (req, res) => {
-    planPageDetailModel.deleteOne({ _id: req.params.id }).then(item => {
-        if (item) {
-            return res.status(200).json({ success: true, message: 'Plan Page Detail Data Deleted Successfully' })
-        } else {
-            return res.status(404).json({ success: false, message: 'Plan Page Detail Data not found' })
+    try {
+
+        const { id } = req.params;
+
+        const planPageDetailData = await planPageDetailModel.findOneAndUpdate({
+            _id: id,
+            status: { $ne: constant.DELETED }
+        }, {
+            $set: {
+                status: constant.DELETED,
+            },
+        },
+            { new: true }
+        );
+
+        if (!planPageDetailData) {
+            return response.returnFalse(200, req, res, `No Record Found`, {});
         }
-    }).catch(err => {
-        return res.status(400).json({ success: false, message: err.message })
-    })
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            `Plan Page Detail Data Deleted Successfully ${id}`,
+            planPageDetailData
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
 };
 
 exports.addMultiplePlanPageDetail = async (req, res) => {
@@ -216,8 +237,14 @@ exports.addMultiplePlanPageDetail = async (req, res) => {
             return response.returnFalse(400, req, res, "Invalid data format. Expected an array of plan pages.", {});
         }
 
-        await planPageDetailModel.deleteMany({ planx_id: planx_id });
+        const existingPlan = await planPageDetailModel.find({ planx_id: planx_id });
 
+        if (existingPlan) {
+            await planPageDetailModel.updateMany(
+                { page_name },
+                { $set: { status: constant.DELETED } }
+            );
+        }
         const planPageData = plan_pages.map((planPage) => {
             return new planPageDetailModel({
                 planx_id: planx_id,

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const constant = require("../../common/constant");
 
 // plan_status = open , close
 
@@ -36,6 +37,11 @@ const planPageDetailModel = new mongoose.Schema({
         type: String,
         required: false,
         default: ""
+    },
+    status: {
+        type: Number,
+        required: false,
+        default: constant?.ACTIVE,
     },
     created_by: {
         type: Number,

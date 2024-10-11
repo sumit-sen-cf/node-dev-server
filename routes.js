@@ -908,6 +908,7 @@ router.get("/user_hiearchy/:id", user.userHierarchy);
 
 
 router.post("/login_user_data", user.loginUserData);
+router.get("/login_user_data_with_jarvis/:user_id", user.loginUserDataWithJarvis2);
 router.post("/add_reason", user.addReason);
 router.get("/get_all_reasons", user.getAllReasons);
 router.post("/add_separation", user.addSeparation);

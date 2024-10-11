@@ -13,7 +13,9 @@ const {
     editPageCategoryAssignmentToUser,
     deletePageCategoryAssignment,
     getAllPageCatAssignment,
-    getAllPagesForUsers
+    getAllPagesForUsers,
+    getAllPageMasterDetailsWithStartEndDate,
+    getAllPagesForUsersWithStartEndDate
 } = require("../../controllers/PMS2/pageMasterController");
 const { addPageMasterValidation, updatePageMasterValidation } = require("../../helper/validation");
 const { verifyToken } = require("../../middleware/auth");
@@ -32,6 +34,8 @@ router.post('/edit_page_cat_assignment', editPageCategoryAssignmentToUser);
 router.post('/delete_page_cat_assignment/:_id', deletePageCategoryAssignment);
 router.get("/get_all_page_cat_assignment/:user_id", getAllPageCategoryAssignments);
 router.get('/get_all_page_cat_assignment', getAllPageCatAssignment);
-router.post("/get_all_pages_for_users", getAllPagesForUsers)
+router.post("/get_all_pages_for_users", getAllPagesForUsers);
+router.post("get_all_pages_for_users_with_start_end_date", getAllPagesForUsersWithStartEndDate);
+router.post("/get_all_pages_with_start_end_date", verifyToken, getAllPageMasterDetailsWithStartEndDate);
 
 module.exports = router;

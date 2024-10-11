@@ -554,3 +554,96 @@ exports.getAllVendorsForUsers = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
+exports.getAllVendorsForUsersWithStartEndDate = async (req, res) => {
+    try {
+        const { user_id, start_date, end_date } = req.body;
+
+        const usersData = await pageCatAssignmentModel
+            .find({ user_id: user_id })
+            .select({ page_sub_category_id: 1, _id: 0 });
+
+        if (!usersData || usersData.length === 0) {
+            return response.returnFalse(200, req, res, "No Record Found", []);
+        }
+
+        const subCategoryIds = usersData.map(item => item.page_sub_category_id);
+
+        const subCatData = await pageMasterModel.find({
+            page_sub_category_id: { $in: subCategoryIds }
+        });
+
+
+        if (!subCatData || subCatData.length === 0) {
+            return response.returnFalse(200, req, res, "No matching Page Sub Categories found", {});
+        }
+
+        const vendorIds = subCatData.map(item => item.vendor_id);
+
+        const vendorData = await vendorModel.find({
+            _id: { $in: vendorIds },
+            createdAt: {
+                $gte: new Date(start_date),
+                $lte: new Date(end_date)
+            }
+        });
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Page Sub Categories retrieved successfully!",
+            vendorData
+        );
+
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+exports.getAllVendorListWithStartEndDate = async (req, res) => {
+    try {
+        const page = req.query?.page ? parseInt(req.query.page) : null;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+
+        const { start_date, end_date } = req.body;
+
+        const skip = (page && limit) ? (page - 1) * limit : 0;
+
+        const query = {
+            status: { $ne: constant.DELETED }
+        };
+
+        if (start_date && end_date) {
+            query.createdAt = {
+                $gte: new Date(start_date),
+                $lte: new Date(end_date)
+            };
+        }
+
+        const vendorList = await vendorModel.find(query).skip(skip).limit(limit);
+
+        const vendorsCount = await vendorModel.countDocuments(query);
+
+        if (vendorList.length === 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
+        }
+
+        return response.returnTrueWithPagination(
+            200,
+            req,
+            res,
+            "Vendor list retrieved successfully!",
+            vendorList,
+            {
+                start_record: page && limit ? skip + 1 : 1,
+                end_record: page && limit ? skip + vendorList.length : vendorList.length,
+                total_records: vendorsCount,
+                current_page: page || 1,
+                total_page: page && limit ? Math.ceil(vendorsCount / limit) : 1,
+            }
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
