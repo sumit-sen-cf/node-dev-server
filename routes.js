@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const multer = require('multer');
 
 const insta = require("./controllers/insta.js");
 const exe = require("./controllers/execution.js");
@@ -1984,6 +1985,9 @@ router.post('/add_new_page', opExecution.addNewPage)
 router.get('/get_phase_commitments/:phaseName', opExecution.getPhaseCommits);
 router.get('/phase_created_campaign', opExecution.phaseCreatedCampaign);
 
+const pluralStorage = multer.memoryStorage();
+const pluralUpload = multer({ storage: pluralStorage });
+
 //------------------------------------------------- New Operations Routes End Here----------------------------
 router.get('/change_vendor_id_to_id', adminController.changeVendorIdToId)
 router.get('/change_primarypage_id_to_id', adminController.changePrimaryPageToId)
@@ -1994,6 +1998,7 @@ router.get('/generate_plural_payment_jwt_token', adminController.createJWTForPlu
 router.get('/update_vid_in_grouplink', adminController.updateVendoridinGroupLink)
 router.get('/copy_vhomeaddress_to_company', adminController.copyHomeToCompAddress)
 router.post("/create_payout", adminController.createpayout);
+router.post('/payout_from_file', pluralUpload.single('file'),adminController.pluralPayoutFromFile)
 
 /* expense api */
 router.post("/add_expense", expenseApi.addExpense);
