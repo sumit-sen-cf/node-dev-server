@@ -239,12 +239,14 @@ exports.addMultiplePlanPageDetail = async (req, res) => {
 
         const existingPlan = await planPageDetailModel.find({ planx_id: planx_id });
 
-        if (existingPlan) {
+        if (existingPlan.length > 0) {
+            const pageNames = plan_pages.map(page => page.page_name);
             await planPageDetailModel.updateMany(
-                { page_name },
+                { page_name: { $in: pageNames } },
                 { $set: { status: constant.DELETED } }
             );
         }
+
         const planPageData = plan_pages.map((planPage) => {
             return new planPageDetailModel({
                 planx_id: planx_id,
@@ -271,6 +273,7 @@ exports.addMultiplePlanPageDetail = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 };
+
 
 exports.deletePlanPageDetailWithPlanXID = async (req, res) => {
     planPageDetailModel.deleteMany({ planx_id: req.params.planx_id }).then(item => {
