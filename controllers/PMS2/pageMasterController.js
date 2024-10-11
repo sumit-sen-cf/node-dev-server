@@ -768,6 +768,46 @@ exports.addPageCategoryAssignmentToUser = async (req, res) => {
     }
 };
 
+exports.editPageCategoryAssignmentToUser = async (req, res) => {
+    try {
+        const { user_id, page_sub_category_id, updated_by } = req.body;
+
+        if (!user_id || !Array.isArray(page_sub_category_id) || page_sub_category_id.length === 0) {
+            return response.returnFalse(400, req, res, "Invalid input data", {});
+        }
+
+        const pageCats = page_sub_category_id.map(item => item.value);
+
+        await pageCatAssignment.destroy({ where: { user_id: user_id } });
+
+        const updatingResults = [];
+
+        for (let i = 0; i < pageCats.length; i++) {
+            const updatingObj = await pageCatAssignment.create({
+                user_id: user_id,
+                page_sub_category_id: pageCats[i],
+                updated_by: updated_by 
+            });
+            updatingResults.push(updatingObj);
+        }
+
+        return response.returnTrue(200, req, res, "Successfully updated page category assignments", updatingResults);
+    } catch (err) {
+        return response.returnFalse(500, req, res, `${err.message}`, {});
+    }
+};
+
+exports.deletePageCategoryAssignment = async (req, res) => {
+    pageCatAssignment.findByIdAndDelete(req.params._id).then(item => {
+        if (item) {
+            return res.status(200).json({ success: true, message: 'Sub cat assigned for user deleted' })
+        } else {
+            return res.status(404).json({ success: false, message: 'Sub cat assigned Data not found' })
+        }
+    }).catch(err => {
+        return res.status(400).json({ success: false, message: err.message })
+    })
+};
 
 exports.getAllPageCategoryAssignments = async (req, res) => {
     try {
