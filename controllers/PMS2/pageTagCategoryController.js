@@ -1,12 +1,13 @@
 const response = require("../../common/response.js");
 const pageTagCategoryModel = require("../../models/PMS2/pageTagCategoryModel.js");
 const mongoose = require("mongoose");
+const constant = require("../../common/constant");
 
 exports.addTagCategory = async (req, res) => {
     try {
 
         const pageCat = new pageTagCategoryModel({
-            page_id: req.body.plan_name,
+            page_id: req.body.page_id,
             page_name: req.body.page_name,
             page_category_id: req.body.page_category_id,
             created_by: req.body.created_by
@@ -69,11 +70,29 @@ exports.getPageTagCategory = async (req, res) => {
                         created_by_name: "$userCreatedData.user_name"
                     },
                 },
+                {
+                    $group: {
+                        _id: "$page_name",
+                        pages: { $push: "$$ROOT" }
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        page_id: "$_id",
+                        pages: 1
+                    }
+                }
             ]);
-        if (!pageTagCatData) {
+        const formattedResult = pageTagCatData.map(item => ({
+            [item.page_id]: item.pages
+        }));
+
+        if (formattedResult.length === 0) {
             return response.returnFalse(200, req, res, "No Record Found...", []);
         }
-        res.status(200).send(pageTagCatData)
+
+        res.status(200).send(formattedResult);
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
@@ -139,27 +158,38 @@ exports.getSinglePageTagCategory = async (req, res) => {
 
 exports.editPageTagCategory = async (req, res) => {
     try {
-        const editPageCatData = await pageTagCategoryModel.findOneAndUpdate(
-            { _id: req.body.id },
-            {
-                page_id: req.body.plan_name,
-                page_name: req.body.page_name,
-                page_category_id: req.body.page_category_id,
-                created_by: req.body.created_by,
-                last_updated_by: req.body.last_updated_by
-            },
-            { new: true }
-        );
-        if (!editPageCatData) {
-            return response.returnFalse(
-                200,
-                req,
-                res,
-                "No Reord Found With This Plan X Log Id",
-                {}
+        const { page_id, page_name, page_category_id, created_by, last_updated_by } = req.body;
+
+        const existingPage = await pageTagCategoryModel.find({ page_name });
+
+        if (existingPage) {
+            await pageTagCategoryModel.updateMany(
+                { page_name },
+                { $set: { status: constant.DELETED } }
             );
         }
-        return response.returnTrue(200, req, res, " Page Category Data Updation Successfully", editPageCatData);
+
+        if (Array.isArray(page_category_id) && page_category_id.length > 0) {
+            for (const categoryId of page_category_id) {
+                const newPageTagData = new pageTagCategoryModel({
+                    page_id,
+                    page_name,
+                    page_category_id: categoryId,
+                    created_by,
+                    last_updated_by
+                });
+                await newPageTagData.save();
+            }
+        }
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Page Category Data Updated and New Categories Inserted Successfully",
+            {}
+        );
+
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }

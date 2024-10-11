@@ -5642,3 +5642,30 @@ exports.changeUserFromWFHDToWFO = async (req, res) => {
         return res.status(500).send({ error: err.message, sms: "Error Shifting to user from WFHD to WFO" });
     }
 }
+
+exports.loginUserDataWithJarvis2 = async (req, res) => {
+    const id = req.params.user_id;
+    try {
+        const user = await userModel.findOne({ user_id: id });
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const userObject = {
+            user_id: user.user_id,
+            user_name: user.user_name,
+            user_designation: user.user_designation,
+        };
+
+        if (user.image) {
+            userObject.image = `${vari.IMAGE_URL}${user.image}`;
+        } else {
+            userObject.image = null;
+        }
+
+        res.status(200).json([userObject]);
+    } catch (err) {
+        res.status(500).send({ error: err.message, sms: 'Error getting loginuserdata' })
+    }
+};

@@ -2,6 +2,7 @@ const constant = require("../../common/constant");
 const response = require("../../common/response");
 const pms2PageSubCatModel = require("../../models/PMS2/pms2PageSubCatModel");
 const pageMasterModel = require("../../models/PMS2/pageMasterModel");
+const mongoose = require("mongoose");
 
 exports.createPageSubCategory = async (req, res) => {
     try {
@@ -192,5 +193,43 @@ exports.mergePageSubCategory = async (req, res) => {
     } catch (error) {
         console.error("Error merging sub categories: ", error.message);
         return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+exports.getAllSubCatWithCat = async (req, res) => {
+    try {
+        const category_id = req.params.category_id;
+
+        const pageData = await pageMasterModel.aggregate([
+            {
+                $match: { page_category_id: mongoose.Types.ObjectId(category_id) }
+            },
+            {
+                $lookup: {
+                    from: 'pms2pagesubcatmodels',
+                    localField: 'page_sub_category_id',
+                    foreignField: '_id',
+                    as: 'subCategoryDetails'
+                }
+            },
+            {
+                $unwind: '$subCategoryDetails'
+            },
+            {
+                $group: {
+                    _id: '$subCategoryDetails.page_sub_category'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    page_sub_category_name: '$_id'
+                }
+            }
+        ]);
+
+        res.status(200).json(pageData);
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while fetching sub-categories' });
     }
 };

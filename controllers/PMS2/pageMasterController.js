@@ -6,6 +6,7 @@ const pageCatAssignment = require("../../models/PMS2/pageCatAssignment");
 const vendorModel = require("../../models/PMS2/vendorModel");
 const pageCatAssignmentModel = require("../../models/PMS2/pageCatAssignment");
 const pageFollowerCountLogModel = require("../../models/PMS2/pageFollowerCountLogModel");
+const pageTagCategoryModel = require("../../models/PMS2/pageTagCategoryModel");
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
 // const { ObjectId } = require('mongodb');
@@ -54,9 +55,17 @@ exports.addPageMaster = async (req, res) => {
             );
         }
 
-        // Check if primary_page is true
+        const tagCategoryDocs = tags_page_category.map(tag_id => ({
+            page_id: savingObj._id,
+            page_name: savingObj.page_name,
+            page_category_id: tag_id,
+            created_by: savingObj.created_by
+        }));
+
+        const savedTags = await pageTagCategoryModel.insertMany(tagCategoryDocs);
+
         const vendor = await vendorModel.findById(vendor_id);
-        // Check if vendor exists
+
         if (!vendor) {
             return response.returnFalse(
                 404,
@@ -388,6 +397,17 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
         if (!pageMasterDetails) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
+
+        const data = await pageTagCategoryModel.deleteMany({ page_id: id });
+
+        const tagCategoryDocs = tags_page_category.map(tag_id => ({
+            page_id: pageMasterDetails._id,
+            page_name: pageMasterDetails.page_name,
+            page_category_id: tag_id,
+            created_by: pageMasterDetails.created_by
+        }));
+
+        const savedTags = await pageTagCategoryModel.insertMany(tagCategoryDocs);
 
         let pagePriceDetails = (req.body?.page_price_multiple) || [];
 
@@ -875,6 +895,206 @@ exports.getAllPagesForUsers = async (req, res) => {
             subCatData
         );
 
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+exports.getAllPagesForUsersWithStartEndDate = async (req, res) => {
+    try {
+        const { user_id, start_date, end_date } = req.body;
+
+        const usersData = await pageCatAssignmentModel
+            .find({ user_id: user_id })
+            .select({ page_sub_category_id: 1, _id: 0 });
+
+        if (!usersData || usersData.length === 0) {
+            return response.returnFalse(200, req, res, "No Record Found", {});
+        }
+
+        const subCategoryIds = usersData.map(item => item.page_sub_category_id);
+
+        const subCatData = await pageMasterModel.find({
+            page_sub_category_id: { $in: subCategoryIds },
+            createdAt: {
+                $gte: new Date(start_date),
+                $lte: new Date(end_date)
+            }
+        });
+
+
+        if (!subCatData || subCatData.length === 0) {
+            return response.returnFalse(200, req, res, "No matching Page Sub Categories found", []);
+        }
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Page Datas retrieved successfully!",
+            subCatData
+        );
+
+    } catch (error) {
+        return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+exports.getAllPageMasterDetailsWithStartEndDate = async (req, res) => {
+    try {
+        const { start_date, end_date } = req.body;
+
+        let pageMasterDetails;
+
+        const matchQuery = {
+            page_mast_status: { $ne: constant.DELETED }
+        };
+
+        if (start_date && end_date) {
+            matchQuery.
+                createdAt = {
+                $gte: new Date(start_date),
+                $lte: new Date(end_date)
+            };
+        }
+
+        const pipeline = [
+            { $match: matchQuery },
+            {
+                $lookup: {
+                    from: "pms2pagepricemultiplemodels",
+                    localField: "_id",
+                    foreignField: "page_master_id",
+                    as: "price_details",
+                    pipeline: [
+                        { $project: { _id: 1, page_price_type_id: 1, page_master_id: 1, price: 1 } }
+                    ]
+                }
+            },
+            {
+                $lookup: {
+                    from: "pms2pagepricetypemodels",
+                    localField: "price_details.page_price_type_id",
+                    foreignField: "_id",
+                    as: "pagePriceData",
+                    pipeline: [
+                        { $project: { _id: 1, name: 1 } }
+                    ]
+                }
+            },
+            {
+                $match: { "price_details.0": { $exists: true }, "pagePriceData.0": { $exists: true } }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    p_id: 1,
+                    page_name: 1,
+                    page_link: 1,
+                    page_category_id: 1,
+                    follower_count_before_update: 1,
+                    vendor_id: 1,
+                    temp_vendor_id: 1,
+                    price_type: 1,
+                    story: 1,
+                    post: 1,
+                    both_: 1,
+                    m_post_price: 1,
+                    m_story_price: 1,
+                    m_both_price: 1,
+                    created_at: 1,
+                    createdAt: 1,
+                    ownership_type: 1,
+                    page_closed_by: 1,
+                    page_profile_type_id: 1,
+                    page_name_type: 1,
+                    rate_type: 1,
+                    update_date: 1,
+                    est_update: 1,
+                    last_updated_by: 1,
+                    page_mast_status: 1,
+                    updatedAt: 1,
+                    followers_count: 1,
+                    platform_id: 1,
+                    preference_level: 1,
+                    temp_page_cat_id: 1,
+                    content_creation: 1,
+                    tags_page_category: 1,
+                    platform_active_on: 1,
+                    created_by: 1,
+                    bio: 1,
+                    page_sub_category_id: 1,
+                    price_details_obj: {
+                        $reduce: {
+                            input: "$price_details",
+                            initialValue: {},
+                            in: {
+                                $mergeObjects: [
+                                    "$$value",
+                                    {
+                                        $arrayToObject: {
+                                            $map: {
+                                                input: {
+                                                    $filter: {
+                                                        input: "$pagePriceData",
+                                                        as: "priceType",
+                                                        cond: {
+                                                            $eq: ["$$priceType._id", "$$this.page_price_type_id"]
+                                                        }
+                                                    }
+                                                },
+                                                as: "matchedPriceType",
+                                                in: {
+                                                    k: "$$matchedPriceType.name",
+                                                    v: "$$this.price"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    price_details: {
+                        $arrayToObject: {
+                            $map: {
+                                input: {
+                                    $objectToArray: "$price_details_obj"
+                                },
+                                as: "priceDetail",
+                                in: {
+                                    k: "$$priceDetail.k",
+                                    v: "$$priceDetail.v"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    price_details_obj: 0
+                }
+            }
+        ];
+
+        pageMasterDetails = await pageMasterModel.aggregate(pipeline);
+
+        if (pageMasterDetails?.length <= 0) {
+            return response.returnFalse(200, req, res, `No Record Found`, []);
+        }
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Page master list fetched successfully!",
+            pageMasterDetails
+        );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }

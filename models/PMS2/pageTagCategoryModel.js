@@ -4,8 +4,9 @@ const Schema = mongoose.Schema;
 
 const pageTagCategorySchema = new Schema({
     page_id: {
-        type: Number,
-        required: true
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "Pms2PageMasterModel"
     },
     page_name: {
         type: String,

@@ -149,7 +149,13 @@ exports.getPlanXLogs = async (req, res) => {
         if (!planxData) {
             return response.returnFalse(200, req, res, "No Record Found...", []);
         }
-        res.status(200).send(planxData)
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "PlanXData Fetched successfully",
+            planxData
+        );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
@@ -247,7 +253,13 @@ exports.getSinglePlanXLog = async (req, res) => {
         if (!planxSingleData) {
             return response.returnFalse(200, req, res, "No Record Found...", []);
         }
-        res.status(200).send(planxSingleData)
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Plan X Single Data Fetched successfully",
+            planxSingleData
+        );
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
