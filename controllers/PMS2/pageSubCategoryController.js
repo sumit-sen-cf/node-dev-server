@@ -1,6 +1,7 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
 const pms2PageSubCatModel = require("../../models/PMS2/pms2PageSubCatModel");
+const pageMasterModel = require("../../models/PMS2/pageMasterModel");
 
 exports.createPageSubCategory = async (req, res) => {
     try {
