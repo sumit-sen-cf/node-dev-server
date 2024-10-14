@@ -32,6 +32,13 @@ exports.getPageTagCategory = async (req, res) => {
         const pageTagCatData = await pageTagCategoryModel
             .aggregate([
                 {
+                    $match: {
+                        status: {
+                            $ne: constant.DELETED
+                        }
+                    }
+                },
+                {
                     $lookup: {
                         from: "pms2pagecategorymodels",
                         localField: "page_category_id",
@@ -186,7 +193,7 @@ exports.editPageTagCategory = async (req, res) => {
             200,
             req,
             res,
-            "Page Category Data Updated and New Categories Inserted Successfully",
+            "Page Tag Category Data Updated and New Tag Categories Inserted Successfully",
             {}
         );
 

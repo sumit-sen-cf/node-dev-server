@@ -965,6 +965,7 @@ router.get("/get_all_exit_users_of_wfhd", user.getAllExitUsersOfWFHD);
 router.get("/get_all_exit_users_of_wfo", user.getAllExitUsersOfWFO);
 router.put("/update_training", user.updateTraining);
 router.post("/changes_user_from_wfhd_to_wfo", user.changeUserFromWFHDToWFO);
+router.get('/get_all_users_with_basic_fields', user.getAllUsersWithSomeBasicFields);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 
@@ -1999,7 +2000,7 @@ router.get('/generate_plural_payment_jwt_token', adminController.createJWTForPlu
 router.get('/update_vid_in_grouplink', adminController.updateVendoridinGroupLink)
 router.get('/copy_vhomeaddress_to_company', adminController.copyHomeToCompAddress)
 router.post("/create_payout", adminController.createpayout);
-router.post('/payout_from_file', pluralUpload.single('file'),adminController.pluralPayoutFromFile)
+router.post('/payout_from_file', pluralUpload.single('file'), adminController.pluralPayoutFromFile)
 
 /* expense api */
 router.post("/add_expense", expenseApi.addExpense);
