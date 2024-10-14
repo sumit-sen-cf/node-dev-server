@@ -217,13 +217,15 @@ exports.getAllSubCatWithCat = async (req, res) => {
             },
             {
                 $group: {
-                    _id: '$subCategoryDetails.page_sub_category'
+                    _id: '$subCategoryDetails.page_sub_category',
+                    page_sub_category_id: { $first: '$subCategoryDetails._id' }
                 }
             },
             {
                 $project: {
                     _id: 0,
-                    page_sub_category_name: '$_id'
+                    page_sub_category_name: '$_id',
+                    page_sub_category_id: '$page_sub_category_id'
                 }
             }
         ]);
