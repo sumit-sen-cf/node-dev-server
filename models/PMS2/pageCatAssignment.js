@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const constant = require("../../common/constant");
 
 const pageCatAssignment = new Schema({
     user_id: {
@@ -21,7 +22,7 @@ const pageCatAssignment = new Schema({
     // },
     page_sub_category_id: {
         type: mongoose.Types.ObjectId,
-        ref: "",
+        ref: "pagecatassignments",
         required: false,
         unique: false
     },
@@ -32,7 +33,12 @@ const pageCatAssignment = new Schema({
     updated_by: {
         type: Number,
         required: false
-    }
+    },
+    status: {
+        type: Number,
+        required: false,
+        default: constant?.ACTIVE,
+    },
 }, {
     timestamps: true
 });

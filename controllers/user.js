@@ -5669,3 +5669,104 @@ exports.loginUserDataWithJarvis2 = async (req, res) => {
         res.status(500).send({ error: err.message, sms: 'Error getting loginuserdata' })
     }
 };
+
+exports.getAllUsersWithSomeBasicFields = async (req, res) => {
+    try {
+        const userImagesBaseUrl = `${vari.IMAGE_URL}`;
+        const userDataPipeline = [
+            {
+                $lookup: {
+                    from: 'departmentmodels',
+                    localField: 'dept_id',
+                    foreignField: 'dept_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'designationmodels',
+                    localField: 'user_designation',
+                    foreignField: 'desi_id',
+                    as: 'designation'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$designation",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'rolemodels',
+                    localField: 'role_id',
+                    foreignField: 'role_id',
+                    as: 'role'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$role",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "created_by",
+                    foreignField: "user_id",
+                    as: "createdByUserData",
+                }
+            },
+            {
+                $unwind: {
+                    path: "$createdByUserData",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    user_id: 1,
+                    user_name: 1,
+                    user_designation: 1,
+                    user_email_id: 1,
+                    user_login_id: 1,
+                    created_At: 1,
+                    created_by: 1,
+                    user_contact_no: 1,
+                    dept_id: 1,
+                    role_id: 1,
+                    image: 1,
+                    job_type: 1,
+                    PersonalNumber: 1,
+                    PersonalEmail: 1,
+                    user_status: 1,
+                    sub_dept_id: 1,
+                    department_name: "$department.dept_name",
+                    Role_name: "$role.Role_name",
+                    report: "$reportTo.user_name",
+                    designation_name: "$designation.desi_name",
+                    userSalaryStatus: 1,
+                    digital_signature_image: 1,
+                    alternate_contact: 1,
+                    image_url: { $concat: [userImagesBaseUrl, "$image"] },
+                    upi_Id: 1,
+                    created_by: 1,
+                    created_by_name: "$createdByUserData.user_name",
+                    created_date_time: 1
+                }
+            }
+        ];
+        const users = await mongoose.model('userModel').aggregate(userDataPipeline).sort({ user_id: -1 });
+        return res.status(200).send({ data: users });
+
+    } catch (err) {
+        return res.status(500).send({ error: err.message, sms: 'Error getting all users' });
+    }
+}

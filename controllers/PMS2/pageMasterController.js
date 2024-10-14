@@ -16,7 +16,7 @@ exports.addPageMaster = async (req, res) => {
         //get data from body 
         const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link, page_mast_status, preference_level,
             content_creation, ownership_type, rate_type, variable_type, description, page_closed_by, followers_count, engagment_rate, tags_page_category,
-            platform_active_on, created_by, story, post, both_, m_post_price, m_story_price, m_both_price, page_sub_category_id } = req.body;
+            platform_active_on, created_by, story, post, both_, m_post_price, m_story_price, m_both_price, page_sub_category_id, bio } = req.body;
 
         //save data in Db collection
         const savingObj = await pageMasterModel.create({
@@ -42,7 +42,8 @@ exports.addPageMaster = async (req, res) => {
             platform_active_on,
             created_by,
             story, post, both_, m_post_price, m_story_price, m_both_price,
-            page_sub_category_id
+            page_sub_category_id,
+            bio
         });
 
         if (!savingObj) {
@@ -760,110 +761,6 @@ exports.getPageMasterData = async (req, res) => {
     }
 }
 
-
-exports.addPageCategoryAssignmentToUser = async (req, res) => {
-    try {
-        const { user_id, page_sub_category_id, created_by } = req.body;
-
-        if (!user_id || !Array.isArray(page_sub_category_id) || page_sub_category_id.length === 0) {
-            return response.returnFalse(400, req, res, "Invalid input data", {});
-        }
-
-        const pageCats = page_sub_category_id.map(item => item.value);
-
-        const savingResults = [];
-
-        for (let i = 0; i < pageCats.length; i++) {
-            const savingObj = await pageCatAssignment.create({
-                user_id: user_id,
-                page_sub_category_id: pageCats[i],
-                created_by: created_by
-            });
-            savingResults.push(savingObj);
-        }
-
-        return response.returnTrue(200, req, res, "Successfully assigned page master data", savingResults);
-    } catch (err) {
-        return response.returnFalse(500, req, res, `${err.message}`, {});
-    }
-};
-
-exports.editPageCategoryAssignmentToUser = async (req, res) => {
-    try {
-        const { user_id, page_sub_category_id, updated_by } = req.body;
-
-        if (!user_id || !Array.isArray(page_sub_category_id) || page_sub_category_id.length === 0) {
-            return response.returnFalse(400, req, res, "Invalid input data", {});
-        }
-
-        const pageCats = page_sub_category_id.map(item => item.value);
-
-        await pageCatAssignment.destroy({ where: { user_id: user_id } });
-
-        const updatingResults = [];
-
-        for (let i = 0; i < pageCats.length; i++) {
-            const updatingObj = await pageCatAssignment.create({
-                user_id: user_id,
-                page_sub_category_id: pageCats[i],
-                updated_by: updated_by 
-            });
-            updatingResults.push(updatingObj);
-        }
-
-        return response.returnTrue(200, req, res, "Successfully updated page category assignments", updatingResults);
-    } catch (err) {
-        return response.returnFalse(500, req, res, `${err.message}`, {});
-    }
-};
-
-exports.deletePageCategoryAssignment = async (req, res) => {
-    pageCatAssignment.findByIdAndDelete(req.params._id).then(item => {
-        if (item) {
-            return res.status(200).json({ success: true, message: 'Sub cat assigned for user deleted' })
-        } else {
-            return res.status(404).json({ success: false, message: 'Sub cat assigned Data not found' })
-        }
-    }).catch(err => {
-        return res.status(400).json({ success: false, message: err.message })
-    })
-};
-
-exports.getAllPageCategoryAssignments = async (req, res) => {
-    try {
-        const user_id = req.params.user_id;
-
-        const data = await pageCatAssignment.find({ user_id: user_id });
-
-        return response.returnTrue(
-            200,
-            req,
-            res,
-            "Successfully get all page Master Data",
-            data
-        );
-    } catch (err) {
-        return response.returnFalse(500, req, res, `${err.message}`, {});
-    }
-}
-
-exports.getAllPageCatAssignment = async (req, res) => {
-    try {
-
-        const data = await pageCatAssignment.find();
-
-        return response.returnTrue(
-            200,
-            req,
-            res,
-            "Successfully get all page Master Data",
-            data
-        );
-    } catch (err) {
-        return response.returnFalse(500, req, res, `${err.message}`, {});
-    }
-}
-
 exports.getAllPagesForUsers = async (req, res) => {
     try {
         const { user_id } = req.body;
@@ -1097,5 +994,182 @@ exports.getAllPageMasterDetailsWithStartEndDate = async (req, res) => {
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
+    }
+};
+
+//All Api's Of Page Cat Assignments
+
+exports.addPageCategoryAssignmentToUser = async (req, res) => {
+    try {
+        const { user_id, page_sub_category_id, created_by } = req.body;
+
+        if (!user_id || !Array.isArray(page_sub_category_id) || page_sub_category_id.length === 0) {
+            return response.returnFalse(400, req, res, "Invalid input data", {});
+        }
+
+        const pageCats = page_sub_category_id.map(item => {
+            return {
+                user_id: user_id,
+                page_sub_category_id: item,
+                created_by: created_by
+            };
+        });
+
+        const savingResults = await pageCatAssignment.insertMany(pageCats);
+
+        return response.returnTrue(200, req, res, "Successfully assigned page category data", savingResults);
+    } catch (err) {
+        return response.returnFalse(500, req, res, `${err.message}`, {});
+    }
+};
+
+exports.editPageCategoryAssignmentToUser = async (req, res) => {
+    try {
+        const { user_id, page_sub_category_id } = req.body;
+
+        const existingPage = await pageCatAssignment.find({ user_id: user_id });
+
+        if (existingPage) {
+            await pageCatAssignment.updateMany(
+                { user_id },
+                { $set: { status: constant.DELETED } }
+            );
+        }
+
+        if (Array.isArray(page_sub_category_id) && page_sub_category_id.length > 0) {
+            for (const subCategoryId of page_sub_category_id) {
+                const newPageCatData = new pageCatAssignment({
+                    user_id: user_id,
+                    page_sub_category_id: subCategoryId,
+                    created_by
+                });
+                await newPageCatData.save();
+            }
+        }
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Page Category Assignment Data Updated and New Page Category Assignments Inserted Successfully",
+            newPageCatData
+        );
+
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
+
+exports.deletePageCategoryAssignment = async (req, res) => {
+    pageCatAssignment.findByIdAndDelete(req.params._id).then(item => {
+        if (item) {
+            return res.status(200).json({ success: true, message: 'Sub cat assigned for user deleted' })
+        } else {
+            return res.status(404).json({ success: false, message: 'Sub cat assigned Data not found' })
+        }
+    }).catch(err => {
+        return res.status(400).json({ success: false, message: err.message })
+    })
+};
+
+exports.getAllPageCategoryAssignments = async (req, res) => {
+    try {
+        const user_id = req.params.user_id;
+
+        const data = await pageCatAssignment.find({ user_id: user_id });
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Successfully get all page Master Data",
+            data
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, `${err.message}`, {});
+    }
+}
+
+exports.getAllPageCatAssignment = async (req, res) => {
+    try {
+        const pageCatAssiData = await pageCatAssignment
+            .aggregate([
+                {
+                    $match: {
+                        status: {
+                            $ne: constant.DELETED
+                        }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "pms2pagesubcatmodels",
+                        localField: "page_sub_category_id",
+                        foreignField: "_id",
+                        as: "pageSubCatData",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$pageSubCatData",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "user_id",
+                        foreignField: "user_id",
+                        as: "userData",
+                    },
+                },
+                {
+                    $unwind: {
+                        path: "$userData",
+                        preserveNullAndEmptyArrays: true,
+                    },
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        user_id: 1,
+                        user_name: "$userData.user_name",
+                        page_sub_category_id: 1,
+                        page_sub_category_name: "$pageSubCatData.page_sub_category",
+                        created_by: 1,
+                        created_by_name: "$userCreatedData.user_name"
+                    },
+                },
+                {
+                    $group: {
+                        _id: "$user_name",
+                        pageCatAssigns: { $push: "$$ROOT" }
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        user_id: "$_id",
+                        pageCatAssigns: 1
+                    }
+                }
+            ]);
+        const formattedResult = pageCatAssiData.map(item => ({
+            [item.user_id]: item.pageCatAssigns
+        }));
+
+        if (formattedResult.length === 0) {
+            return response.returnFalse(200, req, res, "No Record Found...", []);
+        }
+
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Successfully get all Page Category Assignment Data",
+            formattedResult
+        );
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
     }
 };
