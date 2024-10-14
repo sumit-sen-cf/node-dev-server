@@ -120,7 +120,8 @@ exports.getSinglePlanPageDetailWithPlanXID = async (req, res) => {
             .aggregate([
                 {
                     $match: {
-                        planx_id: mongoose.Types.ObjectId(req.params.planx_id)
+                        planx_id: mongoose.Types.ObjectId(req.params.planx_id),
+                        status: { $ne: constant.DELETED }
                     }
                 },
                 {
