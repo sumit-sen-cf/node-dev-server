@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const deletedSalesBookingHistoryData = new mongoose.Schema({
+const salesBooking = new mongoose.Schema({
     sale_booking_id: {
         type: Number,//auto increment
         required: false,
@@ -23,6 +23,7 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     campaign_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     campaign_name: {
         type: String,
@@ -35,18 +36,22 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     approved_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     requested_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     record_service_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     record_service_counts: {
         type: Number,
         required: false,
+        default: 0
     },
     is_execution_token_show: {
         type: Boolean,
@@ -60,10 +65,12 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     base_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     gst_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     description: {
         type: String,
@@ -72,6 +79,8 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     credit_approval_status: {
         type: String,
         enum: ['pending', 'approved', 'rejected', 'self_credit_used'],
+        // enum: ['manager_pending', 'manager_approved', 'manager_rejected', 'admin_pending',
+        //     'admin_approved', 'admin_rejected', 'self_credit_used'],//0-6
     },
     credit_approval_by: {
         type: Number,
@@ -95,7 +104,8 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     },
     tds_status: {
         type: String,
-        enum: ['open', 'close', 'tds_verified']//0-2
+        enum: ['open', 'close', 'tds_verified'],//0-2
+        default: 'open'
     },
     Booking_close_date: {
         type: Date,
@@ -114,6 +124,7 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     tds_verified_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     tds_verified_remark: {
         type: String,
@@ -155,7 +166,8 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     },
     payment_credit_status: {
         type: String,
-        enum: ['sent_for_payment_approval', 'sent_for_credit_approval', 'self_credit_used']//0-1
+        required: true,
+        enum: ['sent_for_payment_approval', 'sent_for_credit_approval', 'self_credit_used'],//0-1
     },
     booking_status: {
         type: String,  //refers to the sales booking status model
@@ -170,10 +182,12 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     incentive_sharing_percent: {
         type: Number,
         required: false,
+        default: 0,
     },
     bad_debt: {
         type: Boolean,
         required: false,
+        default: false,
     },
     bad_debt_reason: {
         type: String,
@@ -190,23 +204,31 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     sale_booking_type: {
         type: String,
         enum: ['normal_booking', 'renewed_booking'],   //0=normal booking, 1=renewed_booking
+        default: 'normal_booking'
     },
     incentive_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     earned_incentive_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     unearned_incentive_amount: {
         type: Number,
         required: false,
+        default: 0
     },
     payment_type: {
         type: String,
         enum: ['partial', 'full'],
     },
+    // final_invoice: {
+    //     type: String,
+    //     required: false,
+    // },
     invoice_request_status: {
         type: String,
         enum: ['pending', 'requested', 'uploaded'],
@@ -214,6 +236,11 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
     invoice_requested_amount: {
         type: Number,
         required: false,
+    },
+    is_dummy_sale_booking: {
+        type: Boolean,
+        required: false,
+        default: true
     },
     created_by: {
         type: Number,
@@ -223,12 +250,8 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
         type: Number,
         required: false,
     },
-    deleted_by: {
-        type: Number,
-        required: false,
-    },
 }, {
     timestamps: true
 });
 
-module.exports = mongoose.model('deletedSalesBookingModel', deletedSalesBookingHistoryData);
+module.exports = mongoose.model('salesSharedIncentiveSaleBookingModel', salesBooking);

@@ -81,7 +81,6 @@ const recordServiceMaster = new Schema({
     sale_booking_date: {
         type: Date,
         required: false,
-        default: Date.now,
     },
     sale_executive_id: {
         type: Number,

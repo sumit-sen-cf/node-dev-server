@@ -4,6 +4,7 @@ const { incentiveCalculationUserLimit } = require("../../helper/status");
 const incentivePlanModel = require("../../models/Sales/incentivePlanModel");
 const recordServiceModel = require("../../models/Sales/recordServiceModel");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
+const { distinctSaleBookingIdsForIncentive } = require("../../helper/functions");
 
 /**
  * Api is to used for the incentive_plan data add in the DB collection.
@@ -66,7 +67,7 @@ exports.updateIncentivePlan = async (req, res) => {
     try {
         // Extract the id from request parameters
         const { id } = req.params;
-        const { sales_service_master_id, incentive_type, value, remarks, updated_by } = req.body;
+        const { sales_service_master_id, incentive_type, value, remarks, status, updated_by } = req.body;
 
         const incentivePlanUpdated = await incentivePlanModel.findByIdAndUpdate({
             _id: id
@@ -76,6 +77,7 @@ exports.updateIncentivePlan = async (req, res) => {
                 incentive_type,
                 value,
                 remarks,
+                status,
                 updated_by
             },
         }, {
@@ -101,20 +103,60 @@ exports.updateIncentivePlan = async (req, res) => {
 exports.getIncentivePlanList = async (req, res) => {
     try {
         // Extract page and limit from query parameters, default to null if not provided
-        const page = req.query?.page ? parseInt(req.query.page) : null;
-        const limit = req.query?.limit ? parseInt(req.query.limit) : null;
+        const page = req.query?.page ? parseInt(req.query.page) : 1;
+        const limit = req.query?.limit ? parseInt(req.query.limit) : Number.MAX_SAFE_INTEGER;
         const sort = { createdAt: -1 };
 
         // Calculate the number of records to skip based on the current page and limit
         const skip = (page && limit) ? (page - 1) * limit : 0;
+        let matchQuery = {
+            status: {
+                $ne: constant.DELETED
+            }
+        }
 
         // Retrieve the list of records with pagination applied
-        const incentivePlanList = await incentivePlanModel.find({
-            status: { $ne: constant.DELETED }
-        }).skip(skip).limit(limit).sort(sort);
+        const incentivePlanList = await incentivePlanModel.aggregate([{
+            $match: matchQuery
+        }, {
+            $lookup: {
+                from: "salesservicemastermodels",
+                localField: "sales_service_master_id",
+                foreignField: "_id",
+                as: "salesServiceMasterData",
+            }
+        }, {
+            $unwind: {
+                path: "$salesServiceMasterData",
+                preserveNullAndEmptyArrays: true,
+            }
+        }, {
+            $project: {
+                sales_service_master_id: 1,
+                sales_service_master_Data: {
+                    _id: "$salesServiceMasterData._id",
+                    service_name: "$salesServiceMasterData.service_name",
+                    status: "$salesServiceMasterData.status"
+                },
+                incentive_type: 1,
+                value: 1,
+                remarks: 1,
+                status: 1,
+                created_by: 1,
+                updated_by: 1,
+                createdAt: 1,
+                updatedAt: 1,
+            }
+        }, {
+            $sort: sort
+        }, {
+            $skip: skip
+        }, {
+            $limit: limit
+        }])
 
         // Get the total count of records in the collection
-        const incentivePlanCount = await incentivePlanModel.countDocuments();
+        const incentivePlanCount = await incentivePlanModel.countDocuments(matchQuery);
 
         // If no records are found, return a response indicating no records found
         if (incentivePlanList.length === 0) {
@@ -195,11 +237,11 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
             searchQuery["created_by"] = req.query.userId;
         }
         // Get distinct sale booking IDs from the database
-        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', searchQuery);
+        const distinctSaleBookingIds = await distinctSaleBookingIdsForIncentive(searchQuery);
 
         //match condition obj prepare
         let matchCondition = {
-            sale_booking_id: {
+            _id: {
                 $in: distinctSaleBookingIds
             }
         };
@@ -231,6 +273,13 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
         //incentive dashboard data calculation
         const incentiveCalculationDashboard = await salesBookingModel.aggregate([{
             $match: matchCondition
+        }, {
+            $unionWith: {
+                coll: "salessharedincentivesalebookingmodels",
+                pipeline: [{
+                    $match: matchCondition
+                }]
+            }
         }, {
             $lookup: {
                 from: "usermodels",
@@ -297,7 +346,12 @@ exports.getIncentiveCalculationDashboard = async (req, res) => {
             }
         }, {
             $group: {
-                _id: "$sale_booking_id",
+                _id: {
+                    sale_booking_id: "$sale_booking_id",
+                    created_by: "$created_by",
+                    // incentive_amount: "$incentive_amount"
+                },
+                // _id: "$sale_booking_id",
                 year: { $first: "$year" },
                 month: { $first: "$month" },
                 created_by: { $first: "$created_by" },
@@ -462,15 +516,16 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
     try {
         //get user id from params
         let userId = req.params?.user_id;
-        // Get distinct sale booking IDs from the database
-        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', {
+        const filterQuery = {
             created_by: Number(userId),
             incentive_status: "incentive"
-        });
+        }
+        // Get distinct sale booking IDs from the database
+        const distinctSaleBookingIds = await distinctSaleBookingIdsForIncentive(filterQuery);
 
         //match condition obj prepare
         let matchCondition = {
-            sale_booking_id: {
+            _id: {
                 $in: distinctSaleBookingIds
             }
         };
@@ -498,6 +553,13 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
         //month wise sale booking incentive data calculation
         const incentiveCalculationMonthWise = await salesBookingModel.aggregate([{
             $match: matchCondition
+        }, {
+            $unionWith: {
+                coll: "salessharedincentivesalebookingmodels",
+                pipeline: [{
+                    $match: matchCondition
+                }]
+            }
         }, {
             $lookup: {
                 from: "salesrecordservicemodels",
@@ -535,7 +597,12 @@ exports.getIncentiveCalculationMonthWise = async (req, res) => {
             }
         }, {
             $group: {
-                _id: "$sale_booking_id",
+                _id: {
+                    sale_booking_id: "$sale_booking_id",
+                    created_by: "$created_by",
+                    // incentive_amount: "$incentive_amount"
+                },
+                // _id: "$sale_booking_id",
                 year: { $first: "$year" },
                 month: { $first: "$month" },
                 totalDocuments: { $sum: 1 },
@@ -887,18 +954,19 @@ exports.getIncentiveReleasedButtonData = async (req, res) => {
     try {
         //get user id from params
         let userId = req.params?.user_id;
-        // Get distinct sale booking IDs from the database
-        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', {
+        const filterQuery = {
             created_by: Number(userId),
             incentive_status: "incentive",
             incentive_request_status: {
                 $nin: ['requested', 'released']
             }
-        });
+        }
+        // Get distinct sale booking IDs from the database
+        const distinctSaleBookingIds = await distinctSaleBookingIdsForIncentive(filterQuery);
 
         //match condition obj prepare
         let matchCondition = {
-            sale_booking_id: {
+            _id: {
                 $in: distinctSaleBookingIds
             }
         };
@@ -909,6 +977,13 @@ exports.getIncentiveReleasedButtonData = async (req, res) => {
         //Sale booking wise incentive calculation data
         const incentiveCalculationDashboard = await salesBookingModel.aggregate([{
             $match: matchCondition
+        }, {
+            $unionWith: {
+                coll: "salessharedincentivesalebookingmodels",
+                pipeline: [{
+                    $match: matchCondition
+                }]
+            }
         }, {
             $lookup: {
                 from: "usermodels",
@@ -973,10 +1048,16 @@ exports.getIncentiveReleasedButtonData = async (req, res) => {
             }
         }, {
             $group: {
-                _id: "$sale_booking_id",
+                _id: {
+                    sale_booking_id: "$sale_booking_id",
+                    created_by: "$created_by",
+                    // incentive_amount: "$incentive_amount",
+                },
+                // _id: "$sale_booking_id",
                 year: { $first: "$year" },
                 month: { $first: "$month" },
                 totalDocuments: { $sum: 1 },
+                id: { $first: "$_id" },
                 saleBookingDate: { $first: "$sale_booking_date" },
                 gstStatus: { $first: "$gst_status" },
                 campaignAmount: { $first: "$campaign_amount" },
@@ -999,7 +1080,8 @@ exports.getIncentiveReleasedButtonData = async (req, res) => {
                 totalCampaignAmount: { $sum: "$campaignAmount" },
                 saleBookings: {
                     $push: {
-                        sale_booking_id: "$_id",
+                        _id: "$id",
+                        sale_booking_id: "$_id.sale_booking_id",
                         saleBookingDate: "$saleBookingDate",
                         gstStatus: "$gstStatus",
                         campaignAmount: "$campaignAmount",
