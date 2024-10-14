@@ -65,6 +65,11 @@ const accountMasterSchema = new mongoose.Schema({
         required: false,
         default: false
     },
+    account_percentage: {
+        type: Number,
+        required: false,
+        default: 100
+    },
     created_by: {
         type: Number,
         required: true,

@@ -308,6 +308,9 @@ exports.getAllAccountDetails = async (req, res) => {
         if (req.query?.userId) {
             matchQuery["created_by"] = Number(req.query.userId);
         }
+        if (req.query?.account_id) {
+            matchQuery["account_id"] = Number(req.query.account_id);
+        }
         //Search by filter
         if (req.query.search) {
             //Regex Condition for search 
@@ -469,6 +472,7 @@ exports.getAllAccountDetails = async (req, res) => {
                 description: { $first: "$description" },
                 company_email: { $first: "$company_email" },
                 is_rewards_sent: { $first: "$is_rewards_sent" },
+                account_percentage: { $first: "$account_percentage" },
                 created_by: { $first: "$created_by" },
                 created_by_name: { $first: "$userData.user_name" },
                 updated_by: { $first: "$updated_by" },
@@ -512,6 +516,7 @@ exports.getAllAccountDetails = async (req, res) => {
                 description: 1,
                 company_email: 1,
                 is_rewards_sent: 1,
+                account_percentage: 1,
                 created_by: 1,
                 created_by_name: 1,
                 updated_by: 1,

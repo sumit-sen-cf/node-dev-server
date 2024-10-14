@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+//Break Circular Dependency require this place.
+const { updateSharedIncentiveSBCollection } = require("../../helper/circularDependency");
 
 const salesBooking = new mongoose.Schema({
     sale_booking_id: {
@@ -134,10 +136,10 @@ const salesBooking = new mongoose.Schema({
         type: String,
         required: false,
     },
-    // plan_file: {
-    //     type: String,
-    //     required: false,
-    // },
+    plan_link: {
+        type: String,
+        required: false,
+    },
     booking_remarks: {
         type: String,
         required: false,
@@ -174,9 +176,10 @@ const salesBooking = new mongoose.Schema({
         required: false,
         // ref: "salesBookingStatus"
     },
-    incentive_sharing_user_id: {
-        type: Number,
+    is_incentive_sharing: {
+        type: Boolean,
         required: false,
+        default: false,
     },
     incentive_sharing_percent: {
         type: Number,
@@ -248,6 +251,7 @@ const salesBooking = new mongoose.Schema({
     timestamps: true
 });
 
+// Pre save hook for perform action before save data
 salesBooking.pre('save', async function (next) {
     if (!this.sale_booking_id) {
         const salesBookingData = await this.constructor.findOne({}, {}, { sort: { 'sale_booking_id': -1 } });
@@ -265,6 +269,34 @@ salesBooking.pre('save', async function (next) {
         this.invoice_requested_amount = 0;
     }
     next();
+});
+
+// Post update hook for perform action after updating data
+salesBooking.post('updateOne', async function (doc, next) {
+    try {
+        var _this = this;
+        var where = _this._conditions;
+        var fields = _this._update;
+        //Update fields in shared sale booking collection.
+        await updateSharedIncentiveSBCollection(where, fields);
+        next();
+    } catch (error) {
+        console.log('Error in Sale booking Model Post updateOne hook', error);
+    }
+});
+
+// Post update hook for perform action after updating data
+salesBooking.post('findOneAndUpdate', async function (doc, next) {
+    try {
+        var _this = this;
+        var where = _this._conditions;
+        var fields = _this._update;
+        //Update fields in shared sale booking collection.
+        await updateSharedIncentiveSBCollection(where, fields);
+        next();
+    } catch (error) {
+        console.log('Error in Sale booking Model Post findOneAndUpdate hook', error);
+    }
 });
 
 module.exports = mongoose.model('salesBookingModel', salesBooking);

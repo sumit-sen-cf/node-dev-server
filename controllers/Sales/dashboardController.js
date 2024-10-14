@@ -525,6 +525,14 @@ exports.getSalesUsersReportList = async (req, res) => {
                 startDate = startOfQuarter;
                 endDate = endOfQuarter;
             }
+            if (req.query.filter === "custom") {
+                let start_date = req.query?.start_date;
+                let end_date = req.query?.end_date;
+                startDate = new Date(start_date);
+                startDate.setHours(0, 0, 0, 0);
+                endDate = new Date(end_date);
+                endDate.setHours(23, 59, 59, 999);
+            }
         }
 
         // Prepare the match query

@@ -4,7 +4,9 @@ const constant = require("../../common/constant.js");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
 const salesRecordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage.js");
-const { getIncentiveAmountRecordServiceWise } = require("../../helper/functions.js");
+const { getIncentiveAmountRecordServiceWise, calculateIncentiveSharingUserWise,
+    incentiveSharingDataCopy, uniqueUserIdsWithIncentiveAmountAdd
+} = require("../../helper/functions.js");
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -310,7 +312,9 @@ exports.updateMultipleRecordService = async (req, res) => {
     try {
         // get record service data from body
         let recordServiceDetails = (req.body?.record_services) || [];
-        const { updated_by } = req.body;
+        let copyRecordServicesDetails = JSON.parse(JSON.stringify(req.body?.record_services || []));
+
+        const { old_sales_booking_created_by, updated_by } = req.body;
         const saleBookingId = Number(req.params.id);
 
         // Get distinct IDs from the database
@@ -319,7 +323,7 @@ exports.updateMultipleRecordService = async (req, res) => {
         });
 
         // Create a set of IDs from recordServiceDetails
-        const documentIds = new Set(recordServiceDetails.map(doc => doc?._id));
+        const documentIds = new Set(recordServiceDetails?.map(doc => doc?._id));
 
         // Delete documents that are not included in accountPocDetails
         for (let id of distinctIds) {
@@ -346,6 +350,8 @@ exports.updateMultipleRecordService = async (req, res) => {
         //Record service details obj add in array
         if (recordServiceDetails.length && Array.isArray(recordServiceDetails)) {
             for (let element of recordServiceDetails) {
+                delete element.incentive_sharing_users_array;
+                delete element.service_percentage;
                 if (element?._id) {
                     // Existing document: update it
                     element.updated_by = updated_by;
@@ -364,6 +370,7 @@ exports.updateMultipleRecordService = async (req, res) => {
                 } else {
                     // New document: insert it
                     element.created_by = updated_by;
+                    element.updated_by = updated_by;
                     element.sale_booking_id = saleBookingId;
                     const createdData = await salesRecordServiceModel.create(element);
 
@@ -373,6 +380,33 @@ exports.updateMultipleRecordService = async (req, res) => {
                     totalRecordServiceAmount += createdData.amount;
                 }
             }
+        }
+
+        let tempIncentiveAmount = 0;
+        let sharedIncentiveDetailsArray = [];
+        //account sharing percentage
+        const accountPercentage = (req.body && req.body.account_percentage) ? req.body.account_percentage : 100;
+        totalIncentiveAmount = (totalIncentiveAmount * accountPercentage) / 100;
+        //multiple incentive sharing calculate and check.
+        if (copyRecordServicesDetails.length && (req.body.is_incentive_sharing == true || req.body.is_incentive_sharing == 'true')) {
+            for (let element of copyRecordServicesDetails) {
+                //service to get incentive user's array.
+                const incentiveSharingArrayDetails = (element && element.incentive_sharing_users_array) ? element.incentive_sharing_users_array : [];
+                if (incentiveSharingArrayDetails.length && Array.isArray(incentiveSharingArrayDetails)) {
+                    //service wise percentage calculation.
+                    let totalServiceIncentiveAmount = (totalIncentiveAmount * element.service_percentage) / 100;
+                    //User's wise Incentive Share distrbution.
+                    const sharedIncentiveData = await calculateIncentiveSharingUserWise(incentiveSharingArrayDetails, totalServiceIncentiveAmount, old_sales_booking_created_by);
+                    //Created by user's amount add with all services. 
+                    tempIncentiveAmount += sharedIncentiveData.cretedByIncentiveShareAmount;
+                    //User's wise incentive amount array merge with all services. 
+                    sharedIncentiveDetailsArray = [...sharedIncentiveDetailsArray, ...sharedIncentiveData.sharedIncentiveDetailsArray];
+                }
+            }
+            //All created by user's amount add in totalIncentiveAmount.
+            totalIncentiveAmount = tempIncentiveAmount;
+            //get unique user ids with incentive amount plus
+            sharedIncentiveDetailsArray = await uniqueUserIdsWithIncentiveAmountAdd(sharedIncentiveDetailsArray);
         }
 
         //update incentive amount in sale booking collection
@@ -386,6 +420,11 @@ exports.updateMultipleRecordService = async (req, res) => {
                 unearned_incentive_amount: totalIncentiveAmount
             }
         })
+
+        //Copy Sale Booking data in sharedIncentiveSaleBookingModel for incentive sharing
+        if (req.body.is_incentive_sharing == true || req.body.is_incentive_sharing == 'true') {
+            await incentiveSharingDataCopy(sharedIncentiveDetailsArray, saleBookingId);
+        }
 
         //send success response
         return res.status(200).json({

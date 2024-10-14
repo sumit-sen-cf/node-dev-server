@@ -2,7 +2,9 @@ const constant = require("../../common/constant");
 const response = require("../../common/response");
 const incentiveRequestModel = require("../../models/Sales/incentiveRequestModel");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
+const sharedIncentiveSaleBookingModel = require("../../models/Sales/sharedIncentiveSaleBookingModel");
 const { incentiveCalculationUserLimit } = require("../../helper/status");
+const { distinctSaleBookingIdsForIncentive } = require("../../helper/functions");
 
 /**
  * Api is to used for the incentive request create by sales executive user.
@@ -330,7 +332,8 @@ exports.incentiveRequestReleaseByFinance = async (req, res) => {
         const { finance_released_amount, account_number, payment_ref_no,
             payment_date, remarks, updated_by
         } = req.body;
-        const sale_booking_ids = req.body?.sale_booking_ids.map(id => Number(id)); // Convert each ID to Number
+        // const sale_booking_ids = req.body?.sale_booking_ids.map(id => Number(id)); // Convert each ID to Number
+        const sale_booking_ids = req.body?.sale_booking_ids;
 
         //dynamic obj prepared for update data
         let updateObj = {
@@ -354,7 +357,7 @@ exports.incentiveRequestReleaseByFinance = async (req, res) => {
 
         //update sale booking ids in Sale booking collection
         await salesBookingModel.updateMany({
-            sale_booking_id: {
+            _id: {
                 $in: sale_booking_ids
             }
         }, {
@@ -364,14 +367,18 @@ exports.incentiveRequestReleaseByFinance = async (req, res) => {
             }
         });
 
-        // // update sale booking ids in Sale booking collection
-        // await salesBookingModel.updateMany({
-        //     incentive_request_id: id
-        // }, {
-        //     $set: {
-        //         incentive_request_status: "released"
-        //     }
-        // });
+        //update sale booking ids in shared incentive Sale booking collection
+        await sharedIncentiveSaleBookingModel.updateMany({
+            _id: {
+                $in: sale_booking_ids
+            }
+        }, {
+            $set: {
+                incentive_request_id: incentiveRequestUpdated._id,
+                incentive_request_status: "released"
+            }
+        });
+
         // Return a success response with the updated record details
         return response.returnTrue(
             200,
@@ -580,11 +587,11 @@ exports.getIncentiveSettlementCalculationDashboard = async (req, res) => {
         }
 
         // Get distinct sale booking IDs from the database
-        const distinctSaleBookingIds = await salesBookingModel.distinct('sale_booking_id', matchQuery);
+        const distinctSaleBookingIds = await distinctSaleBookingIdsForIncentive(matchQuery);
 
         //match condition obj prepare
         let matchCondition = {
-            sale_booking_id: {
+            _id: {
                 $in: distinctSaleBookingIds
             }
         };
@@ -595,6 +602,13 @@ exports.getIncentiveSettlementCalculationDashboard = async (req, res) => {
         //incentive settlement dashboard data calculation
         const incentiveSettlementDashboard = await salesBookingModel.aggregate([{
             $match: matchCondition
+        }, {
+            $unionWith: {
+                coll: "salessharedincentivesalebookingmodels",
+                pipeline: [{
+                    $match: matchCondition
+                }]
+            }
         }, {
             $lookup: {
                 from: "usermodels",
@@ -665,7 +679,12 @@ exports.getIncentiveSettlementCalculationDashboard = async (req, res) => {
             }
         }, {
             $group: {
-                _id: "$sale_booking_id",
+                _id: {
+                    sale_booking_id: "$sale_booking_id",
+                    created_by: "$created_by",
+                    // incentive_amount: "$incentive_amount"
+                },
+                // _id: "$sale_booking_id",
                 year: { $first: "$year" },
                 month: { $first: "$month" },
                 created_by: { $first: "$created_by" },

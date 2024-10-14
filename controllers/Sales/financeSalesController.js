@@ -181,9 +181,10 @@ exports.salesBalanceUpdate = [
                 updateObj["earned_incentive_amount"] = saleBookingData.incentive_amount;
                 updateObj["unearned_incentive_amount"] = 0;
                 updateObj["booking_status"] = saleBookingStatus['05'].status;
-            } else {
-                updateObj["unearned_incentive_amount"] = saleBookingData.incentive_amount;
             }
+            // else {
+            //     updateObj["unearned_incentive_amount"] = saleBookingData.incentive_amount;
+            // }
 
             // if (saleBookingData.campaign_amount == approvedAmount) {
             //     updateObj["booking_status"] = saleBookingStatus['05'].status;

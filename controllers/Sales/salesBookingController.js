@@ -1,23 +1,18 @@
 const response = require("../../common/response");
-const vari = require("../../variables");
-const fs = require("fs");
-const ejs = require('ejs');
-const nodemailer = require("nodemailer");
 const multer = require("multer");
 const salesBookingModel = require("../../models/Sales/salesBookingModel");
+const sharedIncentiveSaleBookingModel = require("../../models/Sales/sharedIncentiveSaleBookingModel.js");
 const deleteSalesbookingModel = require("../../models/Sales/deletedSalesBookingModel.js");
 const recordServiceModel = require("../../models/Sales/recordServiceModel.js");
 const executionCampaignModel = require("../../models/executionCampaignModel.js");
 const userModel = require("../../models/userModel.js");
-const accountMasterModel = require("../../models/accounts/accountMasterModel.js");
-const accountTypesModel = require("../../models/accounts/accountTypesModel.js");
-const brandModel = require("../../models/accounts/brandModel.js");
 const { uploadImage, deleteImage, moveImage } = require("../../common/uploadImage");
 const constant = require("../../common/constant.js");
-const { saleBookingStatus, salesEmail } = require("../../helper/status.js");
-const { getIncentiveAmountRecordServiceWise } = require("../../helper/functions.js");
+const { saleBookingStatus } = require("../../helper/status.js");
+const { getIncentiveAmountRecordServiceWise, calculateIncentiveSharingUserWise,
+    incentiveSharingDataCopy, uniqueUserIdsWithIncentiveAmountAdd, emailSendSaleBookingCreateTime
+} = require("../../helper/functions.js");
 const path = require('path');
-const moment = require('moment');
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -64,9 +59,9 @@ exports.addSalesBooking = [
                 bad_debt_reason: req.body.bad_debt_reason,
                 no_badge_achivement: req.body.no_badge_achivement,
                 sale_booking_type: req.body.sale_booking_type,
-                // payment_type: req.body.payment_type,
-                // final_invoice: req.body.final_invoice,
+                plan_link: req.body.plan_link,
                 is_draft_save: req.body.is_draft_save,
+                is_incentive_sharing: req.body.is_incentive_sharing,
                 created_by: req.body.created_by,
             })
 
@@ -86,8 +81,7 @@ exports.addSalesBooking = [
             } else {
                 if (req.body.payment_credit_status == "sent_for_payment_approval") {
                     createSaleBooking["booking_status"] = saleBookingStatus['01'].status;
-                }
-                if (req.body.payment_credit_status == "self_credit_used") {
+                } else if (req.body.payment_credit_status == "self_credit_used") {
                     createSaleBooking["booking_status"] = saleBookingStatus['05'].status;
                 }
             }
@@ -115,10 +109,13 @@ exports.addSalesBooking = [
 
             let recordServicesDataUpdatedArray = [];
             let recordServicesDetails = (req.body?.record_services && JSON.parse(req.body.record_services)) || [];
+            let copyRecordServicesDetails = (req.body?.record_services && JSON.parse(req.body.record_services)) || [];
 
             //Record Service details obj add in array
             if (recordServicesDetails.length && Array.isArray(recordServicesDetails)) {
                 for (let element of recordServicesDetails) {
+                    delete element.incentive_sharing_users_array;
+                    delete element.service_percentage;
                     element.sale_booking_id = saleBookingAdded.sale_booking_id;
                     element.created_by = req.body.created_by;
                     element.sale_executive_id = req.body.created_by;
@@ -141,6 +138,33 @@ exports.addSalesBooking = [
                 totalIncentiveAmount += incentiveAmount;
             }
 
+            let tempIncentiveAmount = 0;
+            let sharedIncentiveDetailsArray = [];
+            //account sharing percentage
+            const accountPercentage = (req.body && req.body.account_percentage) ? req.body.account_percentage : 100;
+            totalIncentiveAmount = (totalIncentiveAmount * accountPercentage) / 100;
+            //multiple incentive sharing calculate and check.
+            if (copyRecordServicesDetails.length && (req.body.is_incentive_sharing == true || req.body.is_incentive_sharing == 'true')) {
+                for (let element of copyRecordServicesDetails) {
+                    //service to get incentive user's array.
+                    const incentiveSharingArrayDetails = (element && element.incentive_sharing_users_array) || [];
+                    if (incentiveSharingArrayDetails.length && Array.isArray(incentiveSharingArrayDetails)) {
+                        //service wise percentage calculation.
+                        let totalServiceIncentiveAmount = (totalIncentiveAmount * element.service_percentage) / 100;
+                        //User's wise Incentive Share distrbution.
+                        const sharedIncentiveData = await calculateIncentiveSharingUserWise(incentiveSharingArrayDetails, totalServiceIncentiveAmount, saleBookingAdded.created_by);
+                        //Created by user's amount add with all services. 
+                        tempIncentiveAmount += sharedIncentiveData.cretedByIncentiveShareAmount;
+                        //User's wise incentive amount array merge with all services. 
+                        sharedIncentiveDetailsArray = [...sharedIncentiveDetailsArray, ...sharedIncentiveData.sharedIncentiveDetailsArray];
+                    }
+                }
+                //All created by user's amount add in totalIncentiveAmount.
+                totalIncentiveAmount = tempIncentiveAmount;
+                //get unique user ids with incentive amount plus
+                sharedIncentiveDetailsArray = await uniqueUserIdsWithIncentiveAmountAdd(sharedIncentiveDetailsArray);
+            }
+
             //update incentive amount in sale booking collection
             await salesBookingModel.updateOne({
                 sale_booking_id: saleBookingAdded.sale_booking_id
@@ -153,6 +177,11 @@ exports.addSalesBooking = [
                 }
             })
 
+            //Copy Sale Booking data in sharedIncentiveSaleBookingModel for incentive sharing
+            if (req.body.is_incentive_sharing == true || req.body.is_incentive_sharing == 'true') {
+                await incentiveSharingDataCopy(sharedIncentiveDetailsArray, saleBookingAdded.sale_booking_id);
+            }
+
             //exe campign collection sale booking true marked.
             await executionCampaignModel.updateOne({
                 _id: createSaleBooking.campaign_id
@@ -162,83 +191,9 @@ exports.addSalesBooking = [
                 }
             });
 
-            //user data get for the name
-            const userData = await userModel.findOne({
-                user_id: saleBookingAdded.created_by
-            }, {
-                user_id: 1,
-                user_name: 1,
-            });
+            //email send to admin for new sale booking creation.
+            await emailSendSaleBookingCreateTime(saleBookingAdded);
 
-            //account data get for the name
-            const accountData = await accountMasterModel.findOne({
-                account_id: saleBookingAdded.account_id
-            }, {
-                account_id: 1,
-                account_name: 1,
-                account_type_id: 1,
-            });
-
-            //user data get for the name
-            const accountTypeData = await accountTypesModel.findOne({
-                _id: accountData.account_type_id
-            }, {
-                account_type_name: 1,
-            });
-
-            //user data get for the name
-            const brandData = await brandModel.findOne({
-                _id: saleBookingAdded.brand_id
-            }, {
-                brand_name: 1,
-            });
-
-            // Format a specific date
-            const formattedDate = moment(saleBookingAdded.sale_booking_date).format('MM/DD/YYYY HH:mm:ss');
-            //for email send process to admin
-            try {
-                const transporterOptions = {
-                    service: "gmail",
-                    auth: {
-                        user: constant.EMAIL_ID,
-                        pass: constant.EMAIL_PASS,
-                    },
-                };
-
-                const createMailOptions = (html) => ({
-                    from: constant.EMAIL_ID,
-                    to: salesEmail,
-                    subject: "New Sale Booking Created",
-                    html: html,
-                });
-
-                const sendMail = async (mailOptions) => {
-                    const transporter = nodemailer.createTransport(transporterOptions);
-                    await transporter.sendMail(mailOptions);
-                };
-
-                const templatePath = path.join(__dirname, "template.ejs");
-                const template = await fs.promises.readFile(templatePath, "utf-8");
-                const html = ejs.render(template, {
-                    salesExecutiveName: userData.user_name,
-                    salesExecutiveID: saleBookingAdded.created_by,
-                    saleBookingId: saleBookingAdded.sale_booking_id,
-                    saleBookingDate: formattedDate,
-                    saleBookingAmount: saleBookingAdded.campaign_amount,
-                    accountId: accountData.account_id,
-                    accountName: accountData.account_name,
-                    accountType: accountTypeData.account_type_name,
-                    brandName: brandData.brand_name,
-                    headerText: "New Sale Booking is Created."
-                });
-                const mailOptions = createMailOptions(html);
-
-                //send email to admin
-                await sendMail(mailOptions);
-            } catch (err) {
-                console.log("Error in email send process", err);
-                return response.returnFalse(500, req, res, err.message, {});
-            }
             //success response send
             return response.returnTrue(200, req, res,
                 "Sales Booking Created Successfully",
@@ -255,6 +210,15 @@ exports.editSalesBooking = [
     upload, async (req, res) => {
         try {
             const { id } = req.params;
+
+            // Fetch the old data exist in the db.
+            const oldSaleBookingData = await salesBookingModel.findOne({
+                _id: id
+            });
+
+            if (!oldSaleBookingData) {
+                return response.returnFalse(404, req, res, `Sales booking data not found`, {});
+            }
 
             const updateData = {
                 account_id: req.body.account_id,
@@ -280,9 +244,9 @@ exports.editSalesBooking = [
                 bad_debt_reason: req.body.bad_debt_reason,
                 no_badge_achivement: req.body.no_badge_achivement,
                 sale_booking_type: req.body.sale_booking_type,
-                // payment_type: req.body.payment_type,
-                // final_invoice: req.body.final_invoice,
+                plan_link: req.body.plan_link,
                 is_draft_save: req.body.is_draft_save,
+                is_incentive_sharing: req.body.is_incentive_sharing,
                 updated_by: req.body.updated_by,
             };
 
@@ -292,14 +256,17 @@ exports.editSalesBooking = [
             } else {
                 if (req.body.payment_credit_status == "sent_for_payment_approval") {
                     updateData["booking_status"] = saleBookingStatus['01'].status;
-                }
-                if (req.body.payment_credit_status == "self_credit_used") {
+                } else if (req.body.payment_credit_status == "self_credit_used") {
                     updateData["booking_status"] = saleBookingStatus['05'].status;
                 }
             }
 
             // Fetch the old document and update it
-            const updatedSalesBooking = await salesBookingModel.findByIdAndUpdate({ _id: id }, updateData, { new: true });
+            const updatedSalesBooking = await salesBookingModel.findOneAndUpdate({
+                sale_booking_id: oldSaleBookingData.sale_booking_id
+            }, updateData, {
+                new: true
+            });
 
             if (!updatedSalesBooking) {
                 return response.returnFalse(404, req, res, `Sales booking data not found`, {});
@@ -325,7 +292,14 @@ exports.editSalesBooking = [
             // Save the updated document with the new image URLs
             await updatedSalesBooking.save();
 
-            return response.returnTrue(200, req, res, "Sales booking data updated successfully!", updatedSalesBooking);
+            //send success response
+            return response.returnTrue(
+                200,
+                req,
+                res,
+                "Sales booking data updated successfully!",
+                updatedSalesBooking
+            );
         } catch (error) {
             // Return an error response in case of any exceptions
             return response.returnFalse(500, req, res, `${error.message}`, {});
@@ -459,7 +433,10 @@ exports.getAllSalesBooking = async (req, res) => {
                 record_service_file_url: 1,
                 url: 1,
                 invoice_request_status: 1,
-                invoice_requested_amount: 1
+                is_incentive_sharing: 1,
+                invoice_requested_amount: 1,
+                plan_link: 1,
+                is_dummy_sale_booking: 1
             }
         }, {
             $sort: sort
@@ -472,21 +449,36 @@ exports.getAllSalesBooking = async (req, res) => {
             );
         }
 
+        //Sale booking collection data get from db.
         const saleBookingList = await salesBookingModel.aggregate(pipeline);
-        const salesBookingCount = await salesBookingModel.countDocuments();
+        const salesBookingCount = await salesBookingModel.countDocuments(matchQuery);
 
+        //shared sale booking collection data get from db.
+        const sharedSaleBookingList = await sharedIncentiveSaleBookingModel.aggregate(pipeline);
+        const sharedSalesBookingCount = await sharedIncentiveSaleBookingModel.countDocuments(matchQuery);
+
+        //Sale booking data and copy incentive sharing sale booking merged.
+        const mergeSaleBookingList = [...saleBookingList, ...sharedSaleBookingList];
+
+        // Sort the merged list in descending order based on createdAt
+        mergeSaleBookingList.sort((a, b) => b.createdAt - a.createdAt);
+
+        //Sale booking count and copy incentive sharing sale booking counts merged.
+        const mergeSalesBookingCount = salesBookingCount + sharedSalesBookingCount;
+
+        //return success response
         return response.returnTrueWithPagination(
             200,
             req,
             res,
             "Sales booking list retreive successfully!",
-            saleBookingList,
+            mergeSaleBookingList,
             {
                 start_record: skip + 1,
-                end_record: skip + saleBookingList.length,
-                total_records: salesBookingCount,
+                end_record: skip + mergeSaleBookingList.length,
+                total_records: mergeSalesBookingCount,
                 current_page: page || 1,
-                total_page: (page && limit) ? Math.ceil(salesBookingCount / limit) : 1,
+                total_page: (page && limit) ? Math.ceil(mergeSalesBookingCount / limit) : 1,
             }
         );
     } catch (error) {
@@ -500,9 +492,21 @@ exports.getAllSalesBooking = async (req, res) => {
 exports.getSingleSalesBooking = async (req, res) => {
     try {
         const { id } = req.params;
-        const salesBookingDetail = await salesBookingModel.findOne({
+        let salesBookingDetail;
+        //get data from the sale booking collection.
+        salesBookingDetail = await salesBookingModel.findOne({
             _id: id,
         });
+
+        //also data get from the Shared Incentive Sale Booking collection.
+        if (!salesBookingDetail) {
+            //get data from the Shared Incentive Sale Booking collection.
+            salesBookingDetail = await sharedIncentiveSaleBookingModel.findOne({
+                _id: id,
+            });
+        }
+
+        //if data not found then return
         if (!salesBookingDetail) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
@@ -635,7 +639,7 @@ exports.getAllStatusForCreditApprovalSalesBookingList = async (req, res) => {
             }
         }, {
             $lookup: {
-                from: "accountMasterModel",
+                from: "accountmastermodels",
                 localField: "account_id",
                 foreignField: "account_id",
                 as: "accountMasterData",

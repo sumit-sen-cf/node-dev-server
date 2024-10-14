@@ -47,6 +47,7 @@ const planXLogsRutes = require("./PMS2/planxlogsRoutes");
 const planPageDetailsRoutes = require("./PMS2/planPageDetailsRoutes");
 const pagePriceLogRoutes = require("./PMS2/pagePriceLogRoutes");
 const pageTagCategoryRoutes = require("./PMS2/pageTagCategoryRoutes");
+const incentiveSharingServicesRoutes = require("./Sales/incentiveSharingServicesRoutes");
 
 //used for the http://localhost:8080/api/v1/end-points
 exports.routeModulesV1 = [
@@ -105,7 +106,8 @@ exports.routeModules = [
     incentiveRequestRoutes,
     financeSalesRoutes,
     dashboardRoutes,
-    targetCompetitionRoutes
+    targetCompetitionRoutes,
+    incentiveSharingServicesRoutes,
 ];
 
 exports.routeModulesV1CaseStudy = [
