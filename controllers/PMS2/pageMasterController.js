@@ -1040,8 +1040,7 @@ exports.editPageCategoryAssignmentToUser = async (req, res) => {
             for (const subCategoryId of page_sub_category_id) {
                 const newPageCatData = new pageCatAssignment({
                     user_id: user_id,
-                    page_sub_category_id: subCategoryId,
-                    created_by
+                    page_sub_category_id: subCategoryId
                 });
                 await newPageCatData.save();
             }
@@ -1052,7 +1051,7 @@ exports.editPageCategoryAssignmentToUser = async (req, res) => {
             req,
             res,
             "Page Category Assignment Data Updated and New Page Category Assignments Inserted Successfully",
-            newPageCatData
+            {}
         );
 
     } catch (err) {

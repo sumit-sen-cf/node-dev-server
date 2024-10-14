@@ -21,6 +21,7 @@ var transporter = nodemailer.createTransport({
 const updateFollowersJob = schedule.scheduleJob('0 0 */15 * *', async () => {
   console.log("Running updateFollowers every 15 days");
   await updateFollowers();
+  await updateFollowersWithNewApi();
 });
 
 const birthDay = schedule.scheduleJob('0 0 * * *', async () => {
@@ -392,10 +393,67 @@ async function updateFollowers() {
 
         if (response.data && response.data.data && response.data.data[0] && response.data.data[0].creatorDetails) {
           const followers_data = response.data.data[0].creatorDetails.followers;
+          const bio_data = response.data.data[0].creatorDetails.biography;
           console.log("followers", followers_data);
           const updateResult = await pageMasterModel.updateOne(
             { p_id: page.p_id },
-            { $set: { followers_count: followers_data } }
+            { $set: { followers_count: followers_data, bio: bio_data } }
+          );
+
+          if (updateResult.nModified > 0) {
+            successfulUpdates++;
+          }
+        } else {
+          console.error("Invalid response structure or missing followers data for page:", page.page_name);
+        }
+      } catch (apiError) {
+        console.error("Error fetching followers for page", apiError);
+      }
+    }
+
+    console.log(`Successfully updated ${successfulUpdates} records in pageMasterModel.`);
+  } catch (error) {
+    console.error('Error in updateFollowers:', error.message);
+  }
+}
+
+async function updateFollowersWithNewApi() {
+  let successfulUpdates = 0;
+  try {
+    const pageData = await pageMasterModel.find({ bio: "" }).select({ p_id: 1, page_name: 1 });
+
+    for (const page of pageData) {
+      const payload = {
+        "creators": [page.page_name],
+        "department": "65c38781c52b3515f77b0815",
+        "userId": 111111,
+        "creatorType": 0
+      };
+
+      console.log('pageName', page.page_name);
+
+      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlc3RpbmciLCJpYXQiOjE3MDczMTIwODB9.ytDpwGbG8dc9jjfDasL_PI5IEhKSQ1wXIFAN-2QLrT8';
+
+      try {
+        const response = await axios.post(
+          `https://insights.ist:8080/api/v1/creator_details_operation_multiple`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          }
+        );
+
+        if (response.data && response.data.data && response.data.data[0] && response.data.data[0].creatorDetails) {
+          const followers_data = response.data.data[0].creatorDetails.followers;
+          const bio_data = response.data.data[0].creatorDetails.biography;
+          console.log("followers", followers_data);
+          console.log("bio_data", bio_data);
+          const updateResult = await pageMasterModel.updateOne(
+            { p_id: page.p_id },
+            { $set: { followers_count: followers_data, bio: bio_data } }
           );
 
           if (updateResult.nModified > 0) {
