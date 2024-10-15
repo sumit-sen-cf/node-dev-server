@@ -239,11 +239,12 @@ exports.addMultiplePlanPageDetail = async (req, res) => {
         }
 
         const existingPlan = await planPageDetailModel.find({ planx_id: planx_id });
+        // console.log("existingPlan", existingPlan);
 
         if (existingPlan.length > 0) {
-            const pageNames = plan_pages.map(page => page.page_name);
+            // const pageNames = plan_pages.map(page => page.page_name);
             await planPageDetailModel.updateMany(
-                { page_name: { $in: pageNames } },
+                { planx_id: planx_id },
                 { $set: { status: constant.DELETED } }
             );
         }
