@@ -9,6 +9,7 @@ const pageFollowerCountLogModel = require("../../models/PMS2/pageFollowerCountLo
 const pageTagCategoryModel = require("../../models/PMS2/pageTagCategoryModel");
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
+const pageMasterLogModel = require("../../models/PMS2/pageMasterLogModel");
 // const { ObjectId } = require('mongodb');
 
 exports.addPageMaster = async (req, res) => {
@@ -350,7 +351,7 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
         const pageData = await pageMasterModel.findOne({ _id: id });
 
         const followerLogsData = new pageFollowerCountLogModel({
-            p_id: pageData.p_id,
+            page_id: id,
             page_name: pageData.page_name,
             follower_count: pageData.followers_count,
             bio: pageData.bio,
@@ -362,7 +363,7 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
         const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link,
             page_mast_status, preference_level, content_creation, ownership_type, rate_type, variable_type, description, page_closed_by,
             followers_count, engagment_rate, tags_page_category, platform_active_on, last_updated_by, story, post, both_, m_post_price,
-            m_story_price, m_both_price, page_sub_category_id } = req.body;
+            m_story_price, m_both_price, page_sub_category_id, bio } = req.body;
 
         const pageMasterDetails = await pageMasterModel.findOneAndUpdate({
             _id: id
@@ -390,7 +391,8 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
                 platform_active_on,
                 last_updated_by,
                 story, post, both_, m_post_price, m_story_price, m_both_price,
-                page_sub_category_id
+                page_sub_category_id,
+                bio
             }
         }, {
             new: true
@@ -398,6 +400,14 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
         if (!pageMasterDetails) {
             return response.returnFalse(200, req, res, `No Record Found`, {});
         }
+
+        const pageLogData = new pageMasterLogModel({
+            page_id: id,
+            before_update_page_data: pageData,
+            after_update_page_data: pageMasterDetails
+        });
+
+        const pageMasterLogData = await pageLogData.save();
 
         const data = await pageTagCategoryModel.deleteMany({ page_id: id });
 

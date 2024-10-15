@@ -356,7 +356,8 @@ exports.countTheDataStatusWise = async (req, res) => {
             execution_accepted: 0,
             execution_completed: 0,
             execution_rejected: 0,
-            execution_paused: 0
+            execution_paused: 0,
+            case_study_close: 0
         };
 
         counts.forEach((item) => {
