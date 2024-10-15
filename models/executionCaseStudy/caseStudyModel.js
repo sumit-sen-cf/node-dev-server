@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 // const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const caseStudyModel = new mongoose.Schema({
+    sale_booking_id: {
+        type: Number,
+        required: true,
+    },
     account_id: {
         type: Number,
         required: false,

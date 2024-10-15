@@ -1,10 +1,12 @@
 const response = require("../../common/response.js");
 const caseStudyModel = require("../../models/executionCaseStudy/caseStudyModel.js");
 const mongoose = require("mongoose");
+const executionModel = require("../../models/Sales/executionModel.js");
 
 exports.addCaseStudy = async (req, res) => {
     try {
         const caseStudyData = new caseStudyModel({
+            sale_booking_id: req.body.sale_booking_id,
             account_id: req.body.account_id,
             no_of_posts: req.body.no_of_posts,
             reach: req.body.reach,
@@ -20,6 +22,17 @@ exports.addCaseStudy = async (req, res) => {
             MMC_google_sheet__link: req.body.MMC_google_sheet__link
         });
         const caseData = await caseStudyData.save();
+
+        const exeData = await executionModel.findOneAndUpdate(
+            { sale_booking_id: req.body.sale_booking_id },
+            {
+                $set: {
+                    execution_status: "case_study_close"
+                }
+            },
+            { new: true }
+        );
+
         return response.returnTrue(
             200,
             req,

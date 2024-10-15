@@ -647,3 +647,37 @@ exports.getAllVendorListWithStartEndDate = async (req, res) => {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
+exports.updatePriceWithVendorId = async (req, res) => {
+    try {
+        const { vendor_id, m_post_price, m_story_price, m_both_price } = req.body;
+
+        const updateResult = await pageMasterModel.updateMany(
+            { vendor_id: vendor_id },
+            {
+                $set: {
+                    m_post_price: m_post_price,
+                    m_story_price: m_story_price,
+                    m_both_price: m_both_price
+                }
+            },
+            { upsert: true }
+        );
+
+        const updatedPages = await pageMasterModel.find(
+            { vendor_id: vendor_id },
+            { page_name: 1, _id: 0 }
+        );
+
+        const pageNames = updatedPages.map(page => page.page_name);
+
+        return res.status(200).json({
+            success: true,
+            message: `${updateResult.nModified || updateResult.upsertedCount} pages updated/inserted successfully.`,
+            updatedPages: pageNames
+        });
+
+    } catch (err) {
+        return response.returnFalse(500, req, res, `${err.message}`, {});
+    }
+}
