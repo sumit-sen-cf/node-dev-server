@@ -15,13 +15,14 @@ const {
     getAllPageCatAssignment,
     getAllPagesForUsers,
     getAllPageMasterDetailsWithStartEndDate,
-    getAllPagesForUsersWithStartEndDate
+    getAllPagesForUsersWithStartEndDate,
+    getAllPageLanguages
 } = require("../../controllers/PMS2/pageMasterController");
 const { addPageMasterValidation, updatePageMasterValidation } = require("../../helper/validation");
 const { verifyToken } = require("../../middleware/auth");
 const router = express.Router();
 
-router.post("/pageMaster", verifyToken, addPageMaster);
+router.post("/pageMaster", addPageMaster);
 router.put("/pageMaster/:id", verifyToken, updateSinglePageMasterDetails);
 router.get("/pageMaster", getAllPageMasterDetails);
 router.get("/pageMasterData", getPageMasterData);
@@ -37,5 +38,6 @@ router.get('/get_all_page_cat_assignment', getAllPageCatAssignment);
 router.post("/get_all_pages_for_users", getAllPagesForUsers);
 router.post("get_all_pages_for_users_with_start_end_date", getAllPagesForUsersWithStartEndDate);
 router.post("/get_all_pages_with_start_end_date", verifyToken, getAllPageMasterDetailsWithStartEndDate);
+router.get("/get_all_page_languages", getAllPageLanguages);
 
 module.exports = router;

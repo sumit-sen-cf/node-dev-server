@@ -6,11 +6,12 @@ const mongoose = require("mongoose");
 
 exports.createPageSubCategory = async (req, res) => {
     try {
-        const { page_sub_category, description, created_by } = req.body;
+        const { page_sub_category, description, state, created_by } = req.body;
         const addPageSubCategory = await pms2PageSubCatModel.create({
             page_sub_category,
             description,
             created_by,
+            state
         });
         if (!addPageSubCategory) {
             return response.returnFalse(
@@ -77,7 +78,7 @@ exports.getPageSubCategoryList = async (req, res) => {
 exports.updatePageSubCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const { page_sub_category, description, last_updated_by } = req.body;
+        const { page_sub_category, description, state, last_updated_by } = req.body;
         const updatePageSubCategoryData = await pms2PageSubCatModel.updateOne(
             { _id: id },
             {
@@ -85,6 +86,7 @@ exports.updatePageSubCategory = async (req, res) => {
                     page_sub_category,
                     description,
                     last_updated_by,
+                    state
                 },
             }
         );

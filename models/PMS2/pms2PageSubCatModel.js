@@ -20,6 +20,11 @@ const pms2PageSubCatModel = new mongoose.Schema({
         trim: true,
         default: "",
     },
+    state: {
+        type: String,
+        required: false,
+        default: "",
+    },
     created_by: {
         type: Number,
         required: true,
