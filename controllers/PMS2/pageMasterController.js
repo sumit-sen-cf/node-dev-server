@@ -11,241 +11,43 @@ const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
 const pageMasterLogModel = require("../../models/PMS2/pageMasterLogModel");
 const pageLanguageModel = require("../../models/PMS2/pageLanguagesModel");
+const pageLanguageWithPageNameModel = require("../../models/PMS2/pageLanguageWithPageNameModel");
 // const { ObjectId } = require('mongodb');
-
-// exports.addPageMaster = async (req, res) => {
-//     try {
-//         //get data from body 
-//         const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link, page_mast_status, preference_level,
-//             content_creation, ownership_type, rate_type, variable_type, description, page_closed_by, followers_count, engagment_rate, tags_page_category,
-//             platform_active_on, created_by, story, post, both_, m_post_price, m_story_price, m_both_price, page_sub_category_id, bio, page_language_id, page_activeness } = req.body;
-
-//         //save data in Db collection
-//         // const savingObj = await pageMasterModel.create({
-//         //     page_profile_type_id,
-//         //     page_category_id,
-//         //     platform_id,
-//         //     vendor_id,
-//         //     page_name,
-//         //     page_name_type,
-//         //     primary_page,
-//         //     page_link,
-//         //     page_mast_status,
-//         //     preference_level,
-//         //     content_creation,
-//         //     ownership_type,
-//         //     rate_type,
-//         //     variable_type,
-//         //     description,
-//         //     page_closed_by,
-//         //     followers_count,
-//         //     engagment_rate,
-//         //     tags_page_category,
-//         //     platform_active_on,
-//         //     created_by,
-//         //     story, post, both_, m_post_price, m_story_price, m_both_price,
-//         //     page_sub_category_id,
-//         //     bio,
-//         //     page_language_ids,
-//         //     page_activeness
-//         // });
-
-
-//         const documentsToInsert = page_language_id?.map(language_id => ({
-//             page_profile_type_id,
-//             page_category_id,
-//             platform_id,
-//             vendor_id,
-//             page_name,
-//             page_name_type,
-//             primary_page,
-//             page_link,
-//             page_mast_status,
-//             preference_level,
-//             content_creation,
-//             ownership_type,
-//             rate_type,
-//             variable_type,
-//             description,
-//             page_closed_by,
-//             followers_count,
-//             engagment_rate,
-//             tags_page_category,
-//             platform_active_on,
-//             created_by,
-//             story,
-//             post,
-//             both_,
-//             m_post_price,
-//             m_story_price,
-//             m_both_price,
-//             page_sub_category_id,
-//             bio,
-//             page_language_id: language_id,
-//             page_activeness
-//         }));
-//         const savingObj = await pageMasterModel.insertMany(documentsToInsert);
-//         console.log("savingObj", savingObj);
-
-//         if (!savingObj) {
-//             return response.returnFalse(
-//                 500,
-//                 req,
-//                 res,
-//                 `Oop's Something went wrong while saving page master data.`,
-//                 {}
-//             );
-//         }
-
-//         const tagCategoryDocs = tags_page_category.map(tag_id => ({
-//             page_id: savingObj[0]._id,
-//             page_name: page_name,
-//             page_category_id: tag_id,
-//             created_by: created_by
-//         }));
-
-//         const savedTags = await pageTagCategoryModel.insertMany(tagCategoryDocs);
-
-//         const vendor = await vendorModel.findById(vendor_id);
-
-//         if (!vendor) {
-//             return response.returnFalse(
-//                 404,
-//                 req,
-//                 res,
-//                 `Vendor not found`,
-//                 {}
-//             );
-//         }
-//         // Update vendor primary_page count
-//         let pageCount = vendor.page_count;
-//         pageCount += 1;
-//         let updatedObj = {
-//             page_count: pageCount
-//         };
-
-//         if (pageCount >= 2) {
-//             updatedObj.vendor_type = new ObjectId('666856424366007df1dfacc2');
-//         }
-
-//         if (primary_page === 'Yes') {
-//             updatedObj["primary_page"] = savingObj[0]._id;
-//         }
-//         // Check if primary_page is true
-//         await vendorModel.findByIdAndUpdate(vendor_id, {
-//             $set: updatedObj
-//         });
-
-//         let pagePriceMultipleUpdatedArray = [];
-//         let pagePriceDetails = (req.body?.page_price_multiple) || [];
-
-//         //page price details length check
-//         if (pagePriceDetails.length) {
-//             await pagePriceDetails.forEach(element => {
-//                 element.page_master_id = savingObj[0]._id;
-//                 element.created_by = created_by;
-//                 pagePriceMultipleUpdatedArray.push(element);
-//             });
-//         }
-
-//         //add data in db collection
-//         const savingPagePriceMultipleObj = await pagePriceMultipleModel.insertMany(pagePriceMultipleUpdatedArray);
-
-//         //success response send
-//         return response.returnTrue(
-//             200,
-//             req,
-//             res,
-//             "Successfully Saved page Master Data",
-//             {
-//                 savingObj, savingPagePriceMultipleObj
-//             }
-//         );
-//     } catch (error) {
-//         return response.returnFalse(500, req, res, `${error.message}`, {});
-//     }
-// };
-
 
 exports.addPageMaster = async (req, res) => {
     try {
-        // Get data from body
+        //get data from body 
         const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link, page_mast_status, preference_level,
-            content_creation, ownership_type, rate_type, variable_type, description, page_closed_by, followers_count, engagment_rate, tags_page_category,
-            platform_active_on, created_by, story, post, both_, m_post_price, m_story_price, m_both_price, page_sub_category_id, bio, page_language_id, page_activeness } = req.body;
+            content_creation, ownership_type, rate_type, variable_type, description, page_closed_by, followers_count, engagment_rate, tags_page_category, created_by, story, post, both_, m_post_price, m_story_price, m_both_price, page_sub_category_id, bio, page_language_id, page_activeness } = req.body;
 
-        let savingObj;
+        //save data in Db collection
+        const savingObj = await pageMasterModel.create({
+            page_profile_type_id,
+            page_category_id,
+            platform_id,
+            vendor_id,
+            page_name,
+            page_name_type,
+            primary_page,
+            page_link,
+            page_mast_status,
+            preference_level,
+            content_creation,
+            ownership_type,
+            rate_type,
+            variable_type,
+            description,
+            page_closed_by,
+            followers_count,
+            engagment_rate,
+            tags_page_category,
+            created_by,
+            story, post, both_, m_post_price, m_story_price, m_both_price,
+            page_sub_category_id,
+            bio,
+            page_activeness
+        });
 
-        if (page_language_id && page_language_id.length > 0) {
-            const documentsToInsert = page_language_id.map(language_id => ({
-                page_profile_type_id,
-                page_category_id,
-                platform_id,
-                vendor_id,
-                page_name,
-                page_name_type,
-                primary_page,
-                page_link,
-                page_mast_status,
-                preference_level,
-                content_creation,
-                ownership_type,
-                rate_type,
-                variable_type,
-                description,
-                page_closed_by,
-                followers_count,
-                engagment_rate,
-                tags_page_category,
-                platform_active_on,
-                created_by,
-                story,
-                post,
-                both_,
-                m_post_price,
-                m_story_price,
-                m_both_price,
-                page_sub_category_id,
-                bio,
-                page_language_id: language_id,
-                page_activeness
-            }));
-
-            savingObj = await pageMasterModel.insertMany(documentsToInsert);
-        } else {
-            savingObj = await pageMasterModel.create({
-                page_profile_type_id,
-                page_category_id,
-                platform_id,
-                vendor_id,
-                page_name,
-                page_name_type,
-                primary_page,
-                page_link,
-                page_mast_status,
-                preference_level,
-                content_creation,
-                ownership_type,
-                rate_type,
-                variable_type,
-                description,
-                page_closed_by,
-                followers_count,
-                engagment_rate,
-                tags_page_category,
-                platform_active_on,
-                created_by,
-                story,
-                post,
-                both_,
-                m_post_price,
-                m_story_price,
-                m_both_price,
-                page_sub_category_id,
-                bio,
-                page_activeness
-            });
-        }
         if (!savingObj) {
             return response.returnFalse(
                 500,
@@ -257,13 +59,22 @@ exports.addPageMaster = async (req, res) => {
         }
 
         const tagCategoryDocs = tags_page_category.map(tag_id => ({
-            page_id: Array.isArray(savingObj) ? savingObj[0]._id : savingObj._id,
+            page_id: savingObj._id,
             page_name: page_name,
             page_category_id: tag_id,
             created_by: created_by
         }));
 
         const savedTags = await pageTagCategoryModel.insertMany(tagCategoryDocs);
+
+        const pageLaguages = page_language_id.map(page_lang_id => ({
+            page_id: savingObj._id,
+            page_name: page_name,
+            page_language_id: page_lang_id,
+            created_by: created_by
+        }));
+
+        const languagesData = await pageLanguageWithPageNameModel.insertMany(pageLaguages);
 
         const vendor = await vendorModel.findById(vendor_id);
 
@@ -276,7 +87,7 @@ exports.addPageMaster = async (req, res) => {
                 {}
             );
         }
-
+        // Update vendor primary_page count
         let pageCount = vendor.page_count;
         pageCount += 1;
         let updatedObj = {
@@ -288,9 +99,9 @@ exports.addPageMaster = async (req, res) => {
         }
 
         if (primary_page === 'Yes') {
-            updatedObj["primary_page"] = Array.isArray(savingObj) ? savingObj[0]._id : savingObj._id;
+            updatedObj["primary_page"] = savingObj._id;
         }
-
+        // Check if primary_page is true
         await vendorModel.findByIdAndUpdate(vendor_id, {
             $set: updatedObj
         });
@@ -300,17 +111,17 @@ exports.addPageMaster = async (req, res) => {
 
         //page price details length check
         if (pagePriceDetails.length) {
-            pagePriceDetails.forEach(element => {
-                element.page_master_id = Array.isArray(savingObj) ? savingObj[0]._id : savingObj._id;
+            await pagePriceDetails.forEach(element => {
+                element.page_master_id = savingObj._id;
                 element.created_by = created_by;
                 pagePriceMultipleUpdatedArray.push(element);
             });
         }
 
-        // Add data in db collection
+        //add data in db collection
         const savingPagePriceMultipleObj = await pagePriceMultipleModel.insertMany(pagePriceMultipleUpdatedArray);
 
-        // Success response send
+        //success response send
         return response.returnTrue(
             200,
             req,

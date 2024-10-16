@@ -149,48 +149,36 @@ exports.getAllPageCategoryDeleted = async (req, res) => {
     }
 };
 
+
 exports.mergePageCategory = async (req, res) => {
     try {
-        const { preference_id, removed_id, flag, start_date, end_date } = req.body;
+        const { preference_id, removed_id, start_date, end_date } = req.body;
 
         if (!preference_id || !removed_id || !start_date || !end_date) {
             return res.status(400).json({ message: "Invalid input" });
         }
 
-        const categoryA = await pageCategoryModel.findOne({ page_category_id: preference_id });
-        const categoryB = await pageCategoryModel.findOne({ page_category_id: removed_id });
+        const startDate = new Date(start_date);
+        const endDate = new Date(end_date);
 
-        if (!categoryA || !categoryB) {
-            return res.status(404).json({ message: "Category not found" });
+        if (startDate > endDate) {
+            return res.status(400).json({ message: "Invalid date range" });
         }
 
-        const start = new Date(start_date);
-        const end = new Date(end_date);
+        const filter = {
+            page_category_id: removed_id,
+            createdAt: { $gte: startDate, $lte: endDate }
+        };
+        const update = {
+            $set: { page_category_id: preference_id }
+        };
 
-        const data = await pageCategoryModel.updateMany(
-            {
-                page_category_id: removed_id,
-                createdAt: { $gte: start, $lte: end }
-            },
-            { $set: { page_category_id: preference_id } }
-        );
+        const result = await pageMasterModel.updateMany(filter, update);
 
-        if (flag === 2) {
-            const pageData = await pageMasterModel.find({
-                page_category_id: categoryB._id,
-                createdAt: { $gte: start, $lte: end }
-            });
-
-            if (pageData.length === 0) {
-                const data = await pageCategoryModel.findByIdAndUpdate(
-                    categoryB._id,
-                    { $set: { status: constant.DELETED } }
-                );
-                return res.status(200).json({ message: "Page Category Data Deleted Successfully Which is not exit this category id in PageMaster" })
-            }
-        }
-
-        return res.status(200).json({ message: "Categories merged successfully" });
+        return res.status(200).json({
+            message: "Categories merged successfully",
+            modifiedCount: result.nModified
+        });
     } catch (error) {
         console.error("Error merging categories: ", error.message);
         return res.status(500).json({ message: "Internal server error" });

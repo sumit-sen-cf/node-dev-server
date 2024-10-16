@@ -152,48 +152,36 @@ exports.getAllPageSubCategoryDeleted = async (req, res) => {
 
 exports.mergePageSubCategory = async (req, res) => {
     try {
-        const { preference_id, removed_id, flag, start_date, end_date } = req.body;
+        const { preference_id, removed_id, start_date, end_date } = req.body;
 
         if (!preference_id || !removed_id || !start_date || !end_date) {
             return res.status(400).json({ message: "Invalid input" });
         }
 
-        const subcategoryA = await pms2PageSubCatModel.findOne({ page_sub_category_id: preference_id });
-        const subcategoryB = await pms2PageSubCatModel.findOne({ page_sub_category_id: removed_id });
+        const startDate = new Date(start_date);
+        const endDate = new Date(end_date);
 
-        if (!subcategoryA || !subcategoryB) {
-            return res.status(404).json({ message: "Category not found" });
+        if (startDate > endDate) {
+            return res.status(400).json({ message: "Invalid date range" });
         }
 
-        const start = new Date(start_date);
-        const end = new Date(end_date);
+        const filter = {
+            page_sub_category_id: removed_id,
+            createdAt: { $gte: startDate, $lte: endDate }
+        };
 
-        const data = await pms2PageSubCatModel.updateMany(
-            {
-                page_sub_category_id: removed_id,
-                createdAt: { $gte: start, $lte: end }
-            },
-            { $set: { page_sub_category_id: preference_id } }
-        );
+        const update = {
+            $set: { page_sub_category_id: preference_id }
+        };
 
-        if (flag === 2) {
-            const pageData = await pageMasterModel.find({
-                page_sub_category_id: subcategoryB._id,
-                createdAt: { $gte: start, $lte: end }
-            });
+        const result = await pageMasterModel.updateMany(filter, update);
 
-            if (pageData.length === 0) {
-                const data = await pms2PageSubCatModel.findByIdAndUpdate(
-                    subcategoryB._id,
-                    { $set: { status: constant.DELETED } }
-                );
-                return res.status(200).json({ message: "Page Sub Category Data Deleted Successfully Which is not exit this sub category id in PageMaster" })
-            }
-        }
-
-        return res.status(200).json({ message: "Sub Categories merged successfully" });
+        return res.status(200).json({
+            message: "Sub Categories merged successfully",
+            modifiedCount: result.nModified
+        });
     } catch (error) {
-        console.error("Error merging sub categories: ", error.message);
+        console.error("Error merging categories: ", error.message);
         return res.status(500).json({ message: "Internal server error" });
     }
 };

@@ -10,6 +10,6 @@ router.get("/page_category", verifyToken, getPageCategoryList);
 router.put("/page_category/:id", verifyToken, updatePageCategoryValidation, updatePageCategory);
 router.delete("/page_category/:id", verifyToken, deletePageCategory);
 router.get("/page_category_deleted", verifyToken, getAllPageCategoryDeleted);
-router.put('/merge_page_category', verifyToken, mergePageCategory)
+router.put('/merge_page_category', mergePageCategory)
 
 module.exports = router;
