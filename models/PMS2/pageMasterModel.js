@@ -105,10 +105,6 @@ const pageMasterSchema = new Schema({
         type: Array,
         required: false,
     },
-    platform_active_on: {
-        type: Array,
-        required: false,
-    },
     created_by: {
         type: Number,
         required: false,
@@ -155,11 +151,6 @@ const pageMasterSchema = new Schema({
     m_both_price: {
         type: Number,
         required: false,
-    },
-    page_language_id: {
-        type: Schema.Types.ObjectId,
-        required: false,
-        ref: "pageLanguageModel"
     },
     bio: {
         type: String,
