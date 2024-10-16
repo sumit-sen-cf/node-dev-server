@@ -797,7 +797,7 @@ exports.getAllPagesForUsers = async (req, res) => {
             .select({ page_sub_category_id: 1, _id: 0 });
 
         if (!usersData || usersData.length === 0) {
-            return response.returnFalse(200, req, res, "No Record Found", {});
+            return response.returnFalse(200, req, res, "No Record Found", []);
         }
 
         const subCategoryIds = usersData.map(item => item.page_sub_category_id);
