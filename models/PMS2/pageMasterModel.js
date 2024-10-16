@@ -124,6 +124,10 @@ const pageMasterSchema = new Schema({
         required: false,
         default: constant?.ACTIVE,
     },
+    page_activeness: {
+        type: String,
+        required: false
+    },
     temp_vendor_id: {
         type: Number,
         required: false
@@ -151,6 +155,11 @@ const pageMasterSchema = new Schema({
     m_both_price: {
         type: Number,
         required: false,
+    },
+    page_language_id: {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: "pageLanguageModel"
     },
     bio: {
         type: String,
