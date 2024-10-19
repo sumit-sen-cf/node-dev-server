@@ -17,8 +17,8 @@ const pageLanguageWithPageNameModel = require("../../models/PMS2/pageLanguageWit
 exports.addPageMaster = async (req, res) => {
     try {
         //get data from body 
-        const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_profile_type_name, page_category_name, page_sub_category_name, platform_name, vendor_name, page_name, page_name_type, primary_page, page_link, page_mast_status, preference_level,
-            content_creation, ownership_type, rate_type, variable_type, description, page_closed_by, followers_count, engagment_rate, tags_page_category, created_by, story, post, both_, m_post_price, m_story_price, m_both_price, page_sub_category_id, bio, page_language_id, page_activeness } = req.body;
+        const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_profile_type_name, page_category_name, page_sub_category_name, platform_name, page_language_name, vendor_name, page_name, page_name_type, page_price_list, primary_page, page_link, page_mast_status, preference_level,
+            content_creation, ownership_type, rate_type, variable_type, description, page_closed_by, followers_count, engagment_rate, tags_page_category, tags_page_category_name, page_language_id, created_by, story, post, both_, m_post_price, m_story_price, m_both_price, page_sub_category_id, bio, page_activeness } = req.body;
 
         //save data in Db collection
         const savingObj = await pageMasterModel.create({
@@ -40,11 +40,15 @@ exports.addPageMaster = async (req, res) => {
             ownership_type,
             rate_type,
             variable_type,
+            page_language_name,
+            page_language_id,
+            page_price_list,
             description,
             page_closed_by,
             followers_count,
             engagment_rate,
             tags_page_category,
+            tags_page_category_name,
             created_by,
             story, post, both_, m_post_price, m_story_price, m_both_price,
             page_sub_category_id,
@@ -364,7 +368,7 @@ exports.getAllPageMasterDetails = async (req, res) => {
 
         pageMasterDetails = await pageMasterModel.aggregate(pipeline);
 
-        console.log("Pipeline Results Length: ", pageMasterDetails.length);
+        // console.log("Pipeline Results Length: ", pageMasterDetails.length);
 
         // const pagesCount = await pageMasterModel.countDocuments(matchQuery)
         if (pageMasterDetails?.length <= 0) {
@@ -443,7 +447,7 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
                 page_activeness
             }
         }, {
-            new: true
+            new: true, upsert: true
         });
         if (!pageMasterDetails) {
             return response.returnFalse(200, req, res, `No Record Found`, {});

@@ -1415,7 +1415,29 @@ exports.getSingleUser = async (req, res) => {
                     branch_name: "$branch_name",
                     upi_Id: "$upi_Id",
                     user_credit_limit: "$user_credit_limit",
-                    user_available_limit: "$user_available_limit"
+                    user_available_limit: "$user_available_limit",
+                    facebookLink: 1,
+                    instagramLink: 1,
+                    linkedInLink: 1,
+                    height: 1,
+                    weight: 1,
+                    travelMode: 1,
+                    sportsTeam: 1,
+                    smoking: 1,
+                    daysSmoking: 1,
+                    alcohol: 1,
+                    medicalHistory: 1,
+                    bmi: 1,
+                    passportNumber: 1,
+                    passportValidUpto: 1,
+                    aadharName: 1,
+                    voterIdNumber: 1,
+                    voterName: 1,
+                    panName: 1,
+                    vehicleNumber: 1,
+                    vehicleName: 1,
+                    drivingLicenseNumber: 1,
+                    drivingLicenseValidUpto: 1,
                 }
             }
         ]).exec();
@@ -5786,12 +5808,41 @@ exports.updateUserOtherDetails = async (req, res) => {
             alcohol: req.body.alcohol,
             medicalHistory: req.body.medicalHistory,
             bmi: req.body.bmi
-        }, { new: true });
+        }, { new: true, upsert: true });
 
         if (!editOtherData) {
             return res.status(500).send({ success: false })
         }
         return res.status(200).send({ success: true, data: editOtherData })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+}
+
+exports.updateUserIdentityDetails = async (req, res) => {
+    try {
+        const editIdentityData = await userModel.findOneAndUpdate({ user_id: req.body.user_id }, {
+            passportNumber: req.body.passportNumber,
+            passportValidUpto: req.body.passportValidUpto,
+            aadharName: req.body.aadharName,
+            uid_no: req.body.uid_no,
+            pan_no: req.body.pan_no,
+            voterName: req.body.voterName,
+            panName: req.body.panName,
+            vehicleNumber: req.body.vehicleNumber,
+            vehicleNamer: req.body.vehicleNamer,
+            drivingLicenseNumber: req.body.drivingLicenseNumber,
+            drivingLicenseValidUpto: req.body.drivingLicenseValidUpto
+        }, { new: true, upsert: true });
+
+        if (!editIdentityData) {
+            return res.status(500).send({ success: false })
+        }
+        return res.status(200).send({ success: true, data: editIdentityData })
     } catch (error) {
         console.error(error);
         res.status(500).json({

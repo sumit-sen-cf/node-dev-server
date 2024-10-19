@@ -117,11 +117,27 @@ const pageMasterSchema = new Schema({
         type: Number,
         required: false,
     },
+    page_language_id: {
+        type: Array,
+        required: false
+    },
+    page_language_name: {
+        type: Array,
+        required: false
+    },
+    page_price_list: {
+        type: Array,
+        required: false
+    },
     engagment_rate: {
         type: Number,
         required: false,
     },
     tags_page_category: {
+        type: Array,
+        required: false,
+    },
+    tags_page_category_name: {
         type: Array,
         required: false,
     },
