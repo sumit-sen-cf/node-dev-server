@@ -966,7 +966,8 @@ router.get("/get_all_exit_users_of_wfo", user.getAllExitUsersOfWFO);
 router.put("/update_training", user.updateTraining);
 router.post("/changes_user_from_wfhd_to_wfo", user.changeUserFromWFHDToWFO);
 router.get('/get_all_users_with_basic_fields', user.getAllUsersWithSomeBasicFields);
-router.put("/")
+router.put("/update_user_other_detail", user.updateUserOtherDetails);
+router.put("/update_user_identity_details", user.updateUserIdentityDetails);
 
 //---------------------------------------------------------------------------All Routes OF User Module Ends Here ---------------------------------------------------------------------------------------------------//
 
