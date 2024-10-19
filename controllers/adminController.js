@@ -648,7 +648,7 @@ exports.pluralPayoutFromFile = async (req, res) => {
         const response = await axios.post('https://api-staging.pluralonline.com/payouts/v2/payments/banks/file', form, {
             headers: {
                 ...form.getHeaders(), 
-                'Authorization': token
+                'Authorization': `Bearer ${token}`
             }
         });
     
