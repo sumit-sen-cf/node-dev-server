@@ -724,6 +724,119 @@ const userModel = new mongoose.Schema({
         required: false,
         default: 0
     },
+    facebookLink: {
+        type: String,
+        required: false,
+        default: ''
+    },
+    instagramLink: {
+        type: String,
+        required: false,
+        default: ''
+    },
+    linkedInLink: {
+        type: String,
+        required: false,
+        default: ''
+    },
+    height: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    weight: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    travelMode: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    sportsTeam:
+    {
+        type: String,
+        required: false,
+        default: ""
+    },
+    smoking: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    daysSmoking: {
+        type: Number,
+        required: false,
+        default: ""
+    },
+    alcohol: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    medicalHistory: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    bmi: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    passportNumber: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    passportValidUpto: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    aadharName: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    // aadharNumber, --> uid_no already 
+    voterIdNumber: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    voterName: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    panName: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    // panNumber,--> pan_no already
+    vehicleNumber: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    vehicleName: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    drivingLicenseNumber: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    drivingLicenseValidUpto: {
+        type: String,
+        required: false,
+        default: ""
+    },
     user_available_limit: { //for sale booking creation
         type: Number,
         required: false,

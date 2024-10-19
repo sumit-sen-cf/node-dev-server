@@ -214,9 +214,9 @@ exports.getAllPageMasterDetails = async (req, res) => {
         let pageMasterDetails;
 
         // Extract page and limit from query parameters, default to null if not provided
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
+        // const page = parseInt(req.query.page) || 1;
+        // const limit = parseInt(req.query.limit) || 10;
+        // const skip = (page - 1) * limit;
 
         // console.log("req.query.page", req.query.page);
         // console.log("req.query.limit", req.query.limit);
@@ -358,15 +358,15 @@ exports.getAllPageMasterDetails = async (req, res) => {
                     price_details_obj: 0
                 }
             },
-            { $skip: skip },
-            { $limit: limit }
+            // { $skip: skip },
+            // { $limit: limit }
         ];
 
         pageMasterDetails = await pageMasterModel.aggregate(pipeline);
 
         console.log("Pipeline Results Length: ", pageMasterDetails.length);
 
-        const pagesCount = await pageMasterModel.countDocuments(matchQuery)
+        // const pagesCount = await pageMasterModel.countDocuments(matchQuery)
         if (pageMasterDetails?.length <= 0) {
             return response.returnFalse(200, req, res, `No Record Found`, []);
         }
@@ -377,13 +377,13 @@ exports.getAllPageMasterDetails = async (req, res) => {
             res,
             "Page master list fetched successfully!",
             pageMasterDetails,
-            {
-                start_record: skip + 1,
-                end_record: skip + pageMasterDetails.length,
-                total_records: pagesCount,
-                current_page: page,
-                total_page: Math.ceil(pagesCount / limit),
-            }
+            // {
+            //     start_record: skip + 1,
+            //     end_record: skip + pageMasterDetails.length,
+            //     total_records: pagesCount,
+            //     current_page: page,
+            //     total_page: Math.ceil(pagesCount / limit),
+            // }
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
