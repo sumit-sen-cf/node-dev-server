@@ -9,7 +9,7 @@ const vendorSchema = new Schema({
         required: false,
         unique: true
     },
-    busi_type:{
+    busi_type: {
         type: Schema.Types.ObjectId,
         required: false,
         ref: ''
@@ -65,8 +65,7 @@ const vendorSchema = new Schema({
     },
     vendor_name: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     country_code: {
         type: Number,
@@ -74,7 +73,8 @@ const vendorSchema = new Schema({
     },
     mobile: {
         type: Number,
-        required: false
+        required: false,
+        unique: true
     },
     alternate_mobile: {
         type: Number,

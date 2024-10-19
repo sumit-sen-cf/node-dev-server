@@ -597,12 +597,12 @@ exports.createpayout = async (req, res) => {
             "email": req.body.email,
             "phone": req.body.phone,
             "amount": {
-                "currency": req.body.currency,
-                "value": req.body.value
+                "currency": req.body.amount.currency,
+                "value": req.body.amount.value
             },
             "mode": req.body.mode,
             "remarks": req.body.remarks
-        };
+        }
 
         const response = await axios.post('https://api-staging.pluralonline.com/payouts/v2/payments/banks', payload, {
             headers: {
@@ -628,30 +628,30 @@ exports.createpayout = async (req, res) => {
 
 exports.pluralPayoutFromFile = async (req, res) => {
     try {
-        const token = req.body.token; 
-        const file = req.file; 
-    
+        const token = req.body.token;
+        const file = req.file;
+
         if (!token || !file) {
             return res.status(400).json({ error: 'Token and file are required' });
         }
-    
+
         const form = new FormData();
         form.append('file', file.buffer, {
             filename: file.originalname,
             contentType: file.mimetype
         });
-    
+
         // Add other form fields if needed
         // form.append('key', 'value');
-    
+
         // Send request to the external API
         const response = await axios.post('https://api-staging.pluralonline.com/payouts/v2/payments/banks/file', form, {
             headers: {
-                ...form.getHeaders(), 
+                ...form.getHeaders(),
                 'Authorization': `Bearer ${token}`
             }
         });
-    
+
         res.status(response.status).send(response.data);
     } catch (error) {
         console.error('Error forwarding request:', error.response ? error.response.data : error.message);
