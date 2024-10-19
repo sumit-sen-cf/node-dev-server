@@ -9,106 +9,121 @@ const XLSX = require('xlsx');
 const bulkVendorModel = require("../../models/PMS2/bulkVendorModel");
 const pageCatAssignmentModel = require("../../models/PMS2/pageCatAssignment");
 const pageMasterModel = require("../../models/PMS2/pageMasterModel");
+const pagePriceTypeModel = require("../../models/PMS2/pagePriceTypeModel");
+const pagePriceMultipleModel = require("../../models/PMS2/pagePriceMultipleModel");
 
 exports.createVendorData = async (req, res) => {
     try {
         const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, primary_field,
             vendor_name, home_pincode, country_code, mobile, alternate_mobile, email, personal_address,
             home_address, home_city, home_state, created_by, vendor_category, closed_by, busi_type } = req.body;
-        const addVendorData = new vendorModel({
-            vendor_type,
-            vendor_platform,
-            pay_cycle,
-            bank_name,
-            primary_field,
-            vendor_name,
-            home_pincode,
-            country_code,
-            mobile,
-            alternate_mobile,
-            page_count,
-            email,
-            personal_address,
-            home_address,
-            home_city,
-            vendor_category,
-            home_state,
-            created_by,
-            closed_by,
-            busi_type
-        });
 
-        const vendorDataSaved = await addVendorData.save();
-        if (!vendorDataSaved) {
+        const data = await vendorModel.findOne({ mobile: mobile });
+
+        if (data) {
             return response.returnFalse(
-                500,
+                409,
                 req,
                 res,
-                `Oop's "Something went wrong while saving vendor data.`,
+                `This Mobile Number is Already Exist.`,
                 {}
             );
-        }
-
-        let bankDataUpdatedArray = [];
-        let vendorlinksUpdatedArray = [];
-        let paymentMethodUpdatedArray = [];
-        let companyDetailsUpdatedArray = [];
-
-        let bankDetails = (req.body?.bank_details) || [];
-        let vendorLinkDetails = (req.body?.vendorLinks) || [];
-        let paymentMethodDetails = (req.body?.paymentMethod) || [];
-        let companyDetails = (req.body?.company_details) || [];
-
-        //bank details obj in add vender id
-        if (bankDetails.length) {
-            await bankDetails.forEach(element => {
-                element.vendor_id = vendorDataSaved._id;
-                element.created_by = created_by;
-                bankDataUpdatedArray.push(element);
+        } else {
+            const addVendorData = new vendorModel({
+                vendor_type,
+                vendor_platform,
+                pay_cycle,
+                bank_name,
+                primary_field,
+                vendor_name,
+                home_pincode,
+                country_code,
+                mobile,
+                alternate_mobile,
+                page_count,
+                email,
+                personal_address,
+                home_address,
+                home_city,
+                vendor_category,
+                home_state,
+                created_by,
+                closed_by,
+                busi_type
             });
+
+            const vendorDataSaved = await addVendorData.save();
+            if (!vendorDataSaved) {
+                return response.returnFalse(
+                    500,
+                    req,
+                    res,
+                    `Oop's "Something went wrong while saving vendor data.`,
+                    {}
+                );
+            }
+
+            let bankDataUpdatedArray = [];
+            let vendorlinksUpdatedArray = [];
+            let paymentMethodUpdatedArray = [];
+            let companyDetailsUpdatedArray = [];
+
+            let bankDetails = (req.body?.bank_details) || [];
+            let vendorLinkDetails = (req.body?.vendorLinks) || [];
+            let paymentMethodDetails = (req.body?.paymentMethod) || [];
+            let companyDetails = (req.body?.company_details) || [];
+
+            //bank details obj in add vender id
+            if (bankDetails.length) {
+                await bankDetails.forEach(element => {
+                    element.vendor_id = vendorDataSaved._id;
+                    element.created_by = created_by;
+                    bankDataUpdatedArray.push(element);
+                });
+            }
+
+            //vendor links details obj in add vender id
+            if (vendorLinkDetails.length) {
+                await vendorLinkDetails.forEach(element => {
+                    element.vendor_id = vendorDataSaved._id;
+                    element.created_by = created_by;
+                    vendorlinksUpdatedArray.push(element);
+                });
+            }
+
+            //payment method details obj in add vender id
+            if (paymentMethodDetails.length) {
+                await paymentMethodDetails.forEach(element => {
+                    element.vendor_id = vendorDataSaved._id;
+                    element.created_by = created_by;
+                    paymentMethodUpdatedArray.push(element);
+                });
+            }
+
+            //company details obj in add vender id
+            if (companyDetails.length) {
+                await companyDetails.forEach(element => {
+                    element.vendor_id = vendorDataSaved._id;
+                    element.created_by = created_by;
+                    companyDetailsUpdatedArray.push(element);
+                });
+            }
+
+            //add data in db collection
+            await bankDetailsModel.insertMany(bankDataUpdatedArray);
+            await vendorGroupLinkModel.insertMany(vendorlinksUpdatedArray);
+            await paymentMethodModel.insertMany(paymentMethodUpdatedArray);
+            await companyDetailsModel.insertMany(companyDetailsUpdatedArray);
+
+            //send success response
+            return response.returnTrue(
+                200,
+                req,
+                res,
+                "Vendor data added successfully!",
+                vendorDataSaved
+            );
         }
-
-        //vendor links details obj in add vender id
-        if (vendorLinkDetails.length) {
-            await vendorLinkDetails.forEach(element => {
-                element.vendor_id = vendorDataSaved._id;
-                element.created_by = created_by;
-                vendorlinksUpdatedArray.push(element);
-            });
-        }
-
-        //payment method details obj in add vender id
-        if (paymentMethodDetails.length) {
-            await paymentMethodDetails.forEach(element => {
-                element.vendor_id = vendorDataSaved._id;
-                element.created_by = created_by;
-                paymentMethodUpdatedArray.push(element);
-            });
-        }
-
-        //company details obj in add vender id
-        if (companyDetails.length) {
-            await companyDetails.forEach(element => {
-                element.vendor_id = vendorDataSaved._id;
-                element.created_by = created_by;
-                companyDetailsUpdatedArray.push(element);
-            });
-        }
-
-        //add data in db collection
-        await bankDetailsModel.insertMany(bankDataUpdatedArray);
-        await vendorGroupLinkModel.insertMany(vendorlinksUpdatedArray);
-        await paymentMethodModel.insertMany(paymentMethodUpdatedArray);
-        await companyDetailsModel.insertMany(companyDetailsUpdatedArray);
-
-        //send success response
-        return response.returnTrue(
-            200,
-            req,
-            res,
-            "Vendor data added successfully!",
-            vendorDataSaved
-        );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
@@ -539,7 +554,10 @@ exports.getAllVendorsForUsers = async (req, res) => {
         const vendorIds = subCatData.map(item => item.vendor_id);
 
         const vendorData = await vendorModel.find({
-            _id: { $in: vendorIds }
+            $or: [
+                { _id: { $in: vendorIds } },
+                { created_by: user_id }
+            ]
         });
 
         return response.returnTrue(
@@ -572,7 +590,6 @@ exports.getAllVendorsForUsersWithStartEndDate = async (req, res) => {
         const subCatData = await pageMasterModel.find({
             page_sub_category_id: { $in: subCategoryIds }
         });
-
 
         if (!subCatData || subCatData.length === 0) {
             return response.returnFalse(200, req, res, "No matching Page Sub Categories found", {});
@@ -650,19 +667,54 @@ exports.getAllVendorListWithStartEndDate = async (req, res) => {
 
 exports.updatePriceWithVendorId = async (req, res) => {
     try {
-        const { vendor_id, m_post_price, m_story_price, m_both_price } = req.body;
+        const { vendor_id, newPrice, page_price_type_id } = req.body;
 
-        const updateResult = await pageMasterModel.updateMany(
-            { vendor_id: vendor_id },
+        const pageData = await pageMasterModel.find({ vendor_id: vendor_id }).select({ _id: 1, p_id: 1, page_name: 1 });
+
+        if (pageData.length === 0) {
+            return response.returnFalse(200, req, res, "No Record Found", []);
+        }
+
+        const pageMasterIds = pageData.map(page => page._id);
+
+        const pagePriceData = await pagePriceMultipleModel.find({
+            page_master_id: { $in: pageMasterIds }
+        }).select({ page_master_id: 1, page_price_type_id: 1 });
+
+        if (pagePriceData.length === 0) {
+            return response.returnFalse(200, req, res, "No Price Data Found", []);
+        }
+
+        const pagePriceTypeIds = pagePriceData.map(pagePrice => pagePrice.page_price_type_id);
+
+        const result = await pagePriceMultipleModel.updateOne(
             {
-                $set: {
-                    m_post_price: m_post_price,
-                    m_story_price: m_story_price,
-                    m_both_price: m_both_price
-                }
+                page_price_type_id: page_price_type_id
             },
-            { upsert: true }
+            { $set: { price: newPrice } },
+            { new: true }
         );
+
+        // const priceTypes = await pagePriceTypeModel.find({
+        //     _id: { $in: pagePriceTypeIds }
+        // }).select({ _id: 1 });
+
+        // if (priceTypes.length === 0) {
+        //     return response.returnFalse(200, req, res, "No Price Type Data Found", []);
+        // }
+
+        // const updatePromises = priceTypes.map(async (pagePrice) => {
+
+        //     await pagePriceMultipleModel.updateOne(
+        //         {
+        //             page_price_type_id: pagePrice._id
+        //         },
+        //         { $set: { price: newPrice } },
+        //         { new: true }
+        //     );
+        // });
+
+        // await Promise.all(updatePromises);
 
         const updatedPages = await pageMasterModel.find(
             { vendor_id: vendor_id },
@@ -673,11 +725,52 @@ exports.updatePriceWithVendorId = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: `${updateResult.nModified || updateResult.upsertedCount} pages updated/inserted successfully.`,
+            message: "pages prices updated successfully.",
             updatedPages: pageNames
         });
 
     } catch (err) {
         return response.returnFalse(500, req, res, `${err.message}`, {});
     }
-}
+};
+
+exports.updatePageCountWithVendorID = async (req, res) => {
+    try {
+        const pageData = await pageMasterModel.aggregate([
+            {
+                $group: {
+                    _id: "$vendor_id",
+                    pageCount: { $sum: 1 }
+                }
+            }
+        ]);
+
+        console.log("pageData", pageData);
+        const bulkOps = pageData.map(data => {
+            return {
+                updateOne: {
+                    filter: { _id: data._id },
+                    update: { $set: { page_count: data.pageCount } }
+                }
+            };
+        });
+        if (bulkOps.length > 0) {
+            await vendorModel.bulkWrite(bulkOps);
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Page counts updated successfully!",
+            data: pageData
+        });
+
+
+    } catch (err) {
+        // Handle error
+        res.status(500).json({
+            success: false,
+            message: "Server Error",
+            error: err.message
+        });
+    }
+};

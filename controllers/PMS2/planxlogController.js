@@ -2,6 +2,7 @@ const response = require("../../common/response.js");
 const addPlanXLogModel = require("../../models/PMS2/planxlogModel.js");
 const planPageDetailModel = require("../../models/PMS2/planPageDetailModel.js");
 const mongoose = require("mongoose");
+const constant = require("../../common/constant");
 
 exports.addPlanXLogs = async (req, res) => {
     try {
@@ -35,8 +36,10 @@ exports.addPlanXLogs = async (req, res) => {
             planx_id: planData.duplicate_planx_id
         });
 
-        if (pagesFromDuplicatePlan.length > 0) {
-            const newPages = pagesFromDuplicatePlan.map(page => ({
+        const validPages = pagesFromDuplicatePlan.filter(page => page.status !== 2);
+
+        if (validPages.length > 0) {
+            const newPages = validPages.map(page => ({
                 planx_id: newPlan._id,
                 page_name: page.page_name,
                 post_count: page.post_count,
@@ -46,7 +49,6 @@ exports.addPlanXLogs = async (req, res) => {
                 description: page.description,
                 created_by: page.created_by
             }));
-
             await planPageDetailModel.insertMany(newPages);
         }
 

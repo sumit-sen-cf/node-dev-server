@@ -14,15 +14,27 @@ const pageMasterSchema = new Schema({
         required: true,
         ref: "Pms2PageProfileTypeModel"
     },
+    page_profile_type_name: {
+        type: String,
+        required: false,
+    },
     page_category_id: {
         type: Schema.Types.ObjectId,
         required: true,
         ref: "Pms2PageCategoryModel"
     },
+    page_category_name: {
+        type: String,
+        required: false,
+    },
     page_sub_category_id: {
         type: Schema.Types.ObjectId,
         required: false,
         ref: ""
+    },
+    page_sub_category_name: {
+        type: String,
+        required: false,
     },
     temp_page_category_id: {
         type: Number,
@@ -33,10 +45,18 @@ const pageMasterSchema = new Schema({
         required: true,
         ref: "Pms2VendorPlatformModel"
     },
+    platform_name: {
+        type: String,
+        required: false,
+    },
     vendor_id: {
         type: Schema.Types.ObjectId,
         required: false,
         ref: "Pms2VendorModel"
+    },
+    vendor_name: {
+        type: String,
+        required: false
     },
     page_name: {
         type: String,

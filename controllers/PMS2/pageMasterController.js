@@ -17,15 +17,19 @@ const pageLanguageWithPageNameModel = require("../../models/PMS2/pageLanguageWit
 exports.addPageMaster = async (req, res) => {
     try {
         //get data from body 
-        const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link, page_mast_status, preference_level,
+        const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_profile_type_name, page_category_name, page_sub_category_name, platform_name, vendor_name, page_name, page_name_type, primary_page, page_link, page_mast_status, preference_level,
             content_creation, ownership_type, rate_type, variable_type, description, page_closed_by, followers_count, engagment_rate, tags_page_category, created_by, story, post, both_, m_post_price, m_story_price, m_both_price, page_sub_category_id, bio, page_language_id, page_activeness } = req.body;
 
         //save data in Db collection
         const savingObj = await pageMasterModel.create({
             page_profile_type_id,
+            page_profile_type_name,
             page_category_id,
+            page_category_name,
             platform_id,
+            platform_name,
             vendor_id,
+            vendor_name,
             page_name,
             page_name_type,
             primary_page,
@@ -44,6 +48,7 @@ exports.addPageMaster = async (req, res) => {
             created_by,
             story, post, both_, m_post_price, m_story_price, m_both_price,
             page_sub_category_id,
+            page_sub_category_name,
             bio,
             page_activeness
         });
@@ -208,9 +213,26 @@ exports.getAllPageMasterDetails = async (req, res) => {
     try {
         let pageMasterDetails;
 
+        // Extract page and limit from query parameters, default to null if not provided
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        // console.log("req.query.page", req.query.page);
+        // console.log("req.query.limit", req.query.limit);
+
         const matchQuery = {
             page_mast_status: { $ne: constant.DELETED }
         };
+
+        // regexFields = ['page_name', 'vendor_id']; // Add more fields as needed// Loop through all query parameters
+        // for (const [key, value] of Object.entries(req.query)) {
+        //     if (regexFields.includes(key)) { // Use regex for fields in the regexFields list 
+        //         matchQuery[key] = { $regex: new RegExp(value, 'i') }; // 'i' for case-insensitive 
+        //     } else { // Use exact match for other fields 
+        //         matchQuery[key] = value;
+        //     }
+        // }
 
         const pipeline = [
             { $match: matchQuery },
@@ -335,11 +357,16 @@ exports.getAllPageMasterDetails = async (req, res) => {
                 $project: {
                     price_details_obj: 0
                 }
-            }
+            },
+            { $skip: skip },
+            { $limit: limit }
         ];
 
         pageMasterDetails = await pageMasterModel.aggregate(pipeline);
 
+        console.log("Pipeline Results Length: ", pageMasterDetails.length);
+
+        const pagesCount = await pageMasterModel.countDocuments(matchQuery)
         if (pageMasterDetails?.length <= 0) {
             return response.returnFalse(200, req, res, `No Record Found`, []);
         }
@@ -349,7 +376,14 @@ exports.getAllPageMasterDetails = async (req, res) => {
             req,
             res,
             "Page master list fetched successfully!",
-            pageMasterDetails
+            pageMasterDetails,
+            {
+                start_record: skip + 1,
+                end_record: skip + pageMasterDetails.length,
+                total_records: pagesCount,
+                current_page: page,
+                total_page: Math.ceil(pagesCount / limit),
+            }
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
@@ -376,7 +410,7 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
         const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link,
             page_mast_status, preference_level, content_creation, ownership_type, rate_type, variable_type, description, page_closed_by,
             followers_count, engagment_rate, tags_page_category, platform_active_on, last_updated_by, story, post, both_, m_post_price,
-            m_story_price, m_both_price, page_sub_category_id, biopage_language_ids, page_activeness } = req.body;
+            m_story_price, m_both_price, page_sub_category_id, bio, page_activeness } = req.body;
 
         const pageMasterDetails = await pageMasterModel.findOneAndUpdate({
             _id: id
@@ -406,7 +440,6 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
                 story, post, both_, m_post_price, m_story_price, m_both_price,
                 page_sub_category_id,
                 bio,
-                page_language_ids,
                 page_activeness
             }
         }, {
@@ -803,7 +836,10 @@ exports.getAllPagesForUsers = async (req, res) => {
         const subCategoryIds = usersData.map(item => item.page_sub_category_id);
 
         const subCatData = await pageMasterModel.find({
-            page_sub_category_id: { $in: subCategoryIds }
+            $or: [
+                { page_sub_category_id: { $in: subCategoryIds } },
+                { created_by: user_id }
+            ]
         });
 
 
@@ -1030,21 +1066,28 @@ exports.addPageCategoryAssignmentToUser = async (req, res) => {
     try {
         const { user_id, page_sub_category_id, created_by } = req.body;
 
-        if (!user_id || !Array.isArray(page_sub_category_id) || page_sub_category_id.length === 0) {
-            return response.returnFalse(400, req, res, "Invalid input data", {});
+        const pageCatData = await pageCatAssignment.findOne({ user_id: user_id });
+
+        if (pageCatData) {
+            return response.returnFalse(400, req, res, "Please Edit, as this user is already assigned to a sub-category", {});
+        } else {
+
+            if (!user_id || !Array.isArray(page_sub_category_id) || page_sub_category_id.length === 0) {
+                return response.returnFalse(400, req, res, "Invalid input data", {});
+            }
+
+            const pageCats = page_sub_category_id.map(item => {
+                return {
+                    user_id: user_id,
+                    page_sub_category_id: item,
+                    created_by: created_by
+                };
+            });
+
+            const savingResults = await pageCatAssignment.insertMany(pageCats);
+
+            return response.returnTrue(200, req, res, "Successfully assigned page category data", savingResults);
         }
-
-        const pageCats = page_sub_category_id.map(item => {
-            return {
-                user_id: user_id,
-                page_sub_category_id: item,
-                created_by: created_by
-            };
-        });
-
-        const savingResults = await pageCatAssignment.insertMany(pageCats);
-
-        return response.returnTrue(200, req, res, "Successfully assigned page category data", savingResults);
     } catch (err) {
         return response.returnFalse(500, req, res, `${err.message}`, {});
     }
@@ -1213,5 +1256,21 @@ exports.getAllPageLanguages = async (req, res) => {
         );
     } catch (err) {
         return response.returnFalse(500, req, res, `${err.message}`, {});
+    }
+}
+
+exports.getPageDatas = async (req, res) => {
+    try {
+
+        const pageData = await pageMasterModel.find(req.query);
+        return response.returnTrue(
+            200,
+            req,
+            res,
+            "Successfully get all Page Datas",
+            pageData
+        );
+    } catch (error) {
+        return response.returnFalse(500, req, res, err.message, {});
     }
 }

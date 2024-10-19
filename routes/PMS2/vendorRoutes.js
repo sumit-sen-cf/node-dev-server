@@ -1,5 +1,5 @@
 const express = require("express");
-const { createVendorData, getVendorDetails, getAllVendorList, updateVendorData, deleteVendorData, getAllVendorDeleted, updateVendorDetails, getVendorDetailsBYVendorId, insertBulkVendor, bulkVendorData, getAllVendorsForUsers, getAllVendorListWithStartEndDate, getAllVendorsForUsersWithStartEndDate, updatePriceWithVendorId } = require("../../controllers/PMS2/vendorController");
+const { createVendorData, getVendorDetails, getAllVendorList, updateVendorData, deleteVendorData, getAllVendorDeleted, updateVendorDetails, getVendorDetailsBYVendorId, insertBulkVendor, bulkVendorData, getAllVendorsForUsers, getAllVendorListWithStartEndDate, getAllVendorsForUsersWithStartEndDate, updatePriceWithVendorId, updatePageCountWithVendorID } = require("../../controllers/PMS2/vendorController");
 const { verifyToken } = require("../../middleware/auth");
 const router = express.Router();
 const { upload, upload1 } = require("../../common/uploadFile");
@@ -18,5 +18,6 @@ router.post("/get_all_vendors_for_users", getAllVendorsForUsers);
 router.post("/get_all_vendors_for_users_with_start_end_date", verifyToken, getAllVendorsForUsersWithStartEndDate);
 router.post("/get_all_vendors_with_start_end_date", verifyToken, getAllVendorListWithStartEndDate);
 router.put("/update_m_price_with_vendor_id", verifyToken, updatePriceWithVendorId);
+router.get("/update_page_count_with_vendor_id", updatePageCountWithVendorID)
 
 module.exports = router;

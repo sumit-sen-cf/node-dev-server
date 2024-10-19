@@ -16,7 +16,8 @@ const {
     getAllPagesForUsers,
     getAllPageMasterDetailsWithStartEndDate,
     getAllPagesForUsersWithStartEndDate,
-    getAllPageLanguages
+    getAllPageLanguages,
+    getPageDatas
 } = require("../../controllers/PMS2/pageMasterController");
 const { addPageMasterValidation, updatePageMasterValidation } = require("../../helper/validation");
 const { verifyToken } = require("../../middleware/auth");
@@ -39,5 +40,6 @@ router.post("/get_all_pages_for_users", getAllPagesForUsers);
 router.post("get_all_pages_for_users_with_start_end_date", getAllPagesForUsersWithStartEndDate);
 router.post("/get_all_pages_with_start_end_date", verifyToken, getAllPageMasterDetailsWithStartEndDate);
 router.get("/get_all_page_languages", getAllPageLanguages);
+router.get('/get_all_pages', getPageDatas)
 
 module.exports = router;

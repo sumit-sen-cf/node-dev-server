@@ -3295,8 +3295,14 @@ exports.updateAllSalaryWithFinance = async (req, res) => {
       return res.status(400).json({ message: "No attendance IDs provided" });
     }
 
+    const latestFinanceRecord = await financeModel.findOne().sort({ id: -1 });
+
+    let nextFinanceId = latestFinanceRecord ? latestFinanceRecord.id + 1 : 1;
+
+
     const financeRecords = attendence_ids.map(attendence_id => ({
       attendence_id: attendence_id,
+      id: nextFinanceId++,
     }));
 
     const insertedFinance = await financeModel.insertMany(financeRecords);
