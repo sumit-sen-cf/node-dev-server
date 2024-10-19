@@ -5770,3 +5770,33 @@ exports.getAllUsersWithSomeBasicFields = async (req, res) => {
         return res.status(500).send({ error: err.message, sms: 'Error getting all users' });
     }
 }
+
+exports.updateUserOtherDetails = async (req, res) => {
+    try {
+        const editOtherData = await userModel.findOneAndUpdate({ user_id: req.body.user_id }, {
+            facebookLink: req.body.facebookLink,
+            instagramLink: req.body.instagramLink,
+            linkedInLink: req.body.linkedInLink,
+            height: req.body.height,
+            weight: req.body.weight,
+            travelMode: req.body.travelMode,
+            sportsTeam: req.body.sportsTeam,
+            smoking: req.body.smoking,
+            daysSmoking: req.body.daysSmoking,
+            alcohol: req.body.alcohol,
+            medicalHistory: req.body.medicalHistory,
+            bmi: req.body.bmi
+        }, { new: true });
+
+        if (!editOtherData) {
+            return res.status(500).send({ success: false })
+        }
+        return res.status(200).send({ success: true, data: editOtherData })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+}
