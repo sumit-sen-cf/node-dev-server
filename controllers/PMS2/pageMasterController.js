@@ -411,7 +411,7 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
 
         const result = await followerLogsData.save();
 
-        const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_name, page_name_type, primary_page, page_link,
+        const { page_profile_type_id, page_category_id, platform_id, vendor_id, page_category_name, page_language_name, page_price_list, page_profile_type_name, page_sub_category_name, platform_name, tags_page_category_name, vendor_name, page_name, page_name_type, primary_page, page_link,
             page_mast_status, preference_level, content_creation, ownership_type, rate_type, variable_type, description, page_closed_by,
             followers_count, engagment_rate, tags_page_category, platform_active_on, last_updated_by, story, post, both_, m_post_price,
             m_story_price, m_both_price, page_sub_category_id, bio, page_activeness } = req.body;
@@ -444,7 +444,15 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
                 story, post, both_, m_post_price, m_story_price, m_both_price,
                 page_sub_category_id,
                 bio,
-                page_activeness
+                page_activeness,
+                page_category_name,
+                page_language_name,
+                page_price_list,
+                page_profile_type_name,
+                page_sub_category_name,
+                platform_name,
+                tags_page_category_name,
+                vendor_name
             }
         }, {
             new: true, upsert: true
@@ -1266,7 +1274,11 @@ exports.getAllPageLanguages = async (req, res) => {
 exports.getPageDatas = async (req, res) => {
     try {
 
-        const pageData = await pageMasterModel.find(req.query);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 50;
+        const skip = (page - 1) * limit;
+
+        const pageData = await pageMasterModel.find(req.query).limit(limit).skip(skip);
         return response.returnTrue(
             200,
             req,
