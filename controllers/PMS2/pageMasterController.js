@@ -1274,19 +1274,39 @@ exports.getAllPageLanguages = async (req, res) => {
 exports.getPageDatas = async (req, res) => {
     try {
 
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 50;
+        let query = {};
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
         const skip = (page - 1) * limit;
 
-        const pageData = await pageMasterModel.find(req.query).limit(limit).skip(skip);
+        if (page && limit) {
+            const pageData = await pageMasterModel.find(query).limit(limit).skip(skip);
+        }
+        const searchableFields = ['page_category_name', 'page_sub_category_name', 'vendor_name', 'page_name', 'platform_name', 'profile_type_name'];
+        searchableFields.forEach((field) => {
+            if (req.query[field]) {
+                query[field] = { $regex: `^${req.query[field]}$`, $options: "i" };
+            }
+        });
+
+        const pageData = await pageMasterModel.find({
+            ...query,
+            page_mast_status: { $ne: 2 }
+        });
+
+        const totalCount = await pageMasterModel.countDocuments({
+            ...query,
+            page_mast_status: { $ne: 2 }
+        });
+
         return response.returnTrue(
             200,
             req,
             res,
-            "Successfully get all Page Datas",
-            pageData
+            "Successfully fetched Page Data excluding status 2",
+            { pageData, totalCount }
         );
     } catch (error) {
-        return response.returnFalse(500, req, res, err.message, {});
+        return response.returnFalse(500, req, res, error.message, {});
     }
-}
+};

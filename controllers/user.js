@@ -5834,7 +5834,7 @@ exports.updateUserIdentityDetails = async (req, res) => {
             voterName: req.body.voterName,
             panName: req.body.panName,
             vehicleNumber: req.body.vehicleNumber,
-            vehicleNamer: req.body.vehicleNamer,
+            vehicleName: req.body.vehicleName,
             drivingLicenseNumber: req.body.drivingLicenseNumber,
             drivingLicenseValidUpto: req.body.drivingLicenseValidUpto
         }, { new: true, upsert: true });
