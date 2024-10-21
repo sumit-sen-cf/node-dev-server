@@ -1,5 +1,6 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
+const { updatePageMasterModel } = require("../../helper/helper");
 const pageCategoryModel = require("../../models/PMS2/pageCategoryModel");
 const pageMasterModel = require("../../models/PMS2/pageMasterModel");
 
@@ -77,6 +78,17 @@ exports.updatePageCategory = async (req, res) => {
     try {
         const { id } = req.params;
         const { page_category, description, last_updated_by } = req.body;
+
+        // Step 1: Fetch the existing category details
+        const existingCategory = await pageCategoryModel.findById(id);
+
+        if (!existingCategory) {
+            return response.returnFalse(200, req, res, 'Category not found.');
+        }
+
+        const previousCategory = existingCategory.page_category; // Save the previous category name
+
+        // Step 2: Update the Page Category in `pageCategoryModel`
         const updatePageCategoryData = await pageCategoryModel.updateOne(
             { _id: id },
             {
@@ -88,17 +100,38 @@ exports.updatePageCategory = async (req, res) => {
             }
         );
 
+        // Step 3: Check if any documents were updated
         if (updatePageCategoryData.matchedCount === 0) {
-            return response.returnTrue(500, req, res, `Page category failed successfully.`);
+            return response.returnTrue(500, req, res, `Page category update failed.`);
         } else if (updatePageCategoryData.modifiedCount === 0) {
-            return response.returnFalse(200, req, res, `Page category are not updated.`);
+            return response.returnFalse(200, req, res, `Page category was not updated.`);
         } else {
+            // Step 4: If `page_category` is updated, update the `PageMasterModel` using the previous category name
+            if (page_category && previousCategory) {
+                // Call the helper function to update PageMasterModel
+                const updatePageMasterResult = await updatePageMasterModel(
+                    previousCategory,
+                    page_category,
+                    baseModel = pageCategoryModel,
+                    baseModelField = "page_category",
+                    targetModelField = "page_category_name"
+                );
+
+                if (updatePageMasterResult.matchedCount > 0) {
+                    console.log(`${updatePageMasterResult.modifiedCount} records updated in PageMasterModel.`);
+                } else {
+                    console.log('No records found in PageMasterModel to update.');
+                }
+            }
+
+            // Step 5: Return success response
             return response.returnTrue(200, req, res, `Page category updated successfully.`);
         }
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
 
 exports.deletePageCategory = async (req, res) => {
     try {

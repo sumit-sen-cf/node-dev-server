@@ -3,6 +3,7 @@ const response = require("../../common/response");
 const pms2PageSubCatModel = require("../../models/PMS2/pms2PageSubCatModel");
 const pageMasterModel = require("../../models/PMS2/pageMasterModel");
 const mongoose = require("mongoose");
+const { updatePageMasterModel } = require("../../helper/helper");
 
 exports.createPageSubCategory = async (req, res) => {
     try {
@@ -79,6 +80,17 @@ exports.updatePageSubCategory = async (req, res) => {
     try {
         const { id } = req.params;
         const { page_sub_category, description, state, last_updated_by } = req.body;
+
+        // Step 1: Fetch the existing subcategory details
+        const existingSubCategory = await pms2PageSubCatModel.findById(id);
+
+        if (!existingSubCategory) {
+            return response.returnFalse(200, req, res, 'Subcategory not found.');
+        }
+
+        const previousSubCategory = existingSubCategory.page_sub_category; // Save the previous subcategory name
+
+        // Step 2: Update the Page Sub Category in `pms2PageSubCatModel`
         const updatePageSubCategoryData = await pms2PageSubCatModel.updateOne(
             { _id: id },
             {
@@ -91,12 +103,26 @@ exports.updatePageSubCategory = async (req, res) => {
             }
         );
 
+        // Step 3: Check if any documents were updated
         if (updatePageSubCategoryData.matchedCount === 0) {
-            return response.returnTrue(500, req, res, `Page sub category failed successfully.`);
+            return response.returnTrue(500, req, res, `Page subcategory update failed.`);
         } else if (updatePageSubCategoryData.modifiedCount === 0) {
-            return response.returnFalse(200, req, res, `Page sub category are not updated.`);
+            return response.returnFalse(200, req, res, `Page subcategory was not updated.`);
         } else {
-            return response.returnTrue(200, req, res, `Page sub category updated successfully.`);
+            // Step 4: If `page_sub_category` is updated, update the `PageMasterModel` using the previous subcategory name
+            if (page_sub_category && previousSubCategory) {
+                // Call the helper function to update PageMasterModel
+                const updatePageMasterResult = await updatePageMasterModel(previousSubCategory, page_sub_category,baseModel = pms2PageSubCatModel, baseModelField = "page_sub_category", targetModelField = "page_sub_category_name");
+
+                if (updatePageMasterResult.matchedCount > 0) {
+                    console.log(`${updatePageMasterResult.modifiedCount} records updated in PageMasterModel.`);
+                } else {
+                    console.log('No records found in PageMasterModel to update.');
+                }
+            }
+
+            // Step 5: Return success response
+            return response.returnTrue(200, req, res, `Page subcategory updated successfully.`);
         }
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});

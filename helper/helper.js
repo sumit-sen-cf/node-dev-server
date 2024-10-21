@@ -16,6 +16,8 @@ const departmentModel = require("../models/departmentModel.js");
 const vari = require("../variables.js");
 const { storage } = require('../common/uploadFile.js');
 const mailForAlert = require("../common/sendAlertMail.js");
+const pageMasterModel = require("../models/PMS2/pageMasterModel.js");
+const pms2PageSubCatModel = require("../models/PMS2/pms2PageSubCatModel.js");
 
 module.exports = {
   /**
@@ -306,7 +308,7 @@ module.exports = {
     }
     return null;
   },
- sendMailAlertForIPAuth : async (data, subject) => {
+  sendMailAlertForIPAuth: async (data, subject) => {
     try {
       // Send Alert Mail
       const templatePath = path.join(
@@ -323,5 +325,33 @@ module.exports = {
     } catch (error) {
       console.log(error.message);
     }
+  },
+  updatePageMasterModel: async (previousValue, newValue, baseModel, baseModelField, targetModelField) => {
+
+    try {
+      const result = await pageMasterModel.updateMany(
+        { [targetModelField]: previousValue },
+        {
+          $set: {
+            [targetModelField]: newValue
+          }
+        },
+        { new: true, upsert: false }
+      );
+      return result
+    } catch (error) {
+      await baseModel.updateOne(
+        { [baseModelField]: newValue },
+        {
+          $set: {
+            page_sub_category: previousValue
+          },
+        }
+      );
+      throw error;
+    }
+
   }
+
+
 };

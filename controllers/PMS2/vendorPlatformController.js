@@ -1,5 +1,6 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
+const { updatePageMasterModel } = require("../../helper/helper");
 const vendorPlatformModel = require("../../models/PMS2/vendorPlatformModel");
 
 exports.addVendorPlatform = async (req, res) => {
@@ -76,26 +77,59 @@ exports.getAllVendorPlatformDetails = async (req, res) => {
 
 exports.updateSingleVendorPlatformDetails = async (req, res) => {
     try {
-        const { id } = req.body;
+        const { id, platform_name  } = req.body;
+
+        // Step 1: Fetch the existing platform details
+        const existingPlatformDetail = await vendorPlatformModel.findById(id);
+
+        if (!existingPlatformDetail) {
+            return response.returnFalse(200, req, res, 'No Record Found.', {});
+        }
+
+        const previousPlatformName = existingPlatformDetail?.platform_name; // Save the previous platform name
+
+        // Step 2: Update the Vendor Platform Details in `vendorPlatformModel`
         const platformDetail = await vendorPlatformModel.findOneAndUpdate(
             { _id: id },
             { $set: req.body },
-            { new: true }
+            { new: true } // Return the updated document
         );
+
         if (!platformDetail) {
-            return response.returnFalse(200, req, res, `No Record Found`, {});
+            return response.returnFalse(200, req, res, 'No Record Found.', {});
         }
+
+        // Step 3: If `platform_name` is updated, update related data in other models
+        if (platform_name && previousPlatformName !== platform_name) {
+            // Call the helper function to update related records in other models
+            const updatePageMasterResult = await updatePageMasterModel(
+                previousPlatformName,
+                platform_name,
+                baseModel = vendorPlatformModel,
+                baseModelField = "platform_name",
+                targetModelField = "platform_name"
+            );
+
+            if (updatePageMasterResult.matchedCount > 0) {
+                console.log(`${updatePageMasterResult.modifiedCount} records updated in the related model.`);
+            } else {
+                console.log('No records found in the related model to update.');
+            }
+        }
+
+        // Step 4: Return success response with the updated platform details
         return response.returnTrue(
             200,
             req,
             res,
-            "Successfully Update Vendor Platform Data",
+            'Successfully Updated Vendor Platform Data',
             platformDetail
         );
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
 
 exports.deleteVendorPlatformDetails = async (req, res) => {
     try {

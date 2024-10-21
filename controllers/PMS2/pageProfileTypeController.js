@@ -1,5 +1,6 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
+const { updatePageMasterModel } = require("../../helper/helper");
 const pageProfileTypeModel = require("../../models/PMS2/pageProfileTypeModel");
 
 exports.addProfileType = async (req, res) => {
@@ -77,6 +78,17 @@ exports.updateProfileTypeDetail = async (req, res) => {
     try {
         const { id } = req.params;
         const { profile_type, description, last_updated_by } = req.body;
+
+        // Step 1: Fetch the existing profile type details
+        const existingProfileType = await pageProfileTypeModel.findById(id);
+
+        if (!existingProfileType) {
+            return response.returnFalse(200, req, res, 'Profile type not found.');
+        }
+
+        const previousProfileType = existingProfileType?.profile_type; // Save the previous profile type
+
+        // Step 2: Update the profile type details in `pageProfileTypeModel`
         const updateProfileTypeResult = await pageProfileTypeModel.updateOne(
             { _id: id },
             {
@@ -88,17 +100,38 @@ exports.updateProfileTypeDetail = async (req, res) => {
             }
         );
 
+        // Step 3: Check if any documents were updated
         if (updateProfileTypeResult.matchedCount === 0) {
-            return response.returnTrue(500, req, res, `Profile type failed successfully.`);
+            return response.returnTrue(500, req, res, 'Profile type update failed.');
         } else if (updateProfileTypeResult.modifiedCount === 0) {
-            return response.returnFalse(200, req, res, `Profile type are not updated.`);
+            return response.returnFalse(200, req, res, 'Profile type was not updated.');
         } else {
-            return response.returnTrue(200, req, res, `Profile type updated successfully.`);
+            // Step 4: If `profile_type` is updated, update related records in other models
+            if (profile_type && previousProfileType !== profile_type) {
+                // Call the helper function to update related records in other models
+                const updatePageMasterResult = await updatePageMasterModel(
+                    previousProfileType,
+                    profile_type,
+                    baseModel = pageProfileTypeModel,
+                    baseModelField = "profile_type",
+                    targetModelField = "page_profile_type_name"
+                );
+
+                if (updatePageMasterResult.matchedCount > 0) {
+                    console.log(`${updatePageMasterResult.modifiedCount} records updated in related models.`);
+                } else {
+                    console.log('No records found in related models to update.');
+                }
+            }
+
+            // Step 5: Return success response
+            return response.returnTrue(200, req, res, 'Profile type updated successfully.');
         }
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
 };
+
 
 exports.deleteProfileType = async (req, res) => {
     try {
