@@ -6,6 +6,7 @@ const multer = require("multer");
 const vari = require("../../variables.js");
 const { storage } = require('../../common/uploadFile.js');
 const pmsPageMastModel = require('../../models/PMS/pmsPageMastModel.js');
+const { updatePageMasterModel } = require('../../helper/helper.js');
 
 const upload = multer({
     storage: multer.memoryStorage()
@@ -198,19 +199,28 @@ exports.updateVendorMast = [
     async (req, res) => {
         try {
             const { id } = req.params;
-            const { type_id, platform_id, payMethod_id, cycle_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
+            const {
+                type_id, platform_id, payMethod_id, cycle_id, vendorMast_name, country_code, mobile, alternate_mobile, email,
                 personal_address, pan_no, gst_no, company_name, company_address, company_city, company_pincode, company_state,
                 threshold_limit, home_address, home_city, home_state, created_by, last_updated_by, vendor_category, bank_name, account_no,
-                ifsc_code,
-                account_type, upi_id, whatsapp_link } = req.body;
-            const VendorMastData = await pmsVendorMastModel.findOne({ _id: id });
+                ifsc_code, account_type, upi_id, whatsapp_link
+            } = req.body;
+
+            // Step 1: Fetch the existing vendor details
+            const VendorMastData = await pmsVendorMastModel.findById(id);
             if (!VendorMastData) {
-                return res.send("Invalid Vendore-Mast Id...");
+                return res.send("Invalid Vendor-Mast Id...");
             }
+
+            const previousVendorMastName = VendorMastData.vendorMast_name; // Save the previous vendor name
+
+            // Step 2: Handle file uploads if provided
             if (req.files) {
                 VendorMastData.upload_pan_image = req.files["upload_pan_image"] ? req.files["upload_pan_image"][0].filename : VendorMastData.upload_pan_image;
                 VendorMastData.upload_gst_image = req.files["upload_gst_image"] ? req.files["upload_gst_image"][0].filename : VendorMastData.upload_gst_image;
             }
+
+            // Step 3: Upload images to the cloud bucket (GCP)
             const bucketName = vari.BUCKET_NAME;
             const bucket = storage.bucket(bucketName);
 
@@ -218,55 +228,80 @@ exports.updateVendorMast = [
                 const blob1 = bucket.file(req.files.upload_pan_image[0].originalname);
                 VendorMastData.upload_pan_image = blob1.name;
                 const blobStream1 = blob1.createWriteStream();
-                blobStream1.on("finish", () => {
-                });
+                blobStream1.on("finish", () => {});
                 blobStream1.end(req.files.upload_pan_image[0].buffer);
             }
+
             if (req.files?.upload_gst_image && req.files?.upload_gst_image[0].originalname) {
                 const blob2 = bucket.file(req.files.upload_gst_image[0].originalname);
                 VendorMastData.upload_gst_image = blob2.name;
                 const blobStream2 = blob2.createWriteStream();
-                blobStream2.on("finish", () => {
-                });
+                blobStream2.on("finish", () => {});
                 blobStream2.end(req.files.upload_gst_image[0].buffer);
             }
+
+            // Step 4: Save the changes related to files
             await VendorMastData.save();
-            const vendorData = await pmsVendorMastModel.findOneAndUpdate({ _id: id }, {
-                $set: {
-                    type_id,
-                    platform_id,
-                    payMethod_id,
-                    cycle_id,
-                    vendorMast_name,
-                    country_code,
-                    mobile,
-                    alternate_mobile,
-                    email,
-                    personal_address,
-                    pan_no,
-                    gst_no,
-                    company_name,
-                    company_address,
-                    company_city,
-                    company_pincode,
-                    company_state,
-                    threshold_limit,
-                    home_address,
-                    home_city,
-                    home_state,
-                    created_by,
-                    last_updated_by,
-                    vendor_category: vendor_category,
-                    bank_name,
-                    account_no,
-                    ifsc_code,
-                    account_type,
-                    upi_id,
-                    whatsapp_link: JSON.parse(whatsapp_link)
+
+            // Step 5: Update the Vendor Mast details in `pmsVendorMastModel`
+            const vendorData = await pmsVendorMastModel.findOneAndUpdate(
+                { _id: id },
+                {
+                    $set: {
+                        type_id,
+                        platform_id,
+                        payMethod_id,
+                        cycle_id,
+                        vendorMast_name,
+                        country_code,
+                        mobile,
+                        alternate_mobile,
+                        email,
+                        personal_address,
+                        pan_no,
+                        gst_no,
+                        company_name,
+                        company_address,
+                        company_city,
+                        company_pincode,
+                        company_state,
+                        threshold_limit,
+                        home_address,
+                        home_city,
+                        home_state,
+                        created_by,
+                        last_updated_by,
+                        vendor_category,
+                        bank_name,
+                        account_no,
+                        ifsc_code,
+                        account_type,
+                        upi_id,
+                        whatsapp_link: JSON.parse(whatsapp_link)
+                    },
                 },
-            },
                 { new: true }
             );
+
+            // Step 6: If `vendorMast_name` is updated, update related records in other models
+            if (vendorMast_name && previousVendorMastName !== vendorMast_name) {
+                // Call the helper function to update related records in other models
+                const updateRelatedModelsResult = await updatePageMasterModel(
+                    previousVendorMastName,
+                    vendorMast_name,
+                    baseModel = pmsVendorMastModel,
+                    baseModelField = "vendorMast_name",
+                    targetModelField = "vendor_name"
+                );
+
+                if (updateRelatedModelsResult.matchedCount > 0) {
+                    console.log(`${updateRelatedModelsResult.modifiedCount} records updated in related models.`);
+                } else {
+                    console.log('No records found in related models to update.');
+                }
+            }
+
+            // Step 7: Return success response
             return res.status(200).json({
                 message: "PMS vendor-mast data updated successfully!",
                 data: vendorData,
@@ -276,7 +311,9 @@ exports.updateVendorMast = [
                 message: error.message ? error.message : message.ERROR_MESSAGE,
             });
         }
-    }];
+    }
+];
+
 
 //GET - PMS- Vendor_Mast_List
 exports.getAllVendorMastList = async (req, res) => {

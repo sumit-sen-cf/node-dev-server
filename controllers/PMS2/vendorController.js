@@ -1,5 +1,6 @@
 const constant = require("../../common/constant");
 const response = require("../../common/response");
+const { updatePageMasterModel } = require("../../helper/helper");
 const bankDetailsModel = require("../../models/PMS2/bankDetailsModel");
 const paymentMethodModel = require("../../models/PMS2/paymentMethodModel");
 const vendorGroupLinkModel = require("../../models/PMS2/vendorGroupLinkModel");
@@ -205,64 +206,57 @@ exports.updateVendorData = async (req, res) => {
     try {
         const { vendor_id } = req.params;
 
-        // Assuming vendor_id is passed as a URL parameter
-        const { vendor_type, vendor_platform, pay_cycle, bank_name, page_count, company_details, primary_field, vendor_name,
-            home_pincode, country_code, mobile, alternate_mobile, email, personal_address, home_address, home_city, home_state,
-            vendor_category, updated_by, closed_by, busi_type } = req.body;
+        const {
+            vendor_type, vendor_platform, pay_cycle, bank_name, company_details, primary_field, vendor_name,
+            home_pincode, country_code, mobile, alternate_mobile, email, personal_address, home_address,
+            home_city, home_state, vendor_category, updated_by, closed_by, busi_type, bank_details, vendorLinks, payment_method
+        } = req.body;
 
         // Find the vendor by ID
         const existingVendor = await vendorModel.findById(vendor_id);
         if (!existingVendor) {
-            return response.returnFalse(404, req, res, `Vendor not found`, {});
+            return response.returnFalse(404, req, res, 'Vendor not found', {});
         }
 
-        // Update vendor fields
-        existingVendor.vendor_type = vendor_type;
-        existingVendor.closed_by = closed_by;
-        existingVendor.vendor_platform = vendor_platform;
-        existingVendor.pay_cycle = pay_cycle;
-        existingVendor.bank_name = bank_name;
-        existingVendor.company_details = company_details;
-        // existingVendor.page_count = page_count;
-        existingVendor.primary_field = primary_field;
-        existingVendor.vendor_name = vendor_name;
-        existingVendor.home_pincode = home_pincode;
-        existingVendor.country_code = country_code;
-        existingVendor.mobile = mobile;
-        existingVendor.alternate_mobile = alternate_mobile;
-        existingVendor.email = email;
-        existingVendor.personal_address = personal_address;
-        existingVendor.home_address = home_address;
-        existingVendor.home_city = home_city;
-        existingVendor.home_state = home_state;
-        existingVendor.updated_by = updated_by;
-        existingVendor.vendor_category = vendor_category;
-        existingVendor.busi_type = busi_type;
+        const previousVendorName = existingVendor.vendor_name; // Capture the current vendor_name
 
+        // Update vendor fields
+        Object.assign(existingVendor, {
+            vendor_type, vendor_platform, pay_cycle, bank_name, company_details, primary_field, vendor_name,
+            home_pincode, country_code, mobile, alternate_mobile, email, personal_address, home_address,
+            home_city, home_state, vendor_category, updated_by, closed_by, busi_type
+        });
         // Save updated vendor data
         const updatedVendorData = await existingVendor.save();
         if (!updatedVendorData) {
             return response.returnFalse(500, req, res, `Oops! Something went wrong while updating vendor data.`, {});
         }
 
-        // let bankDetails = (req.body?.bank_details && JSON.parse(req.body.bank_details)) || [];
-        // let vendorLinkDetails = (req.body?.vendorLinks && JSON.parse(req.body.vendorLinks)) || [];
-        let bankDetails = (req.body?.bank_details) || [];
-        let vendorLinkDetails = (req.body?.vendorLinks) || [];
-        let paymentMethodDetails = (req.body?.payment_method) || [];
+        // Step 6: If `vendor_name` is updated, update related records in other models
+        if (vendor_name && previousVendorName !== vendor_name) {
+            // Call the helper function to update related records in other models
+            const updateRelatedModelsResult = await updatePageMasterModel(
+                previousVendorName, // Old vendor name
+                vendor_name, // New vendor name
+                vendorModel, // Base model
+                "vendor_name", // Base model field (current model field name)
+                "vendor_name" // Target model field (related model field to update)
+            );
 
+            if (updateRelatedModelsResult.matchedCount > 0) {
+                console.log(`${updateRelatedModelsResult.modifiedCount} records updated in related models.`);
+            } else {
+                console.log('No records found in related models to update.');
+            }
+        }
 
-        //update bank details
-        if (bankDetails.length && Array.isArray(bankDetails)) {
-            for (const element of bankDetails) {
+        // Update bank details
+        if (bank_details?.length && Array.isArray(bank_details)) {
+            for (const element of bank_details) {
                 if (element?._id) {
                     // Existing document: update it
                     element.updated_by = updated_by;
-                    await bankDetailsModel.updateOne({
-                        _id: element._id
-                    }, {
-                        $set: element
-                    });
+                    await bankDetailsModel.updateOne({ _id: element._id }, { $set: element });
                 } else {
                     // New document: insert it
                     element.created_by = updated_by;
@@ -272,17 +266,13 @@ exports.updateVendorData = async (req, res) => {
             }
         }
 
-        //update vendor links
-        if (vendorLinkDetails.length && Array.isArray(vendorLinkDetails)) {
-            for (const element of vendorLinkDetails) {
+        // Update vendor links
+        if (vendorLinks?.length && Array.isArray(vendorLinks)) {
+            for (const element of vendorLinks) {
                 if (element?._id) {
                     // Existing document: update it
                     element.updated_by = updated_by;
-                    await vendorGroupLinkModel.updateOne({
-                        _id: element._id
-                    }, {
-                        $set: element
-                    });
+                    await vendorGroupLinkModel.updateOne({ _id: element._id }, { $set: element });
                 } else {
                     // New document: insert it
                     element.created_by = updated_by;
@@ -292,17 +282,13 @@ exports.updateVendorData = async (req, res) => {
             }
         }
 
-        //update payment_method
-        if (paymentMethodDetails.length && Array.isArray(paymentMethodDetails)) {
-            for (const element of paymentMethodDetails) {
+        // Update payment methods
+        if (payment_method?.length && Array.isArray(payment_method)) {
+            for (const element of payment_method) {
                 if (element?._id) {
                     // Existing document: update it
                     element.updated_by = updated_by;
-                    await paymentMethodModel.updateOne({
-                        _id: element._id
-                    }, {
-                        $set: element
-                    });
+                    await paymentMethodModel.updateOne({ _id: element._id }, { $set: element });
                 } else {
                     // New document: insert it
                     element.created_by = updated_by;
@@ -317,7 +303,8 @@ exports.updateVendorData = async (req, res) => {
     } catch (error) {
         return response.returnFalse(500, req, res, `${error.message}`, {});
     }
-}
+};
+
 
 exports.updateVendorDetails = async (req, res) => {
     try {
