@@ -215,7 +215,7 @@ exports.updateVendorData = async (req, res) => {
         // Find the vendor by ID
         const existingVendor = await vendorModel.findById(vendor_id);
         if (!existingVendor) {
-            return response.returnFalse(404, req, res, 'Vendor not found', {});
+            return response.returnFalse(200, req, res, 'Vendor not found', {});
         }
 
         const previousVendorName = existingVendor.vendor_name; // Capture the current vendor_name
