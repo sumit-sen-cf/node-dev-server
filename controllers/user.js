@@ -539,7 +539,7 @@ exports.updateUserInformation = async (req, res) => {
 //changes - multiple images
 exports.updateBankInformation = [upload, async (req, res) => {
     try {
-        const { bank_name, account_no, ifsc_code, beneficiary, account_type, branch_name, upi_id } = req.body;
+        const { bank_name, account_no, ifsc_code, beneficiary, account_type, branch_name, upi_id, old_pf_number, uan_number, old_esic_number } = req.body;
         const updateBankProfile = await userModel.findOne({ user_id: req.params.user_id });
         if (!updateBankProfile) {
             return res.status(404).send("User not found!");
@@ -573,6 +573,9 @@ exports.updateBankInformation = [upload, async (req, res) => {
                 account_type: account_type,
                 branch_name: branch_name,
                 upi_Id: upi_id,
+                old_pf_number: old_pf_number,
+                uan_number: uan_number,
+                old_esic_number: old_esic_number
             }
         }, {
             new: true
@@ -744,7 +747,8 @@ exports.updateUser = [upload, async (req, res) => {
             show_rocket: req.body.show_rocket,
             bank_type: req.body.bank_type,
             upi_Id: req.body.upi_Id,
-            user_credit_limit: req.body.user_credit_limit
+            user_credit_limit: req.body.user_credit_limit,
+            work_experience: req.body.work_experience
         }, { new: true });
 
         if (!editsim) {
@@ -1438,6 +1442,10 @@ exports.getSingleUser = async (req, res) => {
                     vehicleName: 1,
                     drivingLicenseNumber: 1,
                     drivingLicenseValidUpto: 1,
+                    work_experience: 1,
+                    old_pf_number: 1,
+                    uan_number: 1,
+                    old_esic_number: 1
                 }
             }
         ]).exec();

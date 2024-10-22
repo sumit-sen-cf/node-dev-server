@@ -142,6 +142,8 @@ const planMakingController = require('./controllers/planMakingController.js')
 
 const majorDepartmentController = require("./controllers/majorDepartment.js");
 
+const userExperienceController = require("./controllers/userExperienceController.js");
+
 /* Task Mangement Controller Import */
 //const deptWiseStatus = require('./controllers/TMS/deptWiseStatus.js');
 const { createTmsCatMast, getTmsCatMast, updateTmsCatMast, deleteTmsCatMast, getAllTmsCatMast } = require("./controllers/TMS/tmsCatMastController.js");
@@ -2028,5 +2030,11 @@ router.delete("/delete_expense_category/:_id", expenseCategoryApi.deleteExpenseD
 
 /* user history routes */
 router.get("/get_all_history_data", userHistoryController.getAllUserHistorys);
+
+/* user Experience Routes */
+router.get("/get_all_user_experiences", userExperienceController.getUserExperiences);
+router.get("/get_single_user_experience/:user_id", userExperienceController.getSingleUserExperience);
+router.put("/update_user_experience", userExperienceController.editUserExperience);
+router.delete('/delete_user_experience/:id', userExperienceController.deleteUserExperience);
 
 module.exports = router;

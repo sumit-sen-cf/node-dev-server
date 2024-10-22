@@ -401,6 +401,25 @@ exports.updateSinglePageMasterDetails = async (req, res) => {
 
         const pageData = await pageMasterModel.findOne({ _id: id });
 
+        if (pageData.vendor_id !== req.body.vendor_id) {
+            const pageData1 = await vendorModel.findOne({ _id: req.body.vendor_id });
+            if (!pageData1) {
+                return response.returnFalse(404, req, res, `Vendor not found`, {});
+            }
+
+            const result = await vendorModel.updateOne(
+                { _id: pageData.vendor_id },
+                { $inc: { page_count: -1 } },
+                { new: true }
+            );
+
+            const plusPageCount = await vendorModel.updateOne(
+                { _id: req.body.vendor_id },
+                { $inc: { page_count: 1 } },
+                { new: true }
+            );
+        }
+
         const followerLogsData = new pageFollowerCountLogModel({
             page_id: id,
             page_name: pageData.page_name,
@@ -1282,7 +1301,7 @@ exports.getPageDatas = async (req, res) => {
         if (page && limit) {
             const pageData = await pageMasterModel.find(query).limit(limit).skip(skip);
         }
-        const searchableFields = ['page_category_name', 'page_sub_category_name', 'vendor_name', 'page_name', 'platform_name', 'profile_type_name'];
+        const searchableFields = ['page_category_name', 'page_sub_category_name', 'vendor_name', 'page_name', 'platform_name', 'profile_type_name', 'ownership_type', 'page_profile_type_name', 'page_activeness'];
         searchableFields.forEach((field) => {
             if (req.query[field]) {
                 query[field] = { $regex: `^${req.query[field]}$`, $options: "i" };
@@ -1310,3 +1329,593 @@ exports.getPageDatas = async (req, res) => {
         return response.returnFalse(500, req, res, error.message, {});
     }
 };
+
+
+exports.getAllCounts = async (req, res) => {
+    try {
+
+        const totalPages = await pageMasterModel.aggregate([
+            {
+                $match: {
+                    page_mast_status: { $ne: 2 }
+                }
+            },
+            {
+                $count: "totalPages"
+            }
+        ]);
+
+        const totalFilteredPages = totalPages.length ? totalPages[0].totalPages : 0;
+
+        const preferenceLevelCounts = await pageMasterModel.aggregate([
+            {
+                $match: {
+                    page_mast_status: { $ne: 2 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$preference_level",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+
+        const pageActivenessCounts = await pageMasterModel.aggregate([
+            {
+                $match: {
+                    page_mast_status: { $ne: 2 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$page_activeness",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+
+
+        const followerCount = await pageMasterModel.aggregate([
+            {
+                $match: {
+                    page_mast_status: { $ne: 2 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$followers_count",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+
+        const pageClosedBYCounts = await pageMasterModel.aggregate([
+            {
+                $match: {
+                    page_mast_status: { $ne: 2 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$page_closed_by",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "_id",
+                    foreignField: "user_id",
+                    as: "userDetails"
+                }
+            },
+            {
+                $unwind: "$userDetails"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    page_closed_by: "$_id",
+                    user_name: "$userDetails.user_name",
+                    count: 1
+                }
+            }
+        ]);
+
+        const preferenceLevelData = {
+            high: 0,
+            medium: 0,
+            low: 0
+        };
+        preferenceLevelCounts.forEach(item => {
+            if (item._id === "high") preferenceLevelData.high = item.count;
+            if (item._id === "medium") preferenceLevelData.medium = item.count;
+            if (item._id === "low") preferenceLevelData.low = item.count;
+        });
+
+        const pageActivenessData = {
+            active: 0,
+            semi_active: 0,
+            dead: 0,
+            super_active: 0
+        };
+        pageActivenessCounts.forEach(item => {
+            if (item._id === "active") pageActivenessData.active = item.count;
+            if (item._id === "semi_active") pageActivenessData.semi_active = item.count;
+            if (item._id === "dead") pageActivenessData.dead = item.count;
+            if (item._id === "super_active") pageActivenessData.super_active = item.count;
+        });
+
+        const followerCountData = {
+            "less than 1 lac": 0,
+            "1-10 lacs": 0,
+            "10-20 lacs": 0,
+            "20-30 lacs": 0,
+            "more than 30 lac": 0
+        };
+
+        followerCount.forEach(item => {
+            if (item._id >= 0 && item._id < 100000) {
+                followerCountData["less than 1 lac"] += item.count;
+            } else if (item._id >= 100000 && item._id < 1000000) {
+                followerCountData["1-10 lacs"] += item.count;
+            } else if (item._id >= 1000000 && item._id < 2000000) {
+                followerCountData["10-20 lacs"] += item.count;
+            } else if (item._id >= 2000000 && item._id < 3000000) {
+                followerCountData["20-30 lacs"] += item.count;
+            } else if (item._id >= 3000000) {
+                followerCountData["more than 30 lac"] += item.count;
+            }
+        });
+
+        const result = {
+            totalPages: totalFilteredPages,
+            preference_level: preferenceLevelData,
+            status: pageActivenessData,
+            followercount: followerCountData,
+            pageClosedBYCounts: pageClosedBYCounts
+        };
+
+        return response.returnTrue(200, req, res, "Successfully fetched counts", result);
+
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
+
+exports.getPageNameWithClosedBy = async (req, res) => {
+    try {
+        const { start_date, end_date } = req.body;
+
+        const startDate = new Date(start_date);
+        const endDate = new Date(end_date);
+
+        const result = await pageMasterModel.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lte: endDate
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: "$page_closed_by",
+                    count: { $sum: 1 },
+                    page_details: { $push: { name: "$page_name", createdAt: "$createdAt" } }
+                }
+            },
+            {
+                $lookup: {
+                    from: "usermodels",
+                    localField: "_id",
+                    foreignField: "user_id",
+                    as: "user"
+                }
+            },
+            {
+                $unwind: "$user"
+            },
+            {
+                $project: {
+                    count: 1,
+                    page_closed_by: "$_id",
+                    user_name: "$user.user_name",
+                    page_count: { $size: "$page_details" },
+                    allpages_name: "$page_details"
+                }
+            }
+        ]);
+
+        return response.returnTrue(200, req, res, "Successfully fetched counts", result);
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+};
+
+exports.getAllCountsByFilter = async (req, res) => {
+    try {
+
+        const { preference_level, page_activeness, followers_count_range } = req.body;
+
+        let matchConditions = { page_mast_status: { $ne: 2 } };
+
+        if (preference_level || page_activeness || followers_count_range) {
+            if (preference_level && preference_level.length > 0) {
+                matchConditions.preference_level = { $in: preference_level };
+            }
+
+            if (page_activeness && page_activeness.length > 0) {
+                matchConditions.page_activeness = { $in: page_activeness };
+            }
+
+            if (followers_count_range && followers_count_range.length > 0) {
+                const followerConditions = [];
+
+                followers_count_range.forEach(range => {
+                    switch (range) {
+                        case "less than 1 lac":
+                            followerConditions.push({ followers_count: { $gte: 0, $lt: 100000 } });
+                            break;
+                        case "1-10 lacs":
+                            followerConditions.push({ followers_count: { $gte: 100000, $lt: 1000000 } });
+                            break;
+                        case "10-20 lacs":
+                            followerConditions.push({ followers_count: { $gte: 1000000, $lt: 2000000 } });
+                            break;
+                        case "20-30 lacs":
+                            followerConditions.push({ followers_count: { $gte: 2000000, $lt: 3000000 } });
+                            break;
+                        case "more than 30 lac":
+                            followerConditions.push({ followers_count: { $gte: 3000000 } });
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
+                if (followerConditions.length > 0) {
+                    matchConditions.$or = followerConditions;
+                }
+            }
+
+            const filteredPages = await pageMasterModel.aggregate([
+                {
+                    $match: matchConditions
+                },
+                {
+                    $project: {
+                        page_name: 1,
+                        page_activeness: 1,
+                        followers_count: 1,
+                        createdAt: 1,
+                        page_profile_type_id: 1,
+                        page_profile_type_name: 1,
+                        page_category_id: 1,
+                        page_category_name: 1,
+                        platform_id: 1,
+                        platform_name: 1,
+                        vendor_id: 1,
+                        vendor_name: 1,
+                        page_name_type: 1,
+                        primary_page: 1,
+                        page_link: 1,
+                        page_mast_status: 1,
+                        preference_level: 1,
+                        content_creation: 1,
+                        ownership_type: 1,
+                        rate_type: 1,
+                        variable_type: 1,
+                        page_language_name: 1,
+                        page_language_id: 1,
+                        page_price_list: 1,
+                        description: 1,
+                        page_closed_by: 1,
+                        engagment_rate: 1,
+                        tags_page_category: 1,
+                        tags_page_category_name: 1,
+                        created_by: 1,
+                        page_sub_category_id: 1,
+                        page_sub_category_name: 1,
+                        bio: 1
+                    }
+                }
+            ]);
+
+            const totalPages = await pageMasterModel.aggregate([
+                {
+                    $match: {
+                        page_mast_status: { $ne: 2 }
+                    }
+                },
+                {
+                    $count: "totalPages"
+                }
+            ]);
+
+            const totalFilteredPages = totalPages.length ? totalPages[0].totalPages : 0;
+
+            const preferenceLevelCounts = await pageMasterModel.aggregate([
+                {
+                    $match: {
+                        page_mast_status: { $ne: 2 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$preference_level",
+                        count: { $sum: 1 }
+                    }
+                }
+            ]);
+
+            const pageActivenessCounts = await pageMasterModel.aggregate([
+                {
+                    $match: {
+                        page_mast_status: { $ne: 2 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$page_activeness",
+                        count: { $sum: 1 }
+                    }
+                }
+            ]);
+
+            const followerCount = await pageMasterModel.aggregate([
+                {
+                    $match: {
+                        page_mast_status: { $ne: 2 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$followers_count",
+                        count: { $sum: 1 }
+                    }
+                }
+            ]);
+
+            const pageClosedBYCounts = await pageMasterModel.aggregate([
+                {
+                    $match: {
+                        page_mast_status: { $ne: 2 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$page_closed_by",
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "_id",
+                        foreignField: "user_id",
+                        as: "userDetails"
+                    }
+                },
+                {
+                    $unwind: "$userDetails"
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        page_closed_by: "$_id",
+                        user_name: "$userDetails.user_name",
+                        count: 1
+                    }
+                }
+            ]);
+
+            const preferenceLevelData = {
+                high: 0,
+                medium: 0,
+                low: 0
+            };
+            preferenceLevelCounts.forEach(item => {
+                if (item._id === "high") preferenceLevelData.high = item.count;
+                if (item._id === "medium") preferenceLevelData.medium = item.count;
+                if (item._id === "low") preferenceLevelData.low = item.count;
+            });
+
+            const pageActivenessData = {
+                active: 0,
+                semi_active: 0,
+                dead: 0,
+                super_active: 0
+            };
+            pageActivenessCounts.forEach(item => {
+                if (item._id === "active") pageActivenessData.active = item.count;
+                if (item._id === "semi_active") pageActivenessData.semi_active = item.count;
+                if (item._id === "dead") pageActivenessData.dead = item.count;
+                if (item._id === "super_active") pageActivenessData.super_active = item.count;
+            });
+
+            const followerCountData = {
+                "less than 1 lac": 0,
+                "1-10 lacs": 0,
+                "10-20 lacs": 0,
+                "20-30 lacs": 0,
+                "more than 30 lac": 0
+            };
+
+            followerCount.forEach(item => {
+                if (item._id >= 0 && item._id < 100000) {
+                    followerCountData["less than 1 lac"] += item.count;
+                } else if (item._id >= 100000 && item._id < 1000000) {
+                    followerCountData["1-10 lacs"] += item.count;
+                } else if (item._id >= 1000000 && item._id < 2000000) {
+                    followerCountData["10-20 lacs"] += item.count;
+                } else if (item._id >= 2000000 && item._id < 3000000) {
+                    followerCountData["20-30 lacs"] += item.count;
+                } else if (item._id >= 3000000) {
+                    followerCountData["more than 30 lac"] += item.count;
+                }
+            });
+
+            const result = {
+                totalPages: totalFilteredPages,
+                preference_level: preferenceLevelData,
+                status: pageActivenessData,
+                followercount: followerCountData,
+                pageClosedBYCounts: pageClosedBYCounts,
+                filteredPages: filteredPages
+            };
+
+            return response.returnTrue(200, req, res, "Successfully fetched counts", result);
+        } else {
+            const totalPages = await pageMasterModel.aggregate([
+                {
+                    $match: {
+                        page_mast_status: { $ne: 2 }
+                    }
+                },
+                {
+                    $count: "totalPages"
+                }
+            ]);
+
+            const totalFilteredPages = totalPages.length ? totalPages[0].totalPages : 0;
+
+            const preferenceLevelCounts = await pageMasterModel.aggregate([
+                {
+                    $match: {
+                        page_mast_status: { $ne: 2 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$preference_level",
+                        count: { $sum: 1 }
+                    }
+                }
+            ]);
+
+            const pageActivenessCounts = await pageMasterModel.aggregate([
+                {
+                    $match: {
+                        page_mast_status: { $ne: 2 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$page_activeness",
+                        count: { $sum: 1 }
+                    }
+                }
+            ]);
+
+
+            const followerCount = await pageMasterModel.aggregate([
+                {
+                    $match: {
+                        page_mast_status: { $ne: 2 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$followers_count",
+                        count: { $sum: 1 }
+                    }
+                }
+            ]);
+
+            const pageClosedBYCounts = await pageMasterModel.aggregate([
+                {
+                    $match: {
+                        page_mast_status: { $ne: 2 }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$page_closed_by",
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "_id",
+                        foreignField: "user_id",
+                        as: "userDetails"
+                    }
+                },
+                {
+                    $unwind: "$userDetails"
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        page_closed_by: "$_id",
+                        user_name: "$userDetails.user_name",
+                        count: 1
+                    }
+                }
+            ]);
+
+            const preferenceLevelData = {
+                high: 0,
+                medium: 0,
+                low: 0
+            };
+            preferenceLevelCounts.forEach(item => {
+                if (item._id === "high") preferenceLevelData.high = item.count;
+                if (item._id === "medium") preferenceLevelData.medium = item.count;
+                if (item._id === "low") preferenceLevelData.low = item.count;
+            });
+
+            const pageActivenessData = {
+                active: 0,
+                semi_active: 0,
+                dead: 0,
+                super_active: 0
+            };
+            pageActivenessCounts.forEach(item => {
+                if (item._id === "active") pageActivenessData.active = item.count;
+                if (item._id === "semi_active") pageActivenessData.semi_active = item.count;
+                if (item._id === "dead") pageActivenessData.dead = item.count;
+                if (item._id === "super_active") pageActivenessData.super_active = item.count;
+            });
+
+            const followerCountData = {
+                "less than 1 lac": 0,
+                "1-10 lacs": 0,
+                "10-20 lacs": 0,
+                "20-30 lacs": 0,
+                "more than 30 lac": 0
+            };
+
+            followerCount.forEach(item => {
+                if (item._id >= 0 && item._id < 100000) {
+                    followerCountData["less than 1 lac"] += item.count;
+                } else if (item._id >= 100000 && item._id < 1000000) {
+                    followerCountData["1-10 lacs"] += item.count;
+                } else if (item._id >= 1000000 && item._id < 2000000) {
+                    followerCountData["10-20 lacs"] += item.count;
+                } else if (item._id >= 2000000 && item._id < 3000000) {
+                    followerCountData["20-30 lacs"] += item.count;
+                } else if (item._id >= 3000000) {
+                    followerCountData["more than 30 lac"] += item.count;
+                }
+            });
+
+            const result = {
+                totalPages: totalFilteredPages,
+                preference_level: preferenceLevelData,
+                status: pageActivenessData,
+                followercount: followerCountData,
+                pageClosedBYCounts: pageClosedBYCounts
+            };
+
+            return response.returnTrue(200, req, res, "Successfully fetched counts", result);
+        }
+
+    } catch (err) {
+        return response.returnFalse(500, req, res, err.message, {});
+    }
+}
