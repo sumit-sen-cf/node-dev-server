@@ -837,6 +837,26 @@ const userModel = new mongoose.Schema({
         required: false,
         default: ""
     },
+    work_experience: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    old_pf_number: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    uan_number: {
+        type: Number,
+        required: false,
+        default: 0
+    },
+    old_esic_number: {
+        type: Number,
+        required: false,
+        default: 0
+    },
     user_available_limit: { //for sale booking creation
         type: Number,
         required: false,
