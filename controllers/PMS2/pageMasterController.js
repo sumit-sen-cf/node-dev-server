@@ -1919,3 +1919,84 @@ exports.getAllCountsByFilter = async (req, res) => {
         return response.returnFalse(500, req, res, err.message, {});
     }
 }
+exports.categoryWiseInventoryDetails = async (req, res) => {
+    try {
+        const analyticsData = await pageMasterModel.aggregate([
+            {
+                $match: {
+                    page_mast_status: { $ne: constant.DELETED }
+                }
+            },
+            // Group by page_category_name and page_sub_category_name
+            {
+                $group: {
+                    _id: {
+                        page_category_name: "$page_category_name",
+                        page_sub_category_name: "$page_sub_category_name"
+                    },
+                    totalFollowersCount: { $sum: "$followers_count" },
+                    uniqueVendorIds: { $addToSet: "$vendor_id" },
+                    pageCount: { $sum: 1 }
+                }
+            },
+            // Count unique vendor_id
+            {
+                $addFields: {
+                    uniqueVendorCount: { $size: "$uniqueVendorIds" }
+                }
+            },
+            // Project final result without the uniqueVendorIds array
+            // {
+            //     $project: {
+            //         uniqueVendorIds: 0
+            //     }
+            // },
+            // Group by page_category_name to restructure data
+            {
+                $group: {
+                    _id: "$_id.page_category_name",
+                    subCategories: {
+                        $push: {
+                            page_sub_category_name: "$_id.page_sub_category_name",
+                            totalFollowersCount: "$totalFollowersCount",
+                            uniqueVendorCount: "$uniqueVendorCount",
+                            pageCount: "$pageCount"
+                        }
+                    },
+                    // Calculate total followers, vendor count, and page count for the entire category
+                    totalFollowersCount: { $sum: "$totalFollowersCount" },
+                    allUniqueVendorIds: { $addToSet: "$uniqueVendorIds" },
+                    totalPageCount: { $sum: "$pageCount" }
+                }
+            },
+            // Count unique vendor_id for the entire category
+            {
+                $addFields: {
+                    uniqueVendorCount: {
+                        $size: {
+                            $reduce: {
+                                input: "$allUniqueVendorIds",
+                                initialValue: [],
+                                in: { $setUnion: ["$$value", "$$this"] }
+                            }
+                        }
+                    }
+                }
+            },
+            // Project the final result with correct field inclusion/exclusion
+            {
+                $project: {
+                    subCategories: 1,
+                    totalFollowersCount: 1,
+                    uniqueVendorCount: 1,
+                    totalPageCount: 1
+                }
+                // OR use exclusion:
+                // $project: { allUniqueVendorIds: 0 }
+            }
+        ]);
+        return response.returnTrue(200, req, res, "Successfully fetched data", analyticsData);
+    } catch (error) {
+        return response.returnFalse(500, req, res, error.message, {});
+    }
+}
