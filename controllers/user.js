@@ -1151,6 +1151,7 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getSingleUser = async (req, res) => {
     try {
+        console.log("ddddddddddd");
         const singlesim = await userModel.aggregate([
             {
                 $match: { user_id: parseInt(req.params.id) }
