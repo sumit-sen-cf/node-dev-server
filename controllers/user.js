@@ -5840,6 +5840,7 @@ exports.updateUserIdentityDetails = async (req, res) => {
             uid_no: req.body.uid_no,
             pan_no: req.body.pan_no,
             voterName: req.body.voterName,
+            voterIdNumber: req.body.voterIdNumber,
             panName: req.body.panName,
             vehicleNumber: req.body.vehicleNumber,
             vehicleName: req.body.vehicleName,
