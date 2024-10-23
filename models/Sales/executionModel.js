@@ -78,26 +78,6 @@ const salesBookingExecution = new Schema({
         type: Number,
         required: false,
     },
-    story_view: {
-        type: Number,
-        required: false,
-        default : 0
-    },
-    impression: {
-        type: Number,
-        required: false,
-        default : 0
-    },
-    engagement: {
-        type: Number,
-        required: false,
-        default : 0
-    },
-    reach: {
-        type: Number,
-        required: false,
-        default : 0
-    },
     created_by: {
         type: Number,
         required: false,
