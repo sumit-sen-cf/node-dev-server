@@ -1491,7 +1491,7 @@ exports.getPageDatas = async (req, res) => {
             page_mast_status: { $ne: 2 }  // Exclude status 2
         };
 
-        const searchableFields = ['page_category_name', 'page_sub_category_name', 'vendor_name', 'page_name', 'platform_name', 'profile_type_name', 'ownership_type', 'page_profile_type_name', 'page_activeness'];
+        const searchableFields = ['page_category_name', 'page_sub_category_name', 'vendor_name', 'page_name', 'platform_name', 'profile_type_name', 'ownership_type', 'page_profile_type_name', 'page_activeness', 'preference_level'];
         searchableFields.forEach((field) => {
             if (req.query[field]) {
                 query[field] = { $regex: `^${req.query[field]}$`, $options: "i" };
