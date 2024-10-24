@@ -65,7 +65,8 @@ exports.createIncentiveSharing = async (req, res) => {
             account_id: account_id,
         }, {
             $set: {
-                account_percentage: account_percentage
+                account_percentage: account_percentage,
+                is_account_sharing: true,
             }
         }, {
             new: true

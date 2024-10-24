@@ -70,6 +70,11 @@ const accountMasterSchema = new mongoose.Schema({
         required: false,
         default: 100
     },
+    is_account_sharing: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
     created_by: {
         type: Number,
         required: true,
