@@ -211,6 +211,7 @@ pageMasterSchema.pre('save', async function (next) {
 });
 
 pageMasterSchema.index({ page_name: 1 })
+pageMasterSchema.index({ page_mast_status: 1 })
 
 const pageMasterModel = mongoose.model("Pms2PageMasterModel", pageMasterSchema);
 module.exports = pageMasterModel;
