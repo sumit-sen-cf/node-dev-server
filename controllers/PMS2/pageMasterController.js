@@ -1488,7 +1488,7 @@ exports.getPageDatas = async (req, res) => {
     try {
         // Build the query first
         let query = {
-            page_mast_status: { $ne: constant.DELETED }  // Exclude status 2
+            page_mast_status: { $ne: 2 }  // Exclude status 2
         };
 
         const searchableFields = ['page_category_name', 'page_sub_category_name', 'vendor_name', 'page_name', 'platform_name', 'profile_type_name', 'ownership_type', 'page_profile_type_name', 'page_activeness'];
@@ -1498,14 +1498,22 @@ exports.getPageDatas = async (req, res) => {
             }
         });
 
-        // Pagination logic
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
+        // Pagination logic: Only apply pagination if both 'page' and 'limit' are provided
+        let pageDataPromise;
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
+
+        if (page && limit) {
+            const skip = (page - 1) * limit;
+            pageDataPromise = pageMasterModel.find(query).limit(limit).skip(skip);
+        } else {
+            // If pagination is not provided, fetch all data
+            pageDataPromise = pageMasterModel.find(query);
+        }
 
         // Use Promise.all to parallelize fetching data and counting documents
         const [pageData, totalCount] = await Promise.all([
-            pageMasterModel.find(query).limit(limit).skip(skip),
+            pageDataPromise,
             pageMasterModel.countDocuments(query)
         ]);
 
