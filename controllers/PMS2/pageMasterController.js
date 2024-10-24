@@ -1290,17 +1290,207 @@ exports.getAllPageLanguages = async (req, res) => {
     }
 }
 
+// exports.getPageDatas = async (req, res) => {
+//     try {
+
+//         let query = {};
+//         const page = parseInt(req.query.page);
+//         const limit = parseInt(req.query.limit);
+//         const skip = (page - 1) * limit;
+
+//         if (page && limit) {
+//             const pageData = await pageMasterModel.find(query).limit(limit).skip(skip);
+//         }
+//         const searchableFields = ['page_category_name', 'page_sub_category_name', 'vendor_name', 'page_name', 'platform_name', 'profile_type_name', 'ownership_type', 'page_profile_type_name', 'page_activeness'];
+//         searchableFields.forEach((field) => {
+//             if (req.query[field]) {
+//                 query[field] = { $regex: `^${req.query[field]}$`, $options: "i" };
+//             }
+//         });
+
+//         const pageData = await pageMasterModel.find({
+//             ...query,
+//             page_mast_status: { $ne: 2 }
+//         });
+
+//         const totalCount = await pageMasterModel.countDocuments({
+//             ...query,
+//             page_mast_status: { $ne: 2 }
+//         });
+
+//         return response.returnTrue(
+//             200,
+//             req,
+//             res,
+//             "Successfully fetched Page Data excluding status 2",
+//             { pageData, totalCount }
+//         );
+//     } catch (error) {
+//         return response.returnFalse(500, req, res, error.message, {});
+//     }
+// };
+
+
+// exports.getAllCounts = async (req, res) => {
+//     try {
+
+//         const totalPages = await pageMasterModel.aggregate([
+//             {
+//                 $match: {
+//                     page_mast_status: { $ne: 2 }
+//                 }
+//             },
+//             {
+//                 $count: "totalPages"
+//             }
+//         ]);
+
+//         const totalFilteredPages = totalPages.length ? totalPages[0].totalPages : 0;
+
+//         const preferenceLevelCounts = await pageMasterModel.aggregate([
+//             {
+//                 $match: {
+//                     page_mast_status: { $ne: 2 }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$preference_level",
+//                     count: { $sum: 1 }
+//                 }
+//             }
+//         ]);
+
+//         const pageActivenessCounts = await pageMasterModel.aggregate([
+//             {
+//                 $match: {
+//                     page_mast_status: { $ne: 2 }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$page_activeness",
+//                     count: { $sum: 1 }
+//                 }
+//             }
+//         ]);
+
+
+//         const followerCount = await pageMasterModel.aggregate([
+//             {
+//                 $match: {
+//                     page_mast_status: { $ne: 2 }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$followers_count",
+//                     count: { $sum: 1 }
+//                 }
+//             }
+//         ]);
+
+//         const pageClosedBYCounts = await pageMasterModel.aggregate([
+//             {
+//                 $match: {
+//                     page_mast_status: { $ne: 2 }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$page_closed_by",
+//                     count: { $sum: 1 }
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "usermodels",
+//                     localField: "_id",
+//                     foreignField: "user_id",
+//                     as: "userDetails"
+//                 }
+//             },
+//             {
+//                 $unwind: "$userDetails"
+//             },
+//             {
+//                 $project: {
+//                     _id: 0,
+//                     page_closed_by: "$_id",
+//                     user_name: "$userDetails.user_name",
+//                     count: 1
+//                 }
+//             }
+//         ]);
+
+//         const preferenceLevelData = {
+//             high: 0,
+//             medium: 0,
+//             low: 0
+//         };
+//         preferenceLevelCounts.forEach(item => {
+//             if (item._id === "high") preferenceLevelData.high = item.count;
+//             if (item._id === "medium") preferenceLevelData.medium = item.count;
+//             if (item._id === "low") preferenceLevelData.low = item.count;
+//         });
+
+//         const pageActivenessData = {
+//             active: 0,
+//             semi_active: 0,
+//             dead: 0,
+//             super_active: 0
+//         };
+//         pageActivenessCounts.forEach(item => {
+//             if (item._id === "active") pageActivenessData.active = item.count;
+//             if (item._id === "semi_active") pageActivenessData.semi_active = item.count;
+//             if (item._id === "dead") pageActivenessData.dead = item.count;
+//             if (item._id === "super_active") pageActivenessData.super_active = item.count;
+//         });
+
+//         const followerCountData = {
+//             "less than 1 lac": 0,
+//             "1-10 lacs": 0,
+//             "10-20 lacs": 0,
+//             "20-30 lacs": 0,
+//             "more than 30 lac": 0
+//         };
+
+//         followerCount.forEach(item => {
+//             if (item._id >= 0 && item._id < 100000) {
+//                 followerCountData["less than 1 lac"] += item.count;
+//             } else if (item._id >= 100000 && item._id < 1000000) {
+//                 followerCountData["1-10 lacs"] += item.count;
+//             } else if (item._id >= 1000000 && item._id < 2000000) {
+//                 followerCountData["10-20 lacs"] += item.count;
+//             } else if (item._id >= 2000000 && item._id < 3000000) {
+//                 followerCountData["20-30 lacs"] += item.count;
+//             } else if (item._id >= 3000000) {
+//                 followerCountData["more than 30 lac"] += item.count;
+//             }
+//         });
+
+//         const result = {
+//             totalPages: totalFilteredPages,
+//             preference_level: preferenceLevelData,
+//             status: pageActivenessData,
+//             followercount: followerCountData,
+//             pageClosedBYCounts: pageClosedBYCounts
+//         };
+
+//         return response.returnTrue(200, req, res, "Successfully fetched counts", result);
+
+//     } catch (err) {
+//         return response.returnFalse(500, req, res, err.message, {});
+//     }
+// }
+
 exports.getPageDatas = async (req, res) => {
     try {
+        // Build the query first
+        let query = {
+            page_mast_status: { $ne: constant.DELETED }  // Exclude status 2
+        };
 
-        let query = {};
-        const page = parseInt(req.query.page);
-        const limit = parseInt(req.query.limit);
-        const skip = (page - 1) * limit;
-
-        if (page && limit) {
-            const pageData = await pageMasterModel.find(query).limit(limit).skip(skip);
-        }
         const searchableFields = ['page_category_name', 'page_sub_category_name', 'vendor_name', 'page_name', 'platform_name', 'profile_type_name', 'ownership_type', 'page_profile_type_name', 'page_activeness'];
         searchableFields.forEach((field) => {
             if (req.query[field]) {
@@ -1308,16 +1498,18 @@ exports.getPageDatas = async (req, res) => {
             }
         });
 
-        const pageData = await pageMasterModel.find({
-            ...query,
-            page_mast_status: { $ne: 2 }
-        });
+        // Pagination logic
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
-        const totalCount = await pageMasterModel.countDocuments({
-            ...query,
-            page_mast_status: { $ne: 2 }
-        });
+        // Use Promise.all to parallelize fetching data and counting documents
+        const [pageData, totalCount] = await Promise.all([
+            pageMasterModel.find(query).limit(limit).skip(skip),
+            pageMasterModel.countDocuments(query)
+        ]);
 
+        // Return the response
         return response.returnTrue(
             200,
             req,
@@ -1333,95 +1525,85 @@ exports.getPageDatas = async (req, res) => {
 
 exports.getAllCounts = async (req, res) => {
     try {
+        // Common match filter
+        const matchFilter = { page_mast_status: { $ne: 2 } };
 
-        const totalPages = await pageMasterModel.aggregate([
-            {
-                $match: {
-                    page_mast_status: { $ne: 2 }
+        const [
+            totalPages,
+            preferenceLevelCounts,
+            pageActivenessCounts,
+            followerCount,
+            pageClosedBYCounts
+        ] = await Promise.all([
+            // Total Pages
+            pageMasterModel.aggregate([
+                { $match: matchFilter },
+                { $count: "totalPages" }
+            ]),
+
+            // Preference Level Counts
+            pageMasterModel.aggregate([
+                { $match: matchFilter },
+                {
+                    $group: {
+                        _id: "$preference_level",
+                        count: { $sum: 1 }
+                    }
                 }
-            },
-            {
-                $count: "totalPages"
-            }
+            ]),
+
+            // Page Activeness Counts
+            pageMasterModel.aggregate([
+                { $match: matchFilter },
+                {
+                    $group: {
+                        _id: "$page_activeness",
+                        count: { $sum: 1 }
+                    }
+                }
+            ]),
+
+            // Follower Counts
+            pageMasterModel.aggregate([
+                { $match: matchFilter },
+                {
+                    $group: {
+                        _id: "$followers_count",
+                        count: { $sum: 1 }
+                    }
+                }
+            ]),
+
+            // Page Closed By Counts with Lookup
+            pageMasterModel.aggregate([
+                { $match: matchFilter },
+                {
+                    $group: {
+                        _id: "$page_closed_by",
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "usermodels",
+                        localField: "_id",
+                        foreignField: "user_id",
+                        as: "userDetails"
+                    }
+                },
+                { $unwind: "$userDetails" },
+                {
+                    $project: {
+                        _id: 0,
+                        page_closed_by: "$_id",
+                        user_name: "$userDetails.user_name",
+                        count: 1
+                    }
+                }
+            ])
         ]);
 
         const totalFilteredPages = totalPages.length ? totalPages[0].totalPages : 0;
-
-        const preferenceLevelCounts = await pageMasterModel.aggregate([
-            {
-                $match: {
-                    page_mast_status: { $ne: 2 }
-                }
-            },
-            {
-                $group: {
-                    _id: "$preference_level",
-                    count: { $sum: 1 }
-                }
-            }
-        ]);
-
-        const pageActivenessCounts = await pageMasterModel.aggregate([
-            {
-                $match: {
-                    page_mast_status: { $ne: 2 }
-                }
-            },
-            {
-                $group: {
-                    _id: "$page_activeness",
-                    count: { $sum: 1 }
-                }
-            }
-        ]);
-
-
-        const followerCount = await pageMasterModel.aggregate([
-            {
-                $match: {
-                    page_mast_status: { $ne: 2 }
-                }
-            },
-            {
-                $group: {
-                    _id: "$followers_count",
-                    count: { $sum: 1 }
-                }
-            }
-        ]);
-
-        const pageClosedBYCounts = await pageMasterModel.aggregate([
-            {
-                $match: {
-                    page_mast_status: { $ne: 2 }
-                }
-            },
-            {
-                $group: {
-                    _id: "$page_closed_by",
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $lookup: {
-                    from: "usermodels",
-                    localField: "_id",
-                    foreignField: "user_id",
-                    as: "userDetails"
-                }
-            },
-            {
-                $unwind: "$userDetails"
-            },
-            {
-                $project: {
-                    _id: 0,
-                    page_closed_by: "$_id",
-                    user_name: "$userDetails.user_name",
-                    count: 1
-                }
-            }
-        ]);
 
         const preferenceLevelData = {
             high: 0,
@@ -1474,7 +1656,7 @@ exports.getAllCounts = async (req, res) => {
             preference_level: preferenceLevelData,
             status: pageActivenessData,
             followercount: followerCountData,
-            pageClosedBYCounts: pageClosedBYCounts
+            pageClosedBYCounts
         };
 
         return response.returnTrue(200, req, res, "Successfully fetched counts", result);
@@ -1482,7 +1664,9 @@ exports.getAllCounts = async (req, res) => {
     } catch (err) {
         return response.returnFalse(500, req, res, err.message, {});
     }
-}
+};
+
+
 
 exports.getPageNameWithClosedBy = async (req, res) => {
     try {
