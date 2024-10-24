@@ -81,7 +81,7 @@ app.post("/chat", async (req, res) => {
 });
 
 app.use(errorController)
-
+// mongoose.set('debug', true);
 mongoose
   .connect(vari.MONGODB, {
     useNewUrlParser: true,

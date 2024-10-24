@@ -1486,18 +1486,30 @@ exports.getAllPageLanguages = async (req, res) => {
 
 exports.getPageDatas = async (req, res) => {
     try {
+        let { minFollower , maxFollower } = req.query
         // Build the query first
         let query = {
             page_mast_status: { $ne: 2 }  // Exclude status 2
         };
 
-        const searchableFields = ['page_category_name', 'page_sub_category_name', 'vendor_name', 'page_name', 'platform_name', 'profile_type_name', 'ownership_type', 'page_profile_type_name', 'page_activeness', 'preference_level'];
+        const searchableFields = ['page_category_name', 'page_sub_category_name', 'vendor_name', 'page_name', 'platform_name', 'profile_type_name', 'ownership_type', 'page_profile_type_name', 'page_activeness', 'preference_level','page_closed_by'];
         searchableFields.forEach((field) => {
             if (req.query[field]) {
-                query[field] = { $regex: `^${req.query[field]}$`, $options: "i" };
+                if (field === 'page_closed_by') {
+                    // Handle numeric field separately
+                    query[field] = Number(req.query[field]); 
+                } else {
+                    query[field] = { $regex: `^${req.query[field]}$`, $options: "i" };
+                }
             }
         });
-
+        if (minFollower && maxFollower) {
+            query.followers_count = {
+                $gte: Number(minFollower), // Greater than or equal to minFollower
+                $lte: Number(maxFollower)  // Less than or equal to maxFollower
+            };
+        } 
+        
         // Pagination logic: Only apply pagination if both 'page' and 'limit' are provided
         let pageDataPromise;
         const page = parseInt(req.query.page);
@@ -1658,6 +1670,28 @@ exports.getAllCounts = async (req, res) => {
                 followerCountData["more than 30 lac"] += item.count;
             }
         });
+
+        // const followerCountData = {
+        //     "lt_1": 0,
+        //     "1_to_10": 0,
+        //     "10_to_20": 0,
+        //     "20_to_30": 0,
+        //     "gt_30": 0
+        // };
+
+        // followerCount.forEach(item => {
+        //     if (item._id >= 0 && item._id < 100000) {
+        //         followerCountData["lt_1"] += item.count;
+        //     } else if (item._id >= 100000 && item._id < 1000000) {
+        //         followerCountData["1_to_10"] += item.count;
+        //     } else if (item._id >= 1000000 && item._id < 2000000) {
+        //         followerCountData["10_to_20"] += item.count;
+        //     } else if (item._id >= 2000000 && item._id < 3000000) {
+        //         followerCountData["20_to_30"] += item.count;
+        //     } else if (item._id >= 3000000) {
+        //         followerCountData["gt_30"] += item.count;
+        //     }
+        // });
 
         const result = {
             totalPages: totalFilteredPages,
