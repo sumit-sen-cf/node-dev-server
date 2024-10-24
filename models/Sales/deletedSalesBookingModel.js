@@ -171,6 +171,10 @@ const deletedSalesBookingHistoryData = new mongoose.Schema({
         type: Number,
         required: false,
     },
+    incentive_sharing_users_array: {
+        type: Array,
+        required: false,
+    },
     bad_debt: {
         type: Boolean,
         required: false,

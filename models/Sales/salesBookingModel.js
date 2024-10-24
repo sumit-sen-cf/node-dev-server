@@ -186,6 +186,10 @@ const salesBooking = new mongoose.Schema({
         required: false,
         default: 0,
     },
+    incentive_sharing_users_array: {
+        type: Array,
+        required: false,
+    },
     bad_debt: {
         type: Boolean,
         required: false,

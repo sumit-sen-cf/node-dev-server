@@ -173,7 +173,8 @@ exports.addSalesBooking = [
                     incentive_amount: totalIncentiveAmount,
                     record_service_amount: totalRecordServiceAmount,
                     record_service_counts: recordServiceCounts,
-                    unearned_incentive_amount: totalIncentiveAmount
+                    unearned_incentive_amount: totalIncentiveAmount,
+                    incentive_sharing_users_array: sharedIncentiveDetailsArray
                 }
             })
 
@@ -428,6 +429,7 @@ exports.getAllSalesBooking = async (req, res) => {
                 incentive_earning_status: 1,
                 payment_credit_status: 1,
                 incentive_sharing_percent: 1,
+                incentive_sharing_users_array: 1,
                 bad_debt: 1,
                 sale_booking_type: 1,
                 incentive_amount: 1,
