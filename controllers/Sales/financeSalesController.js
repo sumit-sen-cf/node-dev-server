@@ -275,6 +275,29 @@ exports.saleBookingTdsStatusWiseData = async (req, res) => {
                 preserveNullAndEmptyArrays: true,
             }
         }, {
+            $lookup: {
+                from: "salesinvoicerequestmodels",
+                let: {
+                    sale_booking_id: "$sale_booking_id"
+                },
+                pipeline: [{
+                    $match: {
+                        $expr: {
+                            $and: [{
+                                $eq: ["$sale_booking_id", "$$sale_booking_id"]
+                            }, {
+                                $eq: ["$invoice_type_id", "tax-invoice"]
+                            }]
+                        }
+                    }
+                }],
+                as: "salesInvoiceRequestData",
+            }
+        }, {
+            $addFields: {
+                invoice_file_url: constant.GCP_INVOICE_REQUEST_URL,
+            }
+        }, {
             $project: {
                 sale_booking_id: 1,
                 account_id: 1,
@@ -293,6 +316,8 @@ exports.saleBookingTdsStatusWiseData = async (req, res) => {
                 booking_created_date: "$createdAt",
                 createdAt: 1,
                 updatedAt: 1,
+                invoice_file_url: "$invoice_file_url",
+                salesInvoiceRequestData: "$salesInvoiceRequestData",
             }
         }]);
 

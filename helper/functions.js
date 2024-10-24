@@ -303,7 +303,7 @@ module.exports = {
 
                 //user data get for the name
                 const userData = await userModel.findOne({
-                    user_id: saleBookingAdded.created_by
+                    user_id: saleBookingAdded?.created_by
                 }, {
                     user_id: 1,
                     user_name: 1,
@@ -311,7 +311,7 @@ module.exports = {
 
                 //account data get for the name
                 const accountData = await accountMasterModel.findOne({
-                    account_id: saleBookingAdded.account_id
+                    account_id: saleBookingAdded?.account_id
                 }, {
                     account_id: 1,
                     account_name: 1,
@@ -320,14 +320,14 @@ module.exports = {
 
                 //user data get for the name
                 const accountTypeData = await accountTypesModel.findOne({
-                    _id: accountData.account_type_id
+                    _id: accountData?.account_type_id
                 }, {
                     account_type_name: 1,
                 });
 
                 //user data get for the name
                 const brandData = await brandModel.findOne({
-                    _id: saleBookingAdded.brand_id
+                    _id: saleBookingAdded?.brand_id
                 }, {
                     brand_name: 1,
                 });
@@ -359,30 +359,30 @@ module.exports = {
                     const templatePath = path.join(__dirname, "../templates/saleBookingCreateTemplate.ejs");
                     const template = await fs.promises.readFile(templatePath, "utf-8");
                     const html = ejs.render(template, {
-                        salesExecutiveName: userData.user_name,
-                        salesExecutiveID: saleBookingAdded.created_by,
-                        saleBookingId: saleBookingAdded.sale_booking_id,
+                        salesExecutiveName: userData?.user_name,
+                        salesExecutiveID: saleBookingAdded?.created_by,
+                        saleBookingId: saleBookingAdded?.sale_booking_id,
                         saleBookingDate: formattedDate,
-                        saleBookingAmount: saleBookingAdded.campaign_amount,
-                        accountId: accountData.account_id,
-                        accountName: accountData.account_name,
-                        accountType: accountTypeData.account_type_name,
-                        brandName: brandData.brand_name,
+                        saleBookingAmount: saleBookingAdded?.campaign_amount,
+                        accountId: accountData?.account_id,
+                        accountName: accountData?.account_name,
+                        accountType: accountTypeData?.account_type_name,
+                        brandName: brandData?.brand_name,
                         headerText: "New Sale Booking is Created."
                     });
                     const mailOptions = createMailOptions(html);
 
                     //send email to admin
                     await sendMail(mailOptions);
+                    //return response
+                    return resolve();
                 } catch (err) {
                     console.log("Error in email send process", err);
-                    return resolve(response.returnFalse(666, req, res, err.message, {}));
+                    return reject(err);
                 }
-                //return response
-                return resolve();
             } catch (err) {
                 console.log('Error in email sending process to Admin', err);
-                return resolve(response.returnFalse(666, req, res, err.message, {}));
+                return reject(err);
             }
         })
     },

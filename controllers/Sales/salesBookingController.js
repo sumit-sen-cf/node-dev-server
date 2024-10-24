@@ -191,13 +191,22 @@ exports.addSalesBooking = [
                 }
             });
 
-            //email send to admin for new sale booking creation.
-            await emailSendSaleBookingCreateTime(saleBookingAdded);
+            try {
+                //email send to admin for new sale booking creation.
+                await emailSendSaleBookingCreateTime(saleBookingAdded);
+            } catch (err) {
+                console.error("Error sending email:", err.message);
+                return response.returnFalse(666, req, res, "Error in sending email notification", {});
+            }
 
             //success response send
-            return response.returnTrue(200, req, res,
+            return response.returnTrue(
+                200,
+                req,
+                res,
                 "Sales Booking Created Successfully",
-                saleBookingAdded);
+                saleBookingAdded
+            );
         } catch (err) {
             return response.returnFalse(500, req, res, err.message, {});
         }
